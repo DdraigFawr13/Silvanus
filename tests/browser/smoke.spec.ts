@@ -101,7 +101,8 @@ test('unreadable save shows the refusal', async ({ page }) => {
   await page.getByRole('button', { name: 'Export' }).click();
   expect((await download).suggestedFilename()).toBe('silvanus-save-unreadable.json');
 
-  // Hiding the page is when a running town saves; a refused one must write nothing.
+  // Leaving the page is when a running town saves. This read backs up the checks above:
+  // had a game started over the refused save, its save on hide would show here.
   await page.goto('/seed.html');
   expect(await readRecord(page)).toEqual(record);
 });

@@ -47,12 +47,14 @@ type Props = {
   worker: Worker;
   // the `load` message that starts the worker; sent once this page is listening
   first: WorkerIn;
+  // the tick of the save this page loaded, or null for a new game
+  loadedTick: number | null;
   tickMs: number;
   // null when saving is not available in this browser
   save: ((record: SaveRecord) => Promise<void>) | null;
 };
 
-export function App({ worker, first, tickMs, save }: Props) {
+export function App({ worker, first, loadedTick, tickMs, save }: Props) {
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [caughtUp, setCaughtUp] = useState<CaughtUp | null>(null);
   // The anchor of the last snapshot received, and whether an advance is waiting for its snapshot.
@@ -60,7 +62,7 @@ export function App({ worker, first, tickMs, save }: Props) {
   const waitingRef = useRef(false);
   // The standby copy: the state and anchor of the latest snapshot.
   const standbyRef = useRef<SaveRecord | null>(null);
-  const [savedTick, setSavedTick] = useState<number | null>(null);
+  const [savedTick, setSavedTick] = useState<number | null>(loadedTick);
 
   useEffect(() => {
     const send = (message: WorkerIn) => worker.postMessage(message);
@@ -69,7 +71,8 @@ export function App({ worker, first, tickMs, save }: Props) {
       if (record === null || save === null) return;
       // A failed write leaves "Saved at tick" behind; the next save tries again.
       save(record).then(
-        () => setSavedTick(record.state.tick),
+        // two writes can finish out of order; the line never goes back
+        () => setSavedTick((was) => Math.max(was ?? 0, record.state.tick)),
         () => {},
       );
     };

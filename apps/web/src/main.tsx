@@ -18,10 +18,13 @@ const show = (node: ReactNode) => root.render(<StrictMode>{node}</StrictMode>);
 function holdLock(): Promise<boolean> {
   if (!navigator.locks) return Promise.resolve(true);
   return new Promise((resolve) => {
-    void navigator.locks.request('silvanus-main', { ifAvailable: true }, (lock) => {
-      resolve(lock !== null);
-      return lock === null ? undefined : new Promise<never>(() => {});
-    });
+    navigator.locks
+      .request('silvanus-main', { ifAvailable: true }, (lock) => {
+        resolve(lock !== null);
+        return lock === null ? undefined : new Promise<never>(() => {});
+      })
+      // Where the browser refuses the request, run as the only window, as when locks are missing.
+      .catch(() => resolve(true));
   });
 }
 
@@ -50,6 +53,7 @@ async function start() {
     <App
       worker={worker}
       first={first}
+      loadedTick={loaded.kind === 'ok' ? loaded.record.state.tick : null}
       tickMs={tickMsFrom(window.location.search)}
       save={loaded.kind === 'unavailable' ? null : save}
     />,
