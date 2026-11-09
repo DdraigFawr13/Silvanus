@@ -10,18 +10,19 @@ Planning. No code exists. The plan is `docs/CHARTER.md`; it is not yet approved 
 
 - ✔ Charter drafted and four workshop rounds answered (16 decisions, D-001 to D-009).
 - ✔ Repo bootstrapped with AI-Master-Instructions v4.12.0 (D-010).
-- ▶ Further workshop rounds on the open decisions below.
+- ▶ Planning round 5 form published; waiting for Morgan's answers (collection `round5`).
 - ○ Morgan approves the plan.
 - ○ M0 Skeleton: npm workspace, tick loop, seeded generator, saves, PWA shell, soak script, CI.
 - ○ M1 Town, M2 Guild, M3 Events and chronicle (v0.1), then M4 to M6 (v1.0).
 
 ## Just done
 
-- 2026-11-09 Charter exported to `docs/CHARTER.md`; starter files written.
+- 2026-11-09 Charter exported to `docs/CHARTER.md`; starter files written; first commit pushed to `main`.
+- 2026-11-09 Read adventure-manager (gate 1, 233 decisions): it overlaps Silvanus's guild. How the two relate is the first question of round 5. The charter's Lineage row for it was a guess.
 
 ## Next
 
-1. Run the next planning round with the `planning-interview` skill.
+1. When Morgan says "round 5 done", read the answers from https://claude.ai/artifact/GXyCyVEpnCLUU8jVBXjfJG (collection `round5`), then run the adversarial review round (`planning-interview` skill).
 2. After approval, write the M0 spec with the `write-spec` skill.
 
 ## Open questions
