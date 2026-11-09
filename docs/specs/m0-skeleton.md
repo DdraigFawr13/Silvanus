@@ -375,6 +375,16 @@ Only `main` deploys (CI-05), so the link shows a slice after its PR merges. Morg
 - **Files:** `apps/web/src/saves.ts` (`parse`, `load`, `save`, `exportText`, upgrades table), `test/saves.test.ts`: saves. `App.tsx`, `main.tsx`: the one-window lock, load at start, autosave, standby copy on hide, the refused-save screens with their Export button (`parse` and `exportText` land here). `playwright.config.ts`, `tests/browser/smoke.spec.ts`, `package.json` (`@playwright/test`, `test:browser`): the browser checks.
 - **Waits on:** S1.
 
+#### S2 build notes
+
+- `clock.ts` adds `testTickMs(search): number | null`; `tickMsFrom` is built on it. `saves.ts` exports `databaseName(search)`, `STORE` and `KEY`, and picks the database from `location.search` itself, so `load` and `save` keep the signatures above.
+- The root `preview` script ends with `--` (`npm run preview -w @silvanus/web --`). Without it npm kept `--port 4173 --strictPort` for itself and the Playwright web server never came up.
+- `App` takes the `load` message as a prop and sends it after it starts listening, so the first snapshot cannot arrive before the page listens.
+- J5's test waits for "Saved at tick" above `t`, not `t` or more: a save at exactly `t` can be older than the taps.
+- One browser check more than planned: "five minutes closed is caught up as 5 ticks" stores a record whose anchor is 320,000 ms old and reads "Caught up 5", tick and "Saved at tick".
+- `saves.test.ts` adds "save then load", "a good record parses, at the edges of the shape check", "no IndexedDB gives unavailable", "a test tick length has its own database" and "export text is indented JSON of the record".
+- In this cloud container the browser checks run with `PLAYWRIGHT_CHROMIUM_PATH=/opt/pw-browsers/chromium npm run test:browser`.
+
 ### S3 Install it and carry it
 
 - **Morgan tries:** adds the app to the Home screen; opens it in airplane mode; exports a save, clears the site's data in Chrome, imports the file.

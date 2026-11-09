@@ -14,14 +14,17 @@
   "scripts": {
     "check": "node .claude/master/sync.mjs --check && node .claude/skills/test-design/scripts/test-traps.mjs && prettier --check . && tsc -p packages/sim && tsc -p packages/content && tsc -p apps/web && tsc -p . && node scripts/check-sim-purity.mjs && vitest run && npm run soak && npm run build && node scripts/check-bundle.mjs",
     "soak": "tsx scripts/soak.ts",
+    "test:browser": "playwright test",
     "build": "npm run build -w @silvanus/web",
-    "preview": "npm run preview -w @silvanus/web"
+    "preview": "npm run preview -w @silvanus/web --"
   },
   "devDependencies": {
+    "@playwright/test": "1.65.0",
     "@types/node": "24.19.2",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.3.0",
+    "fake-indexeddb": "6.2.8",
     "prettier": "3.9.10",
     "tsx": "4.23.15",
     "typescript": "7.0.2",
