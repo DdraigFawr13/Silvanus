@@ -10,8 +10,9 @@ M0 Skeleton, building. Spec approved 2026-11-09 (D-024): `docs/specs/m0-skeleton
 
 - ✔ Planning: charter, rounds 1 to 5, review, final page (D-001 to D-023).
 - ✔ M0 spec approved; Vercel project `silvanus` created and linked (D-024).
-- ▶ M0 slice S1, a ticking counter at a link: built on `m0/s1-counter`, waiting for Morgan's approval to merge.
-- ○ M0 slice S2, it remembers · ○ M0 slice S3, install it and carry it
+- ✔ M0 slice S1 merged and deployed (373c7c9) at https://silvanus-xi.vercel.app; Morgan's phone check outstanding.
+- ▶ M0 slice S2, it remembers.
+- ○ M0 slice S3, install it and carry it
 - ○ M1 Town · ○ M2 Guild · ○ M3 Trade outlet, events, chronicle (v0.1)
 - ○ M4a Families · ○ M4b Paths · ○ M5 Trade and Crown · ○ M6 Depth (v1.0)
 
@@ -23,13 +24,12 @@ M0 Skeleton, building. Spec approved 2026-11-09 (D-024): `docs/specs/m0-skeleton
 
 ## Next
 
-1. On Morgan's approval, merge `m0/s1-counter` to `main`. That push starts the first Vercel deployment and the first CI run; read both (CI-07) and send Morgan the link with `?tickMs=1000`.
-2. Then S2 on a new branch from `main`, after a zero-decision check of the sections S2 touches.
-3. This session cannot open pull requests; approval happens in chat.
+1. S2 "It remembers" on a new branch from `main`, after a zero-decision check of the sections S2 touches.
+2. Morgan's device check of S1 at https://silvanus-xi.vercel.app/?tickMs=1000 is outstanding; record what he reports.
+3. This session cannot open pull requests; approval happens in chat. CI runs can be read with `gh api repos/DdraigFawr13/Silvanus/commits/<sha>/check-runs`.
 
 ## Open questions
 
-- The production address is known only after the first deployment.
 - The other two peoples for v1.0. Whether ranks get bigger jumps (D-021, after the first playtest).
 
 ## Planning pages

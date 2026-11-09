@@ -28,6 +28,8 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
+      # setup-node's bundled npm is not the pinned one, and engine-strict refuses it.
+      - run: npm install --global npm@11.9.0
       - run: npm ci
       # `npm run check` starts with the sync drift check.
       - run: npm run check
