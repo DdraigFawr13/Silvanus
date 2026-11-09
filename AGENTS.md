@@ -23,9 +23,9 @@ Shared rules come from AI-Master-Instructions and load through CLAUDE.md (`.clau
 
 ## Project rules
 
-- One session takes one milestone and stops at its exit criterion in the charter. Why: earlier projects grew simulation depth before a playable loop.
-- A feature outside the charter's content targets goes to `docs/parking.md`, not into code. Why: four parent projects each bring a full feature list.
-- `packages/sim` has no DOM, no framework and integer arithmetic only. Why: offline catch-up must equal live play tick for tick (D-002).
+- One session takes one milestone and stops at its exit criterion in the charter. Why: each milestone ends with a test Morgan runs on the phone.
+- A feature outside the charter's content targets goes to `docs/parking.md`, not into code. Why: three parent games each bring a full feature list.
+- `packages/sim` has no DOM, no framework, integer arithmetic only and a named random stream per system. Why: offline catch-up must equal live play tick for tick (D-002).
 - A new condition or effect type in the content schema needs a DECISIONS entry. Why: that set is the engine's real interface.
 - No runtime network or LLM calls in the shipped game (D-003).
 - Every change keeps the soak script passing once it exists.

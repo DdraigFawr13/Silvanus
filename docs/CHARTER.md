@@ -1,329 +1,146 @@
-# Silvanus — Project Charter
+# Silvanus: project charter
 
-As of 2026-11-09. Exported from the planning doc; this file is the home of the charter from here on.
+As of 2026-11-09, after planning rounds 1 to 5 and the review round. This file is the home of the plan. Settled choices are in `DECISIONS.md`; this file cites them by id and does not restate their reasons.
 
-Silvanus is a fantasy frontier-town management idle sim for an Android phone. The town stands under a Crown writ at the edge of a deep forest that is rich in magical resources and full of monsters. The player builds and upgrades on open lots, steers population into professions, and runs an adventurers' guild by posting and funding quests. Seeded random events and a generated town chronicle supply the story. The first target is a playable loop installed on the phone as a PWA, with zero runtime LLM cost.
+Silvanus is a single-player fantasy frontier-town management idle game for an Android phone. The player builds on open lots, steers residents into trades, equips and sends out adventurers, and sells what the town makes. The town of Ashwick stands under a writ from the Crown of Dunmere at the edge of the Skarthorn, a deep forest rich in magical materials and full of monsters.
 
-## At a glance
+## The session this game is built for
 
-Loop: People → Lots and buildings → Stores and treasury → Guild and quest board → The Gloamwood → Loot, renown, safety → People. The inbox asks the player for a decision at every stage; the chronicle records every outcome.
+Morgan's words (round 5): "I want to see what resources were gathered and where quests are in their progress. I'd want to assign or give out any gear or items that had been created and maybe put other goods in a caravan to send off to some other town that buys certain goods for higher than normal and then I might want to start some upgrades or find promising recruits or see if I can build any special buildings to unlock new classes of adventurers or town functions or trade goods".
 
-People staff buildings, buildings fill the stores, the stores fund quests, and what the quests bring back draws more people. The inbox is where the player steers the loop; the chronicle is what the loop leaves behind.
+v0.1 passes when that check-in works end to end on the phone (D-016).
 
-## Design pillars and non-goals
+## Pillars
 
-Five pillars decide every scope question. A feature that serves none of them goes to the parking list.
+- **Decisions, not placement.** Building is choosing what takes the next open lot. No grid, roads or adjacency.
+- **Idle with a pulse.** The town works while the app is closed. A check-in is: read what happened, hand things out, send things off, start something.
+- **People are records, not agents.** Every resident is an individual with a trade, skills, traits, a family and a history, and one morale value. No needs, moods, schedules or movement are simulated (D-017).
+- **The town has a direction.** Charters open and close buildings, trades and events.
+- **Story falls out of the state.** The chronicle renders what the rules produced. Nothing is narrated that did not happen.
 
-- **Decisions, not placement.** Building means choosing what occupies the next open lot. There is no grid, no roads and no adjacency puzzle. Lots are scarce, so every choice excludes another.
-- **Idle with a pulse.** The town produces while the app is closed. Each session opens on a short inbox of decisions (events, quest reports, petitions), not a row of collect buttons.
-- **People are the content.** Townsfolk and adventurers carry professions, skills and traits. They advance, retire, die and are remembered.
-- **The town has a direction.** Charters lock and unlock buildings, professions and event pools. Two towns from different seeds and choices play differently.
-- **Story falls out of the simulation.** The chronicle renders what the rules produced into prose. Nothing is narrated that did not happen in the state.
-
-Target session shape: a 2 to 5 minute check-in several times per day, with 20 to 30 minute sessions possible when there is a backlog to spend.
-
-**Non-goals for v1.0**
-
-- Town layout, pathfinding or a simulated map view
-- Direct control of combat or of individual residents
-- Runtime LLM calls of any kind
-- Multiplayer, accounts, cloud sync, monetization
-- App-store release
+Non-goals through v1.0: town layout or a map view; played or shown fights (D-011); needs, moods or schedules for residents; runtime AI or any network call (D-003); multiplayer, accounts, cloud saves, monetization, an app-store release.
 
 ## Lineage
 
-Each earlier project contributes one system and leaves its most expensive part behind.
+Read from the three repos on 2026-11-09. Silvanus overlaps all three and stays lighter than each (D-011).
 
-| Source | Carried into Silvanus | Left behind |
-| --- | --- | --- |
-| Story generator | A chronicle in which every line renders a real event record; a template narrator; people who are born, marry, age and die; content tables as a possible source for peoples, cultures and names | World generation, 250 years of history, the map, kingdoms and institutions |
-| Adventure manager | Guild roster, quest posting, funding, expedition reports | Played fights, deep adventurer careers, rival guilds |
-| Vulcan | Indirect control; a deterministic engine in a Web Worker; an event log with cause links; its phone-first lessons | The tile map, pathfinding, real time with pause, colonists who interpret laws |
-| Pantheon | Power tiers 1 to 5 and segmented threat clocks, as mechanisms only | The AI narrator; single-character play; the world bible |
-| Caravan concept | Reactive supply and demand; rumors; caravans as timed trade expeditions; grounded low-fantasy tone | Deck-building, card combat, the painted map |
-
-Story Generator and Project Vulcan are built and playable, and Adventure Manager is in build at gate 1 (read from the three repos on 2026-11-09). Silvanus overlaps all three. Planning round 5 decides how they relate.
+- Story-Generator (built, playable): carried over are the chronicle that renders real event records, people who are born, marry, age and die, and its content tables (D-012). Left behind: world generation, history, the map, kingdoms.
+- Adventure Manager (in build): carried over are the roster, quests and reports. Left behind: played fights, adventurer careers, rival guilds.
+- Project-Vulcan (built, playable): carried over are indirect control, a deterministic engine in a Web Worker, named random streams and its phone lessons. Left behind: the tile map, pathfinding, real time with pause.
+- Pantheon and the caravan concept: threat clocks, and caravans as timed trips to towns that pay more.
 
 ## Setting
 
-The setting is a fresh low-fantasy world, written for this game. Place names below are placeholders.
+- **Ashwick** is the town, founded under a writ from the **Crown of Dunmere**. The names are built from Story-Generator's syllable table (D-022).
+- **The Skarthorn** is the forest. It has three depth bands, the Eaves, the Deepwood and the Heart, each richer and deadlier than the last. Sites inside a band are found by scouting.
+- **The Crown** expects a yearly levy of forest goods and grants or withdraws favor. It arrives in M5.
+- **Peoples** come from Story-Generator's table: Human, Elf, Dwarf, Fomori, Giant, Halfling, Goblin, Orc. v0.1 has humans and dwarves; v1.0 has four. A people gives leanings, never restrictions. All share one lifespan (D-013).
+- **Magic is a craft.** Forest materials are high-tier resources; enchanters and alchemists are ordinary trades (D-008).
+- **A forest faction** arrives with the Deepwood (D-014).
 
-- **The town** is a frontier settlement founded under a writ from a distant Crown. It is the last stop before the forest.
-- **The Gloamwood** is the forest. It has three depth bands: the **Eaves**, the **Deepwood** and the **Heart**. Each band holds richer magical materials and worse monsters than the one before it.
-- **Sites** are scattered inside each band (dens, ruins, groves, old roads) and are found by scouting. A band opens once enough of the previous band is scouted and the guild hall reaches the required tier.
-- **The Crown** expects a yearly levy of forest goods. Demands and inspections arrive as events. **Favor** is a resource: high favor brings grants, settlers and a garrison; low favor brings fines and withdrawn protection. The writ cannot be revoked, which keeps decline recoverable.
-- **Peoples.** The town is mixed: humans, dwarves, elves and halflings settle side by side. A people gives leanings toward certain traits and professions, never restrictions.
-- **Magic is a craft.** Heartwood, glowcap and spirit amber are high-tier resources. Enchanters and alchemists are ordinary professions with ordinary recipes.
+## Time
 
-## Core loop and time model
+- 1 tick is 1 game hour and 60 s of real time. A game day is 24 minutes, a season is 7 game days, a game year is 11 h 12 min (D-002).
+- Offline catch-up runs `min(elapsed, cap)` ticks through the same step function as live play. The cap is 480 ticks (8 h) at the start and 1,440 ticks (24 h) after civic upgrades. Elapsed time below zero counts as zero.
+- **Decisions wait for the player (D-018).** Every decision's deadline is longer than the current catch-up cap, so each one is on screen at one check-in at least. A party that asks a question camps until it is answered or the deadline passes; then its risk posture answers.
+- **Events queue.** At most 5 events wait for a decision. While 5 wait, no new event is drawn.
+- No tap rewards. No hard loss: decline is recoverable (D-007).
+- A resident comes of age at 16 game years (7 d 11 h real) and lives about 65 (30 d 8 h real). Both are tuning values.
 
-A check-in is four steps: read the inbox, resolve what it asks, spend what accumulated, leave.
-
-1. **Read.** The inbox lists events awaiting a decision, quest reports, arrivals and departures since the last session.
-2. **Resolve.** Each event offers 2 to 4 choices with visible costs and stated checks.
-3. **Spend.** Build or upgrade on a lot, post or commission quests, adjust worker quotas, appoint notables, change policies.
-4. **Leave.** The simulation continues from the saved state on the next open.
-
-**Time model** (all figures are starting values for tuning)
-
-| Quantity | Value |
-| --- | --- |
-| Simulation tick | 1 game hour |
-| Real time per tick | 60 s |
-| Game day | 24 ticks = 24 min real |
-| Season | 7 game days = 2 h 48 min real |
-| Game year | 4 seasons = 11 h 12 min real |
-| Offline catch-up cap | 8 h (480 ticks) at start; raised to 24 h by civic upgrades |
-| Pending decisions held | 5; older ones resolve by their timeout choice |
-
-- **Offline catch-up.** On resume the engine runs `min(elapsed, cap)` ticks deterministically. The result is identical to having left the app open, because the simulation takes no input from wall-clock time other than the tick count.
-- **The Steward.** Every event declares a timeout choice. A decision left pending past its deadline resolves by that choice, so the simulation never stalls while the player is away. Steward behavior becomes configurable through policies in M4.
-- **No tap rewards.** Presence improves decision quality, not production rate. There is nothing to collect by tapping.
-- **No hard loss.** Unrest, exodus, debt and raids degrade the town and are recoverable. A ruined town can be refounded once the legacy system exists.
-
-**Lifespans at this pace.** A resident comes of age at 16 game years, which is 7 d 11 h of real time. A 65-year life is 30 d 8 h of real time. One real year of daily play spans many generations, so families, not individuals, are the long-term unit of attachment. Both figures are tuning values.
-
-## Game systems
-
-Eight systems, each defined entirely by content data interpreted by one rules engine.
+## Systems
 
 ### Lots and buildings
 
-- The town is a list of lots, not a map. A new town holds 6 lots. Town tier raises the count: Hamlet 6, Village 10, Town 16, City 24.
-- Most lots accept any building. Special lots (riverside, hillside, crossroads) accept a restricted set and grant a bonus, which makes them contested.
-- A building has a category, tiers 1 to 5, worker slots, recipes (inputs, outputs, ticks, governing skill), upkeep and unlocks.
-- Tier 3 is a branch point. Example: Smithy becomes Armory (weapons and armor for the guild) or Artificer (tools and trade goods). The branch is permanent for that building.
-- Demolition refunds 50 % of invested materials and frees the lot.
-- Categories: Housing, Food, Materials, Craft, Trade, Guild, Faith, Learning, Defense, Civic.
+- The town is a list of lots. A Hamlet has 6 lots and up to 25 residents; a Village has 10 and 60; a Town 16 and 100; a City 24 and 150. Hamlet and Village are in v0.1.
+- A building has a category, tiers, worker slots, recipes (inputs, outputs, ticks, governing skill) and upkeep. Tier 3 is a permanent branch point, from M4b.
+- Special buildings unlock an adventurer class, a town function or a trade good. v0.1 has one, which unlocks a fourth class.
 
-### Economy
+### Economy and gear
 
-- Three resource layers. Raw: food, wood, stone, ore, herbs, and forest materials (heartwood, glowcap, spirit amber). Goods: tools, weapons, potions, cloth, ale. Abstract: gold, renown, faith, lore.
-- Stock is capped by storage. Overflow is lost, which gives trade and quests a reason to exist as sinks.
-- Production chains are at most 2 steps deep in v0.1 and at most 3 in v1.0.
-- Gold sources: taxes, market sales, quest loot, caravans. Gold sinks: wages, upkeep, bounties, construction.
-- All quantities are integers. Fractional rates accumulate in fixed-point remainders so that offline catch-up and live play cannot diverge.
+- Resources are integers in three layers: raw (food, wood, stone, ore, herbs, forest materials), goods (tools, weapons, potions, cloth, ale) and abstract (gold, renown).
+- Stock is capped by storage; overflow is lost.
+- **Gear (D-019).** Common gear is stock that a party draws from. Fine and magical pieces are named items with a maker and a quality. The player hands a named item to an adventurer, who has 3 gear slots.
 
-### Population, professions and skills
+### Residents
 
-- **Every resident is an individual.** Each has a name, a people, an age, a profession and rank, skills, 2 to 3 traits, family ties and a history. Resident caps by town tier: Hamlet 25, Village 60, Town 100, City 150.
-- **Generations.** Residents marry, have children, come of age at 16, slow down near 55 and die near 65. A child inherits one trait from each parent and learns a parent's trade faster. Households hold homes and pass them to heirs.
-- **Growth** comes from births and from migration. Migrants arrive once per game day when housing capacity, food surplus and appeal all allow it.
-- **Professions** are grouped into 8 families: Farming, Extraction, Smithing, Alchemy and Enchanting, Trade, Scholarship, Faith, Arms. Each profession has three ranks: Apprentice, Journeyman, Master.
-- **Skills.** 12 skills on a 0 to 100 scale. Work trains the governing skill. Skill thresholds gate advanced recipes and decide event and quest checks.
-- **Job assignment is automatic with override.** Residents fill building quotas according to skill, trait and family trade. Any one resident can be pinned to a job by hand; the pin holds until released.
-- **Appointments.** Posts (Steward, Guildmaster, Quartermaster, Captain of the Watch) are filled by the player. An appointee's skills and traits modify the system the post governs.
-- **Roster view.** The People tab is a filterable list (by profession, family, people, age, idle) with a detail page and biography per resident. At 150 residents the list, not the individual, is the working surface.
+- Each resident has a name, a people, an age, a trade and rank, skills on a 0 to 100 scale, 2 to 3 traits, family ties, one morale value and a history.
+- **Arrivals (D-020).** Once per game day a settler arrives if a home is free and food is in surplus. Births arrive in M4a.
+- **Jobs (D-005).** Residents fill building quotas by skill and trait. Any resident can be pinned. A bad fit costs morale and can become an event (D-013).
+- **Recruits.** A list shows residents and arrivals whose skills and traits suit adventuring.
+- **Families, from M4a (D-004).** Marriage, children, aging, death and inheritance. The inbox asks about notable matches and heirs (D-013). The save holds age and family fields from M0.
 
 ### Adventurers and quests
 
-- Adventurers come from two sources. Outsiders are attracted by renown, tavern tier and open bounties. Residents with the right traits can take up arms, leaving a family and a trade behind. Each has a class, level, power tier 1 to 5, 3 gear slots, traits, condition (injury, morale) and loyalty.
-- The Gloamwood is three depth bands, each a list of scattered sites: dens, ruins, groves, old roads. Each has a threat level and a state: undiscovered, scouted, active, cleared or overrun.
-- **The player writes the quest.** A quest is a site, an objective (scout, clear, hunt, gather, escort, delve), a bounty, optional provisions (potions, loaned gear) and a risk posture (cautious or bold).
-- Two contract modes. **Posted**: freelancers accept when bounty outweighs perceived risk; cheap, unreliable. **Commissioned**: the player assigns a retained guild party; costs wages, gives control over who goes.
-- Resolution runs off-screen in stages: travel, 2 to 4 encounters, return. At key moments the party sends word back for a decision (press on, retreat, pay a ransom, split the find). A message left unanswered past its deadline is resolved by the quest's risk posture. Each stage is a skill check on the seeded generator, modified by gear, provisions and posture. Duration is 1 to 10 game days.
-- The report lists loot, injuries, deaths, discoveries and level gains, rendered as prose into the chronicle.
-- Funding levers: bounty size, guild hall tier, training grounds, infirmary, gear from the town's own smiths and alchemists, pensions and memorials. Gear demand is the main coupling between the guild and the economy.
-- Ignored sites escalate. An overrun site advances a threat clock; a filled clock triggers a raid on the town.
+- Adventurers are residents who took up arms, and outsiders who lodge at the tavern (D-006). Each has a class, skills, traits, 3 gear slots, a condition and a rank.
+- **Rank** is a label from 1 to 5 derived from skill. It adds nothing by itself in v0.1; whether ranks get bigger jumps is revisited after the first playtest (D-021).
+- **The player writes the quest:** a site, an objective (scout, clear, gather in v0.1), provisions and a risk posture.
+- **Staffing.** v0.1 has one way: the player picks the party (D-019). Posted bounties come later.
+- **Resolution** runs off-screen in stages: travel, 2 to 4 encounters, return. No fight is shown (D-011). Each stage is a check on the quest's own random stream.
+- **Reports** list loot, injuries, deaths and discoveries, and go into the chronicle.
+- An ignored site escalates. An overrun site fills a threat clock; a full clock means a raid.
 
-### Events
+### Trade
 
-- An event is data: trigger conditions, a weight, 2 to 4 choices, outcomes, and a timeout choice. Outcomes may be fixed or checked against a town stat or a notable's skill.
-- Categories: seasonal, visitor, crisis, opportunity, personal (about one notable), and chains that span several events.
-- Starting cadence: 1 minor event per game day, 1 major event per season.
-- Every choice carries tags (trade, guild, forge, arcane, faith, march). Tags accumulate as charter affinity.
+- v0.1 has one buyer town. It pays a fixed premium for some goods. A caravan is a timed trip that carries goods out and gold back.
+- M5 adds more partners, prices that react, rumours, escorts, and the Crown's levies and favor.
 
-### Town paths
+### Events and chronicle
 
-- Six charters: **Market** (trade hub), **Guild** (delver's hold), **Forge** (craft town), **Arcane** (college), **Faith** (shrine seat), **March** (border fortress).
-- Affinity comes from buildings present and choices made. At Village tier the player selects a primary charter from the top three affinities; at City tier a secondary.
-- Each charter unlocks 3 buildings, 3 professions, 3 policies and its own event pool, and locks the capstone building of its opposing charter.
-- Policies are standing laws with stated tradeoffs. Example: Open Gates raises migration and visitor events, and raises crime.
+- An event is data: conditions, a weight, 2 to 4 choices, outcomes and a deadline answer. v0.1 has 12, drawn about once per 3 game days, and none repeats within a game year.
+- Known weak point: played without a break, a real week draws about 140 events, 11.7 per event (computed). More events arrive from M4b.
+- Every significant state change emits a typed record. Templates render records to prose. Full entries are kept for 20 game years, then one digest line per year (proposed tuning value).
 
-**Charter goals, then sandbox.** Each charter has one capstone goal, for example a great work built, the Heart reached, or a standing levy met for 10 years. Completing it is recorded in the chronicle and unlocks a town title. Play continues without limit afterwards.
+### Town paths, from M4b
 
-### Trade and caravans
-
-- A Trade Post dispatches caravans to 3 to 5 neighboring settlements, each with its own demand profile.
-- Prices respond to what the town sells and to regional events. Rumors arrive as inbox items that hint at a coming shift.
-- A caravan is a timed expedition with route risk. An adventurer escort reduces the risk and occupies the party.
-
-### Chronicle
-
-- Every significant state change emits a typed log entry. Grammar templates with trait and context slots render entries to prose.
-- The chronicle is organized by game year. Each notable has a biography assembled from the entries that name them.
-- Template packs are authored at build time. The shipped game makes no network calls.
-
-### Legacy (after v1.0)
-
-- A mature town can found a daughter town that inherits heirlooms, a few veteran notables and the parent's chronicle.
+- v1.0 has two charters, Guild and March (D-015). Market, Forge, Arcane and Faith come after v1.0.
+- Capstones: the Guild's is a party that reaches a Heart site and returns. The March's is holding the wall through a great raid with no one lost. Play continues after a capstone.
 
 ## Content targets
 
-These counts are the scope cap. v0.1 is the first version worth playing for a week; v1.0 is the full design above.
+These counts are the scope cap.
 
-| Content | v0.1 (end of M3) | v1.0 (end of M6) |
-| --- | --- | --- |
-| Buildings | 12 | 45 |
-| Building tiers | 3 | 5 |
-| Resources | 8 | 20 |
-| Professions | 8 | 30 |
-| Skills | 6 | 12 |
-| Adventurer classes | 3 | 8 |
-| Quest objectives | 3 | 6 |
-| Region sites | 6 | 25 |
-| Events | 30 | 200 |
-| Chronicle templates | 40 | 300 |
-| Charters | 0 | 6 |
-| Policies | 0 | 18 |
-| Trade partners | 0 | 5 |
-| Forest bands | 1 (Eaves) | 3 |
-| Peoples | 2 | 4 |
-| Traits | 12 | 40 |
-| Resident cap | 60 | 150 |
-
-Content is cheap to add once the engine interprets it, so breadth is deferred and the engine's set of condition and effect types is settled first.
+- Buildings: 12 in v0.1, 45 in v1.0. Special buildings: 1, then 8.
+- Resources: 8, then 20. Trades: 8, then 30. Skills: 6, then 12. Traits: 12, then 40.
+- Peoples: 2, then 4. Resident cap: 60, then 150.
+- Adventurer classes: 3 plus 1 unlocked, then 8. Quest objectives: 3, then 6.
+- Forest bands: 1, then 3. Sites: 6, then 25.
+- Events: 12, then 120. Chronicle templates: 40, then 300.
+- Trade partners: 1, then 5. Charters: 0, then 2. Policies: 0, then 6.
 
 ## Technical approach
 
-### Platform options
-
-| Option | Phone install | Fit for a menu-driven idle UI | Iteration with Claude Code | Main cost |
-| --- | --- | --- | --- | --- |
-| PWA: TypeScript, React, Vite | Add to Home Screen; no store | Strong: lists, panels and forms are native to the DOM | Strong: simulation tests run headless; UI previews in a browser | No background execution; browser storage can be evicted |
-| Godot 4 | Sideloaded APK or TestFlight | Weaker: dense management screens are slow to build in Control nodes | Weaker: scene files and an editor in the loop | Export pipeline per platform |
-| React Native with Expo | Native build | Strong | Medium: device toolchain required | Toolchain overhead; store accounts for distribution |
-| Capacitor wrapper around the PWA | Native shell, later | Same as PWA | Same as PWA | Deferred until a store build is wanted |
-
-**Recommendation: PWA.** The game is text, lists and numbers with no map and no real-time rendering, which is the case the web platform handles best. The no-background-execution limit is absorbed by the offline catch-up model, and the eviction risk by save export. The caravan brief recommended Godot 4 because of its painted map and card combat; Silvanus has neither. Keeping the simulation core free of any UI framework leaves the Capacitor and Godot paths open.
-
-### Architecture
-
-- **`packages/sim`** is pure TypeScript with no DOM access. Its contract is `step(state, commands) -> { state, log }`. It owns the seeded generator, so the same seed and the same commands always produce the same town.
-- **`packages/content`** holds every building, profession, event, site and template as typed data, validated by schema at build time. Adding content does not touch the engine.
-- **`apps/web`** is the React interface: five bottom tabs (Town, People, Guild, Inbox, Chronicle), a state store that holds the latest simulation state, and a Web Worker that runs ticks so catch-up never blocks the screen.
-- **Persistence** is IndexedDB with a versioned save schema and explicit migrations. Autosave runs every 10 ticks. The page also holds a standby copy of the state and writes that copy when it is hidden, because a worker is terminated on unload before it can answer a save request (Project Vulcan lesson, 2026-10-18). Save export and import as a JSON file is in M0, because it is also the debugging tool.
-- **Verification** is a headless soak script: a random-policy bot plays 10,000 ticks, asserts invariants (no negative stock, no NaN, population at or above 0, every pending event resolvable) and prints a balance report. This script is the feedback loop that lets Claude Code tune the economy without a phone in hand.
-- Device clock tampering is not defended. The game is single-player.
-
-### Content as data
-
-A building and an event, as they would be authored:
-
-```ts
-export const smithy: BuildingDef = {
-  id: "smithy",
-  category: "craft",
-  lot: "any",
-  tiers: [
-    { cost: { gold: 120, wood: 40, stone: 20 }, slots: 2,
-      recipes: [{ in: { ore: 2, wood: 1 }, out: { tools: 1 },
-                  ticks: 6, skill: "smithing" }] },
-    { cost: { gold: 400, stone: 80, tools: 10 }, slots: 4,
-      recipes: [{ in: { ore: 3, wood: 1 }, out: { weapons: 1 },
-                  ticks: 8, skill: "smithing", minSkill: 30 }] },
-  ],
-  branchAt: 3,
-  branches: ["armory", "artificer"],
-};
-
-export const wanderingHealer: EventDef = {
-  id: "wandering-healer",
-  category: "visitor",
-  weight: 10,
-  when: { minTownTier: 1, season: ["autumn", "winter"],
-          lacksBuilding: "infirmary" },
-  choices: [
-    { id: "hire", cost: { gold: 60 },
-      effects: [{ type: "healAll", who: "adventurers" }],
-      tags: ["guild"] },
-    { id: "settle", check: { stat: "appeal", dc: 40 },
-      pass: [{ type: "addNotable", profession: "healer" }],
-      fail: [{ type: "log", template: "healer-moves-on" }],
-      tags: ["faith"] },
-    { id: "decline", effects: [] },
-  ],
-  timeoutChoice: "decline",
-};
-```
-
-The smithy declares two tiers, each with a cost, a worker-slot count and one recipe; the second recipe requires a smithing skill of 30. At tier 3 it must become an Armory or an Artificer. The healer event fires only in autumn or winter for a town without an infirmary. It offers a paid heal, a checked attempt to settle the healer as a notable, or a refusal. The refusal is the timeout choice the Steward applies offline, and the tags on the first two choices add Guild and Faith affinity.
-
-The engine interprets a closed set of condition types (`when`) and effect types (`effects`). That set is the real interface of the project: it is defined in M1 to M3 and changed deliberately afterwards.
+- **Platform (D-001).** A PWA in TypeScript, React and Vite, installed from Chrome on Android. npm workspaces (D-010).
+- **`packages/sim`** is pure TypeScript: no DOM, no clock, no `Math.random`, integers only. Its contract is `step(state, commands) -> { state, log }`. Each system draws from its own named random stream, so new content in one system does not shift another's draws.
+- **`packages/content`** holds every building, trade, event, site and template as typed data checked at build time. The closed set of condition and effect types is the engine's real interface.
+- **`apps/web`** has five tabs (Town, People, Guild, Trade, Chronicle), an inbox sheet that opens from any tab, a store holding the latest state, and a Web Worker that runs ticks.
+- **Saves.** IndexedDB with a version and upgrade steps. Autosave every 10 ticks in live play and none during catch-up. The page keeps a standby copy and writes it when hidden, because a worker is terminated on unload before it can answer (Project-Vulcan lesson, 2026-10-18). The app asks the browser for persistent storage and refuses to load a save newer than its code. Export and import as a JSON file from M0.
+- **Hosting.** One fixed address, because saves are tied to it. Vercel is proposed (D-022); creating the project needs Morgan's approval at M0.
+- **Verification.** A headless soak plays 10,000 ticks with a random-policy bot, checks invariants and prints a balance report. From M4a it plays 100,000 ticks, which is 148.8 game years and more than two lifespans.
 
 ## Milestones
 
-Every milestone ends with a build installed on the phone. No dates are set; the order and the exit criteria are the commitment.
+Each ends with a build on the phone and a test Morgan runs. One session takes one milestone.
 
-| Milestone | Scope | Exit criterion |
-| --- | --- | --- |
-| **M0 Skeleton** | Repository, tick loop, seeded generator, save and load, export and import, PWA shell, soak script | The app is installed on the phone; a resource counter survives close and reopen with the correct offline catch-up |
-| **M1 Town** | Lots, 12 buildings at 3 tiers, 8 resources, individual residents with skills and traits, automatic job assignment with override, migration, 8 professions | 20 minutes of play contain real tradeoffs; 10,000-tick soak passes all invariants |
-| **M2 Guild** | Adventurers from outsiders and residents, 6 Eaves sites, quest authoring, mid-quest decisions, posted and commissioned contracts, staged resolution, reports | A quest written by the player resolves while the app is closed and returns a readable report |
-| **M3 Events and chronicle** | Event engine, 30 events, inbox, Steward timeouts, chronicle with 40 templates | One game year produces a chronicle worth reading. **This is v0.1.** |
-| **M4 Paths and policies** | Families, aging and inheritance, town tiers, the Deepwood band, 6 charters, 18 policies, tier-3 building branches, configurable Steward | Two towns with different charters differ in available buildings, professions and events |
-| **M5 Trade** | Trade Post, 5 partners, Crown levies and favor, reactive prices, rumors, escorted caravans | Trade is a viable primary income under the Market charter |
-| **M6 Depth and polish** | Content raised to v1.0 counts, the Heart band, charter capstone goals, family trees, balance pass, art and sound pass, legacy | **v1.0** |
+1. **M0 Skeleton.** Workspace, tick loop, named random streams, saves with age and family fields, standby copy, clamp on elapsed time, persistent-storage request, export, PWA shell, hosting, soak, CI. Test: install on the phone; a counter survives closing with the right catch-up.
+2. **M1 Town.** Lots, 12 buildings at 3 tiers, 8 resources, residents as records, 2 peoples, automatic jobs with pin, arrivals, Hamlet to Village. Test: 20 minutes of play with real trade-offs; the soak passes.
+3. **M2 Guild.** Recruits list, 3 classes, 6 Eaves sites, quest writing, picked parties, gear, decisions that wait. Test: a quest resolves while the phone is closed and its report reads well.
+4. **M3 Trade outlet, events, chronicle.** One buyer town and caravans, one class-unlocking building, 12 events, 40 templates. Test: the check-in at the top of this file, end to end. **This is v0.1.**
+5. **M4a Families.** Marriage, children, aging, death, inheritance, heirs in the inbox, biography pages, the long soak.
+6. **M4b Paths.** Guild and March charters, 6 policies, Town tier, building branches, the Deepwood and its faction, posted bounties.
+7. **M5 Trade and Crown.** Partners, reactive prices, rumours, escorts, levies and favor.
+8. **M6 Depth.** City tier, the Heart, capstones, content to v1.0 counts, art and sound. **This is v1.0.**
 
-M0 to M3 is the vertical slice. If interest fades after M3, the result is still a complete small game.
+## Risks
 
-## Risks, assumptions and open decisions
+- **Scope drift.** Three parent games each bring a full feature list. Control: the content targets, `docs/parking.md`, and v0.1 ending at M3.
+- **A roster too large to manage.** 150 residents on a phone. Control: automatic jobs, list filters, the recruits list, and only residents who need a decision reaching the inbox.
+- **The idle economy diverges.** Control: the soak and balance report from M0, storage caps, integers.
+- **Flat prose.** Templates repeat. Control: trait and context slots, the one-year repeat rule, more events from M4b.
+- **Save loss.** Control: export from M0, persistent storage, upgrade steps with a test each.
+- **Generations pass too fast to follow.** Played without a break, a day is 2.14 game years. Control: judged at the M4a playtest; the tick length is the lever.
 
-### Risks
+## Open
 
-| Risk | Mechanism | Control |
-| --- | --- | --- |
-| Scope drift | Four parent projects each bring a full feature list | The content-targets table is the cap; new ideas go to `docs/parking.md`; v0.1 ends at M3 |
-| Idle economy diverges | Compounding rates either explode or stall over long offline spans | Soak script and balance report from M0; storage caps; integer arithmetic |
-| Menu fatigue on a small screen | Management depth turns into tap count | Inbox-first sessions; quotas instead of per-person assignment; frequent actions within 3 taps |
-| Flat narrative without an LLM | Templates repeat and stop reading as story | Trait and context slots, event chains, biographies; judged explicitly at the M3 exit |
-| Save loss | Browser storage eviction or a failed migration | Save export from M0; versioned migrations with a test per version |
-| Individual residents overload the player | 150 people with families and jobs exceed what a phone screen can manage by hand | Automatic assignment by default; roster filters; the inbox surfaces only residents who need a decision; families deferred to M4 |
-
-### Decisions from the workshop
-
-| Topic | Decision |
-| --- | --- |
-| Phone | Android |
-| Pacing | 1 game hour per 60 s; game year = 11 h 12 min real |
-| Population | Every resident is an individual; cap 150 |
-| Aging | Full generations: marriage, children, aging, death, inheritance |
-| Control | Automatic job assignment with manual override |
-| Focus | Even balance across town, guild and characters |
-| Adventurers | Outsiders and residents |
-| Quests | Mid-quest decisions; risk posture answers when the player does not |
-| Stakes | Recoverable decline; the town cannot be lost |
-| Long game | Charter capstone goals, then sandbox |
-| Presentation | Text and icons for v0.1 |
-| Setting | Fresh world; frontier town beside a deep, dangerous, resource-rich forest |
-| Forest | Three depth bands with scattered, scouted sites in each |
-| Backer | Crown writ with levies and favor |
-| Peoples | Mixed town |
-| Magic | A normal craft built on forest materials |
-
-### Assumptions
-
-These remain assumed after the workshop and can be reversed.
-
-- Silvanus is the project name: the Roman god of woods and wild land, beside Vulcan and Pantheon.
-- Single-player, personal use, no monetization, prototype-to-hobby scope.
-- No runtime LLM, carried over from the Vulcan constraint on API cost.
-- A new repository, not a directory inside the Vulcan repo.
-- The four peoples are humans, dwarves, elves and halflings, and all share one lifespan.
-- The Gloamwood, its band names and the writ are placeholder names.
-- The "adventure manager" is read as a guild-management concept: roster, quests, funding, reports.
-
-### Open decisions
-
-- [ ] Names for the town, the forest, the Crown and the peoples' cultures.
-- [ ] Lifespans: one shared figure as assumed, or a different span per people.
-- [ ] Family life: observed only, or steered by the player (matchmaking, naming heirs).
-- [ ] The capstone goal for each of the six charters.
-- [ ] Whether a resident with a strong trait can refuse a pinned job.
-- [ ] Whether forest peoples or spirits exist as a faction to negotiate with.
-
-## Kickoff
-
-Repository rules live in `AGENTS.md` and the synced `.claude/master/RULES.md`. Current state and the next step live in `docs/HANDOFF.md`. Settled choices live in `docs/DECISIONS.md`.
-
-M0 builds an npm workspace with `packages/sim`, `packages/content` and `apps/web`, plus `scripts/soak.ts`. One session takes one milestone and stops at its exit criterion from the table above.
+- What happens to Adventure Manager is Morgan's call; this repo changes nothing there.
+- The other two peoples for v1.0.
+- Whether ranks get bigger jumps (after the first playtest, D-021).
