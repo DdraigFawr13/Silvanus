@@ -8,12 +8,12 @@ Planning. No code exists. The plan is `docs/CHARTER.md`; it is not yet approved 
 
 ## Plan map
 
-- ✔ Charter drafted and four workshop rounds answered (16 decisions, D-001 to D-009).
-- ✔ Repo bootstrapped with AI-Master-Instructions v4.12.0 (D-010).
-- ▶ Planning round 5 form published; waiting for Morgan's answers (collection `round5`).
-- ○ Morgan approves the plan.
-- ○ M0 Skeleton: npm workspace, tick loop, seeded generator, saves, PWA shell, soak script, CI.
-- ○ M1 Town, M2 Guild, M3 Events and chronicle (v0.1), then M4 to M6 (v1.0).
+- ✔ Charter drafted; workshop rounds 1 to 4 (D-001 to D-010).
+- ✔ Repo bootstrapped with AI-Master-Instructions v4.12.0.
+- ✔ Round 5 answered (D-003, D-011 to D-015): https://claude.ai/artifact/GXyCyVEpnCLUU8jVBXjfJG
+- ▶ Review round published; waiting for Morgan's replies (collection `review1`).
+- ○ Final page and approval, then fix the charter in one change.
+- ○ M0 Skeleton, M1 Town, M2 Guild, M3 (v0.1), then M4 to M6.
 
 ## Just done
 
@@ -23,21 +23,15 @@ Planning. No code exists. The plan is `docs/CHARTER.md`; it is not yet approved 
 
 ## Next
 
-1. When Morgan says "round 5 done", read the answers from https://claude.ai/artifact/GXyCyVEpnCLUU8jVBXjfJG (collection `round5`), then run the adversarial review round (`planning-interview` skill).
-2. After approval, write the M0 spec with the `write-spec` skill.
+1. When Morgan says "review done", read collection `review1` at https://claude.ai/artifact/MTxTA5yFtYgbZrUKqmStUQ. Findings f1 to f14, questions `q_*`, proposed v0.1 changes `p_*`.
+2. Record the answers in DECISIONS, rewrite the charter's stale parts (finding f13), then publish the final approval page (`planning-interview` skill).
+3. After approval, write the M0 spec with the `write-spec` skill.
 
 ## Open questions
 
-- Names for the town, the forest, the Crown and the peoples' cultures. Placeholders stand until chosen.
-- Lifespans: one shared figure (assumed) or a span per people.
-- Family life: observed only, or steered (matchmaking, naming heirs).
-- The capstone goal for each of the six charters.
-- Whether a resident can refuse a pinned job.
-- Whether forest peoples or spirits exist as a faction.
-- The charter's adventurer power tier 1 to 5 conflicts with Story-Generator's never-build list (round 5, `tiers`).
-- The four peoples (humans, dwarves, elves, halflings) are an assumption (round 5, `world_src`).
-- D-003 (no runtime LLM) is Proposed; confirm it.
+- All in the review form. First: adventurer ranks (answer "no big jumps" against the note "bigger tier jumps").
+- Review's main findings: v0.1 builds events and chronicle while Morgan's described check-in is stores, gear, caravan and upgrades; v0.1 has no population inflow; most decisions time out unseen at 60 s per tick.
 
 ## Decisions since the last plan update
 
-- 2026-11-09 D-001 to D-010, see `docs/DECISIONS.md`.
+- 2026-11-09 D-001 to D-015, see `docs/DECISIONS.md`.
