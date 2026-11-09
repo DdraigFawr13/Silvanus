@@ -17,10 +17,15 @@ export function due(
   return { ticks: n, anchorMs: anchorMs + n * tickMs };
 }
 
-// `?tickMs=<whole number from 50 to 60000>` overrides TICK_MS; anything else is ignored.
-export function tickMsFrom(search: string): number {
+// `?tickMs=<whole number from 50 to 60000>` is a test tick length; anything else is ignored (null).
+export function testTickMs(search: string): number | null {
   const value = new URLSearchParams(search).get('tickMs');
-  if (value === null || !/^[0-9]+$/.test(value)) return TICK_MS;
+  if (value === null || !/^[0-9]+$/.test(value)) return null;
   const n = Number(value);
-  return n >= MIN_TICK_MS && n <= TICK_MS ? n : TICK_MS;
+  return n >= MIN_TICK_MS && n <= TICK_MS ? n : null;
+}
+
+// The tick length for this address: the test one when it is set, else TICK_MS.
+export function tickMsFrom(search: string): number {
+  return testTickMs(search) ?? TICK_MS;
 }
