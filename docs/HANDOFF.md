@@ -10,21 +10,22 @@ M0 Skeleton, building. Spec approved 2026-11-09 (D-024): `docs/specs/m0-skeleton
 
 - ✔ Planning: charter, rounds 1 to 5, review, final page (D-001 to D-023).
 - ✔ M0 spec approved; Vercel project `silvanus` created and linked (D-024).
-- ▶ M0 slice S1, a ticking counter at a link.
+- ▶ M0 slice S1, a ticking counter at a link: built on `m0/s1-counter`, waiting for Morgan's approval to merge.
 - ○ M0 slice S2, it remembers · ○ M0 slice S3, install it and carry it
 - ○ M1 Town · ○ M2 Guild · ○ M3 Trade outlet, events, chronicle (v0.1)
 - ○ M4a Families · ○ M4b Paths · ○ M5 Trade and Crown · ○ M6 Depth (v1.0)
 
 ## Just done
 
+- 2026-11-09 S1 built by the `implementer` agent and reviewed: `npm run check` passes in 4.7 s (10 tests, soak 10,000 ticks, entry script 69,080 bytes gzipped against 80,000); phone-width run at `?tickMs=200` showed tick 25, food 7, no console errors. CI and the Vercel build have not run yet.
 - 2026-11-09 Spec approved and merged to `main`. `vercel.json` turns deployments off until S1 replaces it.
 - 2026-11-09 Toolchain prototype (scratch, not committed): vite 8.3.7, react 19.3.1, vite-plugin-pwa 2.0.0, typescript 7.0.2 with npm workspaces and a worker install, type-check and build; bare first-load script 68.71 kB gzipped.
 
 ## Next
 
-1. Build S1 on branch `m0/s1-counter` from the spec's S1 section. Before building, run the zero-decision check on the sections S1 touches: the spec's last fix pass was not read by a fresh check.
-2. This session cannot open pull requests (no GitHub API access). Push the branch, show Morgan the check output and a phone-width screenshot in chat, and merge to `main` on his approval.
-3. After the merge, read the Vercel deployment's state and send Morgan the link.
+1. On Morgan's approval, merge `m0/s1-counter` to `main`. That push starts the first Vercel deployment and the first CI run; read both (CI-07) and send Morgan the link with `?tickMs=1000`.
+2. Then S2 on a new branch from `main`, after a zero-decision check of the sections S2 touches.
+3. This session cannot open pull requests; approval happens in chat.
 
 ## Open questions
 

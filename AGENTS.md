@@ -13,12 +13,12 @@ Shared rules come from AI-Master-Instructions and load through CLAUDE.md (`.clau
 
 ## Local checks (run before pushing)
 
-- None yet: the repo has no code. M0 adds `npm run check` (types, lint, format check, Vitest, soak) and states its time budget here.
-- Every push: `node .claude/master/sync.mjs --check`.
+- `npm run check` (about 6 s measured on 2026-11-09, target under 60 s). In order: master sync drift check, test-traps, Prettier check, types (`tsc` on sim, content, web, root), engine purity, Vitest, soak, build, bundle size (gzipped entry at most 80,000 bytes). No lint (see the M0 spec).
+- Under a different default Node, prefix with `npm exec --yes --package=node@24.19.0 --package=npm@11.9.0 --`.
 
 ## What CI runs
 
-- No project CI yet. M0 adds `ci.yml` from the master template with the `efficient-github-actions` skill, including the sync drift check.
+- `.github/workflows/ci.yml`: one job, `npm ci` then `npm run check`, skipped on draft PRs, not run for changes under `docs/` only.
 - `prune-merged-branches.yml` (synced) deletes merged PR branches.
 
 ## Project rules

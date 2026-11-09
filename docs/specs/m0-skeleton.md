@@ -93,7 +93,7 @@ No check below can pass at commit `422360b`: the repo has no `package.json` and 
 - No network calls in the game (D-003).
 - Decisions wait and events queue (D-018): not built in M0, but the clock in this spec is what they rely on.
 - The save holds age and family fields from M0 (D-020).
-- Hosting on Vercel is proposed, not settled (D-022).
+- Hosting is Vercel, project `silvanus` (D-024).
 
 ## Alternatives rejected
 
@@ -331,9 +331,9 @@ Each value's element holds the bare value (the number alone) and has a `data-tes
 
 `.github/workflows/ci.yml` from the master's template (`core/templates/github/ci.yml`), adapted with the `efficient-github-actions` skill: one job, `npm ci` then `npm run check`, skipped on draft PRs.
 
-### Hosting (proposed)
+### Hosting
 
-S1 does not start until hosting is answered. If the answer is Vercel, `vercel.json` is Project-Vulcan's with one change, the output folder:
+S1 replaces the interim `vercel.json` with Project-Vulcan's, changed in one place, the output folder:
 
 ```json
 {
@@ -355,7 +355,18 @@ Only `main` deploys (CI-05), so the link shows a slice after its PR merges. Morg
 - **Morgan tries (after the merge):** opens the link on the phone with `?tickMs=1000` and watches the tick and food rise; taps + and − on Foragers. A reload starts over: nothing is remembered yet.
 - **Checks that fail now:** J1, J2, J3, J4, J8.
 - **Files:** root config files (`package.json`, `.nvmrc`, `.npmrc`, `.prettierrc.json`, `.prettierignore`, `tsconfig.json`, `tsconfig.base.json`, `vitest.config.ts`): the workspace. `packages/sim/**`, `packages/content/**`: the engine and its tests. `apps/web/index.html`, `vite.config.ts` (the React plugin, the `__COMMIT__` define, `worker: { format: 'es' }`), `src/env.d.ts`, `src/main.tsx`, `App.tsx`, `clock.ts`, `worker.ts`, `app.css`, `test/clock.test.ts`: the page without saves; the anchor starts at load time. `scripts/soak.ts`, `check-sim-purity.mjs`, `check-bundle.mjs`. `.github/workflows/ci.yml`. The host's config (`vercel.json` if Vercel). `AGENTS.md`: the "Local checks" line becomes the real `npm run check` steps (types, format check, purity, Vitest, soak, build, bundle size; no lint, see Alternatives) with the measured time, and "What CI runs" names `ci.yml`.
-- **Waits on:** the hosting answer, asked with this spec's approval.
+- **Waits on:** none.
+
+#### S1 build notes
+
+- `clock.ts` exports `TICK_MS`, `CATCH_UP_CAP`, `due` and `tickMsFrom(search: string): number`, which returns `TICK_MS` when the parameter is absent or invalid. `clock.test.ts` adds "tickMs from the address".
+- Start-up in S1: `main.tsx` takes the seed, builds `newGame(seed, content)` and sends `load` with `anchorMs` set to `Date.now()`. `worker.ts` imports `content` itself. Until the first snapshot the page shows "Loading…".
+- The S1 page leaves out the lines marked S2 or S3.
+- J3's raw values are read with `draw(rng, 'yield', 1, 4294967296)`.
+- Soak, per tick: one `nextU32`; if its value `% 24 === 0`, a second `nextU32`, and the command goes into that tick's `step`.
+- S1 installs every development dependency except `@playwright/test` and `fake-indexeddb` (S2) and `vite-plugin-pwa` (S3), and commits `package-lock.json`.
+- `tsconfig.base.json` sets `skipLibCheck: true`. `apps/web/tsconfig.json` has `types: ["vite/client"]`. Tests import `test` and `expect` from `vitest`.
+- `.gitignore` gains `/apps/web/dist/`. `.prettierignore` also gains any synced file that fails the format check (`.ai-master.json`, `.ai-master.lock`, `.github/workflows/prune-merged-branches.yml`); synced files are never reformatted (SRC-06).
 
 ### S2 It remembers
 

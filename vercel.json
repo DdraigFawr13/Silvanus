@@ -1,4 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "git": { "deploymentEnabled": false }
+  "framework": "vite",
+  "buildCommand": "npm exec --yes --package=node@24.19.0 --package=npm@11.9.0 -- npm run build",
+  "installCommand": "npm exec --yes --package=node@24.19.0 --package=npm@11.9.0 -- npm ci",
+  "outputDirectory": "apps/web/dist",
+  "git": { "deploymentEnabled": { "**": false, "main": true } }
 }

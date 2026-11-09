@@ -1,0 +1,16 @@
+{
+  "name": "@silvanus/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1"
+  },
+  "dependencies": {
+    "@silvanus/content": "*",
+    "@silvanus/sim": "*",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  }
+}

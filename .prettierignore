@@ -1,2 +1,6 @@
 /.claude/worktrees/
 /docs/archive/
+/apps/web/dist/
+/.claude/
+/docs/
+package-lock.json
