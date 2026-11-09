@@ -1,6 +1,6 @@
 # M0 Skeleton
 
-- **Status:** Draft
+- **Status:** Approved 2026-11-09
 - **Planned in:** final plan https://claude.ai/artifact/PDb43Sn8K1tcBLkqek9cPv, review https://claude.ai/artifact/MTxTA5yFtYgbZrUKqmStUQ, round 5 https://claude.ai/artifact/GXyCyVEpnCLUU8jVBXjfJG. **Decisions:** D-001, D-002, D-003, D-010, D-018, D-020, D-022, D-023.
 
 ## Problem
@@ -379,5 +379,4 @@ Only `main` deploys (CI-05), so the link shows a slice after its PR merges. Morg
 
 ## Open questions
 
-- Hosting: Vercel as proposed, or another host. S1 waits on this.
-- M0's page is a plain debug page with no mock-up, replaced in M1. The `write-spec` skill asks for a mock-up before any new screen; this spec asks Morgan to waive that for M0 only.
+None. Hosting is Vercel, project `silvanus` (D-024). The mock-up is waived for M0's page (D-024). Until S1 lands, `vercel.json` turns every deployment off; S1 replaces it with the file under "Hosting".

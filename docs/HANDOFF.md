@@ -4,35 +4,37 @@ Updated: 2026-11-09. A fresh session must be able to continue from this file alo
 
 ## Phase
 
-Plan approved on 2026-11-09 (D-023). M0 Skeleton is being specified; no code exists yet.
+M0 Skeleton, building. Spec approved 2026-11-09 (D-024): `docs/specs/m0-skeleton.md`.
 
 ## Plan map
 
 - ✔ Planning: charter, rounds 1 to 5, review, final page (D-001 to D-023).
-- ▶ M0 Skeleton: spec written and checked (`docs/specs/m0-skeleton.md`, branch `spec/m0-skeleton`); waiting for Morgan's approval (collection `spec-m0`): https://claude.ai/artifact/Bvt8GtrMSSTGaDjVRscCXe
-- ○ M0 build, one slice per session step.
+- ✔ M0 spec approved; Vercel project `silvanus` created and linked (D-024).
+- ▶ M0 slice S1, a ticking counter at a link.
+- ○ M0 slice S2, it remembers · ○ M0 slice S3, install it and carry it
 - ○ M1 Town · ○ M2 Guild · ○ M3 Trade outlet, events, chronicle (v0.1)
 - ○ M4a Families · ○ M4b Paths · ○ M5 Trade and Crown · ○ M6 Depth (v1.0)
 
 ## Just done
 
-- 2026-11-09 Plan approved; `plan/round5` merged to `main`.
-- 2026-11-09 Toolchain prototype in a scratch folder (not committed): npm workspaces, a Web Worker, vite 8.3.7, react 19.3.1, vite-plugin-pwa 2.0.0 and typescript 7.0.2 install, type-check and build; the bare app's first-load script is 68.71 kB gzipped.
+- 2026-11-09 Spec approved and merged to `main`. `vercel.json` turns deployments off until S1 replaces it.
+- 2026-11-09 Toolchain prototype (scratch, not committed): vite 8.3.7, react 19.3.1, vite-plugin-pwa 2.0.0, typescript 7.0.2 with npm workspaces and a worker install, type-check and build; bare first-load script 68.71 kB gzipped.
 
 ## Next
 
-1. When Morgan says "spec done", read collection `spec-m0`: `host`, `mock`, `worker`, `approve`, `changes`. On approval set the spec's Status to Approved, record the hosting and mock-up answers in DECISIONS, merge `spec/m0-skeleton`.
-2. Build M0 in a fresh session, slice S1 first. Run the zero-decision check on the slice's sections before building: the last fix pass was not read by a fresh check.
+1. Build S1 on branch `m0/s1-counter` from the spec's S1 section. Before building, run the zero-decision check on the sections S1 touches: the spec's last fix pass was not read by a fresh check.
+2. This session cannot open pull requests (no GitHub API access). Push the branch, show Morgan the check output and a phone-width screenshot in chat, and merge to `main` on his approval.
+3. After the merge, read the Vercel deployment's state and send Morgan the link.
 
 ## Open questions
 
-- Hosting on Vercel is Proposed (D-022); asked in the M0 spec approval.
+- The production address is known only after the first deployment.
 - The other two peoples for v1.0. Whether ranks get bigger jumps (D-021, after the first playtest).
 
 ## Planning pages
 
-- Round 5: https://claude.ai/artifact/GXyCyVEpnCLUU8jVBXjfJG · Review: https://claude.ai/artifact/MTxTA5yFtYgbZrUKqmStUQ · Final: https://claude.ai/artifact/PDb43Sn8K1tcBLkqek9cPv
+- Round 5: https://claude.ai/artifact/GXyCyVEpnCLUU8jVBXjfJG · Review: https://claude.ai/artifact/MTxTA5yFtYgbZrUKqmStUQ · Final: https://claude.ai/artifact/PDb43Sn8K1tcBLkqek9cPv · M0 spec: https://claude.ai/artifact/Bvt8GtrMSSTGaDjVRscCXe
 
 ## Decisions since the last plan update
 
-- 2026-11-09 D-001 to D-023, see `docs/DECISIONS.md`.
+- 2026-11-09 D-001 to D-024, see `docs/DECISIONS.md`.
