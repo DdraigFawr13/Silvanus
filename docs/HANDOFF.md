@@ -9,7 +9,7 @@ Plan approved on 2026-11-09 (D-023). M0 Skeleton is being specified; no code exi
 ## Plan map
 
 - ✔ Planning: charter, rounds 1 to 5, review, final page (D-001 to D-023).
-- ▶ M0 Skeleton: spec being written and checked (`docs/specs/m0-skeleton.md`).
+- ▶ M0 Skeleton: spec written and checked (`docs/specs/m0-skeleton.md`, branch `spec/m0-skeleton`); waiting for Morgan's approval (collection `spec-m0`): https://claude.ai/artifact/Bvt8GtrMSSTGaDjVRscCXe
 - ○ M0 build, one slice per session step.
 - ○ M1 Town · ○ M2 Guild · ○ M3 Trade outlet, events, chronicle (v0.1)
 - ○ M4a Families · ○ M4b Paths · ○ M5 Trade and Crown · ○ M6 Depth (v1.0)
@@ -21,8 +21,8 @@ Plan approved on 2026-11-09 (D-023). M0 Skeleton is being specified; no code exi
 
 ## Next
 
-1. Finish the M0 spec with the `write-spec` skill (steps 3 to 7) and get Morgan's approval of it.
-2. Build M0 in a fresh session, slice by slice.
+1. When Morgan says "spec done", read collection `spec-m0`: `host`, `mock`, `worker`, `approve`, `changes`. On approval set the spec's Status to Approved, record the hosting and mock-up answers in DECISIONS, merge `spec/m0-skeleton`.
+2. Build M0 in a fresh session, slice S1 first. Run the zero-decision check on the slice's sections before building: the last fix pass was not read by a fresh check.
 
 ## Open questions
 
