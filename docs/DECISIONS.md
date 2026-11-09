@@ -135,3 +135,9 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
 - **Status:** Accepted (2026-11-09, delegated) for names, people and charters; hosting is Proposed
 - **Decision:** The town is Ashwick, the forest the Skarthorn, the backer the Crown of Dunmere. The second people in v0.1 is the Dwarf. v1.0 ships the Guild and March charters only. Hosting on Vercel is proposed; the project is created only with Morgan's approval at M0.
 - **Why:** Delegated as D-016. The names and the people had no recommendation on the form; they are Claude's picks and cheap to change. Amends D-015.
+
+## D-023 Plan approved
+
+- **Status:** Accepted (2026-11-09)
+- **Decision:** Morgan approved the plan in `docs/CHARTER.md`: "Approved, start building" on the final page (https://claude.ai/artifact/PDb43Sn8K1tcBLkqek9cPv) and "Approved" in chat. Adventure Manager pauses now; nothing in its repo is changed from here.
+- **Why:** The owner's approval covers the platform, the stack and the step order (WS-02). Hosting is asked again at M0 (D-022).

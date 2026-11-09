@@ -4,34 +4,35 @@ Updated: 2026-11-09. A fresh session must be able to continue from this file alo
 
 ## Phase
 
-Planning, waiting for approval. No code exists. The plan is `docs/CHARTER.md`, rewritten on 2026-11-09 after the review round.
+Plan approved on 2026-11-09 (D-023). M0 Skeleton is being specified; no code exists yet.
 
 ## Plan map
 
-- ✔ Charter drafted; workshop rounds 1 to 4 (D-001 to D-010).
-- ✔ Repo bootstrapped with AI-Master-Instructions v4.12.0.
-- ✔ Round 5 answered (D-003, D-011 to D-015): https://claude.ai/artifact/GXyCyVEpnCLUU8jVBXjfJG
-- ✔ Review round: https://claude.ai/artifact/MTxTA5yFtYgbZrUKqmStUQ. Morgan did not fill it in; he said "go with what you recommend", recorded as D-016 to D-022.
-- ▶ Final page published; waiting for the approval answer (collection `final`): https://claude.ai/artifact/PDb43Sn8K1tcBLkqek9cPv
-- ○ M0 Skeleton, M1 Town, M2 Guild, M3 (v0.1), then M4a, M4b, M5, M6.
+- ✔ Planning: charter, rounds 1 to 5, review, final page (D-001 to D-023).
+- ▶ M0 Skeleton: spec being written and checked (`docs/specs/m0-skeleton.md`).
+- ○ M0 build, one slice per session step.
+- ○ M1 Town · ○ M2 Guild · ○ M3 Trade outlet, events, chronicle (v0.1)
+- ○ M4a Families · ○ M4b Paths · ○ M5 Trade and Crown · ○ M6 Depth (v1.0)
 
 ## Just done
 
-- 2026-11-09 Charter rewritten around the check-in Morgan described; D-016 to D-022 recorded.
-- 2026-11-09 Read adventure-manager, Story-Generator and Project-Vulcan; corrected the charter's guesses about them (LESSONS).
+- 2026-11-09 Plan approved; `plan/round5` merged to `main`.
+- 2026-11-09 Toolchain prototype in a scratch folder (not committed): npm workspaces, a Web Worker, vite 8.3.7, react 19.3.1, vite-plugin-pwa 2.0.0 and typescript 7.0.2 install, type-check and build; the bare app's first-load script is 68.71 kB gzipped.
 
 ## Next
 
-1. Read collection `final`. On "Approved", merge `plan/round5` to `main` and write the M0 spec with the `write-spec` skill, starting at its step 3. On changes, apply them first.
-2. No code before that approval (Project-Vulcan lesson, 2026-10-17).
+1. Finish the M0 spec with the `write-spec` skill (steps 3 to 7) and get Morgan's approval of it.
+2. Build M0 in a fresh session, slice by slice.
 
 ## Open questions
 
-- Approval of the plan.
-- Hosting on Vercel is Proposed (D-022); creating the project needs approval at M0.
-- What happens to Adventure Manager: Morgan's call, nothing changes there from here.
+- Hosting on Vercel is Proposed (D-022); asked in the M0 spec approval.
 - The other two peoples for v1.0. Whether ranks get bigger jumps (D-021, after the first playtest).
+
+## Planning pages
+
+- Round 5: https://claude.ai/artifact/GXyCyVEpnCLUU8jVBXjfJG · Review: https://claude.ai/artifact/MTxTA5yFtYgbZrUKqmStUQ · Final: https://claude.ai/artifact/PDb43Sn8K1tcBLkqek9cPv
 
 ## Decisions since the last plan update
 
-- 2026-11-09 D-001 to D-022, see `docs/DECISIONS.md`.
+- 2026-11-09 D-001 to D-023, see `docs/DECISIONS.md`.
