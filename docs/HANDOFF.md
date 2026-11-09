@@ -11,8 +11,8 @@ M0 Skeleton, building. Spec approved 2026-11-09 (D-024): `docs/specs/m0-skeleton
 - ✔ Planning: charter, rounds 1 to 5, review, final page (D-001 to D-023).
 - ✔ M0 spec approved; Vercel project `silvanus` created and linked (D-024).
 - ✔ M0 slice S1 merged and deployed (373c7c9) at https://silvanus-xi.vercel.app; Morgan's phone check outstanding.
-- ▶ M0 slice S2, it remembers: built, draft PR open, waiting for Morgan's approval.
-- ○ M0 slice S3, install it and carry it
+- ✔ M0 slice S2, it remembers: approved by Morgan 2026-11-09 and merged (PR #1); his phone check is outstanding.
+- ▶ M0 slice S3, install it and carry it.
 - ○ M1 Town · ○ M2 Guild · ○ M3 Trade outlet, events, chronicle (v0.1)
 - ○ M4a Families · ○ M4b Paths · ○ M5 Trade and Crown · ○ M6 Depth (v1.0)
 
@@ -25,9 +25,9 @@ M0 Skeleton, building. Spec approved 2026-11-09 (D-024): `docs/specs/m0-skeleton
 
 ## Next
 
-1. Morgan approves the S2 pull request; then mark it ready, check CI, merge (GIT-08) and check the deployed commit.
-2. After the merge Morgan tries S2 on the phone: note the tick, close the tab, wait 5 minutes, reopen, read "Caught up 5 ticks". His S1 check at https://silvanus-xi.vercel.app/?tickMs=1000 is also outstanding; record what he reports.
-3. S3 "Install it and carry it" on a new branch from `main`, after a zero-decision check of the sections S3 touches.
+1. S3 "Install it and carry it" on a new branch from `main`, after a zero-decision check of the sections S3 touches.
+2. Morgan's phone checks are outstanding; record what he reports. S2: note the tick, close the tab, wait 5 minutes, reopen, read "Caught up 5 ticks" at https://silvanus-xi.vercel.app. S1: https://silvanus-xi.vercel.app/?tickMs=1000.
+3. After the S2 merge, check that the deployed commit equals the merge commit (CI-05); the Version line on the page shows it.
 4. Known and left for S3: the page logs one 404 (most likely the missing favicon; not confirmed), and icons arrive in S3.
 
 ## Open questions
