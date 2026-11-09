@@ -36,13 +36,13 @@ Each earlier project contributes one system and leaves its most expensive part b
 
 | Source | Carried into Silvanus | Left behind |
 | --- | --- | --- |
-| Story generator | Template-and-grammar narrative; the chronicle as the readable output | Free-form generation with no game state underneath |
-| Adventure manager | Guild roster, quest posting, funding, expedition reports | Direct control of the expedition itself |
-| Vulcan | Indirect control through policies and priorities; deep characters; deterministic rules-based TypeScript engine; no API cost | Map simulation, pathfinding, real-time with pause, multi-generational scale at launch |
+| Story generator | A chronicle in which every line renders a real event record; a template narrator; people who are born, marry, age and die; content tables as a possible source for peoples, cultures and names | World generation, 250 years of history, the map, kingdoms and institutions |
+| Adventure manager | Guild roster, quest posting, funding, expedition reports | Played fights, deep adventurer careers, rival guilds |
+| Vulcan | Indirect control; a deterministic engine in a Web Worker; an event log with cause links; its phone-first lessons | The tile map, pathfinding, real time with pause, colonists who interpret laws |
 | Pantheon | Power tiers 1 to 5 and segmented threat clocks, as mechanisms only | The AI narrator; single-character play; the world bible |
 | Caravan concept | Reactive supply and demand; rumors; caravans as timed trade expeditions; grounded low-fantasy tone | Deck-building, card combat, the painted map |
 
-The common failure of the earlier projects was simulation depth arriving before a playable loop. The milestone plan below inverts that order.
+Story Generator and Project Vulcan are built and playable, and Adventure Manager is in build at gate 1 (read from the three repos on 2026-11-09). Silvanus overlaps all three. Planning round 5 decides how they relate.
 
 ## Setting
 
@@ -202,7 +202,7 @@ Content is cheap to add once the engine interprets it, so breadth is deferred an
 - **`packages/sim`** is pure TypeScript with no DOM access. Its contract is `step(state, commands) -> { state, log }`. It owns the seeded generator, so the same seed and the same commands always produce the same town.
 - **`packages/content`** holds every building, profession, event, site and template as typed data, validated by schema at build time. Adding content does not touch the engine.
 - **`apps/web`** is the React interface: five bottom tabs (Town, People, Guild, Inbox, Chronicle), a state store that holds the latest simulation state, and a Web Worker that runs ticks so catch-up never blocks the screen.
-- **Persistence** is IndexedDB with a versioned save schema and explicit migrations. Autosave runs every 10 ticks and when the page is hidden. Save export and import as a JSON file is in M0, because it is also the debugging tool.
+- **Persistence** is IndexedDB with a versioned save schema and explicit migrations. Autosave runs every 10 ticks. The page also holds a standby copy of the state and writes that copy when it is hidden, because a worker is terminated on unload before it can answer a save request (Project Vulcan lesson, 2026-10-18). Save export and import as a JSON file is in M0, because it is also the debugging tool.
 - **Verification** is a headless soak script: a random-policy bot plays 10,000 ticks, asserts invariants (no negative stock, no NaN, population at or above 0, every pending event resolvable) and prints a balance report. This script is the feedback loop that lets Claude Code tune the economy without a phone in hand.
 - Device clock tampering is not defended. The game is single-player.
 

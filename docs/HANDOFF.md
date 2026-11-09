@@ -19,6 +19,7 @@ Planning. No code exists. The plan is `docs/CHARTER.md`; it is not yet approved 
 
 - 2026-11-09 Charter exported to `docs/CHARTER.md`; starter files written; first commit pushed to `main`.
 - 2026-11-09 Read adventure-manager (gate 1, 233 decisions): it overlaps Silvanus's guild. How the two relate is the first question of round 5. The charter's Lineage row for it was a guess.
+- 2026-11-09 Read Story-Generator and Project-Vulcan: both built and playable. Story-Generator plans a steward mode (its Phase 8); Vulcan copied its content tables (its V-008). Charter Lineage corrected; round 5 gained `sg_rel`, `world_src` and `tiers`.
 
 ## Next
 
@@ -33,6 +34,8 @@ Planning. No code exists. The plan is `docs/CHARTER.md`; it is not yet approved 
 - The capstone goal for each of the six charters.
 - Whether a resident can refuse a pinned job.
 - Whether forest peoples or spirits exist as a faction.
+- The charter's adventurer power tier 1 to 5 conflicts with Story-Generator's never-build list (round 5, `tiers`).
+- The four peoples (humans, dwarves, elves, halflings) are an assumption (round 5, `world_src`).
 - D-003 (no runtime LLM) is Proposed; confirm it.
 
 ## Decisions since the last plan update
