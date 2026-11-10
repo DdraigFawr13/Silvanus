@@ -11,3 +11,6 @@
 .env.*
 !.env.example
 /apps/web/dist/
+/apps/web/dist-a/
+/apps/web/dist-b/
+/.vercel/

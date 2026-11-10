@@ -92,7 +92,7 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
 
 - **Status:** Accepted (2026-11-09, round 5); the review round proposes changes
 - **Decision:** Capstones kept for the Guild and March charters; Market, Forge, Arcane and Faith after v1.0. v0.1 keeps lots and 12 buildings, individual residents, automatic jobs with pin, two peoples, quest writing, mid-quest decisions, residents becoming adventurers, 30 events, the chronicle and save export. Migration, two contract modes and biography pages come after v0.1.
-- **Why:** Morgan's choices. The review found v0.1 then has no population inflow; see HANDOFF.
+- **Why:** Morgan's choices. The review found v0.1 then has no population inflow; D-020 resolved it.
 
 ## D-016 v0.1 passes on the described check-in
 
@@ -133,7 +133,7 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
 ## D-022 Names, second people, charters, hosting
 
 - **Status:** Accepted (2026-11-09, delegated) for names, people and charters; hosting settled by D-024
-- **Decision:** The town is Ashwick, the forest the Skarthorn, the backer the Crown of Dunmere. The second people in v0.1 is the Dwarf. v1.0 ships the Guild and March charters only. Hosting on Vercel is proposed; the project is created only with Morgan's approval at M0.
+- **Decision:** The town is Ashwick, the forest the Skarthorn, the backer the Crown of Dunmere. The second people in v0.1 is the Dwarf. v1.0 ships the Guild and March charters only. Hosting is Vercel (D-024).
 - **Why:** Delegated as D-016. The names and the people had no recommendation on the form; they are Claude's picks and cheap to change. Amends D-015.
 
 ## D-023 Plan approved
@@ -202,3 +202,9 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
   - Residents' names use Story-Generator's `GWERIN_NAMES` and `DVERGAR_NAMES` given-name tables (D-012).
   - Every cost, rate, cap and tuning value in the spec's "Content" section, as starting values for the playtest.
 - **Why:** Morgan, in chat on 2026-11-10, before the spec was finished: "I approve the m1 spec once you are done". He has not read it; each item above was told to him in chat. Forge at tier 1 because a Workshop that only mends cannot supply a Hamlet; the free first camp because wood has one source and every building costs wood (D-007).
+
+## D-031 The page may look for an update when it comes back to the front
+
+- **Status:** Accepted (2026-11-10) with S1's approval. Morgan was offered "keep" (recommended) or "remove" and answered "Approved" without naming one, so the built option stands; he can still say remove.
+- **Decision:** When the page becomes visible, it asks the service worker registration to look for a new version. This is one request for the app's own `sw.js`. D-003's rule against runtime network calls does not cover it.
+- **Why:** An installed app left in the recents list is not opened again, so without this it would not see a deploy (audit F3).

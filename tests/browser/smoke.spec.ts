@@ -1,7 +1,20 @@
+import { execFileSync } from 'node:child_process';
+import fs from 'node:fs';
+import type http from 'node:http';
+import os from 'node:os';
+import path from 'node:path';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
+import { readRecord, seedRecord, serveFolder } from './helpers';
 
 const number = async (page: Page, id: string) => Number(await page.getByTestId(id).innerText());
+
+// The state of the page's active service worker, or null while there is none.
+const workerState = (page: Page) =>
+  page.evaluate(async () => {
+    const registration = await navigator.serviceWorker.getRegistration();
+    return registration?.active?.state ?? null;
+  });
 
 test('reload keeps the town', async ({ page }) => {
   await page.goto('/?tickMs=200');
@@ -20,51 +33,6 @@ test('reload keeps the town', async ({ page }) => {
   expect(after).toBeGreaterThanOrEqual(t);
   expect(after).toBeLessThanOrEqual(t + 50);
 });
-
-// Stores a record before the app ever runs, from an empty page on the app's origin.
-async function seedRecord(page: Page, record: unknown) {
-  await page.route('**/seed.html', (route) =>
-    route.fulfill({ contentType: 'text/html', body: '<!doctype html><title>seed</title>' }),
-  );
-  await page.goto('/seed.html');
-  await page.evaluate(
-    (raw) =>
-      new Promise<void>((resolve, reject) => {
-        const open = indexedDB.open('silvanus-test', 1);
-        open.onupgradeneeded = () => open.result.createObjectStore('saves');
-        open.onerror = () => reject(open.error);
-        open.onsuccess = () => {
-          const db = open.result;
-          const tx = db.transaction('saves', 'readwrite');
-          tx.objectStore('saves').put(raw, 'main');
-          tx.oncomplete = () => {
-            db.close();
-            resolve();
-          };
-          tx.onerror = () => reject(tx.error);
-        };
-      }),
-    record,
-  );
-}
-
-const readRecord = (page: Page) =>
-  page.evaluate(
-    () =>
-      new Promise<unknown>((resolve, reject) => {
-        const open = indexedDB.open('silvanus-test', 1);
-        open.onerror = () => reject(open.error);
-        open.onsuccess = () => {
-          const db = open.result;
-          const get = db.transaction('saves', 'readonly').objectStore('saves').get('main');
-          get.onsuccess = () => {
-            db.close();
-            resolve(get.result);
-          };
-          get.onerror = () => reject(get.error);
-        };
-      }),
-  );
 
 test('five minutes closed is caught up as 5 ticks', async ({ page }) => {
   // A town last true 5 minutes and 20 seconds ago, with no foragers so food cannot move.
@@ -186,6 +154,9 @@ test('export and import carry the town', async ({ page }) => {
   // The stored anchor is the time of import, not the file's, so no catch-up is owed.
   const stored = (await readRecord(page)) as { anchorMs: number };
   expect(stored.anchorMs).toBeGreaterThanOrEqual(startedMs);
+  // the town the import replaced is kept under `previous`, with the tap made before the export
+  const previous = (await readRecord(page, 'previous')) as { state: unknown };
+  expect(previous.state).toEqual({ ...state, foragers: 1 });
 
   await page.goto('/?tickMs=60000');
   await expect(page.getByTestId('tick')).toHaveText('388');
@@ -213,13 +184,70 @@ test('an import replaces an unreadable save', async ({ page }) => {
   const stored = (await readRecord(page)) as { schema: number; state: unknown };
   expect(stored.schema).toBe(1);
   expect(stored.state).toEqual(fileState);
+  // the record the import replaced is kept beside it
+  expect(await readRecord(page, 'previous')).toEqual(record);
 });
 
-test('the storage line shows an answer', async ({ page }) => {
+for (const [granted, line] of [
+  [true, 'kept'],
+  [false, 'the browser may clear this. Export a save.'],
+] as const) {
+  test(`the storage line says "${line}" when the browser answers ${granted}`, async ({ page }) => {
+    await page.addInitScript((answer) => {
+      navigator.storage.persist = async () => answer;
+      navigator.storage.persisted = async () => answer;
+    }, granted);
+    await page.goto('/?tickMs=60000');
+    await expect(page.getByTestId('storage')).toHaveText(line);
+  });
+}
+
+test('hiding the page saves', async ({ page }) => {
+  // A minute per tick: no autosave falls inside this test, so only the hide can store the tap.
   await page.goto('/?tickMs=60000');
-  await expect(page.getByTestId('storage')).toHaveText(
-    /^(kept|the browser may clear this\. Export a save\.)$/,
-  );
+  await expect(page.getByTestId('foragers')).toHaveText('1');
+  await page.getByRole('button', { name: 'More foragers' }).click();
+  await expect(page.getByTestId('foragers')).toHaveText('2');
+  expect(await readRecord(page)).toBeUndefined();
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await expect
+    .poll(
+      async () =>
+        ((await readRecord(page)) as { state: { foragers: number } } | undefined)?.state.foragers,
+    )
+    .toBe(2);
+});
+
+test('a failed save is shown', async ({ page }) => {
+  await page.goto('/?tickMs=50');
+  await expect.poll(() => number(page, 'saved-tick')).toBeGreaterThan(0);
+  await expect(page.getByTestId('notice-saveFailed')).toHaveCount(0);
+  // Every write now fails: the open connection gives no transaction and no new one can open.
+  await page.evaluate(() => {
+    const w = window as unknown as Record<string, unknown>;
+    w.realTransaction = IDBDatabase.prototype.transaction;
+    w.realOpen = IDBFactory.prototype.open;
+    IDBDatabase.prototype.transaction = () => {
+      throw new DOMException('no transaction', 'InvalidStateError');
+    };
+    IDBFactory.prototype.open = () => {
+      throw new DOMException('no database', 'InvalidStateError');
+    };
+  });
+  await expect(page.getByTestId('notice-saveFailed')).toHaveText('Saving failed. Export a save.');
+  const stuck = await number(page, 'saved-tick');
+  expect(await number(page, 'tick')).toBeGreaterThan(stuck);
+  // The next save that lands clears the notice.
+  await page.evaluate(() => {
+    const w = window as unknown as Record<string, never>;
+    IDBDatabase.prototype.transaction = w.realTransaction;
+    IDBFactory.prototype.open = w.realOpen;
+  });
+  await expect(page.getByTestId('notice-saveFailed')).toHaveCount(0);
+  await expect.poll(() => number(page, 'saved-tick')).toBeGreaterThan(stuck);
 });
 
 test.describe('installed', () => {
@@ -233,30 +261,94 @@ test.describe('installed', () => {
       const href = document.querySelector<HTMLLinkElement>('link[rel="manifest"]')!.href;
       const data = await (await fetch(href)).json();
       const icons = await Promise.all(
-        data.icons.map(async (icon: { src: string; sizes: string }) => ({
+        data.icons.map(async (icon: { src: string; sizes: string; purpose: string }) => ({
           sizes: icon.sizes,
+          purpose: icon.purpose,
           ok: (await fetch(new URL(icon.src, href))).ok,
         })),
       );
-      return { name: data.name, display: data.display, start: data.start_url, icons };
+      return { name: data.name, id: data.id, display: data.display, start: data.start_url, icons };
     });
     expect(manifest).toEqual({
       name: 'Silvanus',
+      id: '/',
       display: 'standalone',
       start: '/',
       icons: [
-        { sizes: '192x192', ok: true },
-        { sizes: '512x512', ok: true },
+        { sizes: '192x192', purpose: 'any', ok: true },
+        { sizes: '512x512', purpose: 'any', ok: true },
+        { sizes: '512x512', purpose: 'maskable', ok: true },
       ],
     });
     // The service worker has cached the app once it is active.
-    await page.evaluate(async () => {
-      const registration = await navigator.serviceWorker.ready;
-      return registration.active!.state;
-    });
+    await expect.poll(() => workerState(page)).toBe('activated');
     await context.setOffline(true);
     await page.goto('/?tickMs=60000');
     await expect(page.getByTestId('tick')).toBeVisible();
     await expect(page.getByTestId('version')).not.toBeEmpty();
+  });
+
+  test.describe('update', () => {
+    // Two builds of the app that differ only in their Version line, and one folder that is
+    // served: the first build's files, then the second's.
+    const web = path.resolve('apps/web');
+    const build = (name: string) => path.join(web, `dist-${name}`);
+    const ORIGIN = 'http://127.0.0.1:4174';
+    let served = '';
+    let server: http.Server | null = null;
+    const serve = (name: string) => {
+      for (const entry of fs.readdirSync(served)) {
+        fs.rmSync(path.join(served, entry), { recursive: true });
+      }
+      fs.cpSync(build(name), served, { recursive: true });
+    };
+
+    test.beforeAll(async () => {
+      test.setTimeout(120_000);
+      for (const name of ['a', 'b']) {
+        execFileSync('npx', ['vite', 'build', '--outDir', `dist-${name}`], {
+          cwd: web,
+          env: { ...process.env, SILVANUS_VERSION: `build-${name}` },
+          stdio: 'pipe',
+        });
+      }
+      served = fs.mkdtempSync(path.join(os.tmpdir(), 'silvanus-update-'));
+      serve('a');
+      server = await serveFolder(served, 4174);
+    });
+
+    test.afterAll(async () => {
+      await new Promise((resolve) => (server ? server.close(resolve) : resolve(null)));
+      for (const dir of [build('a'), build('b'), served]) {
+        if (dir) fs.rmSync(dir, { recursive: true, force: true });
+      }
+    });
+
+    test('update prompt appears', async ({ page }) => {
+      test.setTimeout(120_000);
+      await page.goto(`${ORIGIN}/?tickMs=60000`);
+      await expect(page.getByTestId('version')).toHaveText('build-a');
+      await expect.poll(() => workerState(page)).toBe('activated');
+      // An installed app that has been opened before: the page is run by the first build's
+      // service worker.
+      await page.reload();
+      await expect
+        .poll(() => page.evaluate(() => navigator.serviceWorker.controller !== null))
+        .toBe(true);
+      await expect(page.getByTestId('version')).toHaveText('build-a');
+      await expect(page.getByTestId('notice-update')).toHaveCount(0);
+
+      // The next deploy, found when the app looks for it.
+      serve('b');
+      await page.evaluate(async () => {
+        await (await navigator.serviceWorker.ready).update();
+      });
+      const notice = page.getByTestId('notice-update');
+      await expect(notice).toContainText('Update ready');
+      await expect(page.getByTestId('version')).toHaveText('build-a');
+      await notice.getByRole('button', { name: 'Reload' }).click();
+      await expect(page.getByTestId('version')).toHaveText('build-b');
+      await expect(page.getByTestId('notice-update')).toHaveCount(0);
+    });
   });
 });

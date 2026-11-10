@@ -2,5 +2,10 @@
   "version": "v4.12.0",
   "layers": ["core", "stacks/node-web", "project-types/game"],
   "exclude": [],
-  "overrides": []
+  "overrides": [
+    {
+      "id": "WEB-05",
+      "reason": "the config only reads the session hook's browser path"
+    }
+  ]
 }

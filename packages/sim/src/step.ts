@@ -51,12 +51,16 @@ export function step(
   return { state: { ...applied.state, rng, stock, tick: tick + 1 }, log };
 }
 
-// The state that `ticks` calls of step(state, []) give, with the totals.
+// The state that `ticks` calls of step(state, []) give, with the totals. Throws on a tick count
+// that is not a whole number of 0 or more.
 export function advance(
   state: State,
   ticks: number,
   content: Content,
 ): { state: State; produced: number; lost: number } {
+  if (!Number.isInteger(ticks) || ticks < 0) {
+    throw new RangeError('advance: ticks must be a whole number of 0 or more');
+  }
   let current = state;
   let produced = 0;
   let lost = 0;

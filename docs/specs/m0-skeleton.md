@@ -24,7 +24,7 @@ There is no game yet. Morgan's goal (round 5): "I want to see what resources wer
 
 ## Journeys and checks
 
-No check below can pass at commit `422360b`: the repo has no `package.json` and no code.
+At approval: no check below can pass at commit `422360b`: the repo has no `package.json` and no code.
 
 ### J1 The counter ticks by the rules
 

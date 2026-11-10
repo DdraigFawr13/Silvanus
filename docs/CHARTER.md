@@ -114,7 +114,7 @@ These counts are the scope cap.
 - **`packages/content`** holds every building, trade, event, site and template as typed data checked at build time. The closed set of condition and effect types is the engine's real interface.
 - **`apps/web`** has five tabs (Town, People, Guild, Trade, Chronicle), an inbox sheet that opens from any tab, a store holding the latest state, and a Web Worker that runs ticks.
 - **Saves.** IndexedDB with a version and upgrade steps. Autosave every 10 ticks in live play and none during catch-up. The page keeps a standby copy and writes it when hidden, because a worker is terminated on unload before it can answer (Project-Vulcan lesson, 2026-10-18). The app asks the browser for persistent storage and refuses to load a save newer than its code. Export and import as a JSON file from M0.
-- **Hosting.** One fixed address, because saves are tied to it. Vercel is proposed (D-022); creating the project needs Morgan's approval at M0.
+- **Hosting.** One fixed address, because saves are tied to it. Vercel, at https://silvanus-xi.vercel.app (D-024).
 - **Verification.** A headless soak plays 10,000 ticks with a random-policy bot, checks invariants and prints a balance report. From M4a it plays 100,000 ticks, which is 148.8 game years and more than two lifespans.
 
 ## Milestones
