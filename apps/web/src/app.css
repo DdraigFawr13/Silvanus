@@ -568,3 +568,159 @@ p {
 .confirm.quiet {
   border-color: var(--line-strong);
 }
+
+/* the tab bar (S4): pinned to the bottom, clear of the phone's bottom inset */
+.app {
+  padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+}
+
+.tabs {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  max-width: 32rem;
+  margin: 0 auto;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+}
+
+.tab {
+  min-height: 56px;
+  min-width: 44px;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-top: 3px solid transparent;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+}
+
+.tab.on {
+  color: var(--head);
+  border-top-color: var(--head);
+}
+
+/* the People tab (S4) */
+.chips,
+.sorts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap);
+  margin: 8px 0;
+}
+
+.sorts .sub {
+  margin: 0 4px 0 0;
+}
+
+.chip {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 14px;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.chip.on {
+  background: var(--line-strong);
+  border-color: var(--line-strong);
+  color: var(--head);
+  font-weight: 700;
+}
+
+.mor {
+  font-size: 14px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.mor b {
+  font-size: 17px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.mor.w b,
+.big.w {
+  color: var(--warn);
+}
+
+.mor.ok b,
+.big.ok {
+  color: var(--fine);
+}
+
+/* the resident sheet (S4) */
+.big {
+  font-size: 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.pairs {
+  display: grid;
+  gap: 2px;
+  margin: 4px 0 6px;
+}
+
+.pairs > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px 0;
+  border-top: 1px solid var(--line);
+}
+
+.pairs > div:first-child {
+  border-top: 0;
+}
+
+.pairs dt {
+  color: var(--ink);
+}
+
+.pairs dd {
+  margin: 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.pairs dd.w {
+  color: var(--warn);
+}
+
+.pairs dd.ok {
+  color: var(--fine);
+}
+
+.pairs .total {
+  border-top-color: var(--line-strong);
+}
+
+.trait {
+  padding: 4px 0;
+}
+
+.trait .cname {
+  display: block;
+  font-weight: 700;
+}
+
+.trait .cost {
+  display: block;
+  font-size: 14px;
+  color: var(--muted);
+}

@@ -117,8 +117,9 @@ describe('content', () => {
     ]);
     const { state, summary } = advance(start, 96, content);
     expect(state.tick).toBe(96);
-    // 24 cycles of +2 food, 3 days of 8 eaten (the day at tick 96 has not started)
-    expect(summary.made.food).toBe(48);
-    expect(state.stock.food).toBe(40 + 48 - 24);
+    // 24 cycles of seed 1's four foragers at their own skill and morale (read from a run of
+    // this engine), 3 days of 8 eaten (the day at tick 96 has not started)
+    expect(summary.made.food).toBe(45);
+    expect(state.stock.food).toBe(40 + 45 - 24);
   });
 });

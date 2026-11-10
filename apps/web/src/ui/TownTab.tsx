@@ -57,10 +57,13 @@ export function TownTab({
   state,
   send,
   children,
+  hidden = false,
 }: {
   state: State;
   send: (command: Command) => void;
   children: ReactNode;
+  // kept mounted under the People tab, so its open sheet and the save block's state stay
+  hidden?: boolean;
 }) {
   const [open, setOpen] = useState<Open>(null);
   const away = useSyncExternalStore(subscribe, summary);
@@ -81,7 +84,7 @@ export function TownTab({
     .reverse();
 
   return (
-    <>
+    <div hidden={hidden}>
       {away && <AwayCard state={state} summary={away} onDismiss={dismissSummary} />}
       <div className="panel" data-testid="hall">
         <div className="row-top">
@@ -207,6 +210,6 @@ export function TownTab({
       {shown && (
         <BuildingSheet state={state} building={shown} send={send} onClose={() => setOpen(null)} />
       )}
-    </>
+    </div>
   );
 }

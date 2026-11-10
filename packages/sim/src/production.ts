@@ -1,8 +1,9 @@
 import type { Building, Content, Event, State } from './types';
 import { DAY_TICKS, addLog, capsOf, kindOf, methodOf } from './util';
 
-// Until S4 every worker works at 100 percent; then skill and morale set it.
-const EFFECT = 100;
+// A worker's effect in percent: skill 50 and morale 50 give 100.
+export const effectOf = (skill: number, morale: number): number =>
+  Math.floor(((50 + skill) * (80 + Math.floor((morale * 2) / 5))) / 100);
 
 const workersIn = (s: State, building: Building) =>
   s.residents.filter((resident) => resident.jobId === building.id).length;
@@ -46,6 +47,14 @@ export function produce(s: State, content: Content, events: Event[]): void {
     // full stores: nothing is taken, made or lost, and `short` stays as it was
     if (Object.keys(chosen.makes).every((id) => s.stock[id] >= caps[id])) continue;
 
+    const skill = kindOf(content, building.kind)!.skill;
+    const effect = s.residents
+      .filter((resident) => resident.jobId === building.id)
+      .reduce(
+        (sum, r) => sum + effectOf(skill === null ? 50 : (r.skills[skill] ?? 0), r.morale),
+        0,
+      );
+
     let ran = chosen;
     const missing = shortInput(s, building, content);
     if (missing !== null) {
@@ -75,7 +84,7 @@ export function produce(s: State, content: Content, events: Event[]): void {
     }
 
     for (const [id, rate] of Object.entries(ran.makes)) {
-      const carried = (building.carry[id] ?? 0) + rate * EFFECT * workers;
+      const carried = (building.carry[id] ?? 0) + rate * effect;
       const whole = Math.floor(carried / 10000);
       building.carry[id] = carried % 10000;
       if (whole === 0) continue;

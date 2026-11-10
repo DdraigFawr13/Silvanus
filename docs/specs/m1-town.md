@@ -498,6 +498,18 @@ Taken before any code, from the zero-decision check on S3 against what S2 merged
 - **After the fresh review of the diff** (one agent, 138,020 tokens measured; 0 high, 2 medium, 5 low). Fixed all 7: a hand-edited save marking a basic method short crashed the Town tab; an import kept the old town's away card; tests now read production's `used`, pin the one skipped cycle of a free switch, and cover the store's 10-tick rule; J9's script now buys a method, runs it short and switches back; `validateContent` checks the two D-034 rules above. Each of the two medium fixes was seen to fail under a planted bug.
 - **Seen to fail first.** The 7 engine tests and the 2 browser tests were run against S2's code and failed. After D-034 the tests were changed before the code and failed again, with the save tests.
 
+### S4 (2026-11-10)
+
+Taken before any code, from the zero-decision check on S4 against what S3 merged (one fresh agent, 174,050 tokens measured). No gap needed Morgan beyond what the mock-up settles.
+
+- **Seed 1's numbers move.** With skill and morale in the worker's effect, seed 1's four foragers no longer make a flat 0.5 food a cycle (their Husbandry is 52, 49, 33 and 39), and morale moves at tick 24. The "skill 50 and morale 50 in every slice" line holds only until the first game day. Tests that pin a mechanism's numbers (`step.test.ts`'s food, cap and production-tick tests; `advance reports…`) now start from `steady()`, moved to `test/town.ts`; `content.test.ts` "runs 96 ticks" keeps seed 1's real residents and reads 45 food made (48 at S3) from the engine; `methods.test.ts` "retooling costs a game day" reads 2,550 at tick 27, after the day at tick 24 moved its worker's morale to 55 (an effect of 102). No assertion was widened.
+- **J9.** With real skills the Mine banks enough ore that the Workshop never ran short. Two commands are appended in tick order: `setOpen` 0 on the Mine at tick 345, and back to 4 at 470. The Workshop now runs short at ticks 419 and 491, read from a probe.
+- **Reasons.** `reasons` holds the nonzero terms in the spec's order (food, fit, likes, dislikes, idle, crowded; tavern from S5), a new array each day. The day reads jobs from before the jobs pass, as the order of rule 3 and rule 4 says.
+- **The effect** is exported as `effectOf(skill, morale)`; a building's output is `rate × the sum of its workers' effects`. A building kind without a skill would count skill 50; none has methods in M1.
+- **`pinPreview`** lives in `day.ts` and shares its terms with the day's morale, so the preview is what the day counts. It gives no `fit` for a building with no skill (the Tavern), none for a skill from 30 to 59, and `[]` for a building with no worker slots.
+- **Before the first game day** a resident has no reasons; the sheet says "Morale is weighed at the start of each game day."
+- **Screens.** Choices drawn on `mockups/people.html`, listed on that page under "Choices drawn here".
+
 ## Open questions
 
 - Whether gold pays for building from M3 (D-027, proposed).

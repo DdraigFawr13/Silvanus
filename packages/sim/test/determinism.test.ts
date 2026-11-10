@@ -21,6 +21,9 @@ const SCRIPT: { tick: number; command: Command }[] = [
   { tick: 310, command: { type: 'build', kind: 'workshop' } }, // 14
   { tick: 340, command: { type: 'setMethod', buildingId: 14, method: 'forge' } }, // bought
   { tick: 341, command: { type: 'setMethod', buildingId: 14, method: 'hammer' } }, // refused: tier 2
+  // S4: the Mine's workers move to the Workshop, which then forges through its ore
+  { tick: 345, command: { type: 'setOpen', buildingId: 12, count: 0 } },
+  { tick: 470, command: { type: 'setOpen', buildingId: 12, count: 4 } },
   // ore runs out at the Workshop, and comes back once the Mine digs ore again
   { tick: 480, command: { type: 'setMethod', buildingId: 12, method: 'ore' } },
   { tick: 500, command: { type: 'pin', residentId: 1, buildingId: null } },
@@ -69,9 +72,9 @@ test('chunks and steps agree with commands between', () => {
   const shop = stepped.buildings.find((b) => b.kind === 'workshop')!;
   expect(shop.owned).toEqual(['mend', 'forge']);
   expect(shop.method).toBe('mend');
-  // short at tick 471, back on Forge once ore came, short again at 555: one line each time
+  // short at tick 419, back on Forge once ore came, short again at 491: one line each time
   expect(stepped.log.filter((line) => line.type === 'short').map((line) => line.tick)).toEqual([
-    471, 555,
+    419, 491,
   ]);
   for (const longest of [7, 480, 1]) {
     expect(chunked(start, longest), `chunks of ${longest}`).toEqual(stepped);

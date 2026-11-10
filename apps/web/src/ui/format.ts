@@ -56,3 +56,34 @@ const REASONS: Partial<Record<Reason, string>> = {
   tooFew: 'Not enough residents',
 };
 export const reasonText = (reason: Reason) => REASONS[reason] ?? 'That cannot be done now';
+
+// "+10", "−10" (a minus sign, not a hyphen), "0"
+export const signed = (n: number) => (n > 0 ? `+${n}` : n < 0 ? `−${-n}` : '0');
+
+// Morale reason labels, by the engine's reason id.
+const REASON_LABELS: Record<string, string> = {
+  food: 'Food',
+  fit: 'Skill for the job',
+  likes: 'Likes the work',
+  dislikes: 'Dislikes the work',
+  idle: 'No work',
+  crowded: 'Crowded home',
+  tavern: 'The tavern',
+};
+export const reasonLabel = (id: string) => REASON_LABELS[id] ?? id;
+
+// "Dislikes the work −10 · Skill for the job −10", or `none` for an empty list
+export const reasonsText = (reasons: { id: string; amount: number }[], none: string) =>
+  reasons.length === 0
+    ? none
+    : reasons.map((r) => `${reasonLabel(r.id)} ${signed(r.amount)}`).join(' · ');
+
+// "the Workshop", "the Workshop and the Tavern", "the Farm, the Mine and the Tavern"
+export function theList(names: string[]): string {
+  const each = names.map((name) => `the ${name}`);
+  if (each.length <= 1) return each.join('');
+  return `${each.slice(0, -1).join(', ')} and ${each[each.length - 1]}`;
+}
+
+// Age in game years: a game year is 672 game hours.
+export const ageOf = (tick: number, bornTick: number) => Math.floor((tick - bornTick) / 672);

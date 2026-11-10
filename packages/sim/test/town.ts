@@ -43,3 +43,14 @@ export function finished(state: State, kind: string): State {
   };
   return { ...state, nextId: state.nextId + 1, buildings: [...state.buildings, building] };
 }
+
+// Every resident at skill 50 and morale 50, an effect of 100 (spec, "Journeys"), until the
+// first game day moves their morale.
+export function steady(state: State): State {
+  const residents = state.residents.map((r) => ({
+    ...r,
+    morale: 50,
+    skills: Object.fromEntries(Object.keys(r.skills).map((id) => [id, 50])),
+  }));
+  return { ...state, residents };
+}
