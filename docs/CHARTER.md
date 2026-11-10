@@ -12,7 +12,7 @@ v0.1 passes when that check-in works end to end on the phone (D-016).
 
 ## Pillars
 
-- **Decisions, not placement.** Building is choosing what takes the next open lot. No grid, roads or adjacency.
+- **Decisions, not placement.** Building is choosing what takes an open lot. Each lot has a character that favours some buildings (D-033). No grid, roads or adjacency.
 - **Idle with a pulse.** The town works while the app is closed. A check-in is: read what happened, hand things out, send things off, start something.
 - **People are records, not agents.** Every resident is an individual with a trade, skills, traits, a family and a history, and one morale value. No needs, moods, schedules or movement are simulated (D-017).
 - **The town has a direction.** Charters open and close buildings, trades and events.
@@ -105,7 +105,8 @@ These counts are the scope cap.
 - Adventurer classes: 3 plus 1 unlocked, then 8. Quest objectives: 3, then 6.
 - Forest bands: 1, then 3. Sites: 6, then 25.
 - Events: 12, then 120. Chronicle templates: 40, then 300.
-- Trade partners: 1, then 5. Charters: 0, then 2. Policies: 0, then 6.
+- Trade partners: 1, then 5. Charters: 0, then 2. Policies: 3 standing orders (D-033), then 6.
+- Lot features: 4. Town works: 4 (D-033).
 
 ## Technical approach
 
@@ -123,9 +124,9 @@ Each ends with a build on the phone and a test Morgan runs. One session takes on
 
 1. **M0 Skeleton.** Workspace, tick loop, named random streams, saves with age and family fields, standby copy, clamp on elapsed time, persistent-storage request, export, PWA shell, hosting, soak, CI. Test: install on the phone; a counter survives closing with the right catch-up.
 2. **M1 Town.** Lots, 9 buildings at 3 tiers, production methods, 5 resources in use (food, wood, stone, ore, tools), residents as records, 2 peoples, automatic jobs with pin, arrivals, Hamlet to Village (D-025, D-026). Test: about 20 minutes of play in total over check-ins across 2 or 3 days, with real trade-offs, reaching the Village; the soak passes.
-3. **M2 Guild.** Herb garden, Smithy, Apothecary and Guild hall (D-026), recruits list, 3 classes, 6 Eaves sites, quest writing, picked parties, gear, decisions that wait, the threat clock and a first raid (D-029). Test: a quest resolves while the phone is closed and its report reads well.
-4. **M3 Trade outlet, events, chronicle.** One buyer town and caravans, one class-unlocking building, 12 events, 40 templates. Test: the check-in at the top of this file, end to end. **This is v0.1.**
-5. **M4a Families.** Marriage, children, aging, death, inheritance, heirs in the inbox, biography pages, the long soak.
+3. **M2 Guild.** Herb garden, Smithy, Apothecary and Guild hall (D-026), recruits list, 3 classes, 6 Eaves sites, quest writing, picked parties, gear, decisions that wait, the threat clock and a first raid (D-029). Test: a quest resolves while the phone is closed and its report reads well. Approved additions (D-032, D-033), planned as two sessions with the town half first. Town half: lots with a character, standing orders, the forecast and the ledger, a practised crew, and push methods if the M1 test asks for them. Guild half: staged reports, the raid clock as a sign, the Palisade.
+4. **M3 Trade outlet, events, chronicle.** One buyer town and caravans, one class-unlocking building, 12 events, 40 templates. Test: the check-in at the top of this file, end to end. **This is v0.1.** Approved additions: signs on big events, deeds, named foes (last, so it can slip), gold hiring a second crew, the Well, the Watchtower and the Cart track.
+5. **M4a Families.** Marriage, children, aging, death, inheritance, heirs in the inbox, biography pages, the long soak. Approved additions: foremen and apprentices; heirlooms pass to heirs.
 6. **M4b Paths.** Guild and March charters, 6 policies, Town tier, building branches, the Deepwood and its faction, posted bounties.
 7. **M5 Trade and Crown.** Partners, reactive prices, rumours, escorts, levies and favor.
 8. **M6 Depth.** City tier, the Heart, capstones, content to v1.0 counts, art and sound. **This is v1.0.**
