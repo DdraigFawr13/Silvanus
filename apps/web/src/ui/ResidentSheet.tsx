@@ -51,7 +51,7 @@ export function ResidentSheet({
       <div className="btns">
         <button
           type="button"
-          className="btn"
+          className="btn second"
           data-testid="pin-to"
           aria-expanded={listing}
           onClick={() => {

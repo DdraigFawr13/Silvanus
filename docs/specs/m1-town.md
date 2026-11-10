@@ -508,7 +508,7 @@ Taken before any code, from the zero-decision check on S4 against what S3 merged
 - **The effect** is exported as `effectOf(skill, morale)`; a building's output is `rate × the sum of its workers' effects`. A building kind without a skill would count skill 50; none has methods in M1.
 - **`pinPreview`** lives in `day.ts` and shares its terms with the day's morale, so the preview is what the day counts. It gives no `fit` for a building with no skill (the Tavern), none for a skill from 30 to 59, and `[]` for a building with no worker slots.
 - **Before the first game day** a resident has no reasons; the sheet says "Morale is weighed at the start of each game day."
-- **Screens.** Choices drawn on `mockups/people.html`, listed on that page under "Choices drawn here".
+- **Screens.** Choices drawn on `mockups/people.html` (https://claude.ai/artifact/R2jofFnKAX6bWhpqKngZcP), listed on that page under "Choices drawn here".
 
 ## Open questions
 
