@@ -9,7 +9,7 @@ export const jobOf = (state: State, resident: Resident): Building | null =>
 
 export function tradeOf(state: State, resident: Resident): string {
   const job = jobOf(state, resident);
-  return (job && kindOf(content, job.kind)!.trade) ?? 'No trade';
+  return (job && kindOf(content, job.kind)!.trade) ?? 'No work';
 }
 
 // The resident's highest skill; ties go to the skill listed first in content.

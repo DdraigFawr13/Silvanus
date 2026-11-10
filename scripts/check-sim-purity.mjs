@@ -3,6 +3,7 @@
 // `globalThis.Date` and `self.performance` are caught.
 import fs from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const DIRS = ['packages/sim/src', 'packages/content/src'];
 const BANNED = [
@@ -20,16 +21,44 @@ const BANNED = [
   'Math.log',
   'Math.exp',
   'Math.sqrt',
+  'Math.asin',
+  'Math.acos',
+  'Math.atan',
+  'Math.atan2',
+  'Math.sinh',
+  'Math.cosh',
+  'Math.tanh',
+  'Math.hypot',
+  'Math.cbrt',
+  'Math.log2',
+  'Math.log10',
+  'Math.log1p',
+  'Math.expm1',
+  'Math.fround',
   'globalThis',
   'crypto',
   'Intl',
+  // no runtime network or storage in the engine (D-003), and no code from text
+  'fetch',
+  'XMLHttpRequest',
+  'WebSocket',
+  'localStorage',
+  'sessionStorage',
+  'indexedDB',
+  'navigator',
+  'eval',
 ];
 
 const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const patterns = BANNED.map((word) => ({
-  word,
-  re: new RegExp(`(?<![\\w$])${escape(word)}(?![\\w$])`),
-}));
+const patterns = [
+  ...BANNED.map((word) => ({
+    word,
+    re: new RegExp(`(?<![\\w$])${escape(word)}(?![\\w$])`),
+  })),
+  // Math reached around the word list: `Math['random']` or `const { random } = Math`
+  { word: 'Math[', re: /(?<![\w$])Math\s*\[/ },
+  { word: '= Math', re: /=\s*Math\s*(?:[;,)}]|$)/ },
+];
 
 // Blank comments (keeping newlines so line numbers hold); strings are left as code. A scanner,
 // so `//` or `/*` inside a '…', "…" or `…` string is not taken for a comment. A template
@@ -83,11 +112,13 @@ function* files(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) yield* files(full);
-    else if (/\.(ts|tsx|js|mjs)$/.test(entry.name)) yield full;
+    else if (/\.(ts|tsx|mts|cts|js|mjs|cjs)$/.test(entry.name)) yield full;
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Compared as URLs, so a checkout path with a space or a symlinked folder still runs the scan.
+const invoked = process.argv[1] ? pathToFileURL(fs.realpathSync(process.argv[1])).href : '';
+if (import.meta.url === invoked) {
   let failed = 0;
   let count = 0;
   for (const dir of DIRS) {
@@ -98,6 +129,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
         failed++;
       }
     }
+  }
+  if (count === 0) {
+    console.error(`purity: no files found in ${DIRS.join(', ')}`);
+    process.exit(1);
   }
   if (failed) process.exit(1);
   console.log(`purity: ${count} files clean`);

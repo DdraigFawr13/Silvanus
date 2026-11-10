@@ -44,7 +44,7 @@ One theme only (D-028); there is no light set. Values are copied from look B in 
 <!-- Faces, sizes and number settings (tabular figures, units). Copy settings from the accepted specimen, not from memory (adventure-manager LESSONS:10). -->
 
 - Display: Alegreya SC, weight 700, fallback Georgia, serif. Body and numbers: Alegreya Sans, weights 400, 500 and 700, fallback system-ui, sans-serif. Both are SIL Open Font License 1.1. The game makes no network calls (D-003), so the font files ship inside the app; the M1 spec names the packages.
-- Sizes, from the sample: town name 26 px, weight 700, letter-spacing 0.03em. Building or resident name 18 px, display face. Body 16 px, line height 1.35. Secondary lines and the log 14 px. Tier label 13 px, weight 700. Stock label 12 px. Stock number 17 px, weight 700. Button text 15 px, weight 700. Stepper glyphs 18 px, weight 700. (The sample asked for 600 on three of these; Alegreya Sans has no 600, and a browser shows 700 for it.)
+- Sizes, from the sample: town name 26 px, weight 700, letter-spacing 0.03em. Building or resident name 18 px, display face. Body 16 px, line height 1.35. Secondary lines and the log 14 px. Tier label 13 px, weight 700. Stock label 12 px. Stock number 17 px, weight 700. Button text 15 px, weight 700. Stepper glyphs 18 px, weight 700. (The sample asked for 600 on three of these; Alegreya Sans has no 600, and a browser shows 700 for it.) The CSS writes every font size in rem (px / 16), so the phone's text-size setting scales it (M1 audit F13).
 - Numbers use `font-variant-numeric: tabular-nums`. Stock shows as `142` over a label, or `142 / 200` where the cap matters. Time shows in game units ("3 game hours", "1 game day"), never in ticks.
 
 ## Controls

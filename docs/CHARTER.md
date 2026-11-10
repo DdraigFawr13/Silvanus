@@ -41,7 +41,7 @@ Read from the three repos on 2026-11-09. Silvanus overlaps all three and stays l
 ## Time
 
 - 1 tick is 1 game hour and 60 s of real time. A game day is 24 minutes, a season is 7 game days, a game year is 11 h 12 min (D-002).
-- Offline catch-up runs `min(elapsed, cap)` ticks through the same step function as live play. The cap is 480 ticks (8 h) at the start and 1,440 ticks (24 h) after civic upgrades. Elapsed time below zero counts as zero.
+- Offline catch-up runs `min(elapsed, cap)` ticks through the same step function as live play. The cap grows with the Hall's tier; content holds each tier's value (`hall.tiers[].catchUpCap`: a Hamlet 480 ticks or 8 h, a Village 960 or 16 h). Whether 1,440 ticks (24 h) is a later tier's cap is open (M1 audit F18). Elapsed time below zero counts as zero.
 - **Decisions wait for the player (D-018).** Every decision's deadline is longer than the current catch-up cap, so each one is on screen at one check-in at least. A party that asks a question camps until it is answered or the deadline passes; then its risk posture answers.
 - **Events queue.** At most 5 events wait for a decision. While 5 wait, no new event is drawn.
 - No tap rewards. No hard loss: decline is recoverable (D-007).
@@ -52,7 +52,7 @@ Read from the three repos on 2026-11-09. Silvanus overlaps all three and stays l
 ### Lots and buildings
 
 - The town is a list of lots. A Hamlet has 6 lots and up to 25 residents; a Village has 10 and 60; a Town 16 and 100; a City 24 and 150. Hamlet and Village are in v0.1.
-- A building has a category, tiers, worker slots, recipes (inputs, outputs, ticks, governing skill) and upkeep. Tier 3 is a permanent branch point, from M4b.
+- A building has a category, tiers, worker slots and production methods (inputs, outputs, governing skill); there is no separate upkeep (D-025, D-034). Tier 3 is a permanent branch point, from M4b.
 - Special buildings unlock an adventurer class, a town function or a trade good. v0.1 has one, which unlocks a fourth class.
 
 ### Economy and gear

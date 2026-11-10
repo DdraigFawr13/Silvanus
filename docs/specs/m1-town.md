@@ -75,7 +75,7 @@ Unit checks are Vitest tests: engine tests in `packages/sim/test/`, save tests i
 
 ### J9 Live play equals catch-up, with commands between
 
-- **Given** seed 1 and a fixed script of 12 commands, each with the tick it is sent at, over 1,000 ticks (the builder writes the script once from the command types its slice implements, with at least 2 that are rejected, and later slices append to it). **Then** four runs give equal states: `step` tick by tick with each command passed to its tick's `step`; and `apply` at each command's tick with `advance` between, no single `advance` longer than 7, then 480, then 1 tick. **Check:** `determinism.test.ts` "chunks and steps agree with commands between" (audit F9).
+- **Given** seed 1 and a fixed script of at least 12 commands, each with the tick it is sent at, over 1,000 ticks (the builder writes the script once from the command types its slice implements, with at least 2 that are rejected, and later slices append to it). **Then** four runs give equal states: `step` tick by tick with each command passed to its tick's `step`; and `apply` at each command's tick with `advance` between, no single `advance` longer than 7, then 480, then 1 tick. **Check:** `determinism.test.ts` "chunks and steps agree with commands between" (audit F9).
 
 ### J10 The soak proves reach and recovery (audit F11)
 
@@ -102,7 +102,7 @@ Unit checks are Vitest tests: engine tests in `packages/sim/test/`, save tests i
 ## Decisions
 
 - Homes on lots; the Hall off the lots; build cost in stock and time; queue of 3; clearing with no refund (D-025).
-- Production methods are the one production system; a short input drops to the basic method; changing method costs 1 game day (D-025).
+- Production methods are the one production system; a short input drops to the basic method; changing method costs 1 game day (D-025, amended by D-034: a new method costs stock plus 1 game day, a switch back to an owned one 4 game hours).
 - Leaving at most one per season and never at 8 or fewer (D-025).
 - 9 resources and 13 buildings in v0.1; M1 ships 9 buildings and uses 5 resources (D-026).
 - The look is Lantern at the forest edge, one theme (D-028). `docs/UI_STYLE.md` is the style doc.
@@ -159,6 +159,8 @@ scripts/               soak.ts (rewritten)
 `vitest.config.ts` already includes `packages/*/test/**/*.test.ts`. `scripts/check-sim-purity.mjs` exports `findBanned`; `packages/sim/test/purity.test.ts` imports it by relative path.
 
 ### Content (`packages/content/src/index.ts`)
+
+These are the starting values at approval. Content is the home of every number; where this section and content differ, content is right (M1 audit F20).
 
 `version: 2`. All amounts are whole numbers. Rates are hundredths of a unit per worker per production cycle; a cycle is 4 ticks.
 

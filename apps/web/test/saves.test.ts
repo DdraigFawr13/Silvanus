@@ -21,6 +21,7 @@ import {
   storageAnswer,
 } from '../src/saves';
 import type { SaveRecord } from '../src/saves';
+import type { Command } from '@silvanus/sim';
 
 // A played town, so the rng, stock, queue and log fields hold real values.
 function record(): SaveRecord {
@@ -509,6 +510,44 @@ describe('saves', () => {
     const text = exportText(raw);
     expect(JSON.parse(text)).toEqual(raw);
     expect(text.split('\n')[1]).toBe(`  "schema": ${SCHEMA + 1},`);
+  });
+
+  // A town played for 10,000 ticks, with settlers and a long log. A shape check stricter than
+  // the engine would refuse it as damaged (M1 audit F7).
+  test('a long-played town passes the shape check and the import', () => {
+    let state = newGame(3, content);
+    const kinds = content.buildings.map((b) => b.id);
+    // a fixed stream of picks (a plain LCG), so the run is the same every time
+    let x = 3 * 9973;
+    const pick = (n: number) => (x = (x * 1103515245 + 12345) % 2147483648) % n;
+    for (let t = 0; t < 10_000; t += 25) {
+      const commands: Command[] = [];
+      const k = pick(6);
+      if (k === 0) commands.push({ type: 'build', kind: kinds[pick(kinds.length)] });
+      if (k === 1 && state.buildings.length) {
+        const target = state.buildings[pick(state.buildings.length)];
+        commands.push({ type: 'upgrade', buildingId: target.id });
+      }
+      if (k === 2) commands.push({ type: 'upgradeHall' });
+      if (k === 3 && state.buildings.length) {
+        const target = state.buildings[pick(state.buildings.length)];
+        const own = content.methods.filter((m) => m.building === target.kind);
+        if (own.length) {
+          commands.push({
+            type: 'setMethod',
+            buildingId: target.id,
+            method: own[pick(own.length)].id,
+          });
+        }
+      }
+      state = advance(apply(state, commands, content).state, 25, content).state;
+    }
+    // the run really is long-played, not a fresh town
+    expect(state.residents.length).toBeGreaterThan(12);
+    expect(state.log.length).toBeGreaterThan(20);
+    const long: SaveRecord = { schema: SCHEMA, anchorMs: 1_700_000_000_000, state };
+    expect(parse(JSON.parse(exportText(long)))).toEqual({ kind: 'ok', record: long });
+    expect(importText(exportText(long)).state).toEqual(state);
   });
 
   test('export then import', () => {

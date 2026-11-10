@@ -1,6 +1,6 @@
 import type { Amounts, Building, BuildingKind, Content, Method, State } from './types';
 
-export const DAY_TICKS = 24;
+export { DAY_TICKS } from './calendar';
 
 export function kindOf(content: Content, id: string): BuildingKind | undefined {
   return content.buildings.find((kind) => kind.id === id);

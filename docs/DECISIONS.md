@@ -150,7 +150,7 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
 
 ## D-025 M0 passed; M1 Town's rules
 
-- **Status:** Accepted (2026-11-10; round 1 answers, then delegated)
+- **Status:** Accepted (2026-11-10; round 1 answers, then delegated). Its method-change rule is amended by D-034.
 - **Decision:** M0's exit test passed on Morgan's phone. M1's rules:
   - Homes are buildings on lots. The Hall takes no lot, stands from day 1 and cannot be cleared. Day 1 has 8 founders, the Hall, a Cottage and a Forager's hut.
   - Building and upgrading cost stock and game hours. One job is under way at a time, with a queue of up to 3. A lot can be cleared with no refund, after a confirm on the page.
@@ -239,6 +239,6 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
 
 ## D-034 A building buys a method once
 
-- **Status:** Accepted (2026-11-10) by Morgan, during the S3 mock-up review. The rule and its owner are his. The prices and the 4 game hours are Claude's proposal on the mock-up, waiting for his approval.
+- **Status:** Accepted (2026-11-10) by Morgan, during the S3 mock-up review. The rule and its owner are his. The prices and the 4 game hours are Claude's proposal on the mock-up; they are starting values, and the M1 test (J14) judges them (M1 audit F19, Morgan: "Do what you recommend for all").
 - **Decision:** A method a building has not had before costs stock once, paid when it is chosen, plus 1 game day to set up (`retoolTicks`). After that the building owns it: switching back to an owned method is free and takes 4 game hours (`switchTicks`, one production cycle). What a building owns belongs to that building alone; clearing its lot loses it. Every building owns its methods with no inputs from the start. Content gains a `cost` on each method; a building record gains `owned`, so saves move to schema 3 and an older town's buildings own their free methods and the one they run. Amends D-025's "changing method costs 1 game day".
 - **Why:** Morgan, in chat: "I want there to be a cost as well as time to change to a different production method that you didn't have before. Once you have "purchased" a production method, switching takes much less time and you don't have to pay again to do so." Asked whether the town or the building owns a bought method, he chose the building.

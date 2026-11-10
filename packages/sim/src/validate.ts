@@ -68,5 +68,39 @@ export function validateContent(content: Content): string[] {
       faults.push(`method ${method.id} falls back to ${fallback.id}, which has a price`);
     }
   }
+  // References between entries, so a content edit fails here and not in the worker (M1 audit F8).
+  const skills = new Set(content.skills.map((k) => k.id));
+  const kinds = new Set(content.buildings.map((b) => b.id));
+  for (const kind of content.buildings) {
+    if (kind.skill !== null && !skills.has(kind.skill)) {
+      faults.push(`${kind.id} names an unknown skill, ${kind.skill}`);
+    }
+  }
+  for (const trait of content.traits) {
+    for (const id of [...trait.likes, ...trait.dislikes]) {
+      if (!kinds.has(id)) faults.push(`trait ${trait.id} names an unknown building, ${id}`);
+    }
+  }
+  for (const method of content.methods) {
+    if (!kinds.has(method.building)) {
+      faults.push(`method ${method.id} belongs to an unknown building, ${method.building}`);
+    }
+  }
+  for (const people of content.peoples) {
+    if (!content.names[people.id]) faults.push(`people ${people.id} has no names table`);
+    for (const id of people.leans) {
+      if (!skills.has(id)) faults.push(`people ${people.id} leans to an unknown skill, ${id}`);
+    }
+  }
+  for (const resource of content.resources) {
+    if (resource.start > resource.cap) faults.push(`${resource.id} starts above its cap`);
+  }
+  // a settler draws two different traits
+  if (content.traits.length < 2) faults.push('there must be at least 2 traits');
+  // ids the engine reads by name: eating, and the founders' buildings (D-025)
+  if (!resources.has('food')) faults.push('the engine needs a resource with id food');
+  for (const id of ['cottage', 'forager']) {
+    if (!kinds.has(id)) faults.push(`the engine needs a building kind with id ${id}`);
+  }
   return faults;
 }

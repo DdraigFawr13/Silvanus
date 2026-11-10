@@ -4,18 +4,32 @@ import type { State } from '../src/index';
 import { content, crowd, finished } from './town';
 
 // Seed 1 at the start of its first game day, with `food` in store. Nothing is made at tick 24,
-// so the day's food is what is set here.
+// so the day's food is what is set here. The traits these tests read are set here, not taken
+// from seed 1's draw, so a change to how residents are drawn does not move them (M1 audit F4):
+// 1 is Hearth-bound (dislikes the Forager's hut), 3 Deft and 4 Green-fingered (likes it).
+const TRAITS: Record<number, string[]> = {
+  1: ['hearthBound', 'deft'],
+  3: ['deft', 'woodwise'],
+  4: ['greenFingered', 'woodwise'],
+};
 function dayStart(food: number, change: (s: State) => State = (s) => s): State {
   const start = newGame(1, content);
-  return change({ ...start, tick: 24, stock: { ...start.stock, food } });
+  const residents = start.residents.map((r) => (TRAITS[r.id] ? { ...r, traits: TRAITS[r.id] } : r));
+  return change({ ...start, residents, tick: 24, stock: { ...start.stock, food } });
 }
 
 const who = (state: State, id: number) => state.residents.find((r) => r.id === id)!;
 
 describe('growth', () => {
-  // Seed 1: Dai (1) forages and is Hearth-bound, which dislikes the Forager's hut; Ceriin (3) has
-  // no job; Hrutrek (4) forages and is Green-fingered, which likes it.
+  // 1 and 4 forage and 3 has no job (seed 1's assignment, checked first).
   test('morale moves toward its reasons by 5 a day', () => {
+    const start = dayStart(0);
+    const hut = start.buildings.find((b) => b.kind === 'forager')!.id;
+    expect([who(start, 1).jobId, who(start, 3).jobId, who(start, 4).jobId]).toEqual([
+      hut,
+      null,
+      hut,
+    ]);
     // a hungry day: the town is not fed
     const hungry = step(dayStart(0), [], content).state;
     expect(who(hungry, 1).reasons).toEqual([
@@ -39,7 +53,7 @@ describe('growth', () => {
     ).state;
     for (const r of again.residents) expect(r.morale, r.name).toBe(40);
 
-    // a fed day with food to spare: +10. Dai's target is 50, Hrutrek's 70, Ceriin's 50
+    // a fed day with food to spare: +10. 1's target is 50, 4's 70, 3's 50
     const fed = step(dayStart(100), [], content).state;
     expect(who(fed, 1).morale).toBe(50);
     expect(who(fed, 3).morale).toBe(50);
@@ -103,9 +117,12 @@ describe('growth', () => {
   });
 
   test('a job the resident is bad at costs morale through fit', () => {
-    // Ceriin (3) has mining 23, below 30. Pinned to a Mine, the day gives fit -10.
+    // 3 is given mining 23, below 30. Pinned to a Mine, the day gives fit -10.
     let town = newGame(1, content);
-    town = { ...town, stock: { ...town.stock, wood: 200 } };
+    const residents = town.residents.map((r) =>
+      r.id === 3 ? { ...r, skills: { ...r.skills, mining: 23 } } : r,
+    );
+    town = { ...town, residents, stock: { ...town.stock, wood: 200 } };
     town = apply(town, [{ type: 'build', kind: 'mine' }], content).state;
     for (let i = 0; i < 24; i++) town = step(town, [], content).state;
     const mine = town.buildings.find((b) => b.kind === 'mine')!;
@@ -140,7 +157,6 @@ describe('growth', () => {
     expect(state.jobsDirty).toBe(false);
     // the away card's summary names them
     expect(advance(town, 1, content).summary.arrived).toEqual([settler.name]);
-    // one at a time: 8 beds were free and food enough for more, and one came
 
     // no free bed: nobody comes
     expect(step(dayStart(100), [], content).state.residents).toHaveLength(8);
@@ -181,8 +197,9 @@ describe('growth', () => {
       expect(lines.map((line) => line.text)).toEqual(
         night.summary.left.map((name) => `${name} has left Ashwick.`),
       );
-      // everyone is idle and starving at morale 0, a tie, so the lowest id goes first: Dai (1)
-      expect(night.summary.left[0], `from tick ${tick}`).toBe('Dai');
+      // everyone is idle and starving at morale 0, a tie, so the lowest id goes first
+      const lowest = starving(tick).residents.reduce((a, b) => (b.id < a.id ? b : a));
+      expect(night.summary.left[0], `from tick ${tick}`).toBe(lowest.name);
       // a season (168 ticks) at least between two departures
       for (let i = 1; i < lines.length; i++) {
         expect(lines[i].tick - lines[i - 1].tick).toBeGreaterThanOrEqual(168);

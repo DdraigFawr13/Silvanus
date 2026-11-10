@@ -332,7 +332,9 @@ export function App({ worker, first, loadedTick, tickMs, save }: Props) {
     post({ v: PROTOCOL, type: 'load', state: record.state, anchorMs: record.anchorMs });
   };
   const unavailable =
-    save === null ? 'Saving is not available in this browser. The town will not be kept.' : null;
+    save === null
+      ? 'Saving is not available in this browser, so the town will not be kept. Export a save to keep it.'
+      : null;
   const notice = importError ?? unavailable;
   const caps = capsOf(state, content);
 
@@ -349,14 +351,18 @@ export function App({ worker, first, loadedTick, tickMs, save }: Props) {
         <div className="stock" data-testid="stock">
           {content.resources.map((resource) => {
             const amount = state.stock[resource.id];
-            const edge = amount === 0 || amount >= caps[resource.id];
+            const edge = amount === 0 ? 'empty' : amount >= caps[resource.id] ? 'full' : null;
             return (
               <div
                 className={edge ? 'cell warn' : 'cell'}
                 key={resource.id}
                 data-testid={`stock-${resource.id}`}
               >
-                <span className="lab">{resource.name}</span>
+                {/* the word says which edge, so the colour is not the only sign (M1 audit F17) */}
+                <span className="lab">
+                  {resource.name}
+                  {edge && <span className="edge"> · {edge}</span>}
+                </span>
                 <span className="num">
                   {amount} <small>/ {caps[resource.id]}</small>
                 </span>
@@ -417,7 +423,7 @@ export function App({ worker, first, loadedTick, tickMs, save }: Props) {
             type="button"
             key={id}
             className={tab === id ? 'tab on' : 'tab'}
-            aria-current={tab === id ? 'page' : undefined}
+            aria-pressed={tab === id}
             data-testid={`tab-${id}`}
             onClick={() => {
               setTab(id);

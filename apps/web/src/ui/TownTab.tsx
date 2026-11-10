@@ -106,6 +106,7 @@ export function TownTab({
               <button
                 type="button"
                 className="btn second"
+                aria-label={`Cancel ${jobName(state, job)}`}
                 onClick={() => send({ type: 'cancelJob', index })}
               >
                 Cancel
@@ -113,6 +114,11 @@ export function TownTab({
             )}
           </div>
         ))}
+        {state.queue.length > 1 && (
+          <div className="line2" data-testid="cancel-note">
+            Cancelling a waiting job refunds its cost, up to what the stores hold.
+          </div>
+        )}
       </div>
 
       <h2 className="sec">Lots</h2>

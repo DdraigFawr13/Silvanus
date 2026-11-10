@@ -35,4 +35,23 @@ describe('purity check', () => {
     expect(stripComments(`a = 'x // y'; // z`)).toBe(`a = 'x // y';     `);
     expect(stripComments('a /* b\nc */ d')).toBe('a     \n     d');
   });
+  test('network, eval and the other float Math calls are banned (M1 audit F2)', () => {
+    expect(words('const r = fetch(url);')).toEqual(['fetch']);
+    expect(words('const x = new XMLHttpRequest();')).toEqual(['XMLHttpRequest']);
+    expect(words('localStorage.setItem(k, v);')).toEqual(['localStorage']);
+    expect(words('const o = navigator.onLine;')).toEqual(['navigator']);
+    expect(words('eval(code);')).toEqual(['eval']);
+    expect(words('const d = Math.hypot(a, b) + Math.atan2(a, b) + Math.cbrt(a);')).toEqual([
+      'Math.atan2',
+      'Math.hypot',
+      'Math.cbrt',
+    ]);
+    // Math reached by brackets or taken apart still counts
+    expect(words("const r = Math['random']();")).toEqual(['Math[']);
+    expect(words('const { random } = Math;')).toEqual(['= Math']);
+    // integer Math stays allowed
+    expect(findBanned('const a = Math.imul(2, 3) + Math.floor(a / 2) + Math.max(a, b);')).toEqual(
+      [],
+    );
+  });
 });

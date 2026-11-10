@@ -47,26 +47,56 @@ const TYPES = [
   'upgradeHall',
 ] as const;
 
+// How often the bot picks each type: building and upgrading lead, and a clear is rare, so the
+// town grows instead of being torn down as fast as it is built (M1 audit F1).
+const WEIGHTS: [(typeof TYPES)[number], number][] = [
+  ['build', 6],
+  ['upgrade', 4],
+  ['cancelJob', 2],
+  ['clear', 1],
+  ['setOpen', 2],
+  ['pin', 2],
+  ['setMethod', 3],
+  ['upgradeHall', 1],
+];
+const WEIGHT_TOTAL = WEIGHTS.reduce((sum, [, w]) => sum + w, 0);
+
+function randomType(): (typeof TYPES)[number] {
+  let pick = roll(WEIGHT_TOTAL);
+  for (const [type, weight] of WEIGHTS) {
+    if (pick < weight) return type;
+    pick -= weight;
+  }
+  return 'build';
+}
+
 // Ids come from the living, kinds from content and counts from 0 to 9, so some are refused.
 function randomCommand(s: State): Command {
   const building = () => (s.buildings.length ? s.buildings[roll(s.buildings.length)].id : 0);
-  const type = TYPES[roll(TYPES.length)];
+  const type = randomType();
   switch (type) {
     case 'build':
       return { type, kind: content.buildings[roll(content.buildings.length)].id };
     case 'upgrade':
-    case 'clear':
       return { type, buildingId: building() };
+    case 'clear':
+      // one clear in two becomes an upgrade, so the town keeps more of what it builds
+      return { type: roll(2) === 0 ? 'clear' : 'upgrade', buildingId: building() };
     case 'cancelJob':
-      return { type, index: roll(10) };
+      // mostly a waiting job when there is one, so some cancels are carried out
+      return s.queue.length > 1 && roll(4) !== 0
+        ? { type, index: 1 + roll(s.queue.length - 1) }
+        : { type, index: roll(content.rules.queueMax + 2) };
     case 'setOpen':
       return { type, buildingId: building(), count: roll(10) };
-    case 'setMethod':
-      return {
-        type,
-        buildingId: building(),
-        method: content.methods[roll(content.methods.length)].id,
-      };
+    case 'setMethod': {
+      // mostly one of that building's own methods, so some switches and purchases go through
+      const buildingId = building();
+      const kind = s.buildings.find((b) => b.id === buildingId)?.kind;
+      const own = content.methods.filter((m) => m.building === kind);
+      const from = own.length && roll(4) !== 0 ? own : content.methods;
+      return { type, buildingId, method: from[roll(from.length)].id };
+    }
     case 'pin': {
       const residentId = s.residents.length ? s.residents[roll(s.residents.length)].id : 0;
       return { type, residentId, buildingId: roll(4) === 0 ? null : building() };
@@ -121,6 +151,30 @@ function check(s: State): void {
   for (const [stream, value] of Object.entries(s.rng)) {
     if (!whole(value, 4294967295)) fail(`rng ${stream} is ${value}`);
   }
+  // Ids are never shared, every job points at the Hall or a living building, and production
+  // leftovers stay below one whole unit (carry) and one unit owed (debt).
+  const buildingIds = new Set(s.buildings.map((b) => b.id));
+  if (buildingIds.size !== s.buildings.length) fail('two buildings share an id');
+  if (new Set(s.residents.map((r) => r.id)).size !== s.residents.length) {
+    fail('two residents share an id');
+  }
+  for (const id of [...buildingIds, ...s.residents.map((r) => r.id)]) {
+    if (id >= s.nextId) fail(`id ${id} is not below nextId ${s.nextId}`);
+  }
+  for (const job of s.queue) {
+    if (job.target !== 'hall' && !buildingIds.has(job.target)) {
+      fail(`a job points at building ${job.target}, which is gone`);
+    }
+  }
+  for (const building of s.buildings) {
+    for (const [resource, value] of Object.entries(building.carry)) {
+      if (!whole(value, 9_999))
+        fail(`${building.kind} ${building.id} carries ${value} ${resource}`);
+    }
+    for (const [resource, value] of Object.entries(building.debt)) {
+      if (!whole(value, 99)) fail(`${building.kind} ${building.id} owes ${value} ${resource}`);
+    }
+  }
 }
 
 const script: { tick: number; command: Command }[] = [];
@@ -128,12 +182,18 @@ let largest = 0;
 let refused = 0;
 let stepping = 0n;
 const builtKinds = new Set<string>();
+const sent = new Map<string, number>();
+const turnedDown = new Map<string, number>();
+let peakBuildings = 0;
+let peakResidents = 0;
+let peakQueue = 0;
 for (let i = 0; i < TICKS; i++) {
   const commands: Command[] = [];
-  if (roll(24) === 0) {
+  if (roll(8) === 0) {
     const command = randomCommand(state);
     commands.push(command);
     script.push({ tick: state.tick, command });
+    sent.set(command.type, (sent.get(command.type) ?? 0) + 1);
   }
   const before = state.tick;
   const started = process.hrtime.bigint();
@@ -143,16 +203,31 @@ for (let i = 0; i < TICKS; i++) {
   if (state.tick !== before + 1) fail(`tick went from ${before} to ${state.tick}`);
   check(state);
   for (const event of result.events) {
-    if (event.type === 'rejected') refused += 1;
+    if (event.type === 'rejected') {
+      refused += 1;
+      turnedDown.set(event.command.type, (turnedDown.get(event.command.type) ?? 0) + 1);
+    }
     if (event.type === 'built') builtKinds.add(event.kind);
   }
   largest = Math.max(largest, JSON.stringify(state).length);
+  peakBuildings = Math.max(peakBuildings, state.buildings.length);
+  peakResidents = Math.max(peakResidents, state.residents.length);
+  peakQueue = Math.max(peakQueue, state.queue.length);
 }
 
 // The bot must have done something, or the invariants were checked on an idle town.
 if (script.length - refused < 20) fail(`only ${script.length - refused} commands were carried out`);
 if (refused === 0) fail('no command was refused');
 if (builtKinds.size < 3) fail(`only ${builtKinds.size} kinds of building were built`);
+// The town grew and most player commands were carried out (M1 audit F1). Residents' growth is
+// pass 2's to prove: one bot seed in eight tried never grew past its founders.
+const done = (type: string) => (sent.get(type) ?? 0) - (turnedDown.get(type) ?? 0);
+// A random bot reaches upgrades and cancels only by luck (an upgrade needs tools, a cancel a second
+// job waiting), so upgrades are pass 2's to prove, and cancelJob is build.test.ts's.
+for (const type of ['build', 'clear', 'setOpen', 'pin', 'setMethod'] as const) {
+  if (done(type) === 0) fail(`no ${type} command was carried out`);
+}
+if (peakBuildings < 5) fail(`the town never had more than ${peakBuildings} buildings`);
 
 // The same script as commands between chunks of catch-up must give the same town (D-002).
 let replay = newGame(1, content);
@@ -172,7 +247,8 @@ if (JSON.stringify(replay) !== JSON.stringify(state))
 const perSecond = Math.round(TICKS / Math.max(Number(stepping) / 1e9, 1e-9));
 console.log(
   `pass 1: ticks=${state.tick} commands=${script.length} refused=${refused} ` +
-    `kinds_built=${builtKinds.size} buildings=${state.buildings.length} ` +
+    `kinds_built=${builtKinds.size} buildings=${state.buildings.length} peak_buildings=${peakBuildings} ` +
+    `peak_residents=${peakResidents} peak_queue=${peakQueue} carried=${TYPES.map((t) => `${t}:${done(t)}`).join(',')} ` +
     `largest_save_bytes=${largest} ticks_per_s=${perSecond}`,
 );
 if (perSecond < MIN_TICKS_PER_S) fail(`${perSecond} ticks per second is under ${MIN_TICKS_PER_S}`);
@@ -241,10 +317,12 @@ const ordered = { next: 0 };
 let villageTick = -1;
 let at20: State | null = null;
 let sentCount = 0;
+let upgrades = 0;
 let mostLeft = 0;
 while (villageTick < 0 && state.tick < BAND.to + 1000) {
   const commands = scripted(state, ordered);
   sentCount += commands.length;
+  upgrades += commands.filter((c) => c.type === 'upgrade').length;
   const result = step(state, commands, content);
   for (const event of result.events) {
     if (event.type === 'rejected') fail(`the scripted bot sent a refused ${event.command.type}`);
@@ -257,8 +335,9 @@ while (villageTick < 0 && state.tick < BAND.to + 1000) {
 }
 console.log(
   `pass 2: village_tick=${villageTick} commands=${sentCount} residents=${state.residents.length} ` +
-    `left=${mostLeft} twentieth_at=${at20?.tick ?? -1}`,
+    `left=${mostLeft} twentieth_at=${at20?.tick ?? -1} upgrades=${upgrades}`,
 );
+if (upgrades === 0) fail('the scripted town never upgraded a building');
 if (villageTick < BAND.from || villageTick > BAND.to) {
   fail(
     `the scripted bot reached the Village at tick ${villageTick}, outside ${BAND.from} to ${BAND.to}`,

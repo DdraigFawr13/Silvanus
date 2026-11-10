@@ -54,7 +54,7 @@ describe('jobs', () => {
   });
 
   test('skills grow by working', () => {
-    // seed 1: Dai (1), Mairoc (2), Hrutrek (4) and Llewed (8) forage; the other four have no job
+    // seed 1: four forage and four have no job
     const start = newGame(1, content);
     const before = new Map(start.residents.map((r) => [r.id, { ...r.skills }]));
     // two game days (ticks 24 and 48) count, and the skill has not moved yet
@@ -73,7 +73,11 @@ describe('jobs', () => {
         expect(r.workDays, r.name).toBe(0);
       }
     }
-    expect(three.residents.filter((r) => r.jobId !== null).map((r) => r.id)).toEqual([1, 2, 4, 8]);
+    // the skill tick moves no one: the same four still forage
+    const working = (s: typeof start) =>
+      s.residents.filter((r) => r.jobId !== null).map((r) => r.id);
+    expect(working(three)).toEqual(working(start));
+    expect(working(three)).toHaveLength(4);
   });
 
   test('pinPreview gives the reasons a job would bring', () => {
@@ -81,15 +85,34 @@ describe('jobs', () => {
     const mine = byKind(town, 'mine').id;
     const tavern = byKind(town, 'tavern').id;
     const hut = byKind(town, 'forager').id;
+    // the skills and traits read below are set here, not taken from seed 1's draw (M1 audit F4)
+    const given: Record<number, { traits: string[]; mining: number }> = {
+      1: { traits: ['hearthBound', 'deft'], mining: 39 },
+      2: { traits: ['sociable', 'deft'], mining: 47 },
+      3: { traits: ['deft', 'woodwise'], mining: 23 },
+      5: { traits: ['deepDelver', 'woodwise'], mining: 41 },
+    };
+    town = {
+      ...town,
+      residents: town.residents.map((r) =>
+        given[r.id]
+          ? {
+              ...r,
+              traits: given[r.id].traits,
+              skills: { ...r.skills, mining: given[r.id].mining },
+            }
+          : r,
+      ),
+    };
     town = JSON.parse(JSON.stringify(town)) as typeof town;
-    // Ceriin (3): mining 23, below 30, and no trait that minds a Mine
+    // 3: mining 23, below 30, and no trait that minds a Mine
     expect(pinPreview(town, 3, mine, content)).toEqual([{ id: 'fit', amount: -10 }]);
-    // Balkrek (5): Deep-delver likes a Mine; mining 41 is neither good nor bad
+    // 5: Deep-delver likes a Mine; mining 41 is neither good nor bad
     expect(pinPreview(town, 5, mine, content)).toEqual([{ id: 'likes', amount: 10 }]);
-    // Mairoc (2): Sociable likes the tavern and dislikes a Mine; a tavern asks no skill
+    // 2: Sociable likes the tavern and dislikes a Mine; a tavern asks no skill
     expect(pinPreview(town, 2, tavern, content)).toEqual([{ id: 'likes', amount: 10 }]);
     expect(pinPreview(town, 2, mine, content)).toEqual([{ id: 'dislikes', amount: -10 }]);
-    // Dai (1): Hearth-bound dislikes the Forager's hut, his job now
+    // 1: Hearth-bound dislikes the Forager's hut, its job now
     expect(pinPreview(town, 1, hut, content)).toEqual([{ id: 'dislikes', amount: -10 }]);
     // a skill of 60 or more fits
     const skilled = {
