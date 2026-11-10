@@ -78,7 +78,8 @@ export type Reason =
   | 'same'
   | 'range';
 
-// What a tick did. `built`, `upgraded`, `cleared`, `capLost` and `short` also write a log line.
+// What a tick did. `built`, `upgraded`, `cleared`, `capLost`, `short`, `arrived`, `left` and
+// `village` also write a log line.
 export type Event =
   | { type: 'rejected'; command: Command; reason: Reason }
   | { type: 'made' | 'used' | 'lost'; resource: string; amount: number }
@@ -87,7 +88,10 @@ export type Event =
   // a building's `short` turned true; writes a log line
   | { type: 'short'; buildingId: number; resource: string }
   // a production cycle run by a building's fallback
-  | { type: 'fellBack'; buildingId: number };
+  | { type: 'fellBack'; buildingId: number }
+  | { type: 'arrived' | 'left'; residentId: number; name: string }
+  // the Hall reached a new tier
+  | { type: 'village'; tier: number };
 
 export type Summary = {
   ticks: number;
@@ -107,6 +111,7 @@ export type BuildingKind = {
   skill: string | null; // the skill its work uses and grows
   freeWhenNone?: boolean; // costs nothing while the town has none of this kind
   storage?: boolean; // each finished tier adds one base cap to every store
+  cheers?: boolean; // each worker adds rules.tavernPerWorker to everyone's morale, to tavernMax
   tiers: { cost: Amounts; ticks: number; slots: number; beds: number }[]; // [0] is tier 1
 };
 

@@ -1,5 +1,9 @@
+import { addSettler } from './people';
 import type { Building, Content, Event, Resident, State } from './types';
-import { bedsOf, kindOf } from './util';
+import { addLog, bedsOf, hallOf, kindOf } from './util';
+
+// A season: at most one resident leaves in one (D-025).
+const SEASON_TICKS = 168;
 
 type Term = { id: string; amount: number };
 
@@ -36,8 +40,7 @@ export function pinPreview(
   return jobTerms(resident, building, content);
 }
 
-// Rule 3, the start of a game day: eating, skills, then morale. Leaving and arrival join it in
-// S5, and so does the tavern's term.
+// Rule 3, the start of a game day: eating, skills, morale, leaving, then arrival.
 export function startDay(s: State, content: Content, events: Event[]): void {
   const count = s.residents.length;
   const need = count * content.rules.eatPerDay;
@@ -61,6 +64,12 @@ export function startDay(s: State, content: Content, events: Event[]): void {
   // read after eating
   const food = !fed ? -30 : s.stock.food >= 2 * count ? 10 : s.stock.food < count ? -5 : 0;
   const crowded = count > bedsOf(s, content);
+  // workers in a cheering building (the Tavern) on the jobs from before this tick's jobs pass
+  const cheering = s.residents.filter((r) => {
+    const job = r.jobId === null ? undefined : byId.get(r.jobId);
+    return job !== undefined && kindOf(content, job.kind)!.cheers === true;
+  }).length;
+  const tavern = Math.min(content.rules.tavernMax, cheering * content.rules.tavernPerWorker);
   for (const resident of s.residents) {
     const job = resident.jobId === null ? undefined : byId.get(resident.jobId);
     const terms: Term[] = [];
@@ -68,10 +77,41 @@ export function startDay(s: State, content: Content, events: Event[]): void {
     if (job) terms.push(...jobTerms(resident, job, content));
     else terms.push({ id: 'idle', amount: -10 });
     if (crowded) terms.push({ id: 'crowded', amount: -15 });
+    if (tavern > 0) terms.push({ id: 'tavern', amount: tavern });
     const target = Math.max(0, Math.min(100, 50 + terms.reduce((sum, t) => sum + t.amount, 0)));
     const stepBy = content.rules.moraleStep;
     resident.morale += Math.max(-stepBy, Math.min(stepBy, target - resident.morale));
     // a new array: the input state's resident keeps its own
     resident.reasons = terms;
+  }
+
+  const { rules } = content;
+  // Leaving: one at most a season, never from a town of leaveFloor or fewer; the lowest morale
+  // goes, ties by the lowest id (residents are kept in id order).
+  if (s.residents.length > rules.leaveFloor && s.tick - s.lastLeftTick >= SEASON_TICKS) {
+    let lowest: Resident | undefined;
+    for (const r of s.residents) if (!lowest || r.morale < lowest.morale) lowest = r;
+    if (lowest && lowest.morale < rules.leaveBelow) {
+      const gone = lowest;
+      s.residents = s.residents.filter((r) => r.id !== gone.id);
+      s.lastLeftTick = s.tick;
+      s.jobsDirty = true;
+      events.push({ type: 'left', residentId: gone.id, name: gone.name });
+      addLog(s, content, 'left', `${gone.name} has left ${content.town}.`);
+    }
+  }
+
+  // Arrival: a free bed, room under the Hall's limit and food (after eating) for every head.
+  const heads = s.residents.length;
+  if (
+    bedsOf(s, content) > heads &&
+    heads < hallOf(s, content).residents &&
+    s.stock.food >= rules.arrivalFoodPerHead * heads
+  ) {
+    const settler = addSettler(s, content);
+    const people = content.peoples.find((p) => p.id === settler.people)!.name;
+    s.jobsDirty = true;
+    events.push({ type: 'arrived', residentId: settler.id, name: settler.name });
+    addLog(s, content, 'arrived', `${settler.name}, a ${people}, has settled in ${content.town}.`);
   }
 }

@@ -54,3 +54,21 @@ export function steady(state: State): State {
   }));
   return { ...state, residents };
 }
+
+// The town with copies of its residents added until it holds `total`, each with its own id and
+// name, so a test can reach 20 without waiting for settlers.
+export function crowd(state: State, total: number): State {
+  const residents = state.residents.slice();
+  let nextId = state.nextId;
+  for (let i = 0; residents.length < total; i++) {
+    const model = state.residents[i % state.residents.length];
+    residents.push({
+      ...model,
+      id: nextId++,
+      name: `${model.name} ${i + 2}`,
+      jobId: null,
+      pinnedTo: null,
+    });
+  }
+  return { ...state, residents, nextId, jobsDirty: true };
+}

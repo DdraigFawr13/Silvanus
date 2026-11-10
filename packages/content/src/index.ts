@@ -115,11 +115,18 @@ export const content: Content = {
       ],
       { storage: true },
     ),
-    kind('tavern', 'Tavern', 'Innkeeper', null, [
-      [{ wood: 50, stone: 30 }, 24, 1, 0],
-      [{ wood: 70, stone: 50, tools: 5 }, 36, 2, 0],
-      [{ wood: 100, stone: 80, tools: 15 }, 48, 3, 0],
-    ]),
+    kind(
+      'tavern',
+      'Tavern',
+      'Innkeeper',
+      null,
+      [
+        [{ wood: 50, stone: 30 }, 24, 1, 0],
+        [{ wood: 70, stone: 50, tools: 5 }, 36, 2, 0],
+        [{ wood: 100, stone: 80, tools: 15 }, 48, 3, 0],
+      ],
+      { cheers: true },
+    ),
   ],
   methods: [
     method('forager', 'gather', 'Gather', 1, { food: 50 }),

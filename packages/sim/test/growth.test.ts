@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
-import { apply, newGame, step } from '../src/index';
+import { advance, apply, newGame, step } from '../src/index';
 import type { State } from '../src/index';
-import { content } from './town';
+import { content, crowd, finished } from './town';
 
 // Seed 1 at the start of its first game day, with `food` in store. Nothing is made at tick 24,
 // so the day's food is what is set here.
@@ -118,5 +118,110 @@ describe('growth', () => {
       { id: 'food', amount: 10 },
       { id: 'fit', amount: -10 },
     ]);
+  });
+
+  test('a settler arrives', () => {
+    // a second Cottage gives 16 beds for 8; 8 eat 8 of 100, leaving 92, at least 2 a head
+    const town = dayStart(100, (s) => finished(s, 'cottage'));
+    const { state, events } = step(town, [], content);
+    expect(state.residents).toHaveLength(9);
+    const settler = state.residents[8];
+    expect(settler.id).toBe(town.nextId);
+    expect(state.nextId).toBe(town.nextId + 1);
+    expect(settler.arrivedTick).toBe(24);
+    expect(settler.morale).toBe(50);
+    const people = content.peoples.find((p) => p.id === settler.people)!.name;
+    expect(state.log.at(-1)).toEqual({
+      tick: 24,
+      type: 'arrived',
+      text: `${settler.name}, a ${people}, has settled in Ashwick.`,
+    });
+    expect(events).toContainEqual({ type: 'arrived', residentId: settler.id, name: settler.name });
+    expect(state.jobsDirty).toBe(false);
+    // the away card's summary names them
+    expect(advance(town, 1, content).summary.arrived).toEqual([settler.name]);
+    // one a day at most
+    expect(step({ ...state, tick: 25 }, [], content).state.residents).toHaveLength(9);
+
+    // no free bed: nobody comes
+    expect(step(dayStart(100), [], content).state.residents).toHaveLength(8);
+    // 8 eat 8 of 23, leaving 15, under 2 a head: nobody comes; of 24, leaving 16, one comes
+    const second = (food: number) => dayStart(food, (s) => finished(s, 'cottage'));
+    expect(step(second(23), [], content).state.residents).toHaveLength(8);
+    expect(step(second(24), [], content).state.residents).toHaveLength(9);
+    // a town at its Hall's limit takes nobody, beds or not
+    const full = crowd(second(200), 25);
+    expect(step(full, [], content).state.residents).toHaveLength(25);
+  });
+
+  // 20 residents at morale 0, food 0 and no food buildings, from `tick`
+  function starving(tick: number): State {
+    const town = crowd(newGame(1, content), 20);
+    return {
+      ...town,
+      tick,
+      stock: { ...town.stock, food: 0 },
+      buildings: town.buildings.filter((b) => b.kind !== 'forager'),
+      residents: town.residents.map((r) => ({ ...r, morale: 0, jobId: null, pinnedTo: null })),
+    };
+  }
+
+  test('a hungry night costs at most three', () => {
+    for (const tick of [100, 0]) {
+      const night = advance(starving(tick), 480, content);
+      const left = 20 - night.state.residents.length;
+      expect(left, `from tick ${tick}`).toBeGreaterThanOrEqual(1);
+      expect(left, `from tick ${tick}`).toBeLessThanOrEqual(3);
+      expect(night.summary.left).toHaveLength(left);
+      const lines = night.state.log.filter((line) => line.type === 'left');
+      expect(lines.map((line) => line.text)).toEqual(
+        night.summary.left.map((name) => `${name} has left Ashwick.`),
+      );
+      // a season (168 ticks) at least between two departures
+      for (let i = 1; i < lines.length; i++) {
+        expect(lines[i].tick - lines[i - 1].tick).toBeGreaterThanOrEqual(168);
+      }
+    }
+    // the lowest morale goes first, ties by the lowest id
+    const town = starving(100);
+    const residents = town.residents.map((r) => (r.id === 5 ? r : { ...r, morale: 10 }));
+    const first = advance({ ...town, residents }, 21, content).state;
+    expect(first.residents.map((r) => r.id)).not.toContain(5);
+    expect(first.lastLeftTick).toBe(120);
+    expect(first.residents).toHaveLength(19);
+  });
+
+  test('nobody leaves a town of eight', () => {
+    const start = newGame(1, content);
+    const town: State = {
+      ...start,
+      stock: { ...start.stock, food: 0 },
+      // the hut is shut, so the town stays hungry and everyone stays below the leaving line
+      buildings: start.buildings.map((b) => (b.kind === 'forager' ? { ...b, open: 0 } : b)),
+      residents: start.residents.map((r) => ({ ...r, morale: 0, jobId: null })),
+    };
+    const night = advance(town, 480, content);
+    expect(night.state.residents.map((r) => r.id)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(night.summary.left).toEqual([]);
+    expect(night.state.residents.every((r) => r.morale < content.rules.leaveBelow)).toBe(true);
+  });
+
+  test('staffed tavern workers lift everyone, last among the reasons', () => {
+    // a Tavern of 1 slot, staffed before the day begins
+    const town = apply(
+      { ...dayStart(100, (s) => finished(s, 'tavern')), jobsDirty: true },
+      [],
+      content,
+    ).state;
+    const tavern = town.buildings.find((b) => b.kind === 'tavern')!;
+    expect(town.residents.filter((r) => r.jobId === tavern.id)).toHaveLength(1);
+    const day = step(town, [], content).state;
+    for (const r of day.residents) {
+      expect(r.reasons.at(-1), r.name).toEqual({ id: 'tavern', amount: 4 });
+    }
+    // three workers would give 12, the most it gives; with nobody in it, nothing
+    const empty = apply(town, [{ type: 'setOpen', buildingId: tavern.id, count: 0 }], content);
+    const quiet = step(empty.state, [], content).state;
+    for (const r of quiet.residents) expect(r.reasons.map((t) => t.id)).not.toContain('tavern');
   });
 });

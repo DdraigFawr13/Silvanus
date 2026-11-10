@@ -5,7 +5,7 @@ const isWhole = (n: unknown): n is number => typeof n === 'number' && Number.isI
 const hasJob = (state: State, target: 'hall' | number) =>
   state.queue.some((job) => job.target === target);
 
-// What a build or an upgrade takes from stock now. A `freeWhenNone` kind is free while the town
+// What a build, an upgrade or the Hall's upgrade takes from stock now. A `freeWhenNone` kind is free while the town
 // has none, counting ones still being built. {} for other commands and for unknown targets.
 export function jobCost(state: State, command: Command, content: Content): Amounts {
   if (command.type === 'build') {
@@ -19,6 +19,7 @@ export function jobCost(state: State, command: Command, content: Content): Amoun
     if (!building) return {};
     return kindOf(content, building.kind)!.tiers[building.tier]?.cost ?? {};
   }
+  if (command.type === 'upgradeHall') return content.hall.tiers[state.hallTier]?.cost ?? {};
   return {};
 }
 
@@ -47,9 +48,15 @@ export function refusal(state: State, command: Command, content: Content): Reaso
       if (queueFull) return 'queueFull';
       return covers(state.stock, jobCost(state, command, content)) ? null : 'noStock';
     }
-    case 'upgradeHall':
-      // arrives in S5
-      return 'notAllowed';
+    case 'upgradeHall': {
+      if (hasJob(state, 'hall')) return 'busy';
+      const next = content.hall.tiers[state.hallTier];
+      // the Village is the last tier in M1
+      if (!next) return 'notAllowed';
+      if (queueFull) return 'queueFull';
+      if (state.residents.length < next.needResidents) return 'tooFew';
+      return covers(state.stock, next.cost) ? null : 'noStock';
+    }
     case 'cancelJob':
       return isWhole(command.index) && command.index >= 1 && command.index < state.queue.length
         ? null
@@ -201,9 +208,13 @@ export function carryOut(s: State, command: Command, content: Content, events: E
       building.short = false;
       return;
     }
-    case 'upgradeHall':
-      // arrives in S5; `refusal` never lets it through
+    case 'upgradeHall': {
+      const cost = jobCost(s, command, content);
+      pay(s, cost);
+      const ticks = content.hall.tiers[s.hallTier].ticks;
+      s.queue.push({ target: 'hall', toTier: s.hallTier + 1, ticksLeft: ticks, cost: { ...cost } });
       return;
+    }
     default: {
       const never: never = command;
       void never;
@@ -220,7 +231,10 @@ export function construct(s: State, content: Content, events: Event[]): void {
   s.queue.shift();
   s.jobsDirty = true;
   if (job.target === 'hall') {
+    // the job carries on even if residents fell below the tier's need while it ran
     s.hallTier = job.toTier;
+    events.push({ type: 'village', tier: job.toTier });
+    addLog(s, content, 'village', `${content.town} is now a ${hallOf(s, content).name}.`);
     return;
   }
   const building = s.buildings.find((b) => b.id === job.target)!;

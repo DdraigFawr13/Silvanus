@@ -7,12 +7,13 @@ import { dismissSummary, subscribe, summary } from '../store';
 import { AwayCard } from './AwayCard';
 import { BuildSheet } from './BuildSheet';
 import { BuildingSheet } from './BuildingSheet';
+import { HallRow } from './HallRow';
 import { dateText, duration } from './format';
 
 const LOG_SHOWN = 20;
 
 function jobName(state: State, job: Job): string {
-  if (job.target === 'hall') return `The Hall to tier ${job.toTier}`;
+  if (job.target === 'hall') return `The Hall to ${content.hall.tiers[job.toTier - 1].name}`;
   const building = state.buildings.find((b) => b.id === job.target);
   const name = building ? kindOf(content, building.kind)!.name : '';
   return job.toTier === 1 ? name : `${name} to tier ${job.toTier}`;
@@ -86,15 +87,7 @@ export function TownTab({
   return (
     <div hidden={hidden}>
       {away && <AwayCard state={state} summary={away} onDismiss={dismissSummary} />}
-      <div className="panel" data-testid="hall">
-        <div className="row-top">
-          <span className="name">The Hall</span>
-          <span className="tier">Tier {state.hallTier}</span>
-        </div>
-        <div className="line2">
-          Residents {state.residents.length} / {hall.residents}
-        </div>
-      </div>
+      <HallRow state={state} send={send} />
 
       <h2 className="sec">Work queue</h2>
       <div className="panel" data-testid="queue">

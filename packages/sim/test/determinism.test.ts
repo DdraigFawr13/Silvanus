@@ -3,7 +3,9 @@ import { advance, apply, newGame, step } from '../src/index';
 import type { Command, State } from '../src/index';
 import { content } from './town';
 
-// Seed 1's ids: residents 1 to 8, the Cottage 9, the Forager's hut 10, then buildings as built.
+// Seed 1's ids: residents 1 to 8, the Cottage 9, the Forager's hut 10, then buildings and
+// settlers share the ids that follow (S5): the camp 11, the Mine 12, the second Cottage 13,
+// settlers 14 to 16 at ticks 168, 192 and 216, the Workshop 17. Ids read from a probe run.
 // Later slices add to this script, in tick order: `chunked` finds the next tick by array order.
 const SCRIPT: { tick: number; command: Command }[] = [
   { tick: 0, command: { type: 'build', kind: 'woodcutter' } }, // 11, free
@@ -17,17 +19,18 @@ const SCRIPT: { tick: number; command: Command }[] = [
   { tick: 150, command: { type: 'build', kind: 'cottage' } }, // 13
   { tick: 151, command: { type: 'build', kind: 'storehouse' } }, // refused: no stone
   { tick: 152, command: { type: 'cancelJob', index: 1 } }, // refused: nothing is waiting
+  { tick: 200, command: { type: 'upgradeHall' } }, // refused: too few for a Village
   { tick: 300, command: { type: 'upgrade', buildingId: 10 } }, // refused: no tools
-  { tick: 310, command: { type: 'build', kind: 'workshop' } }, // 14
-  { tick: 340, command: { type: 'setMethod', buildingId: 14, method: 'forge' } }, // bought
-  { tick: 341, command: { type: 'setMethod', buildingId: 14, method: 'hammer' } }, // refused: tier 2
+  { tick: 310, command: { type: 'build', kind: 'workshop' } }, // 17
+  { tick: 340, command: { type: 'setMethod', buildingId: 17, method: 'forge' } }, // bought
+  { tick: 341, command: { type: 'setMethod', buildingId: 17, method: 'hammer' } }, // refused: tier 2
   // S4: the Mine's workers move to the Workshop, which then forges through its ore
   { tick: 345, command: { type: 'setOpen', buildingId: 12, count: 0 } },
   { tick: 470, command: { type: 'setOpen', buildingId: 12, count: 4 } },
   // ore runs out at the Workshop, and comes back once the Mine digs ore again
   { tick: 480, command: { type: 'setMethod', buildingId: 12, method: 'ore' } },
   { tick: 500, command: { type: 'pin', residentId: 1, buildingId: null } },
-  { tick: 560, command: { type: 'setMethod', buildingId: 14, method: 'mend' } }, // owned: free
+  { tick: 560, command: { type: 'setMethod', buildingId: 17, method: 'mend' } }, // owned: free
   { tick: 600, command: { type: 'setOpen', buildingId: 11, count: 1 } },
   { tick: 700, command: { type: 'clear', buildingId: 12 } },
 ];
@@ -72,10 +75,16 @@ test('chunks and steps agree with commands between', () => {
   const shop = stepped.buildings.find((b) => b.kind === 'workshop')!;
   expect(shop.owned).toEqual(['mend', 'forge']);
   expect(shop.method).toBe('mend');
-  // short at tick 419, back on Forge once ore came, short again at 491: one line each time
+  // short at tick 419, back on Forge once ore came, then short and back again until the switch
+  // to Mend at 560: one line each time it turns short
   expect(stepped.log.filter((line) => line.type === 'short').map((line) => line.tick)).toEqual([
-    419, 491,
+    419, 491, 499, 507, 523, 539, 555,
   ]);
+  // three settlers came, and two left once their town of 11 was unhappy
+  const growth = (type: string) =>
+    stepped.log.filter((line) => line.type === type).map((line) => line.tick);
+  expect(growth('arrived')).toEqual([168, 192, 216]);
+  expect(growth('left')).toEqual([672, 840]);
   for (const longest of [7, 480, 1]) {
     expect(chunked(start, longest), `chunks of ${longest}`).toEqual(stepped);
   }
