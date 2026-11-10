@@ -8,6 +8,7 @@ import { clearNotice, notices, setNotice, subscribe } from './notices';
 import { SCHEMA, exportText, importFile, storageAnswer } from './saves';
 import type { SaveRecord, StorageAnswer } from './saves';
 import { current, dismissSummary, publish, reset, subscribe as subscribeTown } from './store';
+import { PeopleTab } from './ui/PeopleTab';
 import { TownTab } from './ui/TownTab';
 import { dateInline, dateText } from './ui/format';
 import { PROTOCOL } from './worker';
@@ -194,6 +195,8 @@ export function App({ worker, first, loadedTick, tickMs, save }: Props) {
   const importingRef = useRef<number | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
   const [storage, setStorage] = useState<StorageAnswer | null>(null);
+  // the tab shown; not kept over a reload
+  const [tab, setTab] = useState<'town' | 'people'>('town');
 
   useEffect(() => {
     let live = true;
@@ -364,7 +367,8 @@ export function App({ worker, first, loadedTick, tickMs, save }: Props) {
             <p data-testid="notice">{notice}</p>
           </div>
         )}
-        <TownTab state={state} send={sendCommand}>
+        {tab === 'people' && <PeopleTab state={state} send={sendCommand} />}
+        <TownTab state={state} send={sendCommand} hidden={tab !== 'town'}>
           {savedTick === null ? (
             <p>Not saved yet</p>
           ) : (
@@ -397,6 +401,28 @@ export function App({ worker, first, loadedTick, tickMs, save }: Props) {
           </p>
         </TownTab>
       </main>
+      <nav className="tabs" aria-label="Tabs">
+        {(
+          [
+            ['town', 'Town'],
+            ['people', 'People'],
+          ] as const
+        ).map(([id, label]) => (
+          <button
+            type="button"
+            key={id}
+            className={tab === id ? 'tab on' : 'tab'}
+            aria-current={tab === id ? 'page' : undefined}
+            data-testid={`tab-${id}`}
+            onClick={() => {
+              setTab(id);
+              window.scrollTo(0, 0);
+            }}
+          >
+            {label}
+          </button>
+        ))}
+      </nav>
     </div>
   );
 }

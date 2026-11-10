@@ -498,7 +498,22 @@ Taken before any code, from the zero-decision check on S3 against what S2 merged
 - **After the fresh review of the diff** (one agent, 138,020 tokens measured; 0 high, 2 medium, 5 low). Fixed all 7: a hand-edited save marking a basic method short crashed the Town tab; an import kept the old town's away card; tests now read production's `used`, pin the one skipped cycle of a free switch, and cover the store's 10-tick rule; J9's script now buys a method, runs it short and switches back; `validateContent` checks the two D-034 rules above. Each of the two medium fixes was seen to fail under a planted bug.
 - **Seen to fail first.** The 7 engine tests and the 2 browser tests were run against S2's code and failed. After D-034 the tests were changed before the code and failed again, with the save tests.
 
+### S4 (2026-11-10)
+
+Taken before any code, from the zero-decision check on S4 against what S3 merged (one fresh agent, 174,050 tokens measured). No gap needed Morgan beyond what the mock-up settles.
+
+- **Seed 1's numbers move.** With skill and morale in the worker's effect, seed 1's four foragers no longer make a flat 0.5 food a cycle (their Husbandry is 52, 49, 33 and 39), and morale moves at tick 24. The "skill 50 and morale 50 in every slice" line holds only until the first game day. Tests that pin a mechanism's numbers (`step.test.ts`'s food, cap and production-tick tests; `advance reports…`) now start from `steady()`, moved to `test/town.ts`; `content.test.ts` "runs 96 ticks" keeps seed 1's real residents and reads 45 food made (48 at S3) from the engine; `methods.test.ts` "retooling costs a game day" reads 2,550 at tick 27, after the day at tick 24 moved its worker's morale to 55 (an effect of 102). No assertion was widened.
+- **J9.** With real skills the Mine banks enough ore that the Workshop never ran short. Two commands are appended in tick order: `setOpen` 0 on the Mine at tick 345, and back to 4 at 470. The Workshop now runs short at ticks 419 and 491, read from a probe.
+- **Reasons.** `reasons` holds the nonzero terms in the spec's order (food, fit, likes, dislikes, idle, crowded; tavern from S5), a new array each day. The day reads jobs from before the jobs pass, as the order of rule 3 and rule 4 says.
+- **The effect** is exported as `effectOf(skill, morale)`; a building's output is `rate × the sum of its workers' effects`. A building kind without a skill would count skill 50; none has methods in M1.
+- **`pinPreview`** lives in `day.ts` and shares its terms with the day's morale, so the preview is what the day counts. It gives no `fit` for a building with no skill (the Tavern), none for a skill from 30 to 59, and `[]` for a building with no worker slots.
+- **Before the first game day** a resident has no reasons; the sheet says "Morale is weighed at the start of each game day."
+- **Screens.** Choices drawn on `mockups/people.html` (https://claude.ai/artifact/R2jofFnKAX6bWhpqKngZcP), listed on that page under "Choices drawn here". Morgan approved it on 2026-11-10 ("Approved, build it"), with no change round. Its fresh check (one agent, 75,038 tokens) found 1 major (a hand-set starting state not said on the page), 2 unverified and 5 minor: 3 fixed, 2 confirmed, 2 declined, with reasons on the page. The page's pictures are screenshots of the built screens after the last fix, so the built screens match it.
+- **Measured.** First load 91,688 bytes gzipped of 120,000 (S3: 88,646). Soak pass 1: 408 commands, 327 refused, largest save 7,600 bytes, 428,970 ticks per second. 61 unit tests; 22 browser tests in 33.1 s.
+- **After the fresh review of the diff** (one agent, 55,317 tokens measured; 0 high, 0 medium, 5 low). Fixed 4: a test that a game day leaves its input untouched (a frozen state); `pinPreview` gives `[]` for a building at tier 0; the age reads the engine's exported `YEAR_TICKS`; "A human" is written from content's people name. Each new test was seen to fail under a planted bug. Declined 1: the confirm's "From this work" total is a display sum of the reasons `pinPreview` returns, the "morale cost" J12 asks the sheet to show; the engine decides nothing by it.
+- **Seen to fail first.** The 5 new engine tests ran against S3's engine and failed, and the 2 J12 browser tests against S3's page. The 8 older tests that pinned seed 1 at an effect of 100 failed on the new engine and were moved as above.
+
 ## Open questions
 
 - Whether gold pays for building from M3 (D-027, proposed).
-- AGENTS.md's count of browser tests is updated by each slice that adds some (20 after S3).
+- AGENTS.md's count of browser tests is updated by each slice that adds some (22 after S4).

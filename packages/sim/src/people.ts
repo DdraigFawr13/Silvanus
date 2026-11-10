@@ -1,7 +1,8 @@
 import { draw } from './rng';
 import type { Content, Resident, State } from './types';
 
-const YEAR_TICKS = 672;
+// Ticks in a game year: 4 seasons of 7 days of 24 hours.
+export const YEAR_TICKS = 672;
 
 // "Dvall" + "li" is "Dvalli": a letter tripled across the join becomes a double.
 function join(start: string, end: string): string {

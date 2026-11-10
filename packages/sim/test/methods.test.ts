@@ -1,17 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { advance, apply, assignJobs, newGame, perDay, refusal } from '../src/index';
 import type { Building, Command, State } from '../src/index';
-import { byKind, content, finished, run, workers } from './town';
-
-// Every resident at skill 50 and morale 50, an effect of 100 in every slice (spec, "Journeys").
-function steady(state: State): State {
-  const residents = state.residents.map((r) => ({
-    ...r,
-    morale: 50,
-    skills: Object.fromEntries(Object.keys(r.skills).map((id) => [id, 50])),
-  }));
-  return { ...state, residents };
-}
+import { byKind, content, finished, run, steady, workers } from './town';
 
 // Seed 1 with a finished building of `kind` on `method` with `open` slots, jobs assigned.
 function withBuilding(kind: string, method: string, open: number, stock = {}): State {
@@ -88,9 +78,12 @@ describe('methods', () => {
     expect(byKind(day, 'workshop').debt).toEqual({});
     expect(day.stock.ore).toBe(50);
     expect(byKind(day, 'workshop').retoolLeft).toBe(0);
-    // the cycle at tick 27 forges: 25 hundredths of a tool at an effect of 100
+    // the cycle at tick 27 forges: 25 hundredths of a tool at the worker's effect. The day at
+    // tick 24 fed the town with food to spare (+10), so morale went from 50 to 55 and the
+    // effect from 100 to (50 + 50) x (80 + 22) / 100 = 102
     const after = run(day, 4);
-    expect(byKind(after, 'workshop').carry.tools).toBe(2500);
+    expect(after.residents.find((r) => r.jobId === byKind(after, 'workshop').id)!.morale).toBe(55);
+    expect(byKind(after, 'workshop').carry.tools).toBe(2550);
     expect(byKind(after, 'workshop').debt).toEqual({ ore: 25, wood: 10 });
     // three more cycles owe 100 ore hundredths: one whole ore is taken, and counted as used
     const { state: used, summary } = advance(after, 12, content);
@@ -180,5 +173,35 @@ describe('methods', () => {
     expect(summary.shortCycles).toEqual({ [shop]: 25 });
     expect(summary.made.tools).toBe(1);
     expect(summary.used.ore).toBeUndefined();
+  });
+
+  test("a worker's effect follows skill and morale", () => {
+    // seed 1's four foragers, all set to one skill and morale; one cycle runs at tick 3
+    const set = (husbandry: number, morale: number): State => {
+      const start = newGame(1, content);
+      return {
+        ...start,
+        residents: start.residents.map((r) => ({
+          ...r,
+          morale,
+          skills: { ...r.skills, husbandry },
+        })),
+      };
+    };
+    // (50 + 70) x (80 + 40) / 100 = 144 percent: 4 x 50 x 144 = 28,800 ten-thousandths
+    const strong = run(set(70, 100), 4);
+    expect(strong.stock.food).toBe(42);
+    expect(byKind(strong, 'forager').carry.food).toBe(8800);
+    // (50 + 0) x (80 + 0) / 100 = 40 percent: 8,000, not yet a whole unit
+    const weak = run(set(0, 0), 4);
+    expect(weak.stock.food).toBe(40);
+    expect(byKind(weak, 'forager').carry.food).toBe(8000);
+    // skill 50 and morale 50 is 100 percent
+    const even = run(set(50, 50), 4);
+    expect(byKind(even, 'forager').carry.food).toBe(0);
+    expect(even.stock.food).toBe(42);
+    // the floor is taken on each worker's effect: (50 + 33) x (80 + 20) / 100 = 83
+    const odd = run(set(33, 51), 4);
+    expect(byKind(odd, 'forager').carry.food).toBe(4 * 50 * 83 - 10000);
   });
 });

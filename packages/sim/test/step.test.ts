@@ -1,11 +1,14 @@
 import { describe, expect, test } from 'vitest';
 import { advance, apply, newGame, step } from '../src/index';
 import type { Command, State } from '../src/index';
-import { byKind, content, run } from './town';
+import { byKind, content, run, steady } from './town';
+
+// Seed 1 with every resident at an effect of 100, so a forager makes 0.5 food a cycle.
+const even = () => steady(newGame(1, content));
 
 describe('step', () => {
   test("the Forager's hut adds food every 4 ticks", () => {
-    const start = newGame(1, content);
+    const start = even();
     // 4 foragers at 0.5 food each a cycle: +2 at tick 4 and at tick 8
     const food = [0, 1, 2, 3, 4, 5, 6, 7, 8].map((n) => run(start, n).stock.food);
     expect(food).toEqual([40, 40, 40, 40, 42, 42, 42, 42, 44]);
@@ -13,7 +16,7 @@ describe('step', () => {
   });
 
   test('the town eats once at the start of a game day', () => {
-    const start = newGame(1, content);
+    const start = even();
     // 6 cycles of +2, then 8 residents eat 1 each in the step at tick 24
     expect(run(start, 24).stock.food).toBe(52);
     expect(run(start, 25).stock.food).toBe(44);
@@ -22,7 +25,7 @@ describe('step', () => {
   });
 
   test('food over the cap is lost', () => {
-    const start: State = { ...newGame(1, content), tick: 3 };
+    const start: State = { ...even(), tick: 3 };
     const near = step({ ...start, stock: { ...start.stock, food: 199 } }, [], content);
     expect(near.state.stock.food).toBe(200);
     expect(near.events).toEqual([
@@ -66,7 +69,7 @@ describe('step', () => {
 
   test('a command on a production tick applies before production', () => {
     // tick 3 is a production tick: closing the hut in it means nobody gathers in it
-    const start: State = { ...newGame(1, content), tick: 3 };
+    const start: State = { ...even(), tick: 3 };
     const hut = byKind(start, 'forager').id;
     expect(step(start, [], content).state.stock.food).toBe(42);
     const closed = step(start, [{ type: 'setOpen', buildingId: hut, count: 0 }], content);
@@ -85,7 +88,7 @@ describe('step', () => {
   });
 
   test('advance reports what the ticks made, used and finished', () => {
-    const start = apply(newGame(1, content), [{ type: 'build', kind: 'woodcutter' }], content);
+    const start = apply(even(), [{ type: 'build', kind: 'woodcutter' }], content);
     const { summary } = advance(start.state, 25, content);
     expect(summary.ticks).toBe(25);
     expect(summary.made.food).toBe(12);
