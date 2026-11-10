@@ -442,6 +442,24 @@ Small choices the builder took where the spec was silent, and places the build d
 - **After the fresh review of the diff** (0 high, 2 medium, 5 low). Fixed: a write that has not landed in 10 seconds (`WRITE_TIMEOUT_MS`) is given up as failed, so a database that never answers is counted and shown instead of holding every later save; a failed call closes only its own connection; a negative `anchorMs` is damaged; a failed Reload is caught. Declined: a blocked open that succeeds later (version 1 never upgrades); clearing the stopped notice if the worker answers again (the spec gives no rule, and a town that lost a message should still be exported); a chunk only the worker imports is not counted by the bundle check (none exists).
 - **The worker check by hand.** A throw planted in the worker's command branch gave "The town stopped. Export a save." with a working Export at 412 px; the plant was removed.
 
+### S2 (2026-11-10)
+
+Taken before any code, from the zero-decision check on S2 against what S1 merged (one fresh agent, 130,238 tokens measured). It found no gap that needed Morgan. Its one "needs owner" item is the first line here, taken as a default because it changes no rule the player sees.
+
+- **Why a tap is refused.** The snapshot carries no events, so the page cannot read a `rejected` event. The engine exports the check that `apply` itself runs, `refusal(state, command, content)`, which returns the reason or `null`, and `jobCost(state, command, content)` for a build's or upgrade's cost (empty for a free first camp). The screens call both on the snapshot's state, so no rule is computed twice (GAME-02).
+- **Mock-up.** `mockups/town.html`, published at https://claude.ai/artifact/6k9547asTCDNHmfobt6Hym. Its own choices: no tab bar until S4; the Hall row also shows "Residents 8 / 25"; a job that has not started reads "Waiting, takes 1 game day" and its lot "Waiting in the work queue"; the building sheet names the method in use; an empty queue reads "Nothing is being built."; an empty log reads "Nothing has happened yet."; a Cottage's row shows "Beds 8".
+- **Worker effect** is 100 in S2 and S3 (the S4 slice line), not the skill and morale formula.
+- **A job that reaches the front** gets its first decrement on the next tick: one decrement per tick.
+- **Reject order** for `setOpen`, `pin` and `clear` on a tier 0 building: `notReady` first.
+- **`validateContent`'s "zero or negative"** does not cover slots and beds, which are 0 for some kinds.
+- **Time on screen.** Under 24 game hours reads in hours; a whole number of days reads in days; otherwise "1 game day, 12 game hours".
+- **Weights.** Alegreya Sans has no 600 weight, so the style doc's 600 is written as 700, which is what a browser shows for it.
+- **Tests.** "a damaged schema 1 save stays damaged" is a new test that passes when written; it is shown to fail once under a planted bug. `rng.test.ts` moves to `test:` stream names and `fixtures.ts` goes: engine tests import the real content by relative path. M0's `step.test.ts` cases are ported to the town's commands, none dropped. Browser tests read the live tick from a `data-tick` attribute on the date, which shows no tick to the player.
+- **The first save after an upgrade** from schema 1 passes `keepPrevious`, since `main` still holds the old record.
+- **`shapeOkV1`** keeps M0's limits as its own constants (food cap 200, foragers 3).
+- **The import question** names dates, not ticks: "Replace this town with the one saved at year 1, season 1, day 2, hour 3?".
+- **M0's "Caught up N ticks" line** is dropped; S3's away card replaces it.
+
 ## Open questions
 
 - The phone's width: the style doc assumes 412 px first and 360 px second. Morgan to confirm or correct.
