@@ -1,7 +1,42 @@
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
-import type { Page } from '@playwright/test';
+import { content } from '@silvanus/content';
+import { apply, newGame } from '@silvanus/sim';
+import type { Command, State } from '@silvanus/sim';
+import type { Locator, Page } from '@playwright/test';
+
+export { content };
+
+// A schema 2 record of a new town, as the app stores it. `commands` are carried out on it
+// first; `state` then overrides fields. The anchor is now unless given.
+export function townRecord(
+  overrides: {
+    seed?: number;
+    anchorMs?: number;
+    commands?: Command[];
+    state?: Partial<State>;
+  } = {},
+) {
+  const start = newGame(overrides.seed ?? 1, content);
+  const state = apply(start, overrides.commands ?? [], content).state;
+  return {
+    schema: 2,
+    anchorMs: overrides.anchorMs ?? Date.now(),
+    state: { ...state, ...overrides.state },
+  };
+}
+
+// Seed 1's Forager's hut.
+export const HUT = newGame(1, content).buildings.find((b) => b.kind === 'forager')!.id;
+
+// The tick behind a date on the page. Dates carry it in `data-tick`; the player never sees it.
+const tickOf = async (locator: Locator) => Number(await locator.getAttribute('data-tick'));
+export const tick = (page: Page) => tickOf(page.getByTestId('date'));
+export const savedTick = (page: Page) => tickOf(page.getByTestId('saved-at'));
+
+// The row of a built lot, by the building's name.
+export const lot = (page: Page, name: string) => page.getByTestId('lot').filter({ hasText: name });
 
 // Stores a record before the app ever runs, from an empty page on the app's origin.
 export async function seedRecord(page: Page, record: unknown) {

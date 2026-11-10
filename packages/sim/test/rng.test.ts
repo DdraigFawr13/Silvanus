@@ -4,12 +4,12 @@ import type { RngState } from '../src/index';
 
 describe('rng', () => {
   test('streams are independent', () => {
-    const afterSpare = (yieldDraws: number): number[] => {
+    const afterSpare = (firstDraws: number): number[] => {
       let rng: RngState = {};
-      for (let i = 0; i < yieldDraws; i++) rng = draw(rng, 'yield', 1, 1000).rng;
+      for (let i = 0; i < firstDraws; i++) rng = draw(rng, 'test:a', 1, 1000).rng;
       const out: number[] = [];
       for (let i = 0; i < 5; i++) {
-        const d = draw(rng, 'spare', 1, 1000);
+        const d = draw(rng, 'test:b', 1, 1000);
         rng = d.rng;
         out.push(d.value);
       }
@@ -25,18 +25,18 @@ describe('rng', () => {
     let rng: RngState = {};
     const raw: number[] = [];
     for (let i = 0; i < 3; i++) {
-      const d = draw(rng, 'yield', 1, 4294967296);
+      const d = draw(rng, 'test:a', 1, 4294967296);
       rng = d.rng;
       raw.push(d.value);
     }
-    expect(raw).toEqual([3691527598, 2949923741, 463591088]);
+    expect(raw).toEqual([3389846570, 936144817, 811927578]);
   });
 
   test('draw rejects a bad range and does not change its input', () => {
-    const rng: RngState = { yield: 5 };
-    for (const n of [0, -1, 1.5, NaN]) expect(() => draw(rng, 'yield', 1, n)).toThrow(RangeError);
-    draw(rng, 'yield', 1, 10);
-    expect(rng).toEqual({ yield: 5 });
-    expect(draw({}, 'yield', 1, 1).value).toBe(0);
+    const rng: RngState = { 'test:a': 5 };
+    for (const n of [0, -1, 1.5, NaN]) expect(() => draw(rng, 'test:a', 1, n)).toThrow(RangeError);
+    draw(rng, 'test:a', 1, 10);
+    expect(rng).toEqual({ 'test:a': 5 });
+    expect(draw({}, 'test:a', 1, 1).value).toBe(0);
   });
 });

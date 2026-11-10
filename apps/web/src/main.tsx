@@ -6,10 +6,15 @@ import { createRoot } from 'react-dom/client';
 import { registerSW } from 'virtual:pwa-register';
 import { App, Notice, Refused } from './App';
 import { tickMsFrom } from './clock';
+import '@fontsource/alegreya-sans/latin-400.css';
+import '@fontsource/alegreya-sans/latin-500.css';
+import '@fontsource/alegreya-sans/latin-700.css';
+import '@fontsource/alegreya-sc/latin-700.css';
 import './app.css';
 import { setNotice, watchSaves } from './notices';
 import { load, save as write } from './saves';
 import type { SaveRecord } from './saves';
+import { PROTOCOL } from './worker';
 import type { WorkerIn } from './worker';
 
 // The seed is the one value taken from outside the engine (GAME-01), before the first render.
@@ -53,7 +58,11 @@ function holdLock(): Promise<boolean> {
 }
 
 async function start() {
-  show(<main>Loading…</main>);
+  show(
+    <main className="plain">
+      <p className="loading">Loading…</p>
+    </main>,
+  );
   if (!(await holdLock())) {
     show(<Notice message="Silvanus is open in another window." />);
     return;
@@ -64,8 +73,8 @@ async function start() {
   const run = (record: SaveRecord | null, saved: boolean) => {
     const worker = new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' });
     const first: WorkerIn = record
-      ? { type: 'load', state: record.state, anchorMs: record.anchorMs }
-      : { type: 'load', state: newGame(seed, content), anchorMs: Date.now() };
+      ? { v: PROTOCOL, type: 'load', state: record.state, anchorMs: record.anchorMs }
+      : { v: PROTOCOL, type: 'load', state: newGame(seed, content), anchorMs: Date.now() };
     show(
       <App
         worker={worker}
@@ -90,6 +99,16 @@ async function start() {
         ? 'This save is from a newer version of the game.'
         : 'This save is damaged.';
     show(<Refused message={message} raw={loaded.raw} onImport={onImport} />);
+    return;
+  }
+  if (loaded.kind === 'ok' && loaded.upgradedFrom !== undefined) {
+    // An older save became a new town (schema 1 held a counter, not a town). The old record is
+    // still under `main`: this first save moves it to `previous` and stores the new town.
+    const record = loaded.record;
+    void save(record, { keepPrevious: true }).then(
+      () => run(record, true),
+      () => run(record, false),
+    );
     return;
   }
   run(loaded.kind === 'ok' ? loaded.record : null, true);

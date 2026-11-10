@@ -459,8 +459,17 @@ Taken before any code, from the zero-decision check on S2 against what S1 merged
 - **`shapeOkV1`** keeps M0's limits as its own constants (food cap 200, foragers 3).
 - **The import question** names dates, not ticks: "Replace this town with the one saved at year 1, season 1, day 2, hour 3?".
 - **M0's "Caught up N ticks" line** is dropped; S3's away card replaces it.
+- **Fonts.** The app imports the packages' `latin-400.css`, `latin-500.css`, `latin-700.css` files of the sans face and `latin-700.css` of the small-caps face, not the all-script ones the Web section names: the names and texts are plain Latin, and the offline cache then holds 4 font files instead of every script's.
+- **Colours outside the page.** The manifest's and the page's theme colour move to `--bg` (`#162120`). The icon keeps its M0 ground.
+- **Content fields the spec did not name.** `town`, `cycleTicks`, a kind's `trade`, `skill`, `freeWhenNone` and `storage` (the Storehouse's cap rule as data, GAME-04), a hall tier's `needResidents`. A person's skills and traits are made in full from S2, so saves need no change in S4.
+- **Events** carry a kind id and tier (`built`, `upgraded`, `cleared`), a resource and amount (`made`, `used`, `lost`, `capLost`), or the command and reason (`rejected`). Eating emits `used`.
+- **Engine exports for the screens:** `refusal`, `jobCost`, `shortfall` (what a cost asks beyond the stock, for "Needs 20 wood"), `capsOf`, `hallOf`, `kindOf`, `methodOf`, `slotsOf`, `bedsOf`.
+- **An upgrade under way** shows on its lot as "Upgrading, N game hours left", and a waiting one as "Upgrade waiting". A workplace with open slots and nobody in them shows its workers line in ember.
+- **J9 and the soak's replay** send one tick's commands in one `apply` call. The worker applies each command as it arrives, and each `apply` ends with the jobs pass.
+- **Measured.** First load 85,991 bytes gzipped of 120,000 (S1: 73,927). Soak pass 1: 405 commands, 325 refused, largest save 7,007 bytes, 541,079 ticks per second on the cloud machine (floor 20,000). `npm run check` 5.5 s; browser tests 31 s for 17.
+- **Seen to fail first.** The 20 engine and content tests were run against S1's engine and all failed. "a damaged schema 1 save stays damaged" passes when written and failed under a planted bug. The four J11 browser tests were not run against S1's page; they read test ids it does not have.
 
 ## Open questions
 
 - Whether gold pays for building from M3 (D-027, proposed).
-- AGENTS.md's count of browser tests ("8 Playwright tests") is updated by each slice that adds some.
+- AGENTS.md's count of browser tests is updated by each slice that adds some (17 after S2).

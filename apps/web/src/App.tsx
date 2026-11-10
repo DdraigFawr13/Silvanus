@@ -1,14 +1,17 @@
 import { content } from '@silvanus/content';
-import { calendar } from '@silvanus/sim';
+import { capsOf, hallOf } from '@silvanus/sim';
+import type { Command } from '@silvanus/sim';
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import type { ReactNode } from 'react';
 import { CATCH_UP_CAP, due } from './clock';
 import { clearNotice, notices, setNotice, subscribe } from './notices';
 import { SCHEMA, exportText, importFile, storageAnswer } from './saves';
 import type { SaveRecord, StorageAnswer } from './saves';
+import { current, publish, reset, subscribe as subscribeTown } from './store';
+import { TownTab } from './ui/TownTab';
+import { dateInline, dateText } from './ui/format';
+import { PROTOCOL } from './worker';
 import type { Snapshot, WorkerIn } from './worker';
-
-type CaughtUp = { ticks: number; produced: number; lost: number };
 
 function download(name: string, text: string) {
   const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
@@ -25,10 +28,14 @@ function PageNotices() {
   return (
     <>
       {list.map((notice) => (
-        <div className="row" key={notice.id} data-testid={`notice-${notice.id}`}>
+        <div
+          className={notice.id === 'update' ? 'notice quiet' : 'notice'}
+          key={notice.id}
+          data-testid={`notice-${notice.id}`}
+        >
           <p>{notice.text}</p>
           {notice.action && (
-            <button type="button" onClick={notice.action.run}>
+            <button type="button" className="btn" onClick={notice.action.run}>
               {notice.action.label}
             </button>
           )}
@@ -40,8 +47,8 @@ function PageNotices() {
 
 export function Notice({ message }: { message: string }) {
   return (
-    <main>
-      <h1>Silvanus</h1>
+    <main className="plain">
+      <h1 className="town-name">Silvanus</h1>
       <PageNotices />
       <p data-testid="notice">{message}</p>
     </main>
@@ -49,7 +56,7 @@ export function Notice({ message }: { message: string }) {
 }
 
 // The Export button (passed in), the Import button with its file input, and under them the
-// in-page confirm. `replacing` names what Replace would write over: "tick 512" or "the
+// in-page confirm. `replacing` names what Replace would write over: "this town" or "the
 // unreadable save".
 function Import({
   children,
@@ -76,9 +83,14 @@ function Import({
   };
   return (
     <>
-      <div className="row">
+      <div className="btns">
         {children}
-        <button type="button" data-testid="import" onClick={() => input.current?.click()}>
+        <button
+          type="button"
+          className="btn second"
+          data-testid="import"
+          onClick={() => input.current?.click()}
+        >
           Import
         </button>
         <input
@@ -96,13 +108,14 @@ function Import({
         />
       </div>
       {pending && (
-        <div data-testid="import-confirm">
+        <div className="confirm" data-testid="import-confirm">
           <p>
-            Replace {replacing} with tick {pending.state.tick}?
+            Replace {replacing} with the one saved at {dateInline(pending.state.tick)}?
           </p>
-          <div className="row">
+          <div className="btns">
             <button
               type="button"
+              className="btn"
               data-testid="replace"
               onClick={() => {
                 // the anchor is the moment of the tap, not of choosing the file
@@ -112,7 +125,12 @@ function Import({
             >
               Replace
             </button>
-            <button type="button" data-testid="cancel" onClick={() => setPending(null)}>
+            <button
+              type="button"
+              className="btn second"
+              data-testid="cancel"
+              onClick={() => setPending(null)}
+            >
               Cancel
             </button>
           </div>
@@ -135,13 +153,14 @@ export function Refused({
 }) {
   const [importError, setImportError] = useState<string | null>(null);
   return (
-    <main>
-      <h1>Silvanus</h1>
+    <main className="plain">
+      <h1 className="town-name">Silvanus</h1>
       <PageNotices />
       <p data-testid="notice">{importError ?? message}</p>
       <Import replacing="the unreadable save" onReplace={onImport} onError={setImportError}>
         <button
           type="button"
+          className="btn second"
           data-testid="export"
           onClick={() => download('silvanus-save-unreadable.json', exportText(raw))}
         >
@@ -164,8 +183,7 @@ type Props = {
 };
 
 export function App({ worker, first, loadedTick, tickMs, save }: Props) {
-  const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
-  const [caughtUp, setCaughtUp] = useState<CaughtUp | null>(null);
+  const snapshot = useSyncExternalStore(subscribeTown, current);
   // The anchor of the last snapshot received, and whether an advance is waiting for its snapshot.
   const anchorRef = useRef<number | null>(null);
   const waitingRef = useRef(false);
@@ -188,6 +206,7 @@ export function App({ worker, first, loadedTick, tickMs, save }: Props) {
   }, []);
 
   useEffect(() => {
+    reset();
     const send = (message: WorkerIn) => worker.postMessage(message);
     // `imported`: the record is an imported town, which may be at an earlier tick.
     const persist = (imported = false) => {
@@ -209,7 +228,7 @@ export function App({ worker, first, loadedTick, tickMs, save }: Props) {
     const onMessage = (event: MessageEvent<Snapshot>) => {
       const next = event.data;
       standbyRef.current = { schema: SCHEMA, anchorMs: next.anchorMs, state: next.state };
-      setSnapshot(next);
+      publish(next);
       if (importingRef.current !== null) {
         // Snapshots of the replaced town may still arrive; they are shown but not autosaved,
         // and the clock stays on the imported town's anchor (audit F14).
@@ -217,15 +236,11 @@ export function App({ worker, first, loadedTick, tickMs, save }: Props) {
         importingRef.current = null;
         anchorRef.current = next.anchorMs;
         waitingRef.current = false;
-        setCaughtUp(null);
         persist(true);
         return;
       }
       anchorRef.current = next.anchorMs;
       if (next.ticks > 0) waitingRef.current = false;
-      if (next.ticks > 1) {
-        setCaughtUp({ ticks: next.ticks, produced: next.produced, lost: next.lost });
-      }
       // Autosave every 10th tick in live play, and once after a catch-up.
       if (next.ticks > 1 || (next.ticks === 1 && next.state.tick % 10 === 0)) persist();
     };
@@ -237,7 +252,7 @@ export function App({ worker, first, loadedTick, tickMs, save }: Props) {
         return;
       }
       waitingRef.current = true;
-      send({ type: 'advance', ticks: result.ticks, anchorMs: result.anchorMs });
+      send({ v: PROTOCOL, type: 'advance', ticks: result.ticks, anchorMs: result.anchorMs });
     };
     const onVisibility = () => {
       if (document.visibilityState === 'visible') check();
@@ -278,18 +293,16 @@ export function App({ worker, first, loadedTick, tickMs, save }: Props) {
 
   if (snapshot === null) {
     return (
-      <main>
+      <main className="plain">
         <PageNotices />
-        Loading…
+        <p className="loading">Loading…</p>
       </main>
     );
   }
 
   const { state } = snapshot;
-  const when = calendar(state.tick);
   const post = (message: WorkerIn) => worker.postMessage(message);
-  const setForagers = (count: number) =>
-    post({ type: 'command', command: { type: 'setForagers', count } });
+  const sendCommand = (command: Command) => post({ v: PROTOCOL, type: 'command', command });
   const exportSave = () => {
     const record = standbyRef.current;
     if (record) download(`silvanus-save-${record.state.tick}.json`, exportText(record));
@@ -305,79 +318,82 @@ export function App({ worker, first, loadedTick, tickMs, save }: Props) {
     importingRef.current = record.anchorMs;
     anchorRef.current = record.anchorMs;
     waitingRef.current = true;
-    post({ type: 'load', state: record.state, anchorMs: record.anchorMs });
+    post({ v: PROTOCOL, type: 'load', state: record.state, anchorMs: record.anchorMs });
   };
   const unavailable =
     save === null ? 'Saving is not available in this browser. The town will not be kept.' : null;
   const notice = importError ?? unavailable;
+  const caps = capsOf(state, content);
 
   return (
-    <main>
-      <h1>Silvanus</h1>
-      <PageNotices />
-      {notice && <p data-testid="notice">{notice}</p>}
-      <p>
-        Year {when.year}, season {when.season + 1}, day {when.day}, hour {when.hour}
-      </p>
-      <p>
-        Tick <span data-testid="tick">{state.tick}</span>
-      </p>
-      {savedTick === null ? (
-        <p>Not saved yet</p>
-      ) : (
-        <p>
-          Saved at tick <span data-testid="saved-tick">{savedTick}</span>
-        </p>
-      )}
-      <p>
-        Food <span data-testid="food">{state.stock.food}</span> / {content.resources.food.cap}
-      </p>
-      <div className="row">
-        <span>Foragers</span>
-        <button
-          type="button"
-          aria-label="Fewer foragers"
-          disabled={state.foragers <= 0}
-          onClick={() => setForagers(state.foragers - 1)}
-        >
-          −
-        </button>
-        <span data-testid="foragers">{state.foragers}</span>
-        <button
-          type="button"
-          aria-label="More foragers"
-          disabled={state.foragers >= content.camp.maxForagers}
-          onClick={() => setForagers(state.foragers + 1)}
-        >
-          +
-        </button>
-      </div>
-      {caughtUp && (
-        <p>
-          Caught up <span data-testid="caught-up">{caughtUp.ticks}</span> ticks: +
-          {caughtUp.produced} food, {caughtUp.lost} lost.
-        </p>
-      )}
-      {storage && (
-        <p>
-          Storage:{' '}
-          <span data-testid="storage">
-            {storage === 'kept'
-              ? 'kept'
-              : storage === 'mayClear'
-                ? 'the browser may clear this. Export a save.'
-                : 'unknown'}
+    <div className="app">
+      <header className="top">
+        <h1 className="town-name">{content.town}</h1>
+        <p className="town-sub">
+          <b>{hallOf(state, content).name}</b> ·{' '}
+          <span data-testid="date" data-tick={state.tick}>
+            {dateText(state.tick)}
           </span>
         </p>
-      )}
-      <Import replacing={`tick ${state.tick}`} onReplace={replaceWith} onError={setImportError}>
-        <button type="button" data-testid="export" onClick={exportSave}>
-          Export
-        </button>
-      </Import>
-      <p>
-        Version <span data-testid="version">{__COMMIT__}</span>
-      </p>
-    </main>
+        <div className="stock" data-testid="stock">
+          {content.resources.map((resource) => {
+            const amount = state.stock[resource.id];
+            const edge = amount === 0 || amount >= caps[resource.id];
+            return (
+              <div
+                className={edge ? 'cell warn' : 'cell'}
+                key={resource.id}
+                data-testid={`stock-${resource.id}`}
+              >
+                <span className="lab">{resource.name}</span>
+                <span className="num">
+                  {amount} <small>/ {caps[resource.id]}</small>
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </header>
+      <main className="body">
+        <PageNotices />
+        {notice && (
+          <div className="notice">
+            <p data-testid="notice">{notice}</p>
+          </div>
+        )}
+        <TownTab state={state} send={sendCommand}>
+          {savedTick === null ? (
+            <p>Not saved yet</p>
+          ) : (
+            <p>
+              Saved at{' '}
+              <span data-testid="saved-at" data-tick={savedTick}>
+                {dateInline(savedTick)}
+              </span>
+            </p>
+          )}
+          {storage && (
+            <p>
+              Storage:{' '}
+              <span data-testid="storage">
+                {storage === 'kept'
+                  ? 'kept'
+                  : storage === 'mayClear'
+                    ? 'the browser may clear this. Export a save.'
+                    : 'unknown'}
+              </span>
+            </p>
+          )}
+          <Import replacing="this town" onReplace={replaceWith} onError={setImportError}>
+            <button type="button" className="btn second" data-testid="export" onClick={exportSave}>
+              Export
+            </button>
+          </Import>
+          <p>
+            Version <span data-testid="version">{__COMMIT__}</span>
+          </p>
+        </TownTab>
+      </main>
+    </div>
   );
 }

@@ -1,24 +1,23 @@
 import { content } from '@silvanus/content';
+import { capsOf, kindOf, newGame } from '@silvanus/sim';
 import type { State } from '@silvanus/sim';
 import { testTickMs } from './clock';
 
-export const SCHEMA = 1;
+export const SCHEMA = 2;
 export const STORE = 'saves';
 export const KEY = 'main';
-// The record an import replaced, kept so a replace can be undone by hand (audit F4).
+// The record an import or an upgrade replaced, kept so it can be brought back by hand (audit F4).
 export const PREVIOUS = 'previous';
 export const IMPORT_MAX_BYTES = 5_000_000;
 
 export type SaveRecord = { schema: number; anchorMs: number; state: State };
 export type Loaded =
   | { kind: 'none' }
-  | { kind: 'ok'; record: SaveRecord }
+  // `upgradedFrom`: the record was stored in that older schema and has not been saved since
+  | { kind: 'ok'; record: SaveRecord; upgradedFrom?: number }
   | { kind: 'tooNew'; raw: unknown }
   | { kind: 'damaged'; raw: unknown }
   | { kind: 'unavailable' };
-
-// Upgrade steps from a stored schema to the next one. Empty in M0.
-const upgrades: Record<number, (old: unknown) => unknown> = {};
 
 // A test tick length uses its own database, so a test never touches the real save.
 export function databaseName(search: string): string {
@@ -35,8 +34,12 @@ const isObject = (v: unknown): v is Record<string, unknown> =>
 const isWhole = (v: unknown): v is number =>
   typeof v === 'number' && Number.isSafeInteger(v) && v >= 0;
 const isId = (v: unknown) => v === null || isWhole(v);
+const upTo = (v: unknown, max: number): v is number => isWhole(v) && v <= max;
+const rngOk = (v: unknown) =>
+  isObject(v) && Object.values(v).every((n) => isWhole(n) && n <= 4294967295);
 
-function residentOk(v: unknown): boolean {
+// The fields a resident has had since M0.
+function personOk(v: unknown): v is Record<string, unknown> {
   if (!isObject(v)) return false;
   if (!isWhole(v.id) || typeof v.name !== 'string' || typeof v.people !== 'string') return false;
   // a resident can be born before the town's first tick
@@ -44,20 +47,110 @@ function residentOk(v: unknown): boolean {
   return [v.motherId, v.fatherId, v.spouseId, v.householdId].every(isId);
 }
 
+// M0's limits, kept here because the content no longer holds them.
+const M0_FOOD_CAP = 200;
+const M0_MAX_FORAGERS = 3;
+
+// The shape of a schema 1 (M0) record.
+function shapeOkV1(v: unknown): v is { anchorMs: number; state: { seed: number } } {
+  if (!isObject(v) || !isWhole(v.anchorMs)) return false;
+  const state = v.state;
+  if (!isObject(state) || !isObject(state.stock) || !rngOk(state.rng)) return false;
+  if (![state.seed, state.tick, state.contentVersion].every(isWhole)) return false;
+  if (!upTo(state.stock.food, M0_FOOD_CAP) || !upTo(state.foragers, M0_MAX_FORAGERS)) return false;
+  return Array.isArray(state.residents) && state.residents.every(personOk);
+}
+
+// Whole amounts keyed by resources the content has.
+function amountsOk(v: unknown): v is Record<string, number> {
+  if (!isObject(v)) return false;
+  return Object.entries(v).every(
+    ([id, n]) => content.resources.some((r) => r.id === id) && isWhole(n),
+  );
+}
+
+function buildingOk(v: unknown): boolean {
+  if (!isObject(v) || !isWhole(v.id) || typeof v.kind !== 'string') return false;
+  const kind = kindOf(content, v.kind);
+  if (!kind || !upTo(v.tier, kind.tiers.length)) return false;
+  const methods = content.methods.filter((m) => m.building === kind.id).map((m) => m.id);
+  if (methods.length === 0 ? v.method !== null : !methods.includes(v.method as string)) {
+    return false;
+  }
+  const slots = v.tier === 0 ? 0 : kind.tiers[v.tier - 1].slots;
+  if (!upTo(v.open, slots) || !isWhole(v.retoolLeft) || typeof v.short !== 'boolean') return false;
+  return amountsOk(v.carry) && amountsOk(v.debt);
+}
+
+function residentOk(v: unknown, buildingIds: Set<unknown>): boolean {
+  if (!personOk(v) || !content.peoples.some((p) => p.id === v.people)) return false;
+  const skills = v.skills;
+  if (!isObject(skills) || Object.keys(skills).length !== content.skills.length) return false;
+  if (!content.skills.every((skill) => upTo(skills[skill.id], 100))) return false;
+  if (!Array.isArray(v.traits)) return false;
+  if (!v.traits.every((id) => content.traits.some((trait) => trait.id === id))) return false;
+  if (!upTo(v.morale, 100) || !isWhole(v.workDays) || !isWhole(v.arrivedTick)) return false;
+  const reasonOk = (r: unknown) =>
+    isObject(r) && typeof r.id === 'string' && Number.isSafeInteger(r.amount);
+  if (!Array.isArray(v.reasons) || !v.reasons.every(reasonOk)) return false;
+  return [v.jobId, v.pinnedTo].every((id) => id === null || buildingIds.has(id));
+}
+
 // A new field in the save means a check here and, for a stored shape that changes, an upgrade
 // step below.
 function shapeOk(v: unknown): v is SaveRecord {
   if (!isObject(v) || !isWhole(v.anchorMs)) return false;
   const state = v.state;
-  if (!isObject(state) || !isObject(state.stock) || !isObject(state.rng)) return false;
-  if (![state.seed, state.tick, state.contentVersion, state.stock.food].every(isWhole)) {
+  if (!isObject(state) || !rngOk(state.rng)) return false;
+  if (![state.seed, state.tick, state.contentVersion, state.nextId].every(isWhole)) return false;
+  if (!isWhole(state.hallTier) || state.hallTier < 1) return false;
+  const hall = content.hall.tiers[state.hallTier - 1];
+  if (!hall || !Number.isSafeInteger(state.lastLeftTick)) return false;
+  if (typeof state.jobsDirty !== 'boolean') return false;
+
+  const { buildings, residents, queue, log } = state;
+  if (!Array.isArray(buildings) || buildings.length > hall.lots) return false;
+  if (!buildings.every(buildingOk)) return false;
+  const buildingIds = new Set<unknown>(buildings.map((b) => b.id));
+  if (!Array.isArray(residents) || !residents.every((r) => residentOk(r, buildingIds))) {
     return false;
   }
-  if ((state.stock.food as number) > content.resources.food.cap) return false;
-  if (!isWhole(state.foragers) || state.foragers > content.camp.maxForagers) return false;
-  if (!Object.values(state.rng).every((n) => isWhole(n) && n <= 4294967295)) return false;
-  return Array.isArray(state.residents) && state.residents.every(residentOk);
+  const ids = [...buildings, ...residents].map((entry) => entry.id as number);
+  if (new Set(ids).size !== ids.length || ids.some((id) => id >= (state.nextId as number))) {
+    return false;
+  }
+
+  const jobOk = (job: unknown) =>
+    isObject(job) &&
+    (job.target === 'hall' || buildingIds.has(job.target)) &&
+    upTo(job.toTier, 3) &&
+    isWhole(job.ticksLeft) &&
+    amountsOk(job.cost);
+  if (!Array.isArray(queue) || queue.length > 1 + content.rules.queueMax) return false;
+  if (!queue.every(jobOk)) return false;
+
+  const lineOk = (line: unknown) =>
+    isObject(line) &&
+    isWhole(line.tick) &&
+    typeof line.type === 'string' &&
+    typeof line.text === 'string';
+  if (!Array.isArray(log) || log.length > content.rules.logMax || !log.every(lineOk)) return false;
+
+  // every store the content has, each a whole number up to its cap, and no others
+  const stock = state.stock;
+  if (!amountsOk(stock) || Object.keys(stock).length !== content.resources.length) return false;
+  const caps = capsOf(state as unknown as State, content);
+  return content.resources.every((r) => upTo(stock[r.id], caps[r.id]));
 }
+
+// Upgrade steps from a stored schema to the next one; null for a record the step cannot read.
+// 1 to 2: an M0 save holds a counter, not a town, so its seed starts a new town at tick 0.
+const upgrades: Record<number, (old: unknown) => unknown> = {
+  1: (old) =>
+    shapeOkV1(old)
+      ? { schema: 2, anchorMs: Date.now(), state: newGame(old.state.seed, content) }
+      : null,
+};
 
 // Shared by load and importText.
 export function parse(raw: unknown): Loaded {
@@ -68,19 +161,19 @@ export function parse(raw: unknown): Loaded {
   let current: unknown = raw;
   for (let schema = raw.schema; schema < SCHEMA; schema++) {
     const upgrade = upgrades[schema];
-    if (!upgrade) return { kind: 'damaged', raw };
-    current = upgrade(current);
+    current = upgrade ? upgrade(current) : null;
+    if (current === null) return { kind: 'damaged', raw };
   }
   if (!shapeOk(current)) return { kind: 'damaged', raw };
-  // A different contentVersion is not an error in M0: it becomes the running content's.
-  return {
-    kind: 'ok',
-    record: {
-      schema: SCHEMA,
-      anchorMs: current.anchorMs,
-      state: { ...current.state, contentVersion: content.version },
-    },
+  // A different contentVersion is not an error: it becomes the running content's.
+  const record: SaveRecord = {
+    schema: SCHEMA,
+    anchorMs: current.anchorMs,
+    state: { ...current.state, contentVersion: content.version },
   };
+  return raw.schema < SCHEMA
+    ? { kind: 'ok', record, upgradedFrom: raw.schema }
+    : { kind: 'ok', record };
 }
 
 function open(): Promise<IDBDatabase> {
