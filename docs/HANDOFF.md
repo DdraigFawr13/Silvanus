@@ -38,7 +38,8 @@ M1 Town is built from `docs/specs/m1-town.md` (approved, D-030), five slices, al
 
 ## Open questions
 
-- Whether gold pays for building from M3 (D-027, proposed).
+- Whether gold pays for building from M3 (D-027, proposed; settled at M3's planning).
+- Whether the charter's 1,440-tick catch-up cap belongs to a later Hall tier (M1 audit F18). Settlers arrive aged 20 until M4a sets ages (F22). J14 judges the pacing to the Village and D-034's prices (F19, F22).
 - How Android Chrome answers the persistent-storage request for an installed PWA: Morgan did not look at the Storage line.
 - The other two peoples for v1.0. Whether ranks get bigger jumps (D-021, after the first playtest).
 

@@ -1,9 +1,9 @@
+import { SEASON_TICKS } from './calendar';
 import { addSettler } from './people';
 import type { Building, Content, Event, Resident, State } from './types';
 import { addLog, bedsOf, hallOf, kindOf } from './util';
 
-// A season: at most one resident leaves in one (D-025).
-const SEASON_TICKS = 168;
+// At most one resident leaves in a season (SEASON_TICKS, D-025).
 
 type Term = { id: string; amount: number };
 

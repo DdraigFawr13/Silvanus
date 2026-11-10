@@ -6,9 +6,9 @@ import { content, seedRecord, townRecord } from './helpers';
 // still.
 test.use({ viewport: { width: 412, height: 915 } });
 
-// Seed 1 one hour into its second game day: the first day's morale reasons are stored.
-// Dai (1), Mairoc (2), Hrutrek (4) and Llewed (8) forage; Ceriin (3), Balkrek (5), Skafr (6)
-// and Grimk (7) have no job.
+// Seed 1 one hour into its second game day: the first day's morale reasons are stored. Four
+// forage and four have no job. Names, skills and traits are read from this state, not written
+// out, so a change to how residents are drawn does not break the tests (M1 audit F4).
 const dayOne = () => advance(newGame(1, content), 25, content).state;
 
 test('people list, filter and sheet', async ({ page }) => {
@@ -18,31 +18,31 @@ test('people list, filter and sheet', async ({ page }) => {
   const rows = page.getByTestId('person');
   await expect(rows).toHaveCount(8);
   await expect(rows.filter({ hasText: 'Forager' })).toHaveCount(4);
-  await expect(rows.filter({ hasText: 'No trade' })).toHaveCount(4);
+  await expect(rows.filter({ hasText: 'No work' })).toHaveCount(4);
   // every row has a morale number
   for (let i = 0; i < 8; i++) await expect(rows.nth(i).getByTestId('morale')).toHaveText(/^\d+$/);
 
   await page.getByTestId('chip-idle').click();
   await expect(rows).toHaveCount(4);
-  for (let i = 0; i < 4; i++) await expect(rows.nth(i)).toContainText('No trade');
+  for (let i = 0; i < 4; i++) await expect(rows.nth(i)).toContainText('No work');
   await page.getByTestId('chip-all').click();
   await expect(rows).toHaveCount(8);
 
   // sorted by name by default
-  await expect(rows.first()).toContainText('Balkrek');
-  await rows.filter({ hasText: 'Ceriin' }).click();
+  const town = dayOne();
+  const first = town.residents.map((r) => r.name).sort((a, b) => a.localeCompare(b))[0];
+  await expect(rows.first()).toContainText(first);
+  // the idle resident with the lowest id
+  const idle = town.residents.find((r) => r.jobId === null)!;
+  await rows.filter({ hasText: idle.name }).click();
   const sheet = page.getByTestId('resident-sheet');
-  await expect(sheet).toContainText('Ceriin');
-  await expect(sheet.getByTestId('skill')).toHaveText([
-    'Husbandry51',
-    'Woodcraft36',
-    'Mining23',
-    'Crafting41',
-  ]);
-  await expect(sheet.getByTestId('trait')).toHaveText([
-    'DeftLikes the Workshop',
-    "Hearth-boundLikes the Workshop and the Tavern; dislikes the Forager's hut",
-  ]);
+  await expect(sheet).toContainText(idle.name);
+  await expect(sheet.getByTestId('skill')).toHaveText(
+    content.skills.map((skill) => `${skill.name}${idle.skills[skill.id]}`),
+  );
+  await expect(sheet.getByTestId('trait')).toHaveText(
+    idle.traits.map((id) => new RegExp(`^${content.traits.find((t) => t.id === id)!.name}Likes`)),
+  );
   await expect(sheet.getByTestId('reason')).toHaveText(['Food+10', 'No work−10']);
   await expect(sheet.getByTestId('resident-job')).toHaveText('No work');
 });

@@ -40,7 +40,7 @@ export function HallRow({ state, send }: { state: State; send: (command: Command
       </div>
       {next && at === 0 && (
         <div className="line2" data-testid="village-job">
-          Becoming a {next.name}, {duration(state.queue[0].ticksLeft)} left
+          Upgrading to {next.name}, {duration(state.queue[0].ticksLeft)} left
         </div>
       )}
       {next && at > 0 && (
@@ -51,7 +51,7 @@ export function HallRow({ state, send }: { state: State; send: (command: Command
       {next && at < 0 && (
         <>
           <div className="line2">
-            {next.name}: {next.lots} lots, room for {next.residents}
+            {next.name}: {next.lots} lots, {next.residents} residents
           </div>
           <div className="line2">
             {amountsText(next.cost)} · {duration(next.ticks)}

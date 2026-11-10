@@ -52,8 +52,6 @@ describe('step', () => {
       [{ type: 'pin', residentId: 1, buildingId: byKind(start, 'cottage').id }, 'range'],
       [{ type: 'pin', residentId: 1, buildingId: null }, 'same'],
       [{ type: 'setMethod', buildingId: hut, method: 'snares' }, 'notAllowed'],
-      // a Hamlet of 8 is too few for the Village (20)
-      [{ type: 'upgradeHall' }, 'tooFew'],
     ];
     for (const [command, reason] of bad) {
       const result = apply(start, [command], content);

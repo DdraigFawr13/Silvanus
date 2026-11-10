@@ -1,10 +1,10 @@
 import { content } from '@silvanus/content';
-import { YEAR_TICKS, calendar } from '@silvanus/sim';
+import { DAY_TICKS, YEAR_TICKS, calendar } from '@silvanus/sim';
 import type { Amounts, Reason } from '@silvanus/sim';
 
 // Every conversion from the engine's units to words. Display only: no rule lives here (GAME-02).
 
-const DAY = 24;
+const DAY = DAY_TICKS;
 const plural = (n: number, word: string) => `${n} game ${word}${n === 1 ? '' : 's'}`;
 
 // "8 game hours", "1 game day", "1 game day, 12 game hours". Ticks are never shown.
@@ -50,12 +50,13 @@ export const cyclesText = (cycles: number) => duration(cycles * content.cycleTic
 // Only these reasons can be reached from the screens.
 const REASONS: Partial<Record<Reason, string>> = {
   noLot: 'No empty lot',
-  queueFull: 'The work queue is full',
+  queueFull: 'The work queue is full. Wait for a job to finish or cancel a waiting one',
   noStock: 'Not enough stock',
   busy: 'Work is under way here',
   tooFew: 'Not enough residents',
 };
-export const reasonText = (reason: Reason) => REASONS[reason] ?? 'That cannot be done now';
+export const reasonText = (reason: Reason) =>
+  REASONS[reason] ?? 'That cannot be done now. Check what it needs and what is under way';
 
 // "+10", "−10" (a minus sign, not a hyphen), "0"
 export const signed = (n: number) => (n > 0 ? `+${n}` : n < 0 ? `−${-n}` : '0');

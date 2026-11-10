@@ -83,7 +83,7 @@ test('unreadable save shows the refusal', async ({ page }) => {
 
   await page.goto('/?tickMs=60000');
   await expect(page.getByTestId('notice')).toHaveText(
-    'This save is from a newer version of the game.',
+    'This save is from a newer version of the game. Export keeps a copy of it; Import replaces it with another save.',
   );
   await expect(page.getByRole('button', { name: 'Export' })).toBeVisible();
   await expect(page.getByTestId('date')).toHaveCount(0);
@@ -103,7 +103,9 @@ test('second window stands down', async ({ page, context }) => {
   await expect(page.getByTestId('date')).toBeVisible();
   const second = await context.newPage();
   await second.goto('/?tickMs=60000');
-  await expect(second.getByTestId('notice')).toHaveText('Silvanus is open in another window.');
+  await expect(second.getByTestId('notice')).toHaveText(
+    'Silvanus is open in another window. Close it, then reload this page.',
+  );
   await expect(second.getByTestId('date')).toHaveCount(0);
   // the first window still runs the town
   await expect(page.getByTestId('date')).toBeVisible();
@@ -190,7 +192,7 @@ test('an import replaces an unreadable save', async ({ page }) => {
   await seedRecord(page, record);
   await page.goto('/?tickMs=60000');
   await expect(page.getByTestId('notice')).toHaveText(
-    'This save is from a newer version of the game.',
+    'This save is from a newer version of the game. Export keeps a copy of it; Import replaces it with another save.',
   );
 
   await page.getByTestId('import-file').setInputFiles(goodFile());
@@ -256,6 +258,7 @@ test('hiding the page saves', async ({ page }) => {
   await expect(lot(page, "Forager's hut")).toContainText('Workers 4 / 4');
   await openSlots(page, 'Fewer', 3);
   await expect(lot(page, "Forager's hut")).toContainText('Workers 3 / 3');
+  // One look is enough here: at a minute per tick the first autosave is a minute away.
   expect(await readRecord(page)).toBeUndefined();
   await page.evaluate(() => {
     Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
@@ -288,7 +291,8 @@ test('a failed save is shown', async ({ page }) => {
   });
   await expect(page.getByTestId('notice-saveFailed')).toHaveText('Saving failed. Export a save.');
   const stuck = await savedTick(page);
-  expect(await tick(page)).toBeGreaterThan(stuck);
+  // the clock runs on while saves fail
+  await expect.poll(() => tick(page)).toBeGreaterThan(stuck);
   // The next save that lands clears the notice.
   await page.evaluate(() => {
     const w = window as unknown as Record<string, never>;

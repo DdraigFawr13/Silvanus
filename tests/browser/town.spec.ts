@@ -14,16 +14,17 @@ test('the town tab shows stock and lots', async ({ page }) => {
   await page.goto('/?tickMs=60000');
   await expect(page.getByRole('heading', { name: 'Ashwick' })).toBeVisible();
   await expect(page.getByTestId('date')).toHaveText('Year 1, season 1, day 1, hour 0');
+  // an empty store says so in words as well as colour (M1 audit F17)
   await expect(page.getByTestId('stock').locator('.lab')).toHaveText([
     'Food',
     'Wood',
-    'Stone',
-    'Ore',
-    'Tools',
+    'Stone · empty',
+    'Ore · empty',
+    'Tools · empty',
   ]);
   await expect(page.getByTestId('stock-food')).toHaveText('Food40 / 200');
   await expect(page.getByTestId('stock-wood')).toHaveText('Wood60 / 200');
-  await expect(page.getByTestId('stock-tools')).toHaveText('Tools0 / 50');
+  await expect(page.getByTestId('stock-tools')).toHaveText('Tools · empty0 / 50');
   await expect(page.getByTestId('hall')).toContainText('Residents 8 / 25');
   const lots = page.getByTestId('lot');
   await expect(lots).toHaveCount(6);
@@ -64,8 +65,13 @@ test('building from an open lot', async ({ page }) => {
   await expect(lot(page, 'Mine')).toContainText('Waiting in the work queue');
   await expect(page.getByTestId('queue')).toContainText('Waiting, takes 1 game day');
 
-  // cancelling the waiting job gives the wood back and frees the lot
-  await page.getByTestId('queue').getByRole('button', { name: 'Cancel' }).click();
+  // cancelling the waiting job gives the wood back and frees the lot; the button names its job
+  // and the panel says a cancel refunds (M1 audit F16)
+  await expect(page.getByTestId('cancel-note')).toHaveText(
+    'Cancelling a waiting job refunds its cost, up to what the stores hold.',
+  );
+  await page.getByTestId('queue').getByRole('button', { name: 'Cancel Mine', exact: true }).click();
+  await expect(page.getByTestId('cancel-note')).toHaveCount(0);
   await expect(page.getByTestId('stock-wood')).toHaveText('Wood60 / 200');
   await expect(lot(page, 'Mine')).toHaveCount(0);
   await expect(empty).toHaveCount(3);
@@ -132,6 +138,17 @@ test('a sheet keeps keyboard focus, closes on Escape and gives focus back', asyn
   await page.keyboard.press('Escape');
   await expect(dialog).toHaveCount(0);
   await expect(opener).toBeFocused();
+});
+
+test('text follows the root text size', async ({ page }) => {
+  // the phone's text-size setting reaches the page through the root size (M1 audit F13)
+  await page.goto('/?tickMs=60000');
+  const label = page.getByTestId('stock-food').locator('.lab');
+  const labelSize = () => label.evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+  const before = await labelSize();
+  await page.evaluate(() => (document.documentElement.style.fontSize = '200%'));
+  await expect.poll(labelSize).toBe(before * 2);
+  expect(await sidewaysScroll(page)).toBe(0);
 });
 
 test('a build finishes, works and is kept', async ({ page }) => {
@@ -260,7 +277,15 @@ test('away summary after catch-up', async ({ page }) => {
   const card = page.getByTestId('away');
   await expect(card).toContainText('While you were away');
   await expect(card).toContainText('4 game days, 4 game hours passed.');
-  await expect(card.getByTestId('away-made')).toContainText('tools');
+  // every resource made, with its amount, in content order, as the engine counts it (J13)
+  const record = townRecord({ state });
+  const made = advance(record.state, 100, content).summary.made;
+  const expected = content.resources
+    .filter((r) => (made[r.id] ?? 0) > 0)
+    .map((r) => `${made[r.id]} ${r.name.toLowerCase()}`)
+    .join(', ');
+  expect(expected).toContain('tools');
+  await expect(card.getByTestId('away-made')).toHaveText(expected);
   await expect(card.getByTestId('away-finished')).toHaveText("Woodcutter's camp, tier 1");
   await expect(card.getByTestId('away-short')).toHaveText(
     'Workshop, for 4 game days, 4 game hours',
@@ -327,11 +352,11 @@ test('the Hall row offers the Village when it can be paid for', async ({ page })
   await expect(page.getByTestId('stock-wood')).toHaveText('Wood180 / 200');
   await hall.getByTestId('village').click();
   await hall.getByRole('button', { name: 'Upgrade', exact: true }).click();
-  await expect(hall).toContainText('Becoming a Village, 4 game days left');
+  await expect(hall).toContainText('Upgrading to Village, 4 game days left');
   await expect(hall.getByTestId('village')).toHaveCount(0);
   await expect(page.getByTestId('queue')).toContainText('The Hall to Village');
-  await expect(page.getByTestId('stock-wood')).toHaveText('Wood0 / 200');
-  await expect(page.getByTestId('stock-tools')).toHaveText('Tools0 / 50');
+  await expect(page.getByTestId('stock-wood')).toHaveText('Wood · empty0 / 200');
+  await expect(page.getByTestId('stock-tools')).toHaveText('Tools · empty0 / 50');
   expect(await sidewaysScroll(page)).toBe(0);
 });
 
@@ -363,13 +388,14 @@ test('the away card names who arrived', async ({ page }) => {
   state.buildings[2] = { ...state.buildings[2], id: crowded.nextId! };
   // what the engine makes of it, read here rather than guessed
   const away = advance(state, 30, content).summary;
-  expect(away.left).toEqual(['Dai']);
+  const sad = state.residents.find((r) => r.id === 1)!.name;
+  expect(away.left).toEqual([sad]);
   expect(away.arrived).toHaveLength(1);
   await seedRecord(page, townRecord({ state, anchorMs: Date.now() - 30 * 60_000 }));
   await page.goto('/?tickMs=60000');
   const card = page.getByTestId('away');
   await expect(card.getByTestId('away-arrived')).toHaveText(away.arrived[0]);
-  await expect(card.getByTestId('away-left')).toHaveText('Dai');
+  await expect(card.getByTestId('away-left')).toHaveText(sad);
   await expect(card.getByTestId('away-finished')).toHaveText('The Hall: now a Village');
   await expect(page.getByTestId('log')).toContainText(`${away.arrived[0]}, a `);
   expect(await sidewaysScroll(page)).toBe(0);

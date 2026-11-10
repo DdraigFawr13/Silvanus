@@ -54,16 +54,26 @@ function chunked(start: State, longest: number): State {
 test('chunks and steps agree with commands between', () => {
   const start = newGame(1, content);
   let stepped = start;
-  let rejected = 0;
+  const refused: string[] = [];
   for (let tick = 0; tick < TICKS; tick++) {
     const result = step(stepped, at(tick), content);
     stepped = result.state;
-    rejected += result.events.filter((event) => event.type === 'rejected').length;
+    for (const event of result.events) {
+      if (event.type === 'rejected') refused.push(`${tick} ${event.command.type} ${event.reason}`);
+    }
   }
   expect(stepped.tick).toBe(TICKS);
-  // the script did something, and some of it was refused
-  expect(rejected).toBeGreaterThanOrEqual(2);
-  expect(SCRIPT.length - rejected).toBeGreaterThanOrEqual(6);
+  // exactly the commands the script marks as refused, each for the reason it names (M1 audit F6)
+  expect(refused).toEqual([
+    '5 build noStock',
+    '101 setMethod notAllowed',
+    '102 setMethod same',
+    '151 build noStock',
+    '152 cancelJob range',
+    '200 upgradeHall tooFew',
+    '300 upgrade noStock',
+    '341 setMethod notAllowed',
+  ]);
   expect(stepped.buildings.map((b) => b.kind)).toEqual([
     'cottage',
     'forager',

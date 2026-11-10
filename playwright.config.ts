@@ -8,6 +8,7 @@ export default defineConfig({
   workers: 1,
   retries: 0,
   timeout: 30_000,
+  // the whole run took 37 s on 2026-11-10, two builds for the update test included (M1 audit F23)
   globalTimeout: 180_000,
   expect: { timeout: 10_000 },
   reporter: 'list',

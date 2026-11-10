@@ -66,7 +66,7 @@ export function PeopleTab({ state, send }: { state: State; send: (command: Comma
       </p>
       <div className="chips" role="group" aria-label="Show">
         {chip('all', 'All')}
-        {chip('idle', 'Idle')}
+        {chip('idle', 'No work')}
         {trades.map((kind) => chip(kind.id, kind.trade!))}
       </div>
       <div className="sorts" role="group" aria-label="Sort by">
@@ -105,7 +105,7 @@ export function PeopleTab({ state, send }: { state: State; send: (command: Comma
               </span>
               <span className="line2">
                 {cap(peopleName(r))} ·{' '}
-                {job ? tradeOf(state, r) : <span className="w">No trade</span>} · {best.name}{' '}
+                {job ? tradeOf(state, r) : <span className="w">No work</span>} · {best.name}{' '}
                 {best.value}
                 {r.pinnedTo !== null && ' · Pinned'}
               </span>

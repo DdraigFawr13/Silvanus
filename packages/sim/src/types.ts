@@ -51,7 +51,7 @@ export type State = {
   buildings: Building[]; // in lot order; length <= lots
   queue: Job[]; // [0] is under way; length <= 1 + queueMax
   residents: Resident[];
-  lastLeftTick: number; // tick of the last departure, -168 at start
+  lastLeftTick: number; // tick of the last departure, minus a season at start
   jobsDirty: boolean;
   log: LogLine[]; // newest last, at most logMax
 };

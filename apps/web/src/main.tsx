@@ -83,7 +83,7 @@ async function start() {
     </main>,
   );
   if (!(await holdLock())) {
-    show(<Notice message="Silvanus is open in another window." />);
+    show(<Notice message="Silvanus is open in another window. Close it, then reload this page." />);
     return;
   }
   const loaded = await load();
@@ -115,8 +115,8 @@ async function start() {
   if (loaded.kind === 'tooNew' || loaded.kind === 'damaged') {
     const message =
       loaded.kind === 'tooNew'
-        ? 'This save is from a newer version of the game.'
-        : 'This save is damaged.';
+        ? 'This save is from a newer version of the game. Export keeps a copy of it; Import replaces it with another save.'
+        : 'This save is damaged. Export keeps a copy of it; Import replaces it with another save.';
     show(<Refused message={message} raw={loaded.raw} onImport={onImport} />);
     return;
   }
