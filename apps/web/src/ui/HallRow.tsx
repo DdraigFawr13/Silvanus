@@ -1,7 +1,7 @@
 import { content } from '@silvanus/content';
 import { hallOf, jobCost, refusal, shortfall } from '@silvanus/sim';
 import type { Command, State } from '@silvanus/sim';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { amountsText, duration, needsText, reasonText } from './format';
 
 const UPGRADE: Command = { type: 'upgradeHall' };
@@ -15,6 +15,10 @@ export function HallRow({ state, send }: { state: State; send: (command: Command
   const at = state.queue.findIndex((job) => job.target === 'hall');
   const why = refusal(state, UPGRADE, content);
   const cost = jobCost(state, UPGRADE, content);
+  // a question that can no longer be answered closes, and does not come back by itself
+  useEffect(() => {
+    if (why !== null) setConfirming(false);
+  }, [why]);
   // Everything still missing, not only the first refusal: residents, then stock.
   const missing: string[] = [];
   if (next && why === 'tooFew') missing.push(`Needs ${next.needResidents} residents`);

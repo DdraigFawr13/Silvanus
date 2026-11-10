@@ -140,8 +140,7 @@ describe('growth', () => {
     expect(state.jobsDirty).toBe(false);
     // the away card's summary names them
     expect(advance(town, 1, content).summary.arrived).toEqual([settler.name]);
-    // one a day at most
-    expect(step({ ...state, tick: 25 }, [], content).state.residents).toHaveLength(9);
+    // one at a time: 8 beds were free and food enough for more, and one came
 
     // no free bed: nobody comes
     expect(step(dayStart(100), [], content).state.residents).toHaveLength(8);
@@ -149,9 +148,14 @@ describe('growth', () => {
     const second = (food: number) => dayStart(food, (s) => finished(s, 'cottage'));
     expect(step(second(23), [], content).state.residents).toHaveLength(8);
     expect(step(second(24), [], content).state.residents).toHaveLength(9);
-    // a town at its Hall's limit takes nobody, beds or not
-    const full = crowd(second(200), 25);
-    expect(step(full, [], content).state.residents).toHaveLength(25);
+    // a town at its Hall's limit takes nobody, though beds and food would allow one: two more
+    // Cottages give 32 beds for 25
+    const roomy = (n: number) => {
+      const town = crowd(finished(finished(second(200), 'cottage'), 'cottage'), n);
+      return { ...town, stock: { ...town.stock, food: 200 } };
+    };
+    expect(step(roomy(24), [], content).state.residents).toHaveLength(25);
+    expect(step(roomy(25), [], content).state.residents).toHaveLength(25);
   });
 
   // 20 residents at morale 0, food 0 and no food buildings, from `tick`
@@ -177,6 +181,8 @@ describe('growth', () => {
       expect(lines.map((line) => line.text)).toEqual(
         night.summary.left.map((name) => `${name} has left Ashwick.`),
       );
+      // everyone is idle and starving at morale 0, a tie, so the lowest id goes first: Dai (1)
+      expect(night.summary.left[0], `from tick ${tick}`).toBe('Dai');
       // a season (168 ticks) at least between two departures
       for (let i = 1; i < lines.length; i++) {
         expect(lines[i].tick - lines[i - 1].tick).toBeGreaterThanOrEqual(168);

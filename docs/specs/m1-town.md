@@ -1,6 +1,6 @@
 # M1 Town
 
-- **Status:** Approved 2026-11-10
+- **Status:** Shipped 2026-11-10 (all five slices merged; J14, the M1 test on the phone, is still to come)
 - **Planned in:** round 1 (https://claude.ai/artifact/4Lu6ZT9ZDmtqhLgLaWbymR), review (https://claude.ai/artifact/5NTJDE3CuGvSkuDjkBL1W1), taste board (https://claude.ai/artifact/JrzLhbWsWXpwvPsVgqUZGf), M0 audit (`docs/audit/2026-11-10-repo.md`), chat 2026-11-10. **Decisions:** D-025, D-026, D-027, D-028, D-029; S3 adds D-034.
 
 The build starts from the commit that merges this spec. "M0" below means the code at that commit.
@@ -544,6 +544,7 @@ Taken in the build (2026-11-10). The zero-decision check above was one fresh age
 - **Screens.** As drawn on `mockups/town.html` (https://claude.ai/artifact/6k9547asTCDNHmfobt6Hym), whose pictures are screenshots of the built screens. Morgan approved it on 2026-11-10 ("Approved. Merge when ready") after one change round: "order the village" was weird wording for an upgrade, so the question says "Upgrade to Village? It costs … now and takes 4 game days" with an "Upgrade" button. The mock-up's fresh check (one agent, 57,514 tokens) found 1 major and about 12 minor points: 6 fixed, 1 contested, 5 declined, with reasons on the page. The Hall row's first line adds the tier name and lots; the next tier's room, cost and time follow; every missing thing is listed in ember, residents first; the queue names the job "The Hall to Village".
 - **Test seeds.** `crowd(state, total)` in `test/town.ts` and `tests/browser/helpers.ts` copies residents with new ids and no job, for towns of 9, 20 and 25 without waiting for settlers.
 - **Seen to fail first.** The 9 new and changed engine tests failed on S4's engine; the 3 new browser tests failed on S4's page (the catch-up one with "20 game days passed", the Hamlet cap). "nobody leaves a town of eight" passed at once; with the `leaveFloor` check planted out of `day.ts` (copied first) it failed, and passed again after the copy was restored.
+- **After the fresh review of the diff** (one agent, 96,977 tokens measured; 0 high, 1 medium, 7 low). Fixed 4: the Hall-limit arrival case had too few beds, so beds blocked it and the limit went untested (now 32 beds for 25); a "one a day" check on tick 25 proved nothing and is gone; the leaving tie (lowest id) is now asserted; soak pass 3 also fails if nobody leaves, so recovery is always exercised. The first and third were seen to fail under planted bugs (the Hall limit removed; ties by the highest id). Also fixed: the Village question closes if it can no longer be answered. Declined 2: an accepted Hall upgrade in J9 (seed 1 cannot reach 20 residents and the stock in 1,000 ticks, and GAME-06 keeps one determinism test; `step` runs the Hall branch like any job); the question's "Once the work starts it cannot be stopped" for a waiting job (it has not started). Noted 1: pass 2's 16 ticks above the floor.
 - **Measured.** First load 93,622 bytes gzipped of 120,000 (S4: 91,688). Soak pass 1: 402 commands, 355 refused, largest save 5,855 bytes, about 500,000 ticks per second. 67 unit tests; 25 browser tests in 36.0 s; `npm run check` 5.6 s.
 
 ## Open questions

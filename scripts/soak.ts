@@ -283,7 +283,7 @@ const night = advance(state, NIGHT, content);
 state = night.state;
 check(state);
 const lost = night.summary.left.length;
-if (lost > 3) fail(`${lost} left in a hungry night`);
+if (lost > 3 || lost < 1) fail(`${lost} left in a hungry night, not 1 to 3`);
 state = apply(state, reopen, content).state;
 const fedAt = state.tick;
 while (state.residents.length < 20 && state.tick - fedAt < RECOVER_TICKS) {
