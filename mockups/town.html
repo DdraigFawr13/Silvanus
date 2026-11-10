@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Town tab mock-up</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700&family=Alegreya+SC:wght@700&display=swap">
+<style>
+:root {
+  --bg: #162120; --panel: #1f2e2c; --line: #2f4541; --line-strong: #3d5853;
+  --ink: #e6e3d6; --head: #f0d9a4; --muted: #9fb0a4;
+  --act: #d9a441; --act-ink: #1a1608; --fine: #8fbf8a; --warn: #ef8a62;
+  --r-page: 14px; --r: 10px; --gap: 8px;
+  --display: 'Alegreya SC', Georgia, serif;
+  --body: 'Alegreya Sans', system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.35; }
+.doc { max-width: 720px; margin: 0 auto; padding: 16px; }
+.doc h1 { font-family: var(--display); color: var(--head); font-size: 26px; letter-spacing: 0.03em; margin: 8px 0; }
+.doc h2 { font-family: var(--display); color: var(--head); font-size: 18px; margin: 28px 0 6px; }
+.doc p, .doc li { font-size: 16px; }
+.doc .note { color: var(--muted); font-size: 14px; margin: 4px 0 10px; }
+.doc ul { padding-left: 20px; margin: 6px 0; }
+.scroll { overflow-x: auto; padding-bottom: 6px; }
+.shot { display: block; max-width: 100%; height: auto; border: 1px solid var(--line); border-radius: var(--r); margin: 8px 0 14px; }
+
+/* ---- the phone frame ---- */
+.phone { background: var(--bg); border: 1px solid var(--line-strong); border-radius: var(--r-page); overflow: hidden; position: relative; }
+.w412 { width: 412px; }
+.w360 { width: 360px; }
+.top { padding: 12px 14px 10px; border-bottom: 1px solid var(--line); background: var(--bg); }
+.town-name { font-family: var(--display); font-weight: 700; font-size: 26px; letter-spacing: 0.03em; color: var(--head); margin: 0; line-height: 1.1; }
+.town-sub { font-size: 14px; color: var(--muted); margin: 2px 0 10px; }
+.town-sub b { color: var(--fine); font-weight: 700; }
+.stock { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap); }
+.cell { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 6px 8px; }
+.cell .lab { font-size: 12px; color: var(--muted); display: block; }
+.cell .num { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cell .num small { font-size: 13px; font-weight: 400; color: var(--muted); }
+.cell.warn .num, .cell.warn .num small { color: var(--warn); }
+.body { padding: 10px 14px 16px; }
+.sec { font-family: var(--display); font-weight: 700; font-size: 16px; color: var(--head); margin: 16px 0 6px; letter-spacing: 0.03em; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 10px 12px; margin-bottom: 10px; }
+.notice { border: 1px solid var(--warn); border-radius: var(--r); padding: 8px 12px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; justify-content: space-between; }
+.notice p { margin: 0; font-size: 15px; }
+.notice.plain { border-color: var(--line-strong); }
+.row-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.name { font-family: var(--display); font-weight: 700; font-size: 18px; color: var(--head); }
+.tier { font-size: 13px; font-weight: 700; color: var(--fine); white-space: nowrap; }
+.line2 { font-size: 14px; color: var(--muted); margin-top: 2px; font-variant-numeric: tabular-nums; }
+.line2 .w { color: var(--warn); }
+.lot { display: flex; align-items: center; gap: 10px; min-height: 60px; }
+.lot .grow { flex: 1; min-width: 0; }
+.go { color: var(--act); font-weight: 700; font-size: 15px; white-space: nowrap; }
+.lot.empty { background: none; border: 1px dashed var(--line-strong); }
+.lot.empty .name { font-family: var(--body); font-weight: 500; font-size: 16px; color: var(--muted); }
+.btn { min-height: 44px; min-width: 44px; padding: 0 16px; border-radius: var(--r); border: 0; background: var(--act); color: var(--act-ink); font: 700 15px var(--body); font-size: 15px; }
+.btn.second { background: none; border: 1px solid var(--line-strong); color: var(--ink); }
+.btn.off { background: var(--panel); border: 1px solid var(--line); color: var(--muted); }
+.why { font-size: 14px; color: var(--warn); margin: 4px 0 0; }
+.qrow { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-top: 1px solid var(--line); }
+.qrow:first-child { border-top: 0; padding-top: 0; }
+.qrow:last-child { padding-bottom: 0; }
+.qrow .grow { flex: 1; }
+.qname { font-weight: 500; }
+.doc .log { list-style: none; margin: 0; padding: 0; }
+.log li { font-size: 14px; color: var(--muted); padding: 5px 0; border-top: 1px solid var(--line); }
+.log li:first-child { border-top: 0; }
+.log .when { display: block; font-size: 12px; }
+.log .what { color: var(--ink); }
+.foot p { margin: 4px 0; font-size: 14px; color: var(--muted); }
+.foot .btns { display: flex; gap: 10px; margin: 8px 0; }
+
+/* ---- sheets ---- */
+.phone.sheeted { height: 780px; }
+.scrim { position: absolute; inset: 0; background: color-mix(in srgb, var(--bg) 72%, transparent); }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; max-height: 700px; background: var(--panel); border-top: 1px solid var(--line-strong); border-radius: var(--r-page) var(--r-page) 0 0; display: flex; flex-direction: column; }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; padding: 8px 8px 8px 14px; border-bottom: 1px solid var(--line); }
+.sheet-head .name { font-size: 18px; }
+.sheet-body { padding: 10px 14px 16px; overflow-y: auto; }
+.choice { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 8px 0; border-top: 1px solid var(--line); }
+.choice:first-child { border-top: 0; }
+.choice .grow { flex: 1; min-width: 0; }
+.choice .cname { font-weight: 700; color: var(--ink); }
+.choice.off .cname { color: var(--muted); }
+.choice .cost { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.choice .free { color: var(--fine); }
+.stepper { display: inline-grid; grid-template-columns: 44px 44px 44px; border: 1px solid var(--line-strong); border-radius: var(--r); background: var(--panel); overflow: hidden; }
+.stepper span { height: 44px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stepper .g { color: var(--act); }
+.stepper .g.lim { color: var(--muted); }
+.stepper .n { border-left: 1px solid var(--line-strong); border-right: 1px solid var(--line-strong); }
+.field { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 6px 0 2px; }
+.sub { font-size: 14px; color: var(--muted); margin: 2px 0; }
+.sheet-sec { font-size: 14px; font-weight: 700; color: var(--muted); margin: 16px 0 4px; }
+.confirm { border: 1px solid var(--warn); border-radius: var(--r); padding: 10px 12px; margin-top: 10px; }
+.confirm p { margin: 0 0 8px; font-size: 15px; }
+.confirm .btns { display: flex; gap: 10px; }
+.loading { padding: 40px 14px; color: var(--muted); }
+#check-record li { font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="doc">
+<h1>Town tab mock-up</h1>
+<p>Slice S2 of M1: the header, the stock bar, the Town tab, the build sheet and the building sheet. Drawn at 412 px, then 360 px. Nothing is built yet.</p>
+<p class="note">Not in this slice, so not drawn: the methods list and the away card (S3), the People tab and the tab bar (S4), the "Upgrade to Village" button (S5).</p>
+
+<h2>Screenshots</h2>
+<!-- screenshots -->
+
+<h2>1. A new town (normal state)</h2>
+<p class="note">What a first open shows. Stock at 0 is in ember. The four open lots are the "empty" state.</p>
+<div class="scroll"><div class="phone w412" id="f-new">
+  <div class="top">
+    <p class="town-name">Ashwick</p>
+    <p class="town-sub"><b>Hamlet</b> · Year 1, season 1, day 1, hour 0</p>
+    <div class="stock">
+      <div class="cell"><span class="lab">Food</span><span class="num">40 <small>/ 200</small></span></div>
+      <div class="cell"><span class="lab">Wood</span><span class="num">60 <small>/ 200</small></span></div>
+      <div class="cell warn"><span class="lab">Stone</span><span class="num">0 <small>/ 200</small></span></div>
+      <div class="cell warn"><span class="lab">Ore</span><span class="num">0 <small>/ 100</small></span></div>
+      <div class="cell warn"><span class="lab">Tools</span><span class="num">0 <small>/ 50</small></span></div>
+    </div>
+  </div>
+  <div class="body">
+    <div class="panel">
+      <div class="row-top"><span class="name">The Hall</span><span class="tier">Tier 1</span></div>
+      <div class="line2">Residents 8 / 25</div>
+    </div>
+    <p class="sec">Work queue</p>
+    <div class="panel"><div class="line2">Nothing is being built.</div></div>
+    <p class="sec">Lots</p>
+    <div class="panel lot"><div class="grow"><div class="row-top"><span class="name">Cottage</span><span class="tier">Tier 1</span></div><div class="line2">Beds 8</div></div><span class="go">›</span></div>
+    <div class="panel lot"><div class="grow"><div class="row-top"><span class="name">Forager's hut</span><span class="tier">Tier 1</span></div><div class="line2">Gather · Workers 4 / 4</div></div><span class="go">›</span></div>
+    <div class="panel lot empty"><div class="grow"><span class="name">Empty lot</span></div><span class="go">Build ›</span></div>
+    <div class="panel lot empty"><div class="grow"><span class="name">Empty lot</span></div><span class="go">Build ›</span></div>
+    <div class="panel lot empty"><div class="grow"><span class="name">Empty lot</span></div><span class="go">Build ›</span></div>
+    <div class="panel lot empty"><div class="grow"><span class="name">Empty lot</span></div><span class="go">Build ›</span></div>
+    <p class="sec">Log</p>
+    <div class="panel"><div class="line2">Nothing has happened yet.</div></div>
+    <p class="sec">Save and app</p>
+    <div class="panel foot">
+      <p>Saved at year 1, season 1, day 1, hour 0</p>
+      <p>Storage: kept</p>
+      <div class="btns"><button class="btn second">Export</button><button class="btn second">Import</button></div>
+      <p>Version ed1ed3d</p>
+    </div>
+  </div>
+</div></div>
+
+<h2>2. The build sheet</h2>
+<p class="note">Opens when an empty lot is tapped. Same new town: wood 60, stone 0, tools 0. A kind the town cannot pay for stays in place, greyed, with what is missing.</p>
+<div class="scroll"><div class="phone w412 sheeted" id="f-build">
+  <div class="top">
+    <p class="town-name">Ashwick</p>
+    <p class="town-sub"><b>Hamlet</b> · Year 1, season 1, day 1, hour 0</p>
+  </div>
+  <div class="scrim"></div>
+  <div class="sheet">
+    <div class="sheet-head"><span class="name">Build on this lot</span><button class="btn second">Close</button></div>
+    <div class="sheet-body">
+      <div class="choice"><div class="grow"><div class="cname">Cottage</div><div class="cost">Beds 8 · 30 wood · 12 game hours</div></div><span class="go">Build</span></div>
+      <div class="choice"><div class="grow"><div class="cname">Forager's hut</div><div class="cost">Makes food · 20 wood · 8 game hours</div></div><span class="go">Build</span></div>
+      <div class="choice off"><div class="grow"><div class="cname">Farm</div><div class="cost">Makes food · 50 wood, 5 tools · 1 game day</div><div class="why">Needs 5 tools</div></div></div>
+      <div class="choice"><div class="grow"><div class="cname">Woodcutter's camp</div><div class="cost">Makes wood · <span class="free">Free: the town has none</span> · 8 game hours</div></div><span class="go">Build</span></div>
+      <div class="choice"><div class="grow"><div class="cname">Mine</div><div class="cost">Makes ore or stone · 40 wood · 1 game day</div></div><span class="go">Build</span></div>
+      <div class="choice off"><div class="grow"><div class="cname">Workshop</div><div class="cost">Makes tools · 40 wood, 20 stone · 1 game day</div><div class="why">Needs 20 stone</div></div></div>
+      <div class="choice off"><div class="grow"><div class="cname">Storehouse</div><div class="cost">Raises every store's cap · 40 wood, 20 stone · 1 game day</div><div class="why">Needs 20 stone</div></div></div>
+      <div class="choice off"><div class="grow"><div class="cname">Tavern</div><div class="cost">Work for 1 · 50 wood, 30 stone · 1 game day</div><div class="why">Needs 30 stone</div></div></div>
+    </div>
+  </div>
+</div></div>
+
+<h2>3. After two builds (waiting state)</h2>
+<p class="note">Still hour 0. The Woodcutter's camp was free, so wood stayed at 60. Then the Mine took 40 wood and waits its turn. Cancel gives the 40 wood back.</p>
+<div class="scroll"><div class="phone w412" id="f-queue">
+  <div class="top">
+    <p class="town-name">Ashwick</p>
+    <p class="town-sub"><b>Hamlet</b> · Year 1, season 1, day 1, hour 0</p>
+    <div class="stock">
+      <div class="cell"><span class="lab">Food</span><span class="num">40 <small>/ 200</small></span></div>
+      <div class="cell"><span class="lab">Wood</span><span class="num">20 <small>/ 200</small></span></div>
+      <div class="cell warn"><span class="lab">Stone</span><span class="num">0 <small>/ 200</small></span></div>
+      <div class="cell warn"><span class="lab">Ore</span><span class="num">0 <small>/ 100</small></span></div>
+      <div class="cell warn"><span class="lab">Tools</span><span class="num">0 <small>/ 50</small></span></div>
+    </div>
+  </div>
+  <div class="body">
+    <div class="panel">
+      <div class="row-top"><span class="name">The Hall</span><span class="tier">Tier 1</span></div>
+      <div class="line2">Residents 8 / 25</div>
+    </div>
+    <p class="sec">Work queue</p>
+    <div class="panel">
+      <div class="qrow"><div class="grow"><div class="qname">Woodcutter's camp</div><div class="line2">Under way, 8 game hours left</div></div></div>
+      <div class="qrow"><div class="grow"><div class="qname">Mine</div><div class="line2">Waiting, takes 1 game day</div></div><button class="btn second">Cancel</button></div>
+    </div>
+    <p class="sec">Lots</p>
+    <div class="panel lot"><div class="grow"><div class="row-top"><span class="name">Cottage</span><span class="tier">Tier 1</span></div><div class="line2">Beds 8</div></div><span class="go">›</span></div>
+    <div class="panel lot"><div class="grow"><div class="row-top"><span class="name">Forager's hut</span><span class="tier">Tier 1</span></div><div class="line2">Gather · Workers 4 / 4</div></div><span class="go">›</span></div>
+    <div class="panel lot"><div class="grow"><div class="row-top"><span class="name">Woodcutter's camp</span></div><div class="line2">Building, 8 game hours left</div></div></div>
+    <div class="panel lot"><div class="grow"><div class="row-top"><span class="name">Mine</span></div><div class="line2">Waiting in the work queue</div></div></div>
+    <div class="panel lot empty"><div class="grow"><span class="name">Empty lot</span></div><span class="go">Build ›</span></div>
+    <div class="panel lot empty"><div class="grow"><span class="name">Empty lot</span></div><span class="go">Build ›</span></div>
+  </div>
+</div></div>
+
+<h2>4. The building sheet</h2>
+<p class="note">Opens when a built lot is tapped. The methods list joins it in S3; until then the sheet names the one method in use. The worker names here are examples made from the name tables; the real founders come from the town's seed.</p>
+<div class="scroll"><div class="phone w412 sheeted" id="f-building">
+  <div class="top">
+    <p class="town-name">Ashwick</p>
+    <p class="town-sub"><b>Hamlet</b> · Year 1, season 1, day 1, hour 0</p>
+  </div>
+  <div class="scrim"></div>
+  <div class="sheet">
+    <div class="sheet-head"><span><span class="name">Forager's hut</span> <span class="tier">Tier 1</span></span><button class="btn second">Close</button></div>
+    <div class="sheet-body">
+      <p class="sub">Method: Gather</p>
+      <p class="sheet-sec">Open slots</p>
+      <div class="field"><div class="stepper"><span class="g">−</span><span class="n">4</span><span class="g lim">+</span></div><span class="sub">of 4 at this tier</span></div>
+      <p class="sheet-sec">Workers 4 / 4</p>
+      <p style="margin:2px 0">Gwenan, Brynoc, Durin, Thrainar</p>
+      <p class="sheet-sec">Upgrade to tier 2</p>
+      <p class="sub">40 wood, 5 tools · 1 game day · 6 worker slots</p>
+      <button class="btn off">Upgrade</button>
+      <p class="why">Needs 5 tools</p>
+      <p class="sheet-sec">Clear the lot</p>
+      <p class="sub">Removes the building. Nothing is refunded.</p>
+      <button class="btn second">Clear lot</button>
+    </div>
+  </div>
+</div></div>
+
+<h2>5. Clearing asks first</h2>
+<p class="note">After "Clear lot" is tapped, the question appears in the sheet in place of the button. No browser dialog.</p>
+<div class="scroll"><div class="phone w412 sheeted" id="f-clear" style="height:520px">
+  <div class="top">
+    <p class="town-name">Ashwick</p>
+    <p class="town-sub"><b>Hamlet</b> · Year 1, season 1, day 1, hour 0</p>
+  </div>
+  <div class="scrim"></div>
+  <div class="sheet">
+    <div class="sheet-head"><span><span class="name">Forager's hut</span> <span class="tier">Tier 1</span></span><button class="btn second">Close</button></div>
+    <div class="sheet-body">
+      <p class="sheet-sec">Clear the lot</p>
+      <div class="confirm">
+        <p>Clear the Forager's hut? Nothing is refunded and its 4 workers lose their jobs.</p>
+        <div class="btns"><button class="btn">Clear it</button><button class="btn second">Keep it</button></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<h2>6. Things going wrong (alert state)</h2>
+<p class="note">A made-up moment to show every warning at once: a failed save, a full store, a full work queue and a refused tap. Stock numbers here are examples, not a played town.</p>
+<div class="scroll"><div class="phone w412" id="f-alert">
+  <div class="top">
+    <p class="town-name">Ashwick</p>
+    <p class="town-sub"><b>Hamlet</b> · Year 1, season 1, day 3, hour 9</p>
+    <div class="stock">
+      <div class="cell"><span class="lab">Food</span><span class="num">52 <small>/ 200</small></span></div>
+      <div class="cell warn"><span class="lab">Wood</span><span class="num">200 <small>/ 200</small></span></div>
+      <div class="cell"><span class="lab">Stone</span><span class="num">35 <small>/ 200</small></span></div>
+      <div class="cell warn"><span class="lab">Ore</span><span class="num">0 <small>/ 100</small></span></div>
+      <div class="cell warn"><span class="lab">Tools</span><span class="num">0 <small>/ 50</small></span></div>
+    </div>
+  </div>
+  <div class="body">
+    <div class="notice plain"><p>Update ready</p><button class="btn">Reload</button></div>
+    <div class="notice"><p>Saving failed. Export a save.</p></div>
+    <div class="panel">
+      <div class="row-top"><span class="name">The Hall</span><span class="tier">Tier 1</span></div>
+      <div class="line2">Residents 8 / 25</div>
+    </div>
+    <p class="sec">Work queue</p>
+    <div class="panel">
+      <div class="qrow"><div class="grow"><div class="qname">Workshop</div><div class="line2">Under way, 5 game hours left</div></div></div>
+      <div class="qrow"><div class="grow"><div class="qname">Storehouse</div><div class="line2">Waiting, takes 1 game day</div></div><button class="btn second">Cancel</button></div>
+      <div class="qrow"><div class="grow"><div class="qname">Cottage to tier 2</div><div class="line2">Waiting, takes 1 game day</div></div><button class="btn second">Cancel</button></div>
+      <div class="qrow"><div class="grow"><div class="qname">Woodcutter's camp to tier 2</div><div class="line2">Waiting, takes 1 game day</div></div><button class="btn second">Cancel</button></div>
+    </div>
+    <p class="sec">Lots</p>
+    <div class="panel lot"><div class="grow"><div class="row-top"><span class="name">Cottage</span><span class="tier">Tier 1</span></div><div class="line2">Beds 8 · Upgrade waiting</div></div><span class="go">›</span></div>
+    <div class="panel lot"><div class="grow"><div class="row-top"><span class="name">Forager's hut</span><span class="tier">Tier 1</span></div><div class="line2">Gather · Workers 4 / 4</div></div><span class="go">›</span></div>
+    <div class="panel lot"><div class="grow"><div class="row-top"><span class="name">Woodcutter's camp</span><span class="tier">Tier 1</span></div><div class="line2">Hand axes · Workers 4 / 4 · Upgrade waiting</div></div><span class="go">›</span></div>
+    <div class="panel lot"><div class="grow"><div class="row-top"><span class="name">Mine</span><span class="tier">Tier 1</span></div><div class="line2">Dig ore · <span class="w">Workers 0 / 4</span></div></div><span class="go">›</span></div>
+    <div class="panel lot"><div class="grow"><div class="row-top"><span class="name">Workshop</span></div><div class="line2">Building, 5 game hours left</div></div></div>
+    <div class="panel lot"><div class="grow"><div class="row-top"><span class="name">Storehouse</span></div><div class="line2">Waiting in the work queue</div></div></div>
+    <p class="sec">Log</p>
+    <div class="panel"><ul class="log">
+      <li><span class="when">Year 1, season 1, day 2, hour 8</span><span class="what">The Mine is built.</span></li>
+      <li><span class="when">Year 1, season 1, day 1, hour 8</span><span class="what">The Woodcutter's camp is built.</span></li>
+    </ul></div>
+  </div>
+</div></div>
+<p class="note">With the queue full, a tap on Upgrade answers under the button:</p>
+<div class="scroll"><div class="phone w412" id="f-refused"><div class="body" style="background:var(--panel)">
+  <p class="sheet-sec" style="margin-top:0">Upgrade to tier 2</p>
+  <p class="sub">40 wood, 5 tools · 1 game day · 6 worker slots</p>
+  <button class="btn">Upgrade</button>
+  <p class="why">The work queue is full</p>
+</div></div></div>
+
+<h2>7. Loading</h2>
+<div class="scroll"><div class="phone w412" id="f-loading"><div class="loading">Loading…</div></div></div>
+
+<h2>8. The new town at 360 px</h2>
+<div class="scroll"><div class="phone w360" id="f-360">
+  <div class="top">
+    <p class="town-name">Ashwick</p>
+    <p class="town-sub"><b>Hamlet</b> · Year 1, season 1, day 1, hour 0</p>
+    <div class="stock">
+      <div class="cell"><span class="lab">Food</span><span class="num">40 <small>/ 200</small></span></div>
+      <div class="cell"><span class="lab">Wood</span><span class="num">60 <small>/ 200</small></span></div>
+      <div class="cell warn"><span class="lab">Stone</span><span class="num">0 <small>/ 200</small></span></div>
+      <div class="cell warn"><span class="lab">Ore</span><span class="num">0 <small>/ 100</small></span></div>
+      <div class="cell warn"><span class="lab">Tools</span><span class="num">0 <small>/ 50</small></span></div>
+    </div>
+  </div>
+  <div class="body">
+    <div class="panel">
+      <div class="row-top"><span class="name">The Hall</span><span class="tier">Tier 1</span></div>
+      <div class="line2">Residents 8 / 25</div>
+    </div>
+    <p class="sec">Work queue</p>
+    <div class="panel"><div class="line2">Nothing is being built.</div></div>
+    <p class="sec">Lots</p>
+    <div class="panel lot"><div class="grow"><div class="row-top"><span class="name">Cottage</span><span class="tier">Tier 1</span></div><div class="line2">Beds 8</div></div><span class="go">›</span></div>
+    <div class="panel lot"><div class="grow"><div class="row-top"><span class="name">Forager's hut</span><span class="tier">Tier 1</span></div><div class="line2">Gather · Workers 4 / 4</div></div><span class="go">›</span></div>
+    <div class="panel lot empty"><div class="grow"><span class="name">Empty lot</span></div><span class="go">Build ›</span></div>
+  </div>
+</div></div>
+
+<h2>Choices drawn here that the spec left open</h2>
+<ul>
+  <li>The stock bar is 4 cells across, as the style doc says, so the fifth resource (Tools) sits alone on a second row. Five across would fit one row but makes each cell about 70 px wide at 412 px.</li>
+  <li>No tab bar yet. The style doc shows only tabs that work, and the People tab arrives in S4.</li>
+  <li>The Hall row shows "Residents 8 / 25" so the town's size is on screen before the People tab exists.</li>
+  <li>A job that has not started reads "Waiting, takes 1 game day"; its lot reads "Waiting in the work queue".</li>
+  <li>The Tavern can be built from S2 but does nothing until S5, when morale arrives. Its line says only "Work for 1".</li>
+</ul>
+
+<!-- check-record -->
+</div>
+</body>
+</html>

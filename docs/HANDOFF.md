@@ -4,20 +4,21 @@ Updated: 2026-11-10. A fresh session must be able to continue from this file alo
 
 ## Phase
 
-M1 Town is being built from `docs/specs/m1-town.md` (approved, D-030), five slices. S1 "Safe saves and updates" is merged (PR #5; Morgan: "Approved open s2 in a new session"). Next is S2, in a new session. M0 is done and passed on Morgan's phone.
+M1 Town is being built from `docs/specs/m1-town.md` (approved, D-030), five slices. S1 "Safe saves and updates" is merged (PR #5; Morgan: "Approved open s2 in a new session"). S2 is under way on branch `m1-s2-town`: its mock-up `mockups/town.html` is drafted and waits for its fresh check and Morgan's approval; no S2 code exists. M0 is done and passed on Morgan's phone.
 
 ## Plan map
 
 - ✔ Planning and M0 Skeleton (D-001 to D-024); M0 audit merged (PR #3), all 19 findings accepted.
 - ✔ M1 planning: round 1, review, taste board, style doc, spec (D-025 to D-030).
 - ✔ M1 S1 Safe saves and updates (PR #5).
-- ▶ M1 S2 Stock, lots and the Town tab: not started; starts with `mockups/town.html`.
+- ▶ M1 S2 Stock, lots and the Town tab: mock-up drafted, not yet approved; no code.
 - ○ S3 Production methods and the away card · ○ S4 People · ○ S5 Growth and the Village (then the M1 test, J14).
 - ○ M2 Guild, with the first raid (D-029) · ○ M3 Trade outlet, events, chronicle (v0.1)
 - ○ M4a Families · ○ M4b Paths · ○ M5 Trade and Crown · ○ M6 Depth (v1.0)
 
 ## Just done
 
+- 2026-11-10 S2 session started. Deployed commit checked after S1: the live bundle at https://silvanus-xi.vercel.app carried `ed1ed3d` and the manifest had its `id` and three icons (CI-05). `mockups/town.html` drafted at 412 px and 360 px (lint: 0 warnings); the zero-decision check on S2 and the mock-up's fresh check were started.
 - 2026-11-10 S1 built in a new session. The zero-decision check on S1 found no gap that needed Morgan and about 17 small choices, recorded in the spec's "Build notes". `npm run check` passes (31 unit tests; first load 73,927 bytes gzipped of 120,000) and so do the 12 browser tests. Each new check was seen to fail first; the five that pass at once were each seen to fail under a planted bug. The worker-crash notice was checked by hand. A fresh review of the diff found 0 high, 2 medium and 5 low: 4 fixed, 3 declined (spec build notes).
 - 2026-11-10 Deployed commit checked before S1: the live bundle carried `7c13532` (CI-05).
 - 2026-11-10 M1 planned in one session. Morgan answered round 1, then delegated the review's and the audit's recommendations ("Go with your recommendations"), picked the Lantern look, placed raids in M2 and approved the spec in advance ("I approve the m1 spec once you are done"). He has not read the spec.
