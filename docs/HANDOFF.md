@@ -4,21 +4,22 @@ Updated: 2026-11-10. A fresh session must be able to continue from this file alo
 
 ## Phase
 
-M0 Skeleton is built, merged and deployed; its exit test on Morgan's phone is outstanding. M1 Town is in planning on branch `m1-town-plan`: round 1 form published 2026-11-10, waiting for Morgan's answers. No M1 spec and no M1 code yet. Spec approved 2026-11-09 (D-024): `docs/specs/m0-skeleton.md`.
+M0 Skeleton is done: built, merged, deployed, and its exit test passed on Morgan's phone (his answers, 2026-11-10). M1 Town is in planning on branch `m1-town-plan`: round 1 is answered; the review round and the M0 audit Morgan asked for are running. No M1 spec and no M1 code yet. Spec approved 2026-11-09 (D-024): `docs/specs/m0-skeleton.md`.
 
 ## Plan map
 
 - ✔ Planning: charter, rounds 1 to 5, review, final page (D-001 to D-023).
 - ✔ M0 spec approved; Vercel project `silvanus` created and linked (D-024).
-- ✔ M0 slice S1 merged and deployed (373c7c9) at https://silvanus-xi.vercel.app; Morgan's phone check outstanding.
-- ✔ M0 slice S2, it remembers: approved by Morgan 2026-11-09 and merged (PR #1); his phone check is outstanding.
-- ✔ M0 slice S3, install it and carry it: approved by Morgan 2026-11-10 and merged (PR #2); his phone check (J9) is outstanding.
-- ▶ M1 Town: planning. Round 1 form out; then round 2 (taste board, mock-ups), review, spec, Morgan's approval, build slices.
+- ✔ M0 slice S1 merged and deployed (373c7c9) at https://silvanus-xi.vercel.app; Morgan's phone check: worked (2026-11-10).
+- ✔ M0 slice S2, it remembers: approved by Morgan 2026-11-09 and merged (PR #1); his phone check: worked (2026-11-10).
+- ✔ M0 slice S3, install it and carry it: approved by Morgan 2026-11-10 and merged (PR #2); M0 exit test J9, both parts: worked (2026-11-10).
+- ▶ M1 Town: planning. Round 1 answered; next the review page, then round 2 (taste board, mock-ups), spec, Morgan's approval, build slices.
 - ○ M2 Guild · ○ M3 Trade outlet, events, chronicle (v0.1)
 - ○ M4a Families · ○ M4b Paths · ○ M5 Trade and Crown · ○ M6 Depth (v1.0)
 
 ## Just done
 
+- 2026-11-10 Morgan's round 1 answers read (46 documents, no notes written). M0 on his phone: S1, S2, install and offline, export and import all "Worked"; catch-up after a swipe-away: "Yes"; the Storage line: "Did not look". Audit: "Yes, run it before M1 building starts". Town answers: homes take lots; building costs resources and time; demolish with no refund; tiers give slots and a second recipe; he starts the Village by upgrading the hall; 9 resources (set C, adds stone); all 13 draft buildings kept (the cap is 12); 8 founders with a Hall, Cottage and Forager's hut; a stepper per building; skills grow by working; settlers join without a choice; hunger stops arrivals, lowers morale and makes residents leave; six extras marked Now. In his words he wants Europa Universalis 5 style production methods, and to "collect" and manage "funding"; both need a question in the next round.
 - 2026-11-10 M1 session started. Deployed commit checked (CI-05): Vercel's newest production deployment is READY at 4f80ea0, and the live page shows "Version 4f80ea0" with no console errors. Round 1 form published; it asks for the M0 phone results, the audit answer and the town's rules. It raises three conflicts in the charter: the M1 test ("20 minutes") is 20 ticks, under one game day; v0.1's 8 resources cannot hold everything M1 to M3 need; the 12 buildings must leave room for M2's guild buildings.
 - 2026-11-10 S3 built in the main session: the PWA plugin (manifest, service worker), two icons from `scripts/make-icons.mjs`, `importText`, `storageAnswer`, Export and Import with the in-page confirm on the main page and the refused-save screens, the Storage line. `npm run check` passes in about 5 s (20 tests, entry script 71,102 bytes gzipped); `npm run test:browser` passes 8 tests in 15 s; the 4 new ones failed before the code, and 3 planted bugs each failed a test. The zero-decision check found no question for Morgan; the small defaults taken are in the spec's "S3 build notes". No fresh reviewer has read the diff. Morgan approved it on 2026-11-10 and asked for M1 to start in a new session.
 - 2026-11-09 S2 built in the main session: `saves.ts` (IndexedDB, `parse`, `load`, `save`, `exportText`), the one-window lock, load at start, autosave, save on hide, the two refused-save screens. `npm run check` passes in about 3 s (17 tests, entry script 70,388 bytes gzipped); `npm run test:browser` passes 4 tests in 12 s, and all 4 failed with three planted bugs. Deviations are in the spec's "S2 build notes". A fresh reviewer read the diff: 3 fixes taken (refused lock request, "Saved at tick" after a load and out-of-order writes), 4 findings left as accepted by the spec.
@@ -28,10 +29,11 @@ M0 Skeleton is built, merged and deployed; its exit test on Morgan's phone is ou
 
 ## Next
 
-1. When Morgan says "round 1 done": read collection `m1round1` on the round 1 page (`ArtifactData` list, limit 200), every note with its answer. Record his M0 phone results here (ids `m0_s1`, `m0_s2`, `m0_j9a`, `m0_j9b`, `m0_storage`, `m0_swipe`) and act on `m0_audit`; don't run the audit unasked.
-2. Then the `planning-interview` flow: adversarial review and review page, round 2 with the taste board (`ui-style`) and mock-ups (`ui-mockups`), final approval page, DECISIONS entries, then `write-spec` from its step 3. No build slice before Morgan approves the spec.
-3. Charter edits wait for his answers: the M1 test wording, the 8 resources, the building count in M1.
-4. Not checked: how Android Chrome answers the persistent-storage request for an installed PWA, and whether swiping the installed app away counts as closing it (asked on the form).
+1. Finish the review round (`planning-interview`): verify the adversarial reviewer's claims, publish the review page with a `reply` card per finding, record its link here.
+2. Finish the M0 audit (`audit` skill, kind repo, 3 areas): quote-check the readers' reports, write `docs/audit/2026-11-10-repo.md`, publish the reply page. The report goes on its own branch with a draft PR, not on this one.
+3. Then round 2 with the taste board (`ui-style`) and mock-ups (`ui-mockups`), the final approval page, DECISIONS entries, then `write-spec` from its step 3. No build slice before Morgan approves the spec.
+4. Charter edits wait for the final page: the M1 test wording, 9 resources, the building count.
+5. Not checked: how Android Chrome answers the persistent-storage request for an installed PWA (Morgan did not look at the Storage line).
 
 ## Open questions
 
