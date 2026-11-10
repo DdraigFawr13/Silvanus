@@ -441,6 +441,8 @@ describe('saves', () => {
       ["owns another building's method", withCamp({ owned: ['axes', 'gather'] })],
       ['owns a method twice', withCamp({ owned: ['axes', 'axes'] })],
       ['does not own the method it runs', withCamp({ owned: [] })],
+      ['short on a method with no fallback', withCamp({ short: true })],
+      ['retooling past a setup', withCamp({ retoolLeft: 25 })],
       ['more buildings than lots', withState({ buildings: Array(7).fill(camp) })],
       ['five jobs', withState({ queue: [job, hallJob, job, hallJob, job] })],
       ['two jobs for one building', withState({ queue: [job, job] })],

@@ -490,6 +490,13 @@ Taken before any code, from the zero-decision check on S3 against what S2 merged
 - **J5's checks** read `carry`, `debt` and `short` rather than whole stock, since one worker on Forge tools makes 0.25 of a tool a cycle. Their Workshop is built with `finished()`, set to `forge` with `open` 1 and residents at skill 50 and morale 50. "retooling costs a game day" goes through `setMethod`, so it fails at S2's code, which refuses it.
 - **J9's script** gains its `setMethod` commands in tick order, because `chunked` finds the next command by array order.
 - **Soak pass 1** adds `setMethod` to `TYPES`, which changes the bot's draws and so its printed numbers.
+- **Mock-up.** The S3 section of `mockups/town.html` (https://claude.ai/artifact/6k9547asTCDNHmfobt6Hym) shows real-screen screenshots from a throwaway prototype. Morgan approved it on 2026-11-10 after one change round (D-034). The built screens match its 9 pictures pixel for pixel at 412 px and 360 px.
+- **Content checks added by D-034.** `validateContent` also faults a method price in an unknown resource or above a base store, a method whose price and inputs disagree (D-034 ties "no inputs" to "free"), a fallback with a price, and a kind whose first method has a price.
+- **A save's building** is damaged when `owned` repeats or names another kind's method, leaves out the method it runs, when `short` is set on a method with no fallback, or when `retoolLeft` is above `retoolTicks`.
+- **The away card and an import.** Snapshots of a town being replaced set no card, and an import dismisses the card.
+- **Measured.** First load 88,646 bytes gzipped of 120,000 (S2: 86,152). Soak pass 1: 410 commands, 335 refused, largest save 6,588 bytes, 509,496 ticks per second. 55 unit tests; 20 browser tests in 31.8 s.
+- **After the fresh review of the diff** (one agent, 138,020 tokens measured; 0 high, 2 medium, 5 low). Fixed all 7: a hand-edited save marking a basic method short crashed the Town tab; an import kept the old town's away card; tests now read production's `used`, pin the one skipped cycle of a free switch, and cover the store's 10-tick rule; J9's script now buys a method, runs it short and switches back; `validateContent` checks the two D-034 rules above. Each of the two medium fixes was seen to fail under a planted bug.
+- **Seen to fail first.** The 7 engine tests and the 2 browser tests were run against S2's code and failed. After D-034 the tests were changed before the code and failed again, with the save tests.
 
 ## Open questions
 

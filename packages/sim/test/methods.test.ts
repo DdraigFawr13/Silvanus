@@ -92,6 +92,11 @@ describe('methods', () => {
     const after = run(day, 4);
     expect(byKind(after, 'workshop').carry.tools).toBe(2500);
     expect(byKind(after, 'workshop').debt).toEqual({ ore: 25, wood: 10 });
+    // three more cycles owe 100 ore hundredths: one whole ore is taken, and counted as used
+    const { state: used, summary } = advance(after, 12, content);
+    expect(used.stock.ore).toBe(49);
+    expect(summary.used.ore).toBe(1);
+    expect(summary.used.wood).toBeUndefined();
   });
 
   test('a method is bought once, then switching is quick and free', () => {
@@ -113,8 +118,10 @@ describe('methods', () => {
     expect(byKind(again, 'workshop').retoolLeft).toBe(4);
     expect(again.stock.wood).toBe(40);
     expect(again.stock.stone).toBe(20);
-    // a switch to an owned method makes again after one cycle
+    // a switch to an owned method skips exactly one cycle (tick 3) and makes at tick 7
     expect(byKind(run(again, 4), 'workshop').retoolLeft).toBe(0);
+    expect(byKind(run(again, 4), 'workshop').carry).toEqual({});
+    expect(byKind(run(again, 8), 'workshop').carry.tools).toBeGreaterThan(0);
 
     // short of the price: refused, and nothing changes
     const poor: State = { ...town, stock: { ...town.stock, stone: 9 } };

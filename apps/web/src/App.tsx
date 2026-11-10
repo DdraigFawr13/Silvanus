@@ -7,7 +7,7 @@ import { CATCH_UP_CAP, due } from './clock';
 import { clearNotice, notices, setNotice, subscribe } from './notices';
 import { SCHEMA, exportText, importFile, storageAnswer } from './saves';
 import type { SaveRecord, StorageAnswer } from './saves';
-import { current, publish, reset, subscribe as subscribeTown } from './store';
+import { current, dismissSummary, publish, reset, subscribe as subscribeTown } from './store';
 import { TownTab } from './ui/TownTab';
 import { dateInline, dateText } from './ui/format';
 import { PROTOCOL } from './worker';
@@ -228,7 +228,8 @@ export function App({ worker, first, loadedTick, tickMs, save }: Props) {
     const onMessage = (event: MessageEvent<Snapshot>) => {
       const next = event.data;
       standbyRef.current = { schema: SCHEMA, anchorMs: next.anchorMs, state: next.state };
-      publish(next);
+      // while an import waits, snapshots of the replaced town set no away card
+      publish(next, importingRef.current === null);
       if (importingRef.current !== null) {
         // Snapshots of the replaced town may still arrive; they are shown but not autosaved,
         // and the clock stays on the imported town's anchor (audit F14).
@@ -317,6 +318,8 @@ export function App({ worker, first, loadedTick, tickMs, save }: Props) {
     if (replaced && save) save(replaced).catch(() => {});
     importingRef.current = record.anchorMs;
     anchorRef.current = record.anchorMs;
+    // the card spoke of the town being replaced
+    dismissSummary();
     waitingRef.current = true;
     post({ v: PROTOCOL, type: 'load', state: record.state, anchorMs: record.anchorMs });
   };

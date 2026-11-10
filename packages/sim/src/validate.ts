@@ -35,6 +35,13 @@ export function validateContent(content: Content): string[] {
       }
     }
   });
+  // a new building starts on its kind's first method, so it must own it from the start
+  for (const kind of content.buildings) {
+    const first = content.methods.find((m) => m.building === kind.id);
+    if (first && Object.keys(first.cost).length > 0) {
+      faults.push(`${kind.id} starts on ${first.id}, which has a price`);
+    }
+  }
   for (const method of content.methods) {
     amounts(`method ${method.id}'s output`, method.makes);
     amounts(`method ${method.id}'s input`, method.uses);
@@ -44,7 +51,15 @@ export function validateContent(content: Content): string[] {
         faults.push(`method ${method.id} costs more ${id} than a base store holds`);
       }
     }
-    if (Object.keys(method.uses).length === 0) continue;
+    // D-034: the methods with no inputs are the ones every building owns, free
+    const free = Object.keys(method.cost).length === 0;
+    const basic = Object.keys(method.uses).length === 0;
+    if (free !== basic) {
+      faults.push(
+        `method ${method.id} ${basic ? 'has no inputs but a price' : 'has inputs but no price'}`,
+      );
+    }
+    if (basic) continue;
     const fallback = content.methods.find((m) => m.id === method.fallback);
     if (!fallback || fallback.building !== method.building) {
       faults.push(`method ${method.id} has no fallback`);

@@ -18,8 +18,13 @@ const SCRIPT: { tick: number; command: Command }[] = [
   { tick: 151, command: { type: 'build', kind: 'storehouse' } }, // refused: no stone
   { tick: 152, command: { type: 'cancelJob', index: 1 } }, // refused: nothing is waiting
   { tick: 300, command: { type: 'upgrade', buildingId: 10 } }, // refused: no tools
-  { tick: 400, command: { type: 'setMethod', buildingId: 12, method: 'ore' } },
+  { tick: 310, command: { type: 'build', kind: 'workshop' } }, // 14
+  { tick: 340, command: { type: 'setMethod', buildingId: 14, method: 'forge' } }, // bought
+  { tick: 341, command: { type: 'setMethod', buildingId: 14, method: 'hammer' } }, // refused: tier 2
+  // ore runs out at the Workshop, and comes back once the Mine digs ore again
+  { tick: 480, command: { type: 'setMethod', buildingId: 12, method: 'ore' } },
   { tick: 500, command: { type: 'pin', residentId: 1, buildingId: null } },
+  { tick: 560, command: { type: 'setMethod', buildingId: 14, method: 'mend' } }, // owned: free
   { tick: 600, command: { type: 'setOpen', buildingId: 11, count: 1 } },
   { tick: 700, command: { type: 'clear', buildingId: 12 } },
 ];
@@ -58,6 +63,15 @@ test('chunks and steps agree with commands between', () => {
     'forager',
     'woodcutter',
     'cottage',
+    'workshop',
+  ]);
+  // the Workshop bought Forge tools, ran short of ore and was switched back for free
+  const shop = stepped.buildings.find((b) => b.kind === 'workshop')!;
+  expect(shop.owned).toEqual(['mend', 'forge']);
+  expect(shop.method).toBe('mend');
+  // short at tick 471, back on Forge once ore came, short again at 555: one line each time
+  expect(stepped.log.filter((line) => line.type === 'short').map((line) => line.tick)).toEqual([
+    471, 555,
   ]);
   for (const longest of [7, 480, 1]) {
     expect(chunked(start, longest), `chunks of ${longest}`).toEqual(stepped);

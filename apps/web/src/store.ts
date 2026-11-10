@@ -15,9 +15,10 @@ const tell = () => {
   for (const listener of listeners) listener();
 };
 
-export function publish(next: Snapshot): void {
+// `away` false: the snapshot is of a town being replaced, so it sets no away card.
+export function publish(next: Snapshot, away = true): void {
   snapshot = next;
-  if (next.ticks >= AWAY_MIN_TICKS) lastSummary = next.summary;
+  if (away && next.ticks >= AWAY_MIN_TICKS) lastSummary = next.summary;
   tell();
 }
 

@@ -528,7 +528,6 @@ p {
   gap: 10px;
   min-height: 56px;
   padding: 8px 0;
-  border-top: 1px solid var(--line);
 }
 
 .mrow .mname {

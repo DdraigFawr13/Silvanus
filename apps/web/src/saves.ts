@@ -84,6 +84,10 @@ function buildingOk(v: unknown): boolean {
   if (!Array.isArray(owned) || new Set(owned).size !== owned.length) return false;
   if (!owned.every((id) => methods.includes(id as string))) return false;
   if (v.method !== null && !owned.includes(v.method)) return false;
+  // only a method with a fallback can run short, and retooling never runs past a setup
+  const running = content.methods.find((m) => m.id === v.method);
+  if (v.short && !running?.fallback) return false;
+  if (!upTo(v.retoolLeft, content.rules.retoolTicks)) return false;
   return amountsOk(v.carry) && amountsOk(v.debt);
 }
 

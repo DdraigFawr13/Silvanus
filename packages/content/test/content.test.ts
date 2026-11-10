@@ -62,10 +62,36 @@ const planted: [fault: string, message: RegExp, make: (c: Content) => void][] = 
     },
   ],
   [
-    'a fallback with a price',
+    'a fallback with inputs',
     /^method cutstone falls back to stone, which has a price$/,
     (c) => {
-      c.methods.find((m) => m.id === 'stone')!.cost = { wood: 5 };
+      const stone = c.methods.find((m) => m.id === 'stone')!;
+      stone.uses = { wood: 1 };
+      stone.cost = { wood: 5 };
+      stone.fallback = 'ore';
+    },
+  ],
+  [
+    'a kind that starts on a method with a price',
+    /^workshop starts on forge, which has a price$/,
+    (c) => {
+      // Forge tools listed first: a new Workshop would start on a method it does not own
+      const [mend, forge, hammer] = c.methods.filter((m) => m.building === 'workshop');
+      c.methods = [...c.methods.filter((m) => m.building !== 'workshop'), forge, mend, hammer];
+    },
+  ],
+  [
+    'a method with no inputs and a price',
+    /^method forge has no inputs but a price$/,
+    (c) => {
+      c.methods.find((m) => m.id === 'forge')!.uses = {};
+    },
+  ],
+  [
+    'a method with inputs and no price',
+    /^method forge has inputs but no price$/,
+    (c) => {
+      c.methods.find((m) => m.id === 'forge')!.cost = {};
     },
   ],
 ];
