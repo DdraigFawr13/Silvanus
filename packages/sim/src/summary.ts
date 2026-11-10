@@ -20,6 +20,8 @@ export function fold(summary: Summary, events: Event[], content: Content): void 
     if (event.type === 'made' || event.type === 'used' || event.type === 'lost') {
       const into = summary[event.type];
       into[event.resource] = (into[event.resource] ?? 0) + event.amount;
+    } else if (event.type === 'fellBack') {
+      summary.shortCycles[event.buildingId] = (summary.shortCycles[event.buildingId] ?? 0) + 1;
     } else if (event.type === 'capLost') {
       summary.lost[event.resource] = (summary.lost[event.resource] ?? 0) + event.amount;
     } else if (event.type === 'built' || event.type === 'upgraded') {

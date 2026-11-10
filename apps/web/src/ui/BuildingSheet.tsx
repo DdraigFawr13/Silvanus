@@ -1,12 +1,12 @@
 import { content } from '@silvanus/content';
-import { jobCost, kindOf, methodOf, refusal, shortfall, slotsOf } from '@silvanus/sim';
+import { jobCost, kindOf, refusal, shortfall, slotsOf } from '@silvanus/sim';
 import type { Building, Command, State } from '@silvanus/sim';
 import { useState } from 'react';
 import { Sheet } from './Sheet';
 import { amountsText, duration, needsText, reasonText } from './format';
+import { Methods, boughtAny } from './Methods';
 
-// One built lot: its open slots, its workers, its upgrade and clearing it. The methods list
-// joins in S3; until then the sheet names the method in use.
+// One built lot: its methods, its open slots, its workers, its upgrade and clearing it.
 export function BuildingSheet({
   state,
   building,
@@ -22,7 +22,6 @@ export function BuildingSheet({
   const kind = kindOf(content, building.kind)!;
   const slots = slotsOf(content, building);
   const workers = state.residents.filter((r) => r.jobId === building.id);
-  const method = methodOf(content, building.method);
   const setOpen = (count: number): Command => ({
     type: 'setOpen',
     buildingId: building.id,
@@ -48,7 +47,7 @@ export function BuildingSheet({
       onClose={onClose}
       testId="building-sheet"
     >
-      {method && <p className="sub">Method: {method.name}</p>}
+      {building.method !== null && <Methods state={state} building={building} send={send} />}
       {slots > 0 && (
         <>
           <h3 className="sheet-sec">Open slots</h3>
@@ -121,7 +120,7 @@ export function BuildingSheet({
             {workers.length > 0
               ? ` and its ${workers.length} ${workers.length === 1 ? 'worker loses their job' : 'workers lose their jobs'}`
               : ''}
-            .
+            {boughtAny(building) ? ', and the methods it bought are lost' : ''}.
           </p>
           <div className="btns">
             <button
@@ -139,7 +138,11 @@ export function BuildingSheet({
         </div>
       ) : (
         <>
-          <p className="sub">Removes the building. Nothing is refunded.</p>
+          <p className="sub">
+            {boughtAny(building)
+              ? 'Removes the building and the methods it bought. Nothing is refunded.'
+              : 'Removes the building. Nothing is refunded.'}
+          </p>
           <button
             type="button"
             className="btn second"

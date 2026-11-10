@@ -21,7 +21,7 @@ export function townRecord(
   const start = newGame(overrides.seed ?? 1, content);
   const state = apply(start, overrides.commands ?? [], content).state;
   return {
-    schema: 2,
+    schema: 3,
     anchorMs: overrides.anchorMs ?? Date.now(),
     state: { ...state, ...overrides.state },
   };

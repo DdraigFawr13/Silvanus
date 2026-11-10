@@ -78,7 +78,7 @@ test('five minutes closed is caught up as 5 ticks', async ({ page }) => {
 });
 
 test('unreadable save shows the refusal', async ({ page }) => {
-  const record = { schema: 3, anchorMs: 1_700_000_000_000, town: { name: 'a later shape' } };
+  const record = { schema: 4, anchorMs: 1_700_000_000_000, town: { name: 'a later shape' } };
   await seedRecord(page, record);
 
   await page.goto('/?tickMs=60000');
@@ -144,7 +144,7 @@ test('export and import carry the town', async ({ page }) => {
   const chunks: Buffer[] = [];
   for await (const chunk of stream) chunks.push(chunk as Buffer);
   const exported = JSON.parse(Buffer.concat(chunks).toString('utf8'));
-  expect(exported.schema).toBe(2);
+  expect(exported.schema).toBe(3);
   expect(exported.state).toEqual(tapped.state);
 
   // A file that is not a save is refused with a message and changes nothing.
@@ -186,7 +186,7 @@ test('export and import carry the town', async ({ page }) => {
 });
 
 test('an import replaces an unreadable save', async ({ page }) => {
-  const record = { schema: 3, anchorMs: 1_700_000_000_000, town: { name: 'a later shape' } };
+  const record = { schema: 4, anchorMs: 1_700_000_000_000, town: { name: 'a later shape' } };
   await seedRecord(page, record);
   await page.goto('/?tickMs=60000');
   await expect(page.getByTestId('notice')).toHaveText(
@@ -204,7 +204,7 @@ test('an import replaces an unreadable save', async ({ page }) => {
   await expect(page.getByTestId('saved-at')).toHaveAttribute('data-tick', '388');
   await expect(page.getByTestId('notice')).toHaveCount(0);
   const stored = (await readRecord(page)) as { schema: number; state: unknown };
-  expect(stored.schema).toBe(2);
+  expect(stored.schema).toBe(3);
   expect(stored.state).toEqual(fileRecord().state);
   // the record the import replaced is kept beside it
   expect(await readRecord(page, 'previous')).toEqual(record);
@@ -231,7 +231,7 @@ test('an M0 save opens as a new town and is kept', async ({ page }) => {
   await expect(page.getByTestId('lot')).toHaveCount(6);
   await expect(page.getByTestId('saved-at')).toHaveAttribute('data-tick', '0');
   const stored = (await readRecord(page)) as { schema: number; state: unknown };
-  expect(stored.schema).toBe(2);
+  expect(stored.schema).toBe(3);
   expect(stored.state).toEqual(townRecord().state);
   expect(await readRecord(page, 'previous')).toEqual(old);
 });

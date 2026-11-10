@@ -495,3 +495,76 @@ p {
   outline: 2px solid var(--act);
   outline-offset: 2px;
 }
+
+/* the away card (S3) */
+.away {
+  border-color: var(--line-strong);
+}
+
+.away-list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  margin: 8px 0 10px;
+  font-size: 15px;
+}
+
+.away-list dt {
+  color: var(--muted);
+}
+
+.away-list dd {
+  margin: 0;
+}
+
+.away-list .w {
+  color: var(--warn);
+}
+
+/* a building's methods (S3) */
+.mrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 8px 0;
+}
+
+.mrow .mname {
+  display: block;
+  font-weight: 700;
+}
+
+.mrow.off .mname {
+  color: var(--muted);
+}
+
+.mrow .rate {
+  display: block;
+  font-size: 14px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.mrow .state {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--fine);
+  white-space: nowrap;
+}
+
+.mrow .state.w {
+  color: var(--warn);
+}
+
+.mrow .state.lock {
+  color: var(--muted);
+}
+
+.sub.w {
+  color: var(--warn);
+}
+
+.confirm.quiet {
+  border-color: var(--line-strong);
+}

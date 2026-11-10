@@ -1,7 +1,7 @@
 # M1 Town
 
 - **Status:** Approved 2026-11-10
-- **Planned in:** round 1 (https://claude.ai/artifact/4Lu6ZT9ZDmtqhLgLaWbymR), review (https://claude.ai/artifact/5NTJDE3CuGvSkuDjkBL1W1), taste board (https://claude.ai/artifact/JrzLhbWsWXpwvPsVgqUZGf), M0 audit (`docs/audit/2026-11-10-repo.md`), chat 2026-11-10. **Decisions:** D-025, D-026, D-027, D-028, D-029.
+- **Planned in:** round 1 (https://claude.ai/artifact/4Lu6ZT9ZDmtqhLgLaWbymR), review (https://claude.ai/artifact/5NTJDE3CuGvSkuDjkBL1W1), taste board (https://claude.ai/artifact/JrzLhbWsWXpwvPsVgqUZGf), M0 audit (`docs/audit/2026-11-10-repo.md`), chat 2026-11-10. **Decisions:** D-025, D-026, D-027, D-028, D-029; S3 adds D-034.
 
 The build starts from the commit that merges this spec. "M0" below means the code at that commit.
 
@@ -55,7 +55,8 @@ Unit checks are Vitest tests: engine tests in `packages/sim/test/`, save tests i
 ### J5 A method short of an input falls back and recovers
 
 - **Given** a Workshop on "Forge tools" with 1 worker and ore 0. **When** a production cycle runs. **Then** it produces by "Mend and make do", its `short` flag is true and one log line says so. **When** ore arrives. **Then** the next cycle forges and the flag clears. **Check:** `methods.test.ts` "a short input drops to the basic method and comes back".
-- **When** the method is changed. **Then** the building produces nothing for 24 ticks. **Check:** `methods.test.ts` "retooling costs a game day".
+- **When** the method is changed to one the building does not own. **Then** the building produces nothing for 24 ticks (4 for one it owns, D-034). **Check:** `methods.test.ts` "retooling costs a game day".
+- **When** a method the building does not own is chosen (from S3, D-034). **Then** its cost is paid once and it takes 24 ticks; switching back to an owned method is free and takes 4; a short stock refuses it with `noStock`; clearing the lot loses it. **Check:** `methods.test.ts` "a method is bought once, then switching is quick and free".
 
 ### J6 People fill jobs the same way every time
 
@@ -201,13 +202,15 @@ Methods (16). The first method listed for a building is its basic method; the Mi
 | workshop | `forge` | Forge tools | 1 | tools 25 | ore 25, wood 10 |
 | workshop | `hammer` | Water-wheel hammer | 2 | tools 45 | ore 40, wood 15 |
 
+Method prices (D-034, from S3; Claude's estimates): a method with no inputs costs nothing. `forge` wood 20, stone 10; `snares` wood 20, tools 5; `ploughs` wood 30, tools 10; `sawpit` wood 30, tools 5; `shafts` wood 40, tools 5; `cutstone` wood 30, tools 10; `hammer` wood 40, stone 30, tools 10; `smoke` wood 50, stone 20, tools 10; `rotation` wood 60, stone 30, tools 15; `coppice` wood 60, stone 20, tools 15.
+
 A new building starts on the first method listed for it (the Mine on `ore`). The Mine is the one building with two no-input methods. Each method with inputs names its `fallback` (the basic method it drops to): `cutstone` → `stone`; every other one → its building's first method.
 
 Skills: `husbandry`, `woodcraft`, `mining`, `crafting`. Peoples: `human` leans husbandry and woodcraft; `dwarf` leans mining and crafting. Trades are labels from the job: Forager, Farmer, Woodcutter, Miner, Toolwright, Innkeeper, or "No trade" when idle.
 
 Traits (6), each with `likes` and `dislikes` building kinds: Green-fingered (likes farm, forager), Woodwise (likes woodcutter), Deep-delver (likes mine; dislikes farm), Deft (likes workshop), Sociable (likes tavern; dislikes mine), Hearth-bound (likes workshop, tavern; dislikes forager).
 
-Tuning values, all in content under `rules`: `eatPerDay` 1, `arrivalFoodPerHead` 2, `skillDays` 3, `retoolTicks` 24, `queueMax` 3, `leaveBelow` 15, `leaveFloor` 8, `moraleStep` 5, `tavernPerWorker` 4, `tavernMax` 12, `logMax` 100, `founders` 8.
+Tuning values, all in content under `rules`: `eatPerDay` 1, `arrivalFoodPerHead` 2, `skillDays` 3, `retoolTicks` 24, `switchTicks` 4 (from S3, D-034), `queueMax` 3, `leaveBelow` 15, `leaveFloor` 8, `moraleStep` 5, `tavernPerWorker` 4, `tavernMax` 12, `logMax` 100, `founders` 8.
 
 `packages/content/src/names.ts` is already in the repo (added with this spec). It holds `human: { starts, ends }` and `dwarf: { starts, ends }`, copied from Story-Generator `src/content/names.ts` at commit `221ee68` (`GWERIN_NAMES.givenStarts` 16 and `.givenEnds` 9; `DVERGAR_NAMES.givenStarts` 15 and `.givenEnds` 9). A file comment records the source; the repo is Morgan's own.
 
@@ -238,6 +241,7 @@ export type Building = {
   carry: Record<string, number>;  // ten-thousandths of a unit made and not yet whole, kept when the method changes
   debt: Record<string, number>;   // hundredths of a unit of input owed, kept when the method changes
   short: boolean;                 // ran by its fallback in the last cycle
+  owned: string[];                // methods this building owns (from S3, D-034)
 };
 export type Job = { target: 'hall' | number; toTier: number; ticksLeft: number; cost: Record<string, number> };
 export type LogLine = { tick: number; type: string; text: string };
@@ -289,7 +293,7 @@ Order inside one tick at tick `t`:
    - `upgradeHall`: rejected if `hallTier` is 2, the Hall has a job, residents are fewer than the tier's need, the queue is full or stock is short.
    - `cancelJob`: only an index of 1 or more (`range` otherwise). Refund its cost up to the caps; any part that does not fit is lost, emitted as a `lost` event and counted in the summary; a cancelled first build removes its tier 0 building.
    - `clear`: rejected at tier 0 or while the building has a job (`busy`). Removes the building; its workers become idle, pins to it are cleared, and caps are recomputed (see Content).
-   - `setMethod`: rejected if the method is not this building's, its tier is above the building's, or it is the current one. Rejected at tier 0 (`notReady`). Else set it, `retoolLeft = retoolTicks`, clear `short`, and keep `carry` and `debt` (both are keyed by resource, so nothing made or owed is dropped).
+   - `setMethod`: rejected if the method is not this building's, its tier is above the building's, or it is the current one. Rejected at tier 0 (`notReady`). Rejected with `noStock` when the building does not own it and stock does not cover its `cost` (D-034). Else, if not owned, pay its cost and add it to `owned` with `retoolLeft = retoolTicks`; if owned, `retoolLeft = switchTicks`. Set it, clear `short`, and keep `carry` and `debt` (both are keyed by resource, so nothing made or owed is dropped). A new building's `owned` is every method of its kind with an empty `cost`.
    - `setOpen`: a whole number from 0 to the slots at this tier.
    - `pin`: the building must have worker slots, or `null` to unpin.
    - `build`, `clear`, `setOpen` and `pin` set `jobsDirty`.
@@ -352,7 +356,7 @@ Pass 3, starved town: the pass 2 state at the tick its 20th resident arrived, wi
 - **Worker protocol** (audit F13): every message carries `v: 2`. `load`, `advance` and `command` stay; the answer is `{ type: 'snapshot', v: 2, state, anchorMs, ticks, summary }`. The worker posts one snapshot per message it receives, as in M0, and ignores a message whose `v` is not 2. `worker.onerror` and `onmessageerror` on the page show "The town stopped. Export a save." with an Export button for the standby copy (F6). This one has no automated check: the builder throws inside the worker once by hand, screenshots the notice and puts the screenshot in the PR.
 - **Clock:** from S5, the page passes `content.hall.tiers[state.hallTier - 1].catchUpCap` to `due()` as its cap; until then the cap stays `CATCH_UP_CAP`.
 - **Store (`store.ts`):** holds the latest snapshot and the last non-empty summary; components read it with `useSyncExternalStore`. Lists keep stable keys so rows are updated in place.
-- **Saves:** `SCHEMA = 2`. M0's shape check is kept as `shapeOkV1`; `upgrades[1]` returns `{ schema: 2, anchorMs: now, state: newGame(old.state.seed, content) }` for a record that passes it, and a schema 1 record that fails it is `damaged` as before. `parse` reports `upgradedFrom: 1` on such a result, and the page then stores the raw old record under `previous` before its first schema 2 save. `save(record, { keepPrevious?: boolean })`: with `keepPrevious`, the record now under `main` (if any) is copied to `previous` in the same transaction, replacing an older `previous`; both import paths (`main.tsx` `onImport` and `replaceWith`) pass it. One connection is opened once and reused; writes go through one promise chain (F1). `shapeOk` checks every number with `Number.isSafeInteger` (0 or more, except `bornTick` and `lastLeftTick`, which may be negative), every stock key against content and its value against its cap, and each resident, building and job field by type, with: kinds, methods, trait and skill ids present in content; tier 0 to 3; `open` from 0 to the slots at its tier; `queue.length` ≤ 4; `buildings.length` ≤ the lots; ids unique and below `nextId`; every `jobId`, `pinnedTo` and job target naming a building in the record; morale and skills 0 to 100; `log.length` ≤ 100 (F5). Import refuses a file whose `file.size` is over 5,000,000 before reading it. A replace copies the old record to key `previous` in the same transaction (F4). `replaceWith` sets the anchor and the waiting flag before posting (F14).
+- **Saves:** `SCHEMA = 2` (3 from S3: `upgrades[2]` gives each building `owned` = its kind's methods with an empty cost, plus its current method, and keeps the town's tick; D-034). M0's shape check is kept as `shapeOkV1`; `upgrades[1]` returns `{ schema: 2, anchorMs: now, state: newGame(old.state.seed, content) }` for a record that passes it, and a schema 1 record that fails it is `damaged` as before. `parse` reports `upgradedFrom: 1` on such a result, and the page then stores the raw old record under `previous` before its first schema 2 save. `save(record, { keepPrevious?: boolean })`: with `keepPrevious`, the record now under `main` (if any) is copied to `previous` in the same transaction, replacing an older `previous`; both import paths (`main.tsx` `onImport` and `replaceWith`) pass it. One connection is opened once and reused; writes go through one promise chain (F1). `shapeOk` checks every number with `Number.isSafeInteger` (0 or more, except `bornTick` and `lastLeftTick`, which may be negative), every stock key against content and its value against its cap, and each resident, building and job field by type, with: kinds, methods, trait and skill ids present in content; tier 0 to 3; `open` from 0 to the slots at its tier; `queue.length` ≤ 4; `buildings.length` ≤ the lots; ids unique and below `nextId`; every `jobId`, `pinnedTo` and job target naming a building in the record; morale and skills 0 to 100; `log.length` ≤ 100 (F5). Import refuses a file whose `file.size` is over 5,000,000 before reading it. A replace copies the old record to key `previous` in the same transaction (F4). `replaceWith` sets the anchor and the waiting flag before posting (F14).
 - **PWA:** `registerType: 'prompt'` stays; `main.tsx` registers through `virtual:pwa-register` with `onNeedRefresh` setting an "Update ready" notice whose "Reload" button calls the returned update function with `true`. The manifest gains `id: '/'` and a third icon entry, `icon-512.png` with `purpose: 'maskable'`; `scripts/make-icons.mjs` draws the letter S as an SVG path the builder writes by hand (no font), within the middle 60% of the square so the maskable crop keeps it, and says so in a comment (F3, F18).
 - **Fonts:** `main.tsx` imports `@fontsource/alegreya-sans/400.css`, `/500.css`, `/700.css` and `@fontsource/alegreya-sc/700.css`. The workbox `globPatterns` gain `woff2`.
 - **Screens**, all from `docs/UI_STYLE.md`:
@@ -395,8 +399,8 @@ Each slice is one PR from a branch cut from the latest `main`. A slice that adds
 ### S3 Production methods and the away card
 
 - **Morgan tries:** switch the Mine from ore to stone and read what it costs; let the Workshop run out of ore overnight and read the away card.
-- **Checks that fail now:** J5, J13.
-- **Files:** `production.ts`: inputs, fallback, `short`; `step.ts`: `setMethod`, retooling. `BuildingSheet.tsx`: the methods list. `AwayCard.tsx`. `mockups/town.html` updated for the methods list and the card.
+- **Checks that fail now:** J5, J13; `saves.test.ts` "schema 2 upgrades to owned methods" (D-034).
+- **Files:** `production.ts`: inputs, fallback, `short`; `step.ts`: `setMethod`, retooling. Method prices, `switchTicks` and `owned` with schema 3 (D-034). `BuildingSheet.tsx`: the methods list. `AwayCard.tsx`. `mockups/town.html` updated for the methods list and the card.
 - **Waits on:** S2
 
 ### S4 People
@@ -470,7 +474,31 @@ Taken before any code, from the zero-decision check on S2 against what S1 merged
 - **After the fresh review of the diff** (one agent, 155,484 tokens measured; 1 medium-high, 1 low-medium, 4 low; no engine, content or screen defect). Fixed: `shapeOk` now checks each job against its target (one tier up, one job per target, the Hall's next tier only), that a building not yet built has its job, two traits per resident and the Hall's resident limit, because a hand-edited file could otherwise crash the page on every open or strand a lot; a save that should have kept the record it replaces and failed leaves that copy owed to the next save (GAME-05); a job holds its own copy of its cost; the slot stepper's browser taps wait for each answer; log rows keep their keys once the log is full. Declined: a reason line under a stepper cell at its limit (the number beside it shows the limit); cancelling by queue position while a tick finishes the front job (the tap and the tick would have to land within one message).
 - **Seen to fail first.** The 20 engine and content tests were run against S1's engine and all failed. "a damaged schema 1 save stays damaged" passes when written and failed under a planted bug. The four J11 browser tests were not run against S1's page; they read test ids it does not have.
 
+### S3 (2026-11-10)
+
+Taken before any code, from the zero-decision check on S3 against what S2 merged. It was one fresh agent, 156,343 tokens measured; a first run stopped at a rate limit before it reported. No gap needed Morgan except screen wording and layout, which the mock-up settles.
+
+- **Events.** `short` `{ buildingId, resource }` is emitted, and writes the log line, only when a building's `short` turns from false to true. `fellBack` `{ buildingId }` is emitted on every cycle run by a fallback, writes no line, and `fold` counts it into `shortCycles`. Production emits `used` for each input when at least 1 whole unit is taken.
+- **`short` on a skipped cycle.** A cycle skipped for tier 0, retooling, no workers or full stores leaves `short` as it was. Clearing it there would write the line again each time the building recovered.
+- **`setMethod` refusals.** A method id not in content gives `unknown`. A building with no methods gives `notAllowed`. Order: unknown, notReady, same, notAllowed. It is allowed while the building has an upgrade job (it keeps working at its old tier). Sent again while retooling, it starts the 24 ticks again.
+- **Full stores** are checked against the chosen method's outputs. Every fallback makes the same resource as its method, so the two cannot differ in M1's content.
+- **`perDay`** lives in `production.ts`, uses `DAY_TICKS / cycleTicks` rather than a literal 6, and is exported from the package.
+- **Retooling text** follows the S2 note "Time on screen": a bought method reads "Retooling, 1 game day left", a switch to an owned one "Retooling, 4 game hours left".
+- **After D-034** (Morgan's change to the mock-up): "retooling costs a game day" buys Forge tools for a Workshop, because the Mine owns both its tier 1 methods from the start. The J9 script's Mine switches become 4-tick switches.
+- **The away card keeps its summary.** `store.ts` keeps the last summary of 10 ticks or more (not every advance with ticks, which replaced it within a second at test speeds). Dismiss clears it, and the next such catch-up replaces it. It is not kept over a reload. J13 runs at `?tickMs=60000`.
+- **A building that ran short and was cleared** before the card shows is named "A cleared building".
+- **J5's checks** read `carry`, `debt` and `short` rather than whole stock, since one worker on Forge tools makes 0.25 of a tool a cycle. Their Workshop is built with `finished()`, set to `forge` with `open` 1 and residents at skill 50 and morale 50. "retooling costs a game day" goes through `setMethod`, so it fails at S2's code, which refuses it.
+- **J9's script** gains its `setMethod` commands in tick order, because `chunked` finds the next command by array order.
+- **Soak pass 1** adds `setMethod` to `TYPES`, which changes the bot's draws and so its printed numbers.
+- **Mock-up.** The S3 section of `mockups/town.html` (https://claude.ai/artifact/6k9547asTCDNHmfobt6Hym) shows real-screen screenshots from a throwaway prototype. Morgan approved it on 2026-11-10 after one change round (D-034). The built screens match its 9 pictures pixel for pixel at 412 px and 360 px.
+- **Content checks added by D-034.** `validateContent` also faults a method price in an unknown resource or above a base store, a method whose price and inputs disagree (D-034 ties "no inputs" to "free"), a fallback with a price, and a kind whose first method has a price.
+- **A save's building** is damaged when `owned` repeats or names another kind's method, leaves out the method it runs, when `short` is set on a method with no fallback, or when `retoolLeft` is above `retoolTicks`.
+- **The away card and an import.** Snapshots of a town being replaced set no card, and an import dismisses the card.
+- **Measured.** First load 88,646 bytes gzipped of 120,000 (S2: 86,152). Soak pass 1: 410 commands, 335 refused, largest save 6,588 bytes, 509,496 ticks per second. 55 unit tests; 20 browser tests in 31.8 s.
+- **After the fresh review of the diff** (one agent, 138,020 tokens measured; 0 high, 2 medium, 5 low). Fixed all 7: a hand-edited save marking a basic method short crashed the Town tab; an import kept the old town's away card; tests now read production's `used`, pin the one skipped cycle of a free switch, and cover the store's 10-tick rule; J9's script now buys a method, runs it short and switches back; `validateContent` checks the two D-034 rules above. Each of the two medium fixes was seen to fail under a planted bug.
+- **Seen to fail first.** The 7 engine tests and the 2 browser tests were run against S2's code and failed. After D-034 the tests were changed before the code and failed again, with the save tests.
+
 ## Open questions
 
 - Whether gold pays for building from M3 (D-027, proposed).
-- AGENTS.md's count of browser tests is updated by each slice that adds some (17 after S2).
+- AGENTS.md's count of browser tests is updated by each slice that adds some (20 after S3).

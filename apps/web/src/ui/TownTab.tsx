@@ -1,8 +1,10 @@
 import { content } from '@silvanus/content';
 import { hallOf, kindOf, methodOf, slotsOf } from '@silvanus/sim';
 import type { Building, Command, Job, State } from '@silvanus/sim';
-import { useState } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import type { ReactNode } from 'react';
+import { dismissSummary, subscribe, summary } from '../store';
+import { AwayCard } from './AwayCard';
 import { BuildSheet } from './BuildSheet';
 import { BuildingSheet } from './BuildingSheet';
 import { dateText, duration } from './format';
@@ -22,6 +24,10 @@ function lotLine(state: State, building: Building): ReactNode {
   const parts: ReactNode[] = [];
   const method = methodOf(content, building.method);
   if (method) parts.push(method.name);
+  if (building.retoolLeft > 0) parts.push(`Retooling, ${duration(building.retoolLeft)} left`);
+  else if (method && building.short) {
+    parts.push(<span className="w">Short: {methodOf(content, method.fallback)!.name}</span>);
+  }
   const slots = slotsOf(content, building);
   if (slots > 0) {
     const workers = state.residents.filter((r) => r.jobId === building.id).length;
@@ -45,7 +51,8 @@ function lotLine(state: State, building: Building): ReactNode {
 
 type Open = { type: 'build' } | { type: 'building'; id: number } | null;
 
-// The Hall, the work queue, the lots, the log, and at the foot the save block (passed in).
+// The away card, the Hall, the work queue, the lots, the log, and at the foot the save block
+// (passed in).
 export function TownTab({
   state,
   send,
@@ -56,6 +63,7 @@ export function TownTab({
   children: ReactNode;
 }) {
   const [open, setOpen] = useState<Open>(null);
+  const away = useSyncExternalStore(subscribe, summary);
   const hall = hallOf(state, content);
   const emptyLots = Math.max(0, hall.lots - state.buildings.length);
   const shown = open?.type === 'building' ? state.buildings.find((b) => b.id === open.id) : null;
@@ -74,6 +82,7 @@ export function TownTab({
 
   return (
     <>
+      {away && <AwayCard state={state} summary={away} onDismiss={dismissSummary} />}
       <div className="panel" data-testid="hall">
         <div className="row-top">
           <span className="name">The Hall</span>

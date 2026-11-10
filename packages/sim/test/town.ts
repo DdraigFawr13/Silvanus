@@ -37,6 +37,9 @@ export function finished(state: State, kind: string): State {
     carry: {},
     debt: {},
     short: false,
+    owned: content.methods
+      .filter((m) => m.building === kind && Object.keys(m.cost).length === 0)
+      .map((m) => m.id),
   };
   return { ...state, nextId: state.nextId + 1, buildings: [...state.buildings, building] };
 }

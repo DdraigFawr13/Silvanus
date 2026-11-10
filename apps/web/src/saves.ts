@@ -1,9 +1,9 @@
 import { content } from '@silvanus/content';
-import { capsOf, kindOf, newGame } from '@silvanus/sim';
+import { capsOf, freeMethods, kindOf, newGame } from '@silvanus/sim';
 import type { State } from '@silvanus/sim';
 import { testTickMs } from './clock';
 
-export const SCHEMA = 2;
+export const SCHEMA = 3;
 export const STORE = 'saves';
 export const KEY = 'main';
 // The record an import or an upgrade replaced, kept so it can be brought back by hand (audit F4).
@@ -79,6 +79,15 @@ function buildingOk(v: unknown): boolean {
   }
   const slots = v.tier === 0 ? 0 : kind.tiers[v.tier - 1].slots;
   if (!upTo(v.open, slots) || !isWhole(v.retoolLeft) || typeof v.short !== 'boolean') return false;
+  // its own methods, each once, the one it runs among them (D-034)
+  const owned = v.owned;
+  if (!Array.isArray(owned) || new Set(owned).size !== owned.length) return false;
+  if (!owned.every((id) => methods.includes(id as string))) return false;
+  if (v.method !== null && !owned.includes(v.method)) return false;
+  // only a method with a fallback can run short, and retooling never runs past a setup
+  const running = content.methods.find((m) => m.id === v.method);
+  if (v.short && !running?.fallback) return false;
+  if (!upTo(v.retoolLeft, content.rules.retoolTicks)) return false;
   return amountsOk(v.carry) && amountsOk(v.debt);
 }
 
@@ -161,6 +170,17 @@ const upgrades: Record<number, (old: unknown) => unknown> = {
     shapeOkV1(old)
       ? { schema: 2, anchorMs: Date.now(), state: newGame(old.state.seed, content) }
       : null,
+  // 2 to 3: buildings own methods (D-034). Each owns its kind's free methods and the one it runs.
+  2: (old) => {
+    if (!isObject(old) || !isObject(old.state) || !Array.isArray(old.state.buildings)) return null;
+    const buildings = old.state.buildings.map((b: unknown) => {
+      if (!isObject(b) || typeof b.kind !== 'string') return b;
+      const free = freeMethods(content, b.kind);
+      const runs = typeof b.method === 'string' && !free.includes(b.method) ? [b.method] : [];
+      return { ...b, owned: [...free, ...runs] };
+    });
+    return { ...old, schema: 3, state: { ...old.state, buildings } };
+  },
 };
 
 // Shared by load and importText.

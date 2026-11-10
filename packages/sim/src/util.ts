@@ -10,6 +10,13 @@ export function methodOf(content: Content, id: string | null): Method | undefine
   return id === null ? undefined : content.methods.find((method) => method.id === id);
 }
 
+// The methods every building of a kind owns from the start: those with no cost (D-034).
+export function freeMethods(content: Content, kind: string): string[] {
+  return content.methods
+    .filter((method) => method.building === kind && Object.keys(method.cost).length === 0)
+    .map((method) => method.id);
+}
+
 // Worker slots at the building's tier; 0 while it is being built.
 export function slotsOf(content: Content, building: Building): number {
   return building.tier === 0 ? 0 : kindOf(content, building.kind)!.tiers[building.tier - 1].slots;

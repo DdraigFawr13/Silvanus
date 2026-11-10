@@ -23,8 +23,8 @@ function roll(n: number): number {
   return next.value % n;
 }
 
-// The command types this slice carries out. S3 adds setMethod; S5 adds upgradeHall.
-const TYPES = ['build', 'upgrade', 'cancelJob', 'clear', 'setOpen', 'pin'] as const;
+// The command types the engine carries out. S5 adds upgradeHall.
+const TYPES = ['build', 'upgrade', 'cancelJob', 'clear', 'setOpen', 'pin', 'setMethod'] as const;
 
 // Ids come from the living, kinds from content and counts from 0 to 9, so some are refused.
 function randomCommand(s: State): Command {
@@ -40,6 +40,12 @@ function randomCommand(s: State): Command {
       return { type, index: roll(10) };
     case 'setOpen':
       return { type, buildingId: building(), count: roll(10) };
+    case 'setMethod':
+      return {
+        type,
+        buildingId: building(),
+        method: content.methods[roll(content.methods.length)].id,
+      };
     case 'pin': {
       const residentId = s.residents.length ? s.residents[roll(s.residents.length)].id : 0;
       return { type, residentId, buildingId: roll(4) === 0 ? null : building() };
@@ -76,6 +82,12 @@ function check(s: State): void {
     }
   }
   for (const building of s.buildings) {
+    if (building.method !== null && !building.owned.includes(building.method)) {
+      fail(`${building.kind} ${building.id} runs ${building.method}, which it does not own`);
+    }
+    if (!whole(building.retoolLeft, content.rules.retoolTicks)) {
+      fail(`${building.kind} ${building.id} has ${building.retoolLeft} ticks of retooling`);
+    }
     if (!whole(building.open, slotsOf(content, building))) {
       fail(`${building.kind} ${building.id} has ${building.open} open slots`);
     }
