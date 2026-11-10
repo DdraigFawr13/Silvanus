@@ -221,3 +221,18 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
   - Push methods: a method that pays more and carries a daily risk, kept local to its building, which is shut for 2 game days at most. Built in M2 only if the M1 test finds the town mechanical; it would then amend D-030's "no randomness in production" and add an effect type under its own entry.
   - Not approved: feasts. Later: apprentices and party bonds (`docs/parking.md`).
 - **Why:** Morgan, in chat: "Ok I like those and we can add them as recommended". The work figures on the page are Claude's estimates: 5 slices for the six.
+
+## D-033 Fun round 2: seven town-management additions approved
+
+- **Status:** Accepted (2026-11-10)
+- **Decision:** Morgan approved round 2 (https://claude.ai/artifact/NbBSXFajzEL8reyh2M7rsE) by his answer on each idea. Each is specified in its milestone's planning, not here. M1 is not changed.
+  - The lie of the land: each lot has a character drawn from the town's seed on its own random stream (good soil, riverside, rock outcrop, forest edge, or plain) that raises some buildings' output; a forest-edge lot is the first a raid reaches. A feature only adds and no method needs one, so no seed makes a dead end. Lots become records in the save and the build sheet gains a lot picker. Amends the charter's first pillar: the player chooses a place, still with no grid, roads or adjacency. Adds one condition type, a lot's feature (M2).
+  - Standing orders: the Hall holds 1 town-wide order as a Hamlet and 2 as a Village, each with a gain and a cost (Short rations, Long days, Open gates), taking effect after 1 game day. Policies in v0.1 go from 0 to 3; M4b adds 3 more to reach the 6. Adds one effect type: an order changes a rule value (M2).
+  - Town works: off-lot projects built in stages through the one build queue. A new content target, works: 4. The Palisade is the town's defence in the first raid (M2); the Well, the Watchtower and the Cart track follow (M3).
+  - A practised crew: a crew that keeps its method gains output each game day up to a cap; choosing a new method resets it and a fallback does not. The cap is a tuning value (M2).
+  - The ledger: a sheet per resource showing who makes it, who uses it, what is eaten, the net per game day and the time to empty or full (after the M1 test, built with the forecast of D-032).
+  - Gold hires a second crew: once caravans pay gold, the Hall can pay an outside crew to run one job beside the town's own. Settles D-027's proposed part for building work and amends D-025's one job at a time from M3 (M3).
+  - Foremen: a named lead worker's trait shapes the building, and the lead teaches. This takes in round 1's apprentices. Morgan answered Yes where Later was recommended; it is built in M4a, the milestone the page gave.
+  - M2 is planned as two sessions, the town half first.
+  - Later: reserves and serving order (`docs/parking.md`). Tier 3 branches stay in M4b.
+- **Why:** Morgan, in chat: "none of these touch the town management as much as I would like", then "Ok I approve please add all these to the plan map". On the page he chose more to decide about each building, levers on the whole town, long projects and seeing why the numbers move. Work figures are Claude's estimates: 5.5 slices for the seven, 10.5 with D-032's six.

@@ -13,8 +13,9 @@ M1 Town is being built from `docs/specs/m1-town.md` (approved, D-030), five slic
 - ✔ M1 S1 Safe saves and updates (PR #5).
 - ▶ M1 S2 Stock, lots and the Town tab: not started; starts with `mockups/town.html`.
 - ○ S3 Production methods and the away card · ○ S4 People · ○ S5 Growth and the Village (then the M1 test, J14).
-- ○ M2 Guild, with the first raid (D-029) · ○ M3 Trade outlet, events, chronicle (v0.1)
-- ○ M4a Families · ○ M4b Paths · ○ M5 Trade and Crown · ○ M6 Depth (v1.0)
+- ○ M2 in two sessions (D-033). Town half first: lots with a character, standing orders, forecast and ledger, a practised crew, push methods if the M1 test asks. Then the guild half: the guild, staged reports, the first raid (D-029) with its clock as a sign, the Palisade.
+- ○ M3 Trade outlet, events, chronicle (v0.1), plus signs, deeds, named foes, gold hiring a second crew, three more town works (D-032, D-033).
+- ○ M4a Families, plus foremen and apprentices and heirlooms · ○ M4b Paths · ○ M5 Trade and Crown · ○ M6 Depth (v1.0)
 
 ## Just done
 
@@ -26,14 +27,14 @@ M1 Town is being built from `docs/specs/m1-town.md` (approved, D-030), five slic
 - 2026-11-10 Deployed commit checked after PR #3: the live page showed "Version 644ed4f" (CI-05).
 - Earlier entries are in `docs/archive/handoff-2026-11.md`.
 
-- 2026-11-10 Fun ideas, in a separate session on branch `ccr-e0628a63-0qqw2b` (docs only). Round 1 approved in chat and recorded as D-032. Round 2, nine town-management ideas lettered A to I, is published and waits for Morgan's answers (collection `fun2`); nothing from it is decided.
+- 2026-11-10 Fun ideas, two rounds in a separate session (docs only, PR #7). Morgan approved 6 additions in round 1 (D-032) and 7 town-management additions in round 2 (D-033). They change M2, M3 and M4a; M1 is untouched. The charter's first pillar, content targets and milestone lines are amended. Work is estimated at 10.5 slices in all, about two extra build sessions before v0.1.
 
 ## Next
 
 1. S2 "Stock, lots and the Town tab" from the spec, on a new branch from the latest `main`. First run the zero-decision check on S2 against what S1 merged (the spec's "Build notes" list S1's choices). S1's phone test is still open: Morgan opens the installed app after the S1 deploy, then again after S2's deploy; "Update ready" appears and Reload works.
 2. After each slice merges, check the Version line at https://silvanus-xi.vercel.app equals the merge commit (CI-05), and give Morgan the slice's "Morgan tries" line.
 3. S2 starts with `mockups/town.html` (`ui-mockups`), approved by Morgan before code. Ask him then to confirm the phone width: `docs/UI_STYLE.md` assumes 412 px first and 360 px second.
-4. When Morgan says "town ideas done": read `fun2` on the round 2 page, record the approved ideas as a DECISIONS entry and parking lines, and amend the charter's content targets where an approved idea changes one (policies, works). M1 is not changed by either round.
+4. M2's planning starts from D-032 and D-033 and the two pages under "Planning pages". The M1 test (J14) also answers three things for it: does the town feel mechanical (push methods), do shortages annoy (parked reserves), do 6 lots feel right.
 5. S1 to S5 run in one build session while its context allows; after S5 comes Morgan's M1 test (J14), then offer an audit (VER-09).
 
 ## Open questions
@@ -44,8 +45,9 @@ M1 Town is being built from `docs/specs/m1-town.md` (approved, D-030), five slic
 
 ## Planning pages
 
-- Round 5: https://claude.ai/artifact/GXyCyVEpnCLUU8jVBXjfJG · Review: https://claude.ai/artifact/MTxTA5yFtYgbZrUKqmStUQ · Final: https://claude.ai/artifact/PDb43Sn8K1tcBLkqek9cPv · M0 spec: https://claude.ai/artifact/Bvt8GtrMSSTGaDjVRscCXe · S3 summary: https://claude.ai/artifact/BqkLY3zSL5CVprLRRxxndq · M1 round 1: https://claude.ai/artifact/4Lu6ZT9ZDmtqhLgLaWbymR · M1 review: https://claude.ai/artifact/5NTJDE3CuGvSkuDjkBL1W1 · M0 audit replies: https://claude.ai/artifact/Wa5YKEgJy8xWYVhaiVRuUk · Taste board: https://claude.ai/artifact/JrzLhbWsWXpwvPsVgqUZGf · Fun round 1: https://claude.ai/artifact/7NFqLKmYoVrgEB4TgHsdop · Fun round 2 (town): https://claude.ai/artifact/NbBSXFajzEL8reyh2M7rsE
+- Round 5: https://claude.ai/artifact/GXyCyVEpnCLUU8jVBXjfJG · Review: https://claude.ai/artifact/MTxTA5yFtYgbZrUKqmStUQ · Final: https://claude.ai/artifact/PDb43Sn8K1tcBLkqek9cPv · M0 spec: https://claude.ai/artifact/Bvt8GtrMSSTGaDjVRscCXe · S3 summary: https://claude.ai/artifact/BqkLY3zSL5CVprLRRxxndq · M1 round 1: https://claude.ai/artifact/4Lu6ZT9ZDmtqhLgLaWbymR · M1 review: https://claude.ai/artifact/5NTJDE3CuGvSkuDjkBL1W1 · M0 audit replies: https://claude.ai/artifact/Wa5YKEgJy8xWYVhaiVRuUk · Taste board: https://claude.ai/artifact/JrzLhbWsWXpwvPsVgqUZGf
+- Fun round 1: https://claude.ai/artifact/7NFqLKmYoVrgEB4TgHsdop · Fun round 2 (town): https://claude.ai/artifact/NbBSXFajzEL8reyh2M7rsE
 
 ## Decisions since the last plan update
 
-- 2026-11-10 D-025 to D-032, see `docs/DECISIONS.md`.
+- 2026-11-10 D-025 to D-033, see `docs/DECISIONS.md`.
