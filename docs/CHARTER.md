@@ -99,8 +99,8 @@ Read from the three repos on 2026-11-09. Silvanus overlaps all three and stays l
 
 These counts are the scope cap.
 
-- Buildings: 12 in v0.1, 45 in v1.0. Special buildings: 1, then 8.
-- Resources: 8, then 20. Trades: 8, then 30. Skills: 6, then 12. Traits: 12, then 40.
+- Buildings: 13 in v0.1 (D-026), 45 in v1.0. Special buildings: 1, then 8.
+- Resources: 9 (D-026), then 20. Trades: 8, then 30. Skills: 6, then 12. Traits: 12, then 40.
 - Peoples: 2, then 4. Resident cap: 60, then 150.
 - Adventurer classes: 3 plus 1 unlocked, then 8. Quest objectives: 3, then 6.
 - Forest bands: 1, then 3. Sites: 6, then 25.
@@ -122,8 +122,8 @@ These counts are the scope cap.
 Each ends with a build on the phone and a test Morgan runs. One session takes one milestone.
 
 1. **M0 Skeleton.** Workspace, tick loop, named random streams, saves with age and family fields, standby copy, clamp on elapsed time, persistent-storage request, export, PWA shell, hosting, soak, CI. Test: install on the phone; a counter survives closing with the right catch-up.
-2. **M1 Town.** Lots, 12 buildings at 3 tiers, 8 resources, residents as records, 2 peoples, automatic jobs with pin, arrivals, Hamlet to Village. Test: 20 minutes of play with real trade-offs; the soak passes.
-3. **M2 Guild.** Recruits list, 3 classes, 6 Eaves sites, quest writing, picked parties, gear, decisions that wait. Test: a quest resolves while the phone is closed and its report reads well.
+2. **M1 Town.** Lots, 9 buildings at 3 tiers, production methods, 5 resources in use (food, wood, stone, ore, tools), residents as records, 2 peoples, automatic jobs with pin, arrivals, Hamlet to Village (D-025, D-026). Test: about 20 minutes of play in total over check-ins across 2 or 3 days, with real trade-offs, reaching the Village; the soak passes.
+3. **M2 Guild.** Herb garden, Smithy, Apothecary and Guild hall (D-026), recruits list, 3 classes, 6 Eaves sites, quest writing, picked parties, gear, decisions that wait, the threat clock and a first raid (D-029). Test: a quest resolves while the phone is closed and its report reads well.
 4. **M3 Trade outlet, events, chronicle.** One buyer town and caravans, one class-unlocking building, 12 events, 40 templates. Test: the check-in at the top of this file, end to end. **This is v0.1.**
 5. **M4a Families.** Marriage, children, aging, death, inheritance, heirs in the inbox, biography pages, the long soak.
 6. **M4b Paths.** Guild and March charters, 6 policies, Town tier, building branches, the Deepwood and its faction, posted bounties.

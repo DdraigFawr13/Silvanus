@@ -9,7 +9,8 @@ Shared rules come from AI-Master-Instructions and load through CLAUDE.md (`.clau
 1. `docs/HANDOFF.md`: current state and next step.
 2. `docs/DECISIONS.md`: settled rules. Don't reopen them.
 3. `docs/LESSONS.md`: entries for the area you are about to work in.
-4. `docs/CHARTER.md`: design and scope. Open only the section the task needs; "Content targets" is the scope cap and "Milestones" has each exit criterion.
+4. `docs/UI_STYLE.md`: the look, tokens and the new-screen checklist. Read before any screen work.
+5. `docs/CHARTER.md`: design and scope. Open only the section the task needs; "Content targets" is the scope cap and "Milestones" has each exit criterion.
 
 ## Local checks (run before pushing)
 
