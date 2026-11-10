@@ -12,7 +12,7 @@ M0 Skeleton, last slice built and waiting for Morgan's approval. Spec approved 2
 - ✔ M0 spec approved; Vercel project `silvanus` created and linked (D-024).
 - ✔ M0 slice S1 merged and deployed (373c7c9) at https://silvanus-xi.vercel.app; Morgan's phone check outstanding.
 - ✔ M0 slice S2, it remembers: approved by Morgan 2026-11-09 and merged (PR #1); his phone check is outstanding.
-- ▶ M0 slice S3, install it and carry it: built on branch `m0-s3-install-and-carry`, draft PR open, not approved yet.
+- ▶ M0 slice S3, install it and carry it: built on branch `m0-s3-install-and-carry`, draft PR #2 open (https://github.com/DdraigFawr13/Silvanus/pull/2), not approved yet.
 - ○ M1 Town · ○ M2 Guild · ○ M3 Trade outlet, events, chronicle (v0.1)
 - ○ M4a Families · ○ M4b Paths · ○ M5 Trade and Crown · ○ M6 Depth (v1.0)
 
@@ -37,7 +37,7 @@ M0 Skeleton, last slice built and waiting for Morgan's approval. Spec approved 2
 
 ## Planning pages
 
-- Round 5: https://claude.ai/artifact/GXyCyVEpnCLUU8jVBXjfJG · Review: https://claude.ai/artifact/MTxTA5yFtYgbZrUKqmStUQ · Final: https://claude.ai/artifact/PDb43Sn8K1tcBLkqek9cPv · M0 spec: https://claude.ai/artifact/Bvt8GtrMSSTGaDjVRscCXe
+- Round 5: https://claude.ai/artifact/GXyCyVEpnCLUU8jVBXjfJG · Review: https://claude.ai/artifact/MTxTA5yFtYgbZrUKqmStUQ · Final: https://claude.ai/artifact/PDb43Sn8K1tcBLkqek9cPv · M0 spec: https://claude.ai/artifact/Bvt8GtrMSSTGaDjVRscCXe · S3 summary: https://claude.ai/artifact/BqkLY3zSL5CVprLRRxxndq
 
 ## Decisions since the last plan update
 
