@@ -4,7 +4,7 @@ Updated: 2026-11-10. A fresh session must be able to continue from this file alo
 
 ## Phase
 
-M1 Town is being built from `docs/specs/m1-town.md` (approved, D-030), five slices. S1 "Safe saves and updates" is merged (PR #5; Morgan: "Approved open s2 in a new session"). S2 "Stock, lots and the Town tab" is merged (PR #6; Morgan: "you have approval to merge and create the next slice"). Its mock-up is `mockups/town.html` (https://claude.ai/artifact/6k9547asTCDNHmfobt6Hym); the phone is 412 px wide (Morgan). Next is S3, in a new session. M0 is done and passed on Morgan's phone.
+M1 Town is being built from `docs/specs/m1-town.md` (approved, D-030), five slices. S1 "Safe saves and updates" is merged (PR #5; Morgan: "Approved open s2 in a new session"). S2 "Stock, lots and the Town tab" is merged (PR #6; Morgan: "you have approval to merge and create the next slice"). S3 "Production methods and the away card" is merged (PR #8; Morgan: "Approved please merge the. Start a new session for s4"), with Morgan's change D-034 (a building buys a method once). The Town mock-up is `mockups/town.html` (https://claude.ai/artifact/6k9547asTCDNHmfobt6Hym); the phone is 412 px wide (Morgan). Next is S4, in a new session. M0 is done and passed on Morgan's phone.
 
 ## Plan map
 
@@ -12,8 +12,9 @@ M1 Town is being built from `docs/specs/m1-town.md` (approved, D-030), five slic
 - ✔ M1 planning: round 1, review, taste board, style doc, spec (D-025 to D-030).
 - ✔ M1 S1 Safe saves and updates (PR #5).
 - ✔ M1 S2 Stock, lots and the Town tab (PR #6).
-- ▶ M1 S3 Production methods and the away card: built on PR #8 (draft), waiting for Morgan's approval to merge.
-- ○ S4 People · ○ S5 Growth and the Village (then the M1 test, J14).
+- ✔ M1 S3 Production methods and the away card (PR #8; D-034).
+- ▶ S4 People: next, in a new session.
+- ○ S5 Growth and the Village (then the M1 test, J14).
 - ○ M2 in two sessions (D-033). Town half first: lots with a character, standing orders, forecast and ledger, a practised crew, push methods if the M1 test asks. Then the guild half: the guild, staged reports, the first raid (D-029) with its clock as a sign, the Palisade.
 - ○ M3 Trade outlet, events, chronicle (v0.1), plus signs, deeds, named foes, gold hiring a second crew, three more town works (D-032, D-033).
 - ○ M4a Families, plus foremen and apprentices and heirlooms · ○ M4b Paths · ○ M5 Trade and Crown · ○ M6 Depth (v1.0)
@@ -33,11 +34,12 @@ M1 Town is being built from `docs/specs/m1-town.md` (approved, D-030), five slic
 
 ## Next
 
-1. S3 (PR #8): on Morgan's approval, write the merged state here, mark the PR ready, merge by hand (squash) once the ready CI run is green, check the deployed commit, and send S3's "Morgan tries" line. Then S4 People on a new branch from `main`.
-2. After each slice merges, check the Version line at https://silvanus-xi.vercel.app equals the merge commit (CI-05), and give Morgan the slice's "Morgan tries" line. Still open from S1 and S2: Morgan's phone tests ("Update ready" and Reload after the S2 deploy; build a Woodcutter's camp, close the app, come back). Record his answers here.
-3. The repo has auto-merge off: merge by hand once the ready CI run is green, and do not push and mark ready within the same few seconds.
-4. M2's planning starts from D-032 and D-033 and the two pages under "Planning pages". The M1 test (J14) also answers three things for it: does the town feel mechanical (push methods), do shortages annoy (parked reserves), do 6 lots feel right.
-5. S1 to S5 run in one build session while its context allows; after S5 comes Morgan's M1 test (J14), then offer an audit (VER-09).
+1. S4 "People" from the spec, on a new branch from the latest `main`, in a new session (Morgan, 2026-11-10: "Start a new session for s4"). First the zero-decision check on S4 against what S3 merged (the spec's "Build notes", S3), then `mockups/people.html`, approved by Morgan before code. Write the slice's tests before its code. S4 makes the worker effect use skill and morale (`production.ts`'s `EFFECT`). `methods.test.ts` sets its residents to skill 50 and morale 50, an effect of 100, so its numbers hold. J9 pins the Workshop's short ticks (471, 555) from seed 1's real residents; S4 moves them, so read the new ticks from a probe and keep the assertion exact.
+2. After S3 merged, check the Version line at https://silvanus-xi.vercel.app equals the merge commit (CI-05) and record it here, if this session did not.
+3. After each slice merges, check the Version line at https://silvanus-xi.vercel.app equals the merge commit (CI-05), and give Morgan the slice's "Morgan tries" line. Still open from S1 and S2: Morgan's phone tests ("Update ready" and Reload after the S2 deploy; build a Woodcutter's camp, close the app, come back). Record his answers here.
+4. The repo has auto-merge off: merge by hand once the ready CI run is green, and do not push and mark ready within the same few seconds.
+5. M2's planning starts from D-032 and D-033 and the two pages under "Planning pages". The M1 test (J14) also answers three things for it: does the town feel mechanical (push methods), do shortages annoy (parked reserves), do 6 lots feel right.
+6. S1 to S5 run in one build session while its context allows; after S5 comes Morgan's M1 test (J14), then offer an audit (VER-09).
 
 ## Open questions
 
