@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto';
 import { IDBFactory } from 'fake-indexeddb';
 import { content } from '@silvanus/content';
-import { advance, newGame } from '@silvanus/sim';
+import { advance, apply, newGame } from '@silvanus/sim';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   IMPORT_MAX_BYTES,
@@ -22,9 +22,10 @@ import {
 } from '../src/saves';
 import type { SaveRecord } from '../src/saves';
 
-// A played state, so the rng and stock fields hold real values.
+// A played town, so the rng, stock, queue and log fields hold real values.
 function record(): SaveRecord {
-  const state = advance({ ...newGame(7, content), foragers: 2 }, 40, content).state;
+  const start = apply(newGame(7, content), [{ type: 'build', kind: 'woodcutter' }], content);
+  const state = advance(start.state, 40, content).state;
   return { schema: SCHEMA, anchorMs: 1_700_000_000_000, state };
 }
 
@@ -48,8 +49,8 @@ function withDb<T>(run: (store: IDBObjectStore) => IDBRequest<T>): Promise<T> {
 const putRaw = (raw: unknown) => withDb((store) => store.put(raw, KEY));
 const readRaw = (key: string = KEY) => withDb<unknown>((store) => store.get(key));
 
-// An M0 resident record: no code makes one yet, but the shape is checked (audit F5).
-const resident = () => ({
+// An M0 (schema 1) record, as M0's page stored it.
+const m0Resident = () => ({
   id: 1,
   name: 'Brynoc',
   people: 'human',
@@ -59,8 +60,21 @@ const resident = () => ({
   spouseId: 2,
   householdId: null,
 });
+const m0Record = () => ({
+  schema: 1,
+  anchorMs: 1_700_000_000_000,
+  state: {
+    contentVersion: 1,
+    seed: 7,
+    tick: 40,
+    rng: { yield: 123 },
+    stock: { food: 12 },
+    foragers: 2,
+    residents: [m0Resident()],
+  },
+});
 
-// Every way the shape check can fail, each from a good record.
+// Every way the frame of a record can fail, each from a good record.
 function damagedRecords(): [string, unknown][] {
   const good = record();
   const withState = (patch: object) => ({ ...good, state: { ...good.state, ...patch } });
@@ -79,13 +93,19 @@ function damagedRecords(): [string, unknown][] {
     ['seed is text', withState({ seed: '7' })],
     ['no contentVersion', withState({ contentVersion: undefined })],
     ['no stock', withState({ stock: undefined })],
-    ['fractional food', withState({ stock: { food: 0.5 } })],
-    ['negative foragers', withState({ foragers: -1 })],
-    ['too many foragers', withState({ foragers: content.camp.maxForagers + 1 })],
+    ['fractional food', withState({ stock: { ...good.state.stock, food: 0.5 } })],
+    ['a store missing', withState({ stock: { food: 1 } })],
+    ['a store the content does not have', withState({ stock: { ...good.state.stock, gold: 1 } })],
     ['no rng', withState({ rng: undefined })],
-    ['rng value past 32 bits', withState({ rng: { yield: 4294967296 } })],
-    ['rng value negative', withState({ rng: { yield: -1 } })],
+    ['rng value past 32 bits', withState({ rng: { arrivals: 4294967296 } })],
+    ['rng value negative', withState({ rng: { arrivals: -1 } })],
     ['residents is not a list', withState({ residents: {} })],
+    ['buildings is not a list', withState({ buildings: {} })],
+    ['no queue', withState({ queue: undefined })],
+    ['no log', withState({ log: undefined })],
+    ['jobsDirty is a number', withState({ jobsDirty: 0 })],
+    ['hallTier 0', withState({ hallTier: 0 })],
+    ['hallTier past the content', withState({ hallTier: 3 })],
   ];
 }
 
@@ -104,7 +124,9 @@ describe('saves', () => {
     expect(await load()).toEqual({ kind: 'none' });
     const saved = record();
     expect(saved.state.stock.food).toBeGreaterThan(0);
-    expect(Object.keys(saved.state.rng)).toEqual(['yield']);
+    expect(Object.keys(saved.state.rng)).toEqual(['arrivals']);
+    expect(saved.state.queue).toEqual([]);
+    expect(saved.state.log).toHaveLength(1);
     await save(saved);
     expect(await load()).toEqual({ kind: 'ok', record: saved });
     // a later save replaces the one record
@@ -233,21 +255,75 @@ describe('saves', () => {
 
   test('a good record parses, at the edges of the shape check', () => {
     const good = record();
+    const caps = Object.fromEntries(content.resources.map((r) => [r.id, r.cap]));
+    const residents = good.state.residents.map((r, i) =>
+      i === 0 ? { ...r, morale: 100, skills: { ...r.skills, mining: 0 }, bornTick: -13440 } : r,
+    );
     const edge = {
       ...good,
       state: {
         ...good.state,
         tick: Number.MAX_SAFE_INTEGER,
-        stock: { food: content.resources.food.cap },
-        foragers: content.camp.maxForagers,
-        rng: { yield: 4294967295 },
-        residents: [resident()],
+        stock: caps,
+        rng: { arrivals: 4294967295 },
+        lastLeftTick: -168,
+        residents,
       },
     };
     expect(parse(edge)).toEqual({ kind: 'ok', record: edge });
     // another content version is not an error: it becomes the running content's
     const older = { ...good, state: { ...good.state, contentVersion: content.version + 5 } };
     expect(parse(older)).toEqual({ kind: 'ok', record: good });
+  });
+
+  test('schema 1 upgrades to a new town', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(1_800_000_000_000);
+    const old = m0Record();
+    const parsed = parse(old);
+    const town = newGame(7, content);
+    expect(parsed).toEqual({
+      kind: 'ok',
+      record: { schema: 2, anchorMs: 1_800_000_000_000, state: town },
+      upgradedFrom: 1,
+    });
+    // a schema 2 town at tick 0 with the same seed: 8 residents, the Hall, a Cottage, a hut
+    expect(town.tick).toBe(0);
+    expect(town.seed).toBe(7);
+    expect(town.residents).toHaveLength(8);
+    expect(town.hallTier).toBe(1);
+    expect(town.buildings.map((b) => b.kind)).toEqual(['cottage', 'forager']);
+    vi.useRealTimers();
+    // the stored record is not touched by reading it
+    await putRaw(old);
+    expect(await load()).toMatchObject({ kind: 'ok', upgradedFrom: 1 });
+    expect(await readRaw()).toEqual(old);
+    // a town already in schema 2 says nothing about an upgrade
+    expect(parse(record())).not.toHaveProperty('upgradedFrom');
+  });
+
+  test('a damaged schema 1 save stays damaged', () => {
+    const good = m0Record();
+    expect(parse(good).kind).toBe('ok');
+    const withState = (patch: object) => ({ ...good, state: { ...good.state, ...patch } });
+    const withResident = (patch: object) =>
+      withState({ residents: [{ ...m0Resident(), ...patch }] });
+    const cases: [string, unknown][] = [
+      ['no state', { schema: 1, anchorMs: good.anchorMs }],
+      ['anchorMs negative', { ...good, anchorMs: -1 }],
+      ['negative tick', withState({ tick: -1 })],
+      ['seed past 2^53', withState({ seed: 2 ** 53 })],
+      ['fractional food', withState({ stock: { food: 0.5 } })],
+      ['food over the cap', withState({ stock: { food: 201 } })],
+      ['negative foragers', withState({ foragers: -1 })],
+      ['too many foragers', withState({ foragers: 4 })],
+      ['rng value past 32 bits', withState({ rng: { yield: 4294967296 } })],
+      ['residents is not a list', withState({ residents: {} })],
+      ['resident id fractional', withResident({ id: 1.5 })],
+      ['resident bornTick is text', withResident({ bornTick: '0' })],
+      ['resident spouseId negative', withResident({ spouseId: -1 })],
+    ];
+    for (const [name, raw] of cases) expect(parse(raw), name).toEqual({ kind: 'damaged', raw });
   });
 
   test('too-new save is refused and kept', async () => {
@@ -273,28 +349,86 @@ describe('saves', () => {
 
   test('unsafe numbers are damaged', () => {
     const good = record();
-    const withState = (patch: object) => ({ ...good, state: { ...good.state, ...patch } });
-    const withResident = (patch: object) => withState({ residents: [{ ...resident(), ...patch }] });
+    const state = good.state;
+    const camp = state.buildings.find((b) => b.kind === 'woodcutter')!;
+    const withState = (patch: object) => ({ ...good, state: { ...state, ...patch } });
+    const withResident = (patch: object) =>
+      withState({ residents: [{ ...state.residents[0], ...patch }, ...state.residents.slice(1)] });
+    const withCamp = (patch: object) =>
+      withState({ buildings: state.buildings.map((b) => (b === camp ? { ...b, ...patch } : b)) });
+    const job = { target: camp.id, toTier: 2, ticksLeft: 24, cost: { wood: 40 } };
+    const hallJob = { target: 'hall', toTier: 2, ticksLeft: 96, cost: {} };
+    const line = { tick: 1, type: 'built', text: 'x' };
     const cases: [string, unknown][] = [
       ['tick past 2^53', withState({ tick: 2 ** 53 })],
       ['tick far past 2^53', withState({ tick: 1e300 })],
       ['seed past 2^53', withState({ seed: 2 ** 53 })],
       ['contentVersion past 2^53', withState({ contentVersion: 2 ** 60 })],
-      ['food past 2^53', withState({ stock: { food: 2 ** 53 } })],
-      ['food over the cap', withState({ stock: { food: content.resources.food.cap + 1 } })],
+      ['food past 2^53', withState({ stock: { ...state.stock, food: 2 ** 53 } })],
+      ['food over the cap', withState({ stock: { ...state.stock, food: 201 } })],
       ['anchorMs past 2^53', { ...good, anchorMs: 2 ** 53 }],
       ['anchorMs fractional', { ...good, anchorMs: 1.5 }],
       ['anchorMs negative', { ...good, anchorMs: -1 }],
+      ['lastLeftTick fractional', withState({ lastLeftTick: 0.5 })],
+      ['nextId below an id', withState({ nextId: camp.id })],
       ['a resident is not an object', withState({ residents: [7] })],
       ['resident id fractional', withResident({ id: 1.5 })],
       ['resident id past 2^53', withResident({ id: 2 ** 53 })],
+      ['two residents share an id', withResident({ id: state.residents[1].id })],
+      ['a resident and a building share an id', withResident({ id: camp.id })],
       ['resident name missing', withResident({ name: undefined })],
       ['resident people is a number', withResident({ people: 3 })],
+      ['resident people not in the content', withResident({ people: 'elf' })],
       ['resident bornTick is text', withResident({ bornTick: '0' })],
       ['resident motherId is text', withResident({ motherId: 'x' })],
       ['resident spouseId negative', withResident({ spouseId: -1 })],
+      ['morale over 100', withResident({ morale: 101 })],
+      ['morale fractional', withResident({ morale: 49.5 })],
+      ['a skill over 100', withResident({ skills: { ...state.residents[0].skills, mining: 101 } })],
+      ['a skill missing', withResident({ skills: { mining: 30 } })],
+      ['a trait not in the content', withResident({ traits: ['lucky', 'deft'] })],
+      ['a job in no building', withResident({ jobId: 999 })],
+      ['a pin to no building', withResident({ pinnedTo: 999 })],
+      ['workDays negative', withResident({ workDays: -1 })],
+      ['a reason with no amount', withResident({ reasons: [{ id: 'food' }] })],
+      ['a kind not in the content', withCamp({ kind: 'castle' })],
+      ["another building's method", withCamp({ method: 'gather' })],
+      ['no method where the kind has some', withCamp({ method: null })],
+      ['tier 4', withCamp({ tier: 4 })],
+      ['more open slots than the tier has', withCamp({ open: 5 })],
+      ['open slots on a building not built yet', withCamp({ tier: 0 })],
+      ['carry in an unknown resource', withCamp({ carry: { gold: 1 } })],
+      ['debt fractional', withCamp({ debt: { wood: 0.5 } })],
+      ['short is a number', withCamp({ short: 1 })],
+      ['more buildings than lots', withState({ buildings: Array(7).fill(camp) })],
+      ['five jobs', withState({ queue: [job, hallJob, job, hallJob, job] })],
+      ['two jobs for one building', withState({ queue: [job, job] })],
+      ['a job that skips a tier', withState({ queue: [{ ...job, toTier: 3 }] })],
+      ['a first build of a built building', withState({ queue: [{ ...job, toTier: 1 }] })],
+      ['a Hall job past the last tier', withState({ queue: [{ ...hallJob, toTier: 3 }] })],
+      ['a Hall job to tier 0', withState({ queue: [{ ...hallJob, toTier: 0 }] })],
+      ['a building not built and with no job', withCamp({ tier: 0, open: 0 })],
+      ['three traits', withResident({ traits: ['deft', 'woodwise', 'sociable'] })],
+      [
+        'more residents than the Hall holds',
+        withState({
+          residents: Array.from({ length: 26 }, (_, i) => ({ ...state.residents[0], id: 100 + i })),
+          nextId: 200,
+        }),
+      ],
+      ['a job for no building', withState({ queue: [{ ...job, target: 999 }] })],
+      ['a job with a text cost', withState({ queue: [{ ...job, cost: { wood: '40' } }] })],
+      ['101 log lines', withState({ log: Array(101).fill(line) })],
+      ['a log line with no text', withState({ log: [{ tick: 1, type: 'built' }] })],
     ];
     for (const [name, raw] of cases) expect(parse(raw), name).toEqual({ kind: 'damaged', raw });
+    // the same patches, kept inside the limits, are still a good record
+    const fine = withState({ queue: [job, hallJob], log: Array(100).fill(line) });
+    expect(parse(fine).kind).toBe('ok');
+    // a building still waiting to be built, with its job, is a good record too
+    const ordered = apply(state, [{ type: 'build', kind: 'cottage' }], content).state;
+    expect(ordered.buildings.at(-1)?.tier).toBe(0);
+    expect(parse({ ...good, state: ordered }).kind).toBe('ok');
   });
 
   test('an oversized import is refused', async () => {

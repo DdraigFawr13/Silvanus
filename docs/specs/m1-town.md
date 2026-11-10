@@ -442,8 +442,35 @@ Small choices the builder took where the spec was silent, and places the build d
 - **After the fresh review of the diff** (0 high, 2 medium, 5 low). Fixed: a write that has not landed in 10 seconds (`WRITE_TIMEOUT_MS`) is given up as failed, so a database that never answers is counted and shown instead of holding every later save; a failed call closes only its own connection; a negative `anchorMs` is damaged; a failed Reload is caught. Declined: a blocked open that succeeds later (version 1 never upgrades); clearing the stopped notice if the worker answers again (the spec gives no rule, and a town that lost a message should still be exported); a chunk only the worker imports is not counted by the bundle check (none exists).
 - **The worker check by hand.** A throw planted in the worker's command branch gave "The town stopped. Export a save." with a working Export at 412 px; the plant was removed.
 
+### S2 (2026-11-10)
+
+Taken before any code, from the zero-decision check on S2 against what S1 merged (one fresh agent, 130,238 tokens measured). It found no gap that needed Morgan. Its one "needs owner" item is the first line here, taken as a default because it changes no rule the player sees.
+
+- **Why a tap is refused.** The snapshot carries no events, so the page cannot read a `rejected` event. The engine exports the check that `apply` itself runs, `refusal(state, command, content)`, which returns the reason or `null`, and `jobCost(state, command, content)` for a build's or upgrade's cost (empty for a free first camp). The screens call both on the snapshot's state, so no rule is computed twice (GAME-02).
+- **Mock-up.** `mockups/town.html`, published at https://claude.ai/artifact/6k9547asTCDNHmfobt6Hym and approved by Morgan on 2026-11-10; he also confirmed the phone is 412 px wide. Its own choices: no tab bar until S4; the Hall row also shows "Residents 8 / 25"; a job that has not started reads "Waiting, takes 1 game day" and its lot "Waiting in the work queue"; the building sheet names the method in use; an empty queue reads "Nothing is being built."; an empty log reads "Nothing has happened yet."; a Cottage's row shows "Beds 8".
+- **Worker effect** is 100 in S2 and S3 (the S4 slice line), not the skill and morale formula.
+- **A job that reaches the front** gets its first decrement on the next tick: one decrement per tick.
+- **Reject order** for `setOpen`, `pin` and `clear` on a tier 0 building: `notReady` first.
+- **`validateContent`'s "zero or negative"** does not cover slots and beds, which are 0 for some kinds.
+- **Time on screen.** Under 24 game hours reads in hours; a whole number of days reads in days; otherwise "1 game day, 12 game hours".
+- **Weights.** Alegreya Sans has no 600 weight, so the style doc's 600 is written as 700, which is what a browser shows for it.
+- **Tests.** "a damaged schema 1 save stays damaged" is a new test that passes when written; it is shown to fail once under a planted bug. `rng.test.ts` moves to `test:` stream names and `fixtures.ts` goes: engine tests import the real content by relative path. M0's `step.test.ts` cases are ported to the town's commands, none dropped. Browser tests read the live tick from a `data-tick` attribute on the date, which shows no tick to the player.
+- **The first save after an upgrade** from schema 1 passes `keepPrevious`, since `main` still holds the old record.
+- **`shapeOkV1`** keeps M0's limits as its own constants (food cap 200, foragers 3).
+- **The import question** names dates, not ticks: "Replace this town with the one saved at year 1, season 1, day 2, hour 3?".
+- **M0's "Caught up N ticks" line** is dropped; S3's away card replaces it.
+- **Fonts.** The app imports the packages' `latin-400.css`, `latin-500.css`, `latin-700.css` files of the sans face and `latin-700.css` of the small-caps face, not the all-script ones the Web section names: the names and texts are plain Latin, and the offline cache then holds 4 font files instead of every script's.
+- **Colours outside the page.** The manifest's and the page's theme colour move to `--bg` (`#162120`). The icon keeps its M0 ground.
+- **Content fields the spec did not name.** `town`, `cycleTicks`, a kind's `trade`, `skill`, `freeWhenNone` and `storage` (the Storehouse's cap rule as data, GAME-04), a hall tier's `needResidents`. A person's skills and traits are made in full from S2, so saves need no change in S4.
+- **Events** carry a kind id and tier (`built`, `upgraded`, `cleared`), a resource and amount (`made`, `used`, `lost`, `capLost`), or the command and reason (`rejected`). Eating emits `used`.
+- **Engine exports for the screens:** `refusal`, `jobCost`, `shortfall` (what a cost asks beyond the stock, for "Needs 20 wood"), `capsOf`, `hallOf`, `kindOf`, `methodOf`, `slotsOf`, `bedsOf`.
+- **An upgrade under way** shows on its lot as "Upgrading, N game hours left", and a waiting one as "Upgrade waiting". A workplace with open slots and nobody in them shows its workers line in ember.
+- **J9 and the soak's replay** send one tick's commands in one `apply` call. The worker applies each command as it arrives, and each `apply` ends with the jobs pass.
+- **Measured.** First load 86,152 bytes gzipped of 120,000 (S1: 73,927). Soak pass 1: 405 commands, 325 refused, largest save 7,007 bytes, 541,079 ticks per second on the cloud machine (floor 20,000). `npm run check` 5.5 s; browser tests 31 s for 17.
+- **After the fresh review of the diff** (one agent, 155,484 tokens measured; 1 medium-high, 1 low-medium, 4 low; no engine, content or screen defect). Fixed: `shapeOk` now checks each job against its target (one tier up, one job per target, the Hall's next tier only), that a building not yet built has its job, two traits per resident and the Hall's resident limit, because a hand-edited file could otherwise crash the page on every open or strand a lot; a save that should have kept the record it replaces and failed leaves that copy owed to the next save (GAME-05); a job holds its own copy of its cost; the slot stepper's browser taps wait for each answer; log rows keep their keys once the log is full. Declined: a reason line under a stepper cell at its limit (the number beside it shows the limit); cancelling by queue position while a tick finishes the front job (the tap and the tick would have to land within one message).
+- **Seen to fail first.** The 20 engine and content tests were run against S1's engine and all failed. "a damaged schema 1 save stays damaged" passes when written and failed under a planted bug. The four J11 browser tests were not run against S1's page; they read test ids it does not have.
+
 ## Open questions
 
-- The phone's width: the style doc assumes 412 px first and 360 px second. Morgan to confirm or correct.
 - Whether gold pays for building from M3 (D-027, proposed).
-- AGENTS.md's count of browser tests ("8 Playwright tests") is updated by each slice that adds some.
+- AGENTS.md's count of browser tests is updated by each slice that adds some (17 after S2).
