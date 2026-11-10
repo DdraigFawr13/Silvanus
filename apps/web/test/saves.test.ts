@@ -357,6 +357,7 @@ describe('saves', () => {
     const withCamp = (patch: object) =>
       withState({ buildings: state.buildings.map((b) => (b === camp ? { ...b, ...patch } : b)) });
     const job = { target: camp.id, toTier: 2, ticksLeft: 24, cost: { wood: 40 } };
+    const hallJob = { target: 'hall', toTier: 2, ticksLeft: 96, cost: {} };
     const line = { tick: 1, type: 'built', text: 'x' };
     const cases: [string, unknown][] = [
       ['tick past 2^53', withState({ tick: 2 ** 53 })],
@@ -400,17 +401,34 @@ describe('saves', () => {
       ['debt fractional', withCamp({ debt: { wood: 0.5 } })],
       ['short is a number', withCamp({ short: 1 })],
       ['more buildings than lots', withState({ buildings: Array(7).fill(camp) })],
-      ['five jobs', withState({ queue: Array(5).fill(job) })],
+      ['five jobs', withState({ queue: [job, hallJob, job, hallJob, job] })],
+      ['two jobs for one building', withState({ queue: [job, job] })],
+      ['a job that skips a tier', withState({ queue: [{ ...job, toTier: 3 }] })],
+      ['a first build of a built building', withState({ queue: [{ ...job, toTier: 1 }] })],
+      ['a Hall job past the last tier', withState({ queue: [{ ...hallJob, toTier: 3 }] })],
+      ['a Hall job to tier 0', withState({ queue: [{ ...hallJob, toTier: 0 }] })],
+      ['a building not built and with no job', withCamp({ tier: 0, open: 0 })],
+      ['three traits', withResident({ traits: ['deft', 'woodwise', 'sociable'] })],
+      [
+        'more residents than the Hall holds',
+        withState({
+          residents: Array.from({ length: 26 }, (_, i) => ({ ...state.residents[0], id: 100 + i })),
+          nextId: 200,
+        }),
+      ],
       ['a job for no building', withState({ queue: [{ ...job, target: 999 }] })],
-      ['a job to tier 4', withState({ queue: [{ ...job, toTier: 4 }] })],
       ['a job with a text cost', withState({ queue: [{ ...job, cost: { wood: '40' } }] })],
       ['101 log lines', withState({ log: Array(101).fill(line) })],
       ['a log line with no text', withState({ log: [{ tick: 1, type: 'built' }] })],
     ];
     for (const [name, raw] of cases) expect(parse(raw), name).toEqual({ kind: 'damaged', raw });
     // the same patches, kept inside the limits, are still a good record
-    const fine = withState({ queue: Array(4).fill(job), log: Array(100).fill(line) });
+    const fine = withState({ queue: [job, hallJob], log: Array(100).fill(line) });
     expect(parse(fine).kind).toBe('ok');
+    // a building still waiting to be built, with its job, is a good record too
+    const ordered = apply(state, [{ type: 'build', kind: 'cottage' }], content).state;
+    expect(ordered.buildings.at(-1)?.tier).toBe(0);
+    expect(parse({ ...good, state: ordered }).kind).toBe('ok');
   });
 
   test('an oversized import is refused', async () => {

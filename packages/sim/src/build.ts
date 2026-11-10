@@ -127,7 +127,7 @@ export function carryOut(s: State, command: Command, content: Content, events: E
         debt: {},
         short: false,
       });
-      s.queue.push({ target: id, toTier: 1, ticksLeft: kind.tiers[0].ticks, cost });
+      s.queue.push({ target: id, toTier: 1, ticksLeft: kind.tiers[0].ticks, cost: { ...cost } });
       s.jobsDirty = true;
       return;
     }
@@ -136,7 +136,12 @@ export function carryOut(s: State, command: Command, content: Content, events: E
       const cost = jobCost(s, command, content);
       pay(s, cost);
       const ticks = kindOf(content, building.kind)!.tiers[building.tier].ticks;
-      s.queue.push({ target: building.id, toTier: building.tier + 1, ticksLeft: ticks, cost });
+      s.queue.push({
+        target: building.id,
+        toTier: building.tier + 1,
+        ticksLeft: ticks,
+        cost: { ...cost },
+      });
       return;
     }
     case 'cancelJob': {

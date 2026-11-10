@@ -23,7 +23,26 @@ const root = createRoot(document.getElementById('root')!);
 const show = (node: ReactNode) => root.render(<StrictMode>{node}</StrictMode>);
 
 // Every save made by this page is counted, so two failures in a row are shown (audit F2).
-const save = watchSaves(write);
+const counted = watchSaves(write);
+
+// When a save that should have kept the record it replaces fails (an import, or the first save
+// after an upgrade), the record is still under `main`. Later saves go on asking to keep it
+// until one lands, so an autosave never writes over it unkept (GAME-05).
+let keepOwed = false;
+const save: typeof counted = (record, options = {}) => {
+  const keepPrevious = options.keepPrevious === true || keepOwed;
+  return counted(record, { keepPrevious }).then(
+    () => {
+      keepOwed = false;
+    },
+    (error: unknown) => {
+      // only a failure leaves a copy owed: a save that follows a good one must not keep again,
+      // or it would put the new town over the kept record
+      if (keepPrevious) keepOwed = true;
+      throw error;
+    },
+  );
+};
 
 // A new version waits until the player takes it: "Update ready" with a Reload button, on every
 // screen (audit F3). The browser looks for a new version when the app is opened; an installed

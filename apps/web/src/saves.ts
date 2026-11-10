@@ -87,7 +87,7 @@ function residentOk(v: unknown, buildingIds: Set<unknown>): boolean {
   const skills = v.skills;
   if (!isObject(skills) || Object.keys(skills).length !== content.skills.length) return false;
   if (!content.skills.every((skill) => upTo(skills[skill.id], 100))) return false;
-  if (!Array.isArray(v.traits)) return false;
+  if (!Array.isArray(v.traits) || v.traits.length !== 2) return false;
   if (!v.traits.every((id) => content.traits.some((trait) => trait.id === id))) return false;
   if (!upTo(v.morale, 100) || !isWhole(v.workDays) || !isWhole(v.arrivedTick)) return false;
   const reasonOk = (r: unknown) =>
@@ -120,14 +120,25 @@ function shapeOk(v: unknown): v is SaveRecord {
     return false;
   }
 
-  const jobOk = (job: unknown) =>
-    isObject(job) &&
-    (job.target === 'hall' || buildingIds.has(job.target)) &&
-    upTo(job.toTier, 3) &&
-    isWhole(job.ticksLeft) &&
-    amountsOk(job.cost);
+  // A job fits its target: the Hall or a building in the record, one tier up from where it is,
+  // and one job at most for each. A building not yet built must have its job, or its lot could
+  // never be freed.
   if (!Array.isArray(queue) || queue.length > 1 + content.rules.queueMax) return false;
-  if (!queue.every(jobOk)) return false;
+  const targets = new Set<unknown>();
+  for (const job of queue) {
+    if (!isObject(job) || !isWhole(job.ticksLeft) || !amountsOk(job.cost)) return false;
+    if (targets.has(job.target)) return false;
+    targets.add(job.target);
+    if (job.target === 'hall') {
+      if (job.toTier !== state.hallTier + 1 || !content.hall.tiers[state.hallTier]) return false;
+      continue;
+    }
+    const building = buildings.find((b) => b.id === job.target);
+    if (!building || job.toTier !== building.tier + 1) return false;
+    if (building.tier >= kindOf(content, building.kind)!.tiers.length) return false;
+  }
+  if (buildings.some((b) => b.tier === 0 && !targets.has(b.id))) return false;
+  if (residents.length > hall.residents) return false;
 
   const lineOk = (line: unknown) =>
     isObject(line) &&

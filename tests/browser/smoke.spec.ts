@@ -26,10 +26,14 @@ const workerState = (page: Page) =>
     return registration?.active?.state ?? null;
   });
 
-const openSlots = async (page: Page, change: 'Fewer' | 'More', times: number) => {
+// Opens the hut's sheet and taps its stepper until it shows `to`. Each tap sends the count the
+// sheet shows, so the next tap waits for the sheet to show the last one's answer.
+const openSlots = async (page: Page, change: 'Fewer' | 'More', to: number) => {
   await lot(page, "Forager's hut").click();
-  for (let i = 0; i < times; i++) {
+  const shown = page.getByTestId('open-slots');
+  for (let n = Number(await shown.innerText()); n !== to; n += change === 'More' ? 1 : -1) {
     await page.getByRole('button', { name: `${change} open slots` }).click();
+    await expect(shown).toHaveText(String(n + (change === 'More' ? 1 : -1)));
   }
   await page.getByRole('button', { name: 'Close' }).click();
   await expect(page.getByTestId('building-sheet')).toHaveCount(0);
@@ -250,7 +254,7 @@ test('hiding the page saves', async ({ page }) => {
   // A minute per tick: no autosave falls inside this test, so only the hide can store the tap.
   await page.goto('/?tickMs=60000');
   await expect(lot(page, "Forager's hut")).toContainText('Workers 4 / 4');
-  await openSlots(page, 'Fewer', 1);
+  await openSlots(page, 'Fewer', 3);
   await expect(lot(page, "Forager's hut")).toContainText('Workers 3 / 3');
   expect(await readRecord(page)).toBeUndefined();
   await page.evaluate(() => {

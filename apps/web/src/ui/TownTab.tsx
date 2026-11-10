@@ -59,7 +59,18 @@ export function TownTab({
   const hall = hallOf(state, content);
   const emptyLots = Math.max(0, hall.lots - state.buildings.length);
   const shown = open?.type === 'building' ? state.buildings.find((b) => b.id === open.id) : null;
-  const log = state.log.slice(-LOG_SHOWN).reverse();
+  // Each line's key is its own content, with a count for lines that repeat, so a row keeps its
+  // key when older lines fall off the log.
+  const seen = new Map<string, number>();
+  const log = state.log
+    .slice(-LOG_SHOWN)
+    .map((line) => {
+      const base = `${line.tick}:${line.text}`;
+      const n = (seen.get(base) ?? 0) + 1;
+      seen.set(base, n);
+      return { ...line, key: `${base}:${n}` };
+    })
+    .reverse();
 
   return (
     <>
@@ -161,8 +172,8 @@ export function TownTab({
           <div className="line2">Nothing has happened yet.</div>
         ) : (
           <ul className="log">
-            {log.map((line, i) => (
-              <li key={`${line.tick}-${state.log.length - i}`}>
+            {log.map((line) => (
+              <li key={line.key}>
                 <span className="when">{dateText(line.tick)}</span>
                 <span className="what">{line.text}</span>
               </li>
