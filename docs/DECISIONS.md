@@ -208,3 +208,16 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
 - **Status:** Accepted (2026-11-10) with S1's approval. Morgan was offered "keep" (recommended) or "remove" and answered "Approved" without naming one, so the built option stands; he can still say remove.
 - **Decision:** When the page becomes visible, it asks the service worker registration to look for a new version. This is one request for the app's own `sw.js`. D-003's rule against runtime network calls does not cover it.
 - **Why:** An installed app left in the recents list is not opened again, so without this it would not see a deploy (audit F3).
+
+## D-032 Fun round 1: six additions approved
+
+- **Status:** Accepted (2026-11-10); push methods wait on the M1 test
+- **Decision:** Morgan approved round 1 of the fun ideas as recommended (https://claude.ai/artifact/7NFqLKmYoVrgEB4TgHsdop). Each is specified in its milestone's planning, not here.
+  - Quest reports open one stage at a time and say how close each check was and what tipped it; "Show all" skips the reveal (M2).
+  - The stock forecast D-025 plans runs the real engine ahead on a copy, as far as the catch-up cap, and names the first troubles. It reads no random stream (after the M1 test, built with M2).
+  - A big event carries a lead time of the catch-up cap plus one game day and a sign text. At most 2 signs show at once. The raid clock in M2 is the first; the rest arrive with events in M3.
+  - Deeds: a resident or a named item earns a name from its chronicle records, a deed adds renown, and a named item gains one quality step once (M3; heirlooms pass to heirs in M4a).
+  - Named foes: a monster that beats or wounds a party gets a name and a record, grows, and can lead a raid. At most 3 alive, one per site, on their own random stream (M3; the save holds the fields from M2). Thickens D-011's thin guild by this much and no more.
+  - Push methods: a method that pays more and carries a daily risk, kept local to its building, which is shut for 2 game days at most. Built in M2 only if the M1 test finds the town mechanical; it would then amend D-030's "no randomness in production" and add an effect type under its own entry.
+  - Not approved: feasts. Later: apprentices and party bonds (`docs/parking.md`).
+- **Why:** Morgan, in chat: "Ok I like those and we can add them as recommended". The work figures on the page are Claude's estimates: 5 slices for the six.
