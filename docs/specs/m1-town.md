@@ -524,6 +524,18 @@ From the zero-decision check on S5 against what S4 merged (one fresh agent, run 
 - **Checks that pass at the start:** J7 "nobody leaves a town of eight" passes today (no leaving code), so show it failing under a planted bug; J8's cap of 960 is an engine read; nothing checks that the page passes it to `due()`, so add a check or say so here.
 - **Browser seeds:** the "arrived" seed needs a second Cottage (8 beds for 8); the Hall seed needs 20 residents, and `addSettler` is not exported.
 
+Taken in the build (2026-11-10). The zero-decision check above was one fresh agent, 174,649 tokens measured.
+
+- **The scripted bot's rules**, written before its first run. It acts on every tick. Each tick it decides its commands in this order, each on the town as the commands before it left it, and sends a command only when `refusal` passes it, so it sends nothing that is refused:
+  1. The Hall: `upgradeHall` when it can.
+  2. Builds: the next of Woodcutter's camp, Cottage, Mine, Workshop not yet sent, when it can.
+  3. The Mine, once built: its method is Quarry stone while stone is under 190; else Dig ore while ore is under 60 and tools under 45; else Quarry stone. It sends `setMethod` when the method it wants is not the one running.
+  4. The Workshop, once built: buys Forge tools when ore is 10 or more; it never leaves it.
+  5. The Forager's hut: `upgrade` when tools are 5 or more; at tier 2, Snares and baskets.
+  6. Cottages: `upgrade` the lowest-tier Cottage (ties: the first in lot order) when beds equal residents and food is at least 2 a head.
+  7. The Woodcutter's camp: `setOpen` 1 when wood is 195 or more, back to its slots when wood is under 100.
+  Pass 3 sends only its own commands: no bot acts while the town starves or recovers.
+
 ## Open questions
 
 - Whether gold pays for building from M3 (D-027, proposed).
