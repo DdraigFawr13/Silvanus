@@ -38,10 +38,19 @@ export function validateContent(content: Content): string[] {
   for (const method of content.methods) {
     amounts(`method ${method.id}'s output`, method.makes);
     amounts(`method ${method.id}'s input`, method.uses);
+    amounts(`method ${method.id}'s price`, method.cost);
+    for (const [id, amount] of Object.entries(method.cost)) {
+      if (amount > (baseCap.get(id) ?? 0)) {
+        faults.push(`method ${method.id} costs more ${id} than a base store holds`);
+      }
+    }
     if (Object.keys(method.uses).length === 0) continue;
     const fallback = content.methods.find((m) => m.id === method.fallback);
     if (!fallback || fallback.building !== method.building) {
       faults.push(`method ${method.id} has no fallback`);
+    } else if (Object.keys(fallback.cost).length > 0) {
+      // a building must own the method it falls back to (D-034)
+      faults.push(`method ${method.id} falls back to ${fallback.id}, which has a price`);
     }
   }
   return faults;

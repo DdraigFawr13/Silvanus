@@ -1,7 +1,7 @@
 import { assignJobs } from './jobs';
 import { addSettler } from './people';
 import type { Building, Content, State } from './types';
-import { kindOf } from './util';
+import { freeMethods, kindOf } from './util';
 
 // Day 1: the founders, the Hall, a Cottage and a Forager's hut (D-025).
 export function newGame(seed: number, content: Content): State {
@@ -34,6 +34,7 @@ export function newGame(seed: number, content: Content): State {
       carry: {},
       debt: {},
       short: false,
+      owned: freeMethods(content, id),
     };
     s.buildings.push(building);
   }

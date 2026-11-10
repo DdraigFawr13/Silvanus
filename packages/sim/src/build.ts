@@ -1,5 +1,5 @@
 import type { Amounts, Command, Content, Event, Reason, State } from './types';
-import { addLog, capsOf, covers, hallOf, kindOf, slotsOf } from './util';
+import { addLog, capsOf, covers, freeMethods, hallOf, kindOf, methodOf, slotsOf } from './util';
 
 const isWhole = (n: unknown): n is number => typeof n === 'number' && Number.isInteger(n);
 const hasJob = (state: State, target: 'hall' | number) =>
@@ -60,10 +60,14 @@ export function refusal(state: State, command: Command, content: Content): Reaso
       return hasJob(state, building.id) ? 'busy' : null;
     }
     case 'setMethod': {
-      if (!building) return 'unknown';
+      const method = methodOf(content, command.method);
+      if (!building || !method) return 'unknown';
       if (building.tier === 0) return 'notReady';
-      // arrives in S3
-      return building.method === command.method ? 'same' : 'notAllowed';
+      if (building.method === command.method) return 'same';
+      if (method.building !== building.kind || method.tier > building.tier) return 'notAllowed';
+      // a method the building does not own is bought with it (D-034)
+      if (building.owned.includes(method.id)) return null;
+      return covers(state.stock, method.cost) ? null : 'noStock';
     }
     case 'setOpen': {
       if (!building) return 'unknown';
@@ -126,6 +130,7 @@ export function carryOut(s: State, command: Command, content: Content, events: E
         carry: {},
         debt: {},
         short: false,
+        owned: freeMethods(content, kind.id),
       });
       s.queue.push({ target: id, toTier: 1, ticksLeft: kind.tiers[0].ticks, cost: { ...cost } });
       s.jobsDirty = true;
@@ -181,9 +186,23 @@ export function carryOut(s: State, command: Command, content: Content, events: E
       s.jobsDirty = true;
       return;
     }
-    case 'setMethod':
+    case 'setMethod': {
+      const building = s.buildings.find((b) => b.id === command.buildingId)!;
+      const method = methodOf(content, command.method)!;
+      if (building.owned.includes(method.id)) {
+        building.retoolLeft = content.rules.switchTicks;
+      } else {
+        pay(s, method.cost);
+        building.owned = [...building.owned, method.id];
+        building.retoolLeft = content.rules.retoolTicks;
+      }
+      // what was made and what is owed are kept: both are keyed by resource
+      building.method = method.id;
+      building.short = false;
+      return;
+    }
     case 'upgradeHall':
-      // refused in this slice; `refusal` never lets them through
+      // arrives in S5; `refusal` never lets it through
       return;
     default: {
       const never: never = command;

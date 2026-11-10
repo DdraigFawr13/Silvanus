@@ -284,7 +284,7 @@ describe('saves', () => {
     const town = newGame(7, content);
     expect(parsed).toEqual({
       kind: 'ok',
-      record: { schema: 2, anchorMs: 1_800_000_000_000, state: town },
+      record: { schema: SCHEMA, anchorMs: 1_800_000_000_000, state: town },
       upgradedFrom: 1,
     });
     // a schema 2 town at tick 0 with the same seed: 8 residents, the Hall, a Cottage, a hut
@@ -300,6 +300,43 @@ describe('saves', () => {
     expect(await readRaw()).toEqual(old);
     // a town already in schema 2 says nothing about an upgrade
     expect(parse(record())).not.toHaveProperty('upgradedFrom');
+  });
+
+  test('schema 2 upgrades to owned methods', () => {
+    // a schema 2 town as S2 stored it: buildings with no `owned`, a Workshop already on Forge
+    const town = record().state;
+    const shop = {
+      ...town.buildings[1],
+      id: town.nextId,
+      kind: 'workshop',
+      method: 'forge',
+      open: 4,
+    };
+    const strip = ({ owned, ...rest }: (typeof town.buildings)[number]) => {
+      void owned;
+      return rest;
+    };
+    const old = {
+      schema: 2,
+      anchorMs: 1_700_000_000_000,
+      state: { ...town, nextId: town.nextId + 1, buildings: [...town.buildings, shop].map(strip) },
+    };
+    const parsed = parse(old);
+    expect(parsed.kind).toBe('ok');
+    if (parsed.kind !== 'ok') return;
+    expect(parsed.upgradedFrom).toBe(2);
+    expect(parsed.record.schema).toBe(SCHEMA);
+    expect(parsed.record.state.tick).toBe(town.tick);
+    // each building owns its kind's free methods, and the one it runs
+    expect(parsed.record.state.buildings.map((b) => [b.kind, b.owned])).toEqual([
+      ['cottage', []],
+      ['forager', ['gather']],
+      ['woodcutter', ['axes']],
+      ['workshop', ['mend', 'forge']],
+    ]);
+    // a schema 2 record that is damaged stays damaged
+    const broken = { ...old, state: { ...old.state, tick: -1 } };
+    expect(parse(broken)).toEqual({ kind: 'damaged', raw: broken });
   });
 
   test('a damaged schema 1 save stays damaged', () => {
@@ -400,6 +437,10 @@ describe('saves', () => {
       ['carry in an unknown resource', withCamp({ carry: { gold: 1 } })],
       ['debt fractional', withCamp({ debt: { wood: 0.5 } })],
       ['short is a number', withCamp({ short: 1 })],
+      ['no owned list', withCamp({ owned: undefined })],
+      ["owns another building's method", withCamp({ owned: ['axes', 'gather'] })],
+      ['owns a method twice', withCamp({ owned: ['axes', 'axes'] })],
+      ['does not own the method it runs', withCamp({ owned: [] })],
       ['more buildings than lots', withState({ buildings: Array(7).fill(camp) })],
       ['five jobs', withState({ queue: [job, hallJob, job, hallJob, job] })],
       ['two jobs for one building', withState({ queue: [job, job] })],

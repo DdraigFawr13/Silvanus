@@ -494,4 +494,4 @@ Taken before any code, from the zero-decision check on S3 against what S2 merged
 ## Open questions
 
 - Whether gold pays for building from M3 (D-027, proposed).
-- AGENTS.md's count of browser tests is updated by each slice that adds some (17 after S2).
+- AGENTS.md's count of browser tests is updated by each slice that adds some (20 after S3).

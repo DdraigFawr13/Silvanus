@@ -23,7 +23,7 @@ export function dateText(tick: number): string {
 // the same inside a sentence
 export const dateInline = (tick: number) => dateText(tick).replace('Year', 'year');
 
-const resourceName = (id: string) =>
+export const resourceName = (id: string) =>
   (content.resources.find((r) => r.id === id)?.name ?? id).toLowerCase();
 
 // "40 wood, 5 tools", in the content's resource order
@@ -35,6 +35,17 @@ export function amountsText(amounts: Amounts): string {
 }
 
 export const needsText = (missing: Amounts) => `Needs ${amountsText(missing)}`;
+
+// Hundredths of a unit as "1.5 tools, 0.6 wood", one decimal, in the content's resource order.
+export function perDayText(amounts: Amounts): string {
+  return content.resources
+    .filter((r) => amounts[r.id] !== undefined)
+    .map((r) => `${(amounts[r.id] / 100).toFixed(1)} ${resourceName(r.id)}`)
+    .join(', ');
+}
+
+// Production cycles as game time: "4 game days, 4 game hours".
+export const cyclesText = (cycles: number) => duration(cycles * content.cycleTicks);
 
 // Only these reasons can be reached from the screens.
 const REASONS: Partial<Record<Reason, string>> = {

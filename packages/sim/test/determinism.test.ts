@@ -4,17 +4,21 @@ import type { Command, State } from '../src/index';
 import { content } from './town';
 
 // Seed 1's ids: residents 1 to 8, the Cottage 9, the Forager's hut 10, then buildings as built.
-// Later slices append to this script.
+// Later slices add to this script, in tick order: `chunked` finds the next tick by array order.
 const SCRIPT: { tick: number; command: Command }[] = [
   { tick: 0, command: { type: 'build', kind: 'woodcutter' } }, // 11, free
   { tick: 0, command: { type: 'build', kind: 'mine' } }, // 12
   { tick: 5, command: { type: 'build', kind: 'tavern' } }, // refused: no stone
   { tick: 40, command: { type: 'setOpen', buildingId: 10, count: 2 } },
   { tick: 60, command: { type: 'pin', residentId: 1, buildingId: 12 } },
+  { tick: 100, command: { type: 'setMethod', buildingId: 12, method: 'stone' } },
+  { tick: 101, command: { type: 'setMethod', buildingId: 12, method: 'shafts' } }, // refused: tier 2
+  { tick: 102, command: { type: 'setMethod', buildingId: 12, method: 'stone' } }, // refused: same
   { tick: 150, command: { type: 'build', kind: 'cottage' } }, // 13
   { tick: 151, command: { type: 'build', kind: 'storehouse' } }, // refused: no stone
   { tick: 152, command: { type: 'cancelJob', index: 1 } }, // refused: nothing is waiting
   { tick: 300, command: { type: 'upgrade', buildingId: 10 } }, // refused: no tools
+  { tick: 400, command: { type: 'setMethod', buildingId: 12, method: 'ore' } },
   { tick: 500, command: { type: 'pin', residentId: 1, buildingId: null } },
   { tick: 600, command: { type: 'setOpen', buildingId: 11, count: 1 } },
   { tick: 700, command: { type: 'clear', buildingId: 12 } },

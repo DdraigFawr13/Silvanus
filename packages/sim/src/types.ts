@@ -34,6 +34,7 @@ export type Building = {
   carry: Amounts; // ten-thousandths of a unit made and not yet whole
   debt: Amounts; // hundredths of a unit of input owed
   short: boolean; // ran by its fallback in the last cycle
+  owned: string[]; // methods this building owns: its free ones and what it bought (D-034)
 };
 
 export type Job = { target: 'hall' | number; toTier: number; ticksLeft: number; cost: Amounts };
@@ -77,12 +78,16 @@ export type Reason =
   | 'same'
   | 'range';
 
-// What a tick did. `built`, `upgraded`, `cleared` and `capLost` also write a log line.
+// What a tick did. `built`, `upgraded`, `cleared`, `capLost` and `short` also write a log line.
 export type Event =
   | { type: 'rejected'; command: Command; reason: Reason }
   | { type: 'made' | 'used' | 'lost'; resource: string; amount: number }
   | { type: 'built' | 'upgraded' | 'cleared'; kind: string; tier: number }
-  | { type: 'capLost'; resource: string; amount: number };
+  | { type: 'capLost'; resource: string; amount: number }
+  // a building's `short` turned true; writes a log line
+  | { type: 'short'; buildingId: number; resource: string }
+  // a production cycle run by a building's fallback
+  | { type: 'fellBack'; buildingId: number };
 
 export type Summary = {
   ticks: number;
@@ -113,6 +118,7 @@ export type Method = {
   makes: Amounts; // hundredths of a unit per worker per production cycle
   uses: Amounts;
   fallback: string | null; // the basic method a method with inputs drops to
+  cost: Amounts; // paid once by a building to own it; {} for a method every building owns (D-034)
 };
 
 export type Content = {
@@ -140,7 +146,8 @@ export type Content = {
     eatPerDay: number;
     arrivalFoodPerHead: number;
     skillDays: number;
-    retoolTicks: number;
+    retoolTicks: number; // to set up a method the building has just bought
+    switchTicks: number; // to switch to a method the building owns
     queueMax: number;
     leaveBelow: number;
     leaveFloor: number;

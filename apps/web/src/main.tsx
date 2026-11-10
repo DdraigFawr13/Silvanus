@@ -121,8 +121,9 @@ async function start() {
     return;
   }
   if (loaded.kind === 'ok' && loaded.upgradedFrom !== undefined) {
-    // An older save became a new town (schema 1 held a counter, not a town). The old record is
-    // still under `main`: this first save moves it to `previous` and stores the new town.
+    // An older save was upgraded: schema 1 held a counter and became a new town; schema 2 gained
+    // owned methods. The old record is still under `main`: this first save moves it to `previous`
+    // and stores the upgraded town.
     const record = loaded.record;
     void save(record, { keepPrevious: true }).then(
       () => run(record, true),

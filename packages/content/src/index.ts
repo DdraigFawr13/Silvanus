@@ -29,7 +29,8 @@ const method = (
   makes: Amounts,
   uses: Amounts = {},
   fallback: string | null = null,
-): Method => ({ id, building, name, tier, makes, uses, fallback });
+  cost: Amounts = {},
+): Method => ({ id, building, name, tier, makes, uses, fallback, cost });
 
 export const content: Content = {
   version: 2,
@@ -122,20 +123,50 @@ export const content: Content = {
   ],
   methods: [
     method('forager', 'gather', 'Gather', 1, { food: 50 }),
-    method('forager', 'snares', 'Snares and baskets', 2, { food: 80 }, { tools: 2 }, 'gather'),
-    method('forager', 'smoke', 'Smokehouse', 3, { food: 110 }, { tools: 2, wood: 10 }, 'gather'),
+    method('forager', 'snares', 'Snares and baskets', 2, { food: 80 }, { tools: 2 }, 'gather', {
+      wood: 20,
+      tools: 5,
+    }),
+    method('forager', 'smoke', 'Smokehouse', 3, { food: 110 }, { tools: 2, wood: 10 }, 'gather', {
+      wood: 50,
+      stone: 20,
+      tools: 10,
+    }),
     method('farm', 'plots', 'Hand plots', 1, { food: 70 }),
-    method('farm', 'ploughs', 'Iron ploughs', 2, { food: 120 }, { tools: 4 }, 'plots'),
-    method('farm', 'rotation', 'Crop rotation', 3, { food: 160 }, { tools: 6 }, 'plots'),
+    method('farm', 'ploughs', 'Iron ploughs', 2, { food: 120 }, { tools: 4 }, 'plots', {
+      wood: 30,
+      tools: 10,
+    }),
+    method('farm', 'rotation', 'Crop rotation', 3, { food: 160 }, { tools: 6 }, 'plots', {
+      wood: 60,
+      stone: 30,
+      tools: 15,
+    }),
     method('woodcutter', 'axes', 'Hand axes', 1, { wood: 40 }),
-    method('woodcutter', 'sawpit', 'Saw pit', 2, { wood: 70 }, { tools: 3 }, 'axes'),
-    method('woodcutter', 'coppice', 'Managed coppice', 3, { wood: 100 }, { tools: 4 }, 'axes'),
+    method('woodcutter', 'sawpit', 'Saw pit', 2, { wood: 70 }, { tools: 3 }, 'axes', {
+      wood: 30,
+      tools: 5,
+    }),
+    method('woodcutter', 'coppice', 'Managed coppice', 3, { wood: 100 }, { tools: 4 }, 'axes', {
+      wood: 60,
+      stone: 20,
+      tools: 15,
+    }),
     method('mine', 'ore', 'Dig ore', 1, { ore: 30 }),
     method('mine', 'stone', 'Quarry stone', 1, { stone: 40 }),
-    method('mine', 'shafts', 'Timbered shafts', 2, { ore: 55 }, { wood: 10 }, 'ore'),
-    method('mine', 'cutstone', 'Cut-stone quarry', 2, { stone: 70 }, { tools: 3 }, 'stone'),
+    method('mine', 'shafts', 'Timbered shafts', 2, { ore: 55 }, { wood: 10 }, 'ore', {
+      wood: 40,
+      tools: 5,
+    }),
+    method('mine', 'cutstone', 'Cut-stone quarry', 2, { stone: 70 }, { tools: 3 }, 'stone', {
+      wood: 30,
+      tools: 10,
+    }),
     method('workshop', 'mend', 'Mend and make do', 1, { tools: 5 }),
-    method('workshop', 'forge', 'Forge tools', 1, { tools: 25 }, { ore: 25, wood: 10 }, 'mend'),
+    method('workshop', 'forge', 'Forge tools', 1, { tools: 25 }, { ore: 25, wood: 10 }, 'mend', {
+      wood: 20,
+      stone: 10,
+    }),
     method(
       'workshop',
       'hammer',
@@ -144,6 +175,7 @@ export const content: Content = {
       { tools: 45 },
       { ore: 40, wood: 15 },
       'mend',
+      { wood: 40, stone: 30, tools: 10 },
     ),
   ],
   skills: [
@@ -174,6 +206,7 @@ export const content: Content = {
     arrivalFoodPerHead: 2,
     skillDays: 3,
     retoolTicks: 24,
+    switchTicks: 4,
     queueMax: 3,
     leaveBelow: 15,
     leaveFloor: 8,

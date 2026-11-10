@@ -54,6 +54,20 @@ const planted: [fault: string, message: RegExp, make: (c: Content) => void][] = 
       c.hall.tiers[1].cost = { ...c.hall.tiers[1].cost, tools: 51 };
     },
   ],
+  [
+    'a method price above a base cap',
+    /^method hammer costs more tools than a base store holds$/,
+    (c) => {
+      c.methods.find((m) => m.id === 'hammer')!.cost = { tools: 51 };
+    },
+  ],
+  [
+    'a fallback with a price',
+    /^method cutstone falls back to stone, which has a price$/,
+    (c) => {
+      c.methods.find((m) => m.id === 'stone')!.cost = { wood: 5 };
+    },
+  ],
 ];
 
 describe('content', () => {
