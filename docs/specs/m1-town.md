@@ -447,7 +447,7 @@ Small choices the builder took where the spec was silent, and places the build d
 Taken before any code, from the zero-decision check on S2 against what S1 merged (one fresh agent, 130,238 tokens measured). It found no gap that needed Morgan. Its one "needs owner" item is the first line here, taken as a default because it changes no rule the player sees.
 
 - **Why a tap is refused.** The snapshot carries no events, so the page cannot read a `rejected` event. The engine exports the check that `apply` itself runs, `refusal(state, command, content)`, which returns the reason or `null`, and `jobCost(state, command, content)` for a build's or upgrade's cost (empty for a free first camp). The screens call both on the snapshot's state, so no rule is computed twice (GAME-02).
-- **Mock-up.** `mockups/town.html`, published at https://claude.ai/artifact/6k9547asTCDNHmfobt6Hym. Its own choices: no tab bar until S4; the Hall row also shows "Residents 8 / 25"; a job that has not started reads "Waiting, takes 1 game day" and its lot "Waiting in the work queue"; the building sheet names the method in use; an empty queue reads "Nothing is being built."; an empty log reads "Nothing has happened yet."; a Cottage's row shows "Beds 8".
+- **Mock-up.** `mockups/town.html`, published at https://claude.ai/artifact/6k9547asTCDNHmfobt6Hym and approved by Morgan on 2026-11-10; he also confirmed the phone is 412 px wide. Its own choices: no tab bar until S4; the Hall row also shows "Residents 8 / 25"; a job that has not started reads "Waiting, takes 1 game day" and its lot "Waiting in the work queue"; the building sheet names the method in use; an empty queue reads "Nothing is being built."; an empty log reads "Nothing has happened yet."; a Cottage's row shows "Beds 8".
 - **Worker effect** is 100 in S2 and S3 (the S4 slice line), not the skill and morale formula.
 - **A job that reaches the front** gets its first decrement on the next tick: one decrement per tick.
 - **Reject order** for `setOpen`, `pin` and `clear` on a tier 0 building: `notReady` first.
@@ -462,6 +462,5 @@ Taken before any code, from the zero-decision check on S2 against what S1 merged
 
 ## Open questions
 
-- The phone's width: the style doc assumes 412 px first and 360 px second. Morgan to confirm or correct.
 - Whether gold pays for building from M3 (D-027, proposed).
 - AGENTS.md's count of browser tests ("8 Playwright tests") is updated by each slice that adds some.

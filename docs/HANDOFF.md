@@ -4,14 +4,14 @@ Updated: 2026-11-10. A fresh session must be able to continue from this file alo
 
 ## Phase
 
-M1 Town is being built from `docs/specs/m1-town.md` (approved, D-030), five slices. S1 "Safe saves and updates" is merged (PR #5; Morgan: "Approved open s2 in a new session"). S2 is under way on branch `m1-s2-town`: its mock-up `mockups/town.html` is checked and published (https://claude.ai/artifact/6k9547asTCDNHmfobt6Hym) and waits for Morgan's approval and his phone's width; no S2 code exists. Draft PR #6. M0 is done and passed on Morgan's phone.
+M1 Town is being built from `docs/specs/m1-town.md` (approved, D-030), five slices. S1 "Safe saves and updates" is merged (PR #5; Morgan: "Approved open s2 in a new session"). S2 is under way on branch `m1-s2-town`: its mock-up `mockups/town.html` is checked and published (https://claude.ai/artifact/6k9547asTCDNHmfobt6Hym) and approved by Morgan on 2026-11-10 ("Approve"); he confirmed the phone is 412 px wide. S2's code is being built. Draft PR #6. M0 is done and passed on Morgan's phone.
 
 ## Plan map
 
 - ✔ Planning and M0 Skeleton (D-001 to D-024); M0 audit merged (PR #3), all 19 findings accepted.
 - ✔ M1 planning: round 1, review, taste board, style doc, spec (D-025 to D-030).
 - ✔ M1 S1 Safe saves and updates (PR #5).
-- ▶ M1 S2 Stock, lots and the Town tab (draft PR #6): mock-up published, waits for Morgan; no code.
+- ▶ M1 S2 Stock, lots and the Town tab (draft PR #6): mock-up approved; code under way.
 - ○ S3 Production methods and the away card · ○ S4 People · ○ S5 Growth and the Village (then the M1 test, J14).
 - ○ M2 Guild, with the first raid (D-029) · ○ M3 Trade outlet, events, chronicle (v0.1)
 - ○ M4a Families · ○ M4b Paths · ○ M5 Trade and Crown · ○ M6 Depth (v1.0)
@@ -29,14 +29,14 @@ M1 Town is being built from `docs/specs/m1-town.md` (approved, D-030), five slic
 
 ## Next
 
-1. S2: get Morgan's answer on the mock-up (approve, change or rethink) and the phone width. Then run S2's checks to see them fail, and build on `m1-s2-town` from the spec and its S2 build notes. S1's phone test is still open: Morgan opens the installed app after the S1 deploy, then again after S2's deploy; "Update ready" appears and Reload works.
+1. S2: write S2's checks, see them fail, and build on `m1-s2-town` from the spec and its S2 build notes. S1's phone test is still open: Morgan opens the installed app after the S1 deploy, then again after S2's deploy; "Update ready" appears and Reload works.
 2. After each slice merges, check the Version line at https://silvanus-xi.vercel.app equals the merge commit (CI-05), and give Morgan the slice's "Morgan tries" line.
 3. No S2 code before the mock-up is approved. The repo has auto-merge off: merge by hand once the ready CI run is green, and do not push and mark ready within the same few seconds.
 4. S1 to S5 run in one build session while its context allows; after S5 comes Morgan's M1 test (J14), then offer an audit (VER-09).
 
 ## Open questions
 
-- The phone's width (above). Whether gold pays for building from M3 (D-027, proposed).
+- Whether gold pays for building from M3 (D-027, proposed).
 - How Android Chrome answers the persistent-storage request for an installed PWA: Morgan did not look at the Storage line.
 - The other two peoples for v1.0. Whether ranks get bigger jumps (D-021, after the first playtest).
 

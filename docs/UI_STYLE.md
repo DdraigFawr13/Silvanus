@@ -7,7 +7,7 @@
 
 One device: Morgan's Android phone, in Chrome and as the installed PWA (D-001). Portrait only.
 
-- First width: 412 px. Second width: 360 px, where nothing may break or scroll sideways. Both widths are an assumption: no project doc names the phone's width. Morgan is asked on the M1 approval page.
+- First width: 412 px. Second width: 360 px, where nothing may break or scroll sideways. Morgan confirmed 412 px on 2026-11-10, when he approved `mockups/town.html`.
 - Minimum text: 12 px (the smallest text in the accepted sample, its stock labels).
 - Minimum tap: 44 px (`docs/specs/m0-skeleton.md`, "each at least 44 px"; the accepted sample's controls).
 
