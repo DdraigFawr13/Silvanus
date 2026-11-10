@@ -1,4 +1,5 @@
 export const TICK_MS = 60_000;
+// a Hamlet's; the page reads the town's own from its Hall's tier
 export const CATCH_UP_CAP = 480;
 
 const MIN_TICK_MS = 50;

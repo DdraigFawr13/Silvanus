@@ -31,6 +31,20 @@ export function AwayCard({
         <dd data-testid="away-made">
           {Object.keys(made).length > 0 ? amountsText(made) : 'Nothing'}
         </dd>
+        {summary.arrived.length > 0 && (
+          <>
+            <dt>Arrived</dt>
+            <dd data-testid="away-arrived">{summary.arrived.join(', ')}</dd>
+          </>
+        )}
+        {summary.left.length > 0 && (
+          <>
+            <dt>Left</dt>
+            <dd className="w" data-testid="away-left">
+              {summary.left.join(', ')}
+            </dd>
+          </>
+        )}
         {summary.finished.length > 0 && (
           <>
             <dt>Finished</dt>

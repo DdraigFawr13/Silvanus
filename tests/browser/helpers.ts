@@ -27,6 +27,24 @@ export function townRecord(
   };
 }
 
+// The town with copies of its residents added until it holds `total`, each with its own id and
+// name: a seed of 20 without waiting for settlers.
+export function crowd(state: State, total: number): Partial<State> {
+  const residents = state.residents.slice();
+  let nextId = state.nextId;
+  for (let i = 0; residents.length < total; i++) {
+    const model = state.residents[i % state.residents.length];
+    residents.push({
+      ...model,
+      id: nextId++,
+      name: `${model.name} ${i + 2}`,
+      jobId: null,
+      pinnedTo: null,
+    });
+  }
+  return { residents, nextId, jobsDirty: true };
+}
+
 // Seed 1's Forager's hut.
 export const HUT = newGame(1, content).buildings.find((b) => b.kind === 'forager')!.id;
 

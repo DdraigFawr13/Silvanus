@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
-import { apply, capsOf, newGame } from '../src/index';
+import { apply, capsOf, hallOf, jobCost, newGame, refusal } from '../src/index';
 import type { Command, State } from '../src/index';
-import { byKind, content, finished, rich, run, workers } from './town';
+import { byKind, content, crowd, finished, rich, run, workers } from './town';
 
 const send = (state: State, ...commands: Command[]) => apply(state, commands, content);
 
@@ -107,5 +107,51 @@ describe('build', () => {
     expect(cleared.state.stock.wood).toBe(200);
     expect(cleared.events).toContainEqual({ type: 'capLost', resource: 'wood', amount: 112 });
     expect(cleared.state.log.at(-1)?.text).toBe('112 wood was lost when storage shrank.');
+  });
+
+  test('the Hall upgrade makes a Village', () => {
+    const cost = { wood: 180, stone: 180, tools: 45 };
+    const start = crowd(newGame(1, content), 20);
+    const town: State = { ...start, stock: { ...start.stock, ...cost } };
+    const command: Command = { type: 'upgradeHall' };
+    expect(jobCost(town, command, content)).toEqual(cost);
+    const ordered = send(town, command);
+    expect(ordered.events).toEqual([]);
+    expect(ordered.state.stock).toMatchObject({ wood: 0, stone: 0, tools: 0 });
+    expect(ordered.state.queue).toEqual([{ target: 'hall', toTier: 2, ticksLeft: 96, cost }]);
+    // the Hall has its job; a second order is refused before any other check
+    expect(refusal(ordered.state, command, content)).toBe('busy');
+    expect(run(ordered.state, 95).hallTier).toBe(1);
+    const done = run(ordered.state, 96);
+    expect(done.hallTier).toBe(2);
+    expect(done.queue).toEqual([]);
+    expect(hallOf(done, content).lots).toBe(10);
+    expect(hallOf(done, content).catchUpCap).toBe(960);
+    // written in the step from tick 95, as a build's line is
+    expect(done.log.filter((line) => line.type === 'village')).toEqual([
+      { tick: 95, type: 'village', text: 'Ashwick is now a Village.' },
+    ]);
+    // a Village cannot be ordered again
+    expect(refusal({ ...done, stock: town.stock }, command, content)).toBe('notAllowed');
+    // the job carries on if residents fall below 20 while it runs
+    const fewer = { ...ordered.state, residents: ordered.state.residents.slice(0, 12) };
+    expect(run(fewer, 96).hallTier).toBe(2);
+  });
+
+  test('the Hall upgrade asks for residents, then stock', () => {
+    const cost = { wood: 180, stone: 180, tools: 45 };
+    const start = newGame(1, content);
+    const why = (state: State) => refusal(state, { type: 'upgradeHall' }, content);
+    // 19 residents with the stock: too few; 8 with no stock: still too few, checked first
+    expect(why({ ...crowd(start, 19), stock: { ...start.stock, ...cost } })).toBe('tooFew');
+    expect(why(start)).toBe('tooFew');
+    // 20 residents, 1 tool short
+    expect(why({ ...crowd(start, 20), stock: { ...start.stock, ...cost, tools: 44 } })).toBe(
+      'noStock',
+    );
+    // a full queue comes before both
+    const kinds = ['cottage', 'farm', 'mine', 'workshop'];
+    const filled = send(rich(), ...kinds.map((kind): Command => ({ type: 'build', kind })));
+    expect(why(filled.state)).toBe('queueFull');
   });
 });

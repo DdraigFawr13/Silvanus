@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
-import { newGame } from '@silvanus/sim';
+import { advance, newGame } from '@silvanus/sim';
 import type { Building, State } from '@silvanus/sim';
-import { content, lot, readRecord, seedRecord, townRecord } from './helpers';
+import { content, crowd, lot, readRecord, seedRecord, townRecord } from './helpers';
 
 // The Town tab (J11), at the first target width. A minute per tick, so no tick falls inside a
 // test and the texts it reads hold still.
@@ -268,4 +268,78 @@ test('buying a method pays once and is kept', async ({ page }) => {
   await expect(sheet.getByTestId('method-mend')).toContainText('In use, retooling');
   await expect(forge).toContainText('Owned');
   await expect(page.getByTestId('stock-wood')).toHaveText('Wood26 / 200');
+});
+
+const VILLAGE_COST = { wood: 180, stone: 180, tools: 45 };
+
+test('the Hall row offers the Village when it can be paid for', async ({ page }) => {
+  // a new Hamlet: 8 residents and 60 wood, so both are missing
+  await page.goto('/?tickMs=60000');
+  const hall = page.getByTestId('hall');
+  await expect(hall.getByTestId('village')).toBeDisabled();
+  await expect(hall.getByTestId('village-why')).toHaveText([
+    'Needs 20 residents',
+    'Needs 120 wood, 180 stone, 45 tools',
+  ]);
+
+  // 20 residents and the stock: it can be upgraded, after asking
+  const start = newGame(1, content);
+  const state = { ...crowd(start, 20), stock: { ...start.stock, ...VILLAGE_COST } };
+  await seedRecord(page, townRecord({ state }));
+  await page.goto('/?tickMs=60000');
+  await expect(hall).toContainText('Residents 20 / 25');
+  await expect(hall.getByTestId('village-why')).toHaveCount(0);
+  await hall.getByTestId('village').click();
+  await expect(hall.getByTestId('village-confirm')).toContainText('180 wood, 180 stone, 45 tools');
+  await hall.getByRole('button', { name: 'Not yet' }).click();
+  await expect(hall.getByTestId('village-confirm')).toHaveCount(0);
+  await expect(page.getByTestId('stock-wood')).toHaveText('Wood180 / 200');
+  await hall.getByTestId('village').click();
+  await hall.getByRole('button', { name: 'Upgrade', exact: true }).click();
+  await expect(hall).toContainText('Becoming a Village, 4 game days left');
+  await expect(hall.getByTestId('village')).toHaveCount(0);
+  await expect(page.getByTestId('queue')).toContainText('The Hall to Village');
+  await expect(page.getByTestId('stock-wood')).toHaveText('Wood0 / 200');
+  await expect(page.getByTestId('stock-tools')).toHaveText('Tools0 / 50');
+  expect(await sidewaysScroll(page)).toBe(0);
+});
+
+test('a Village catches up two nights', async ({ page }) => {
+  // closed 700 game hours: a Hamlet would catch up 480 of them, a Village 960
+  const start = newGame(1, content);
+  const state = { ...crowd(start, 20), hallTier: 2 };
+  await seedRecord(page, townRecord({ state, anchorMs: Date.now() - 700 * 60_000 }));
+  await page.goto('/?tickMs=60000');
+  await expect(page.getByText('Village', { exact: true })).toBeVisible();
+  await expect(page.getByTestId('away')).toContainText('29 game days, 4 game hours passed.');
+});
+
+test('the away card names who arrived', async ({ page }) => {
+  // 9 residents, one of them miserable, a second Cottage, food, and the Hall 5 game hours from
+  // the Village; closed 30 game hours, so one game day begins
+  const start = newGame(1, content);
+  const crowded = crowd(start, 9);
+  const second = withBuilt('cottage', null, 0);
+  const state: State = {
+    ...start,
+    ...crowded,
+    buildings: second.buildings!,
+    nextId: crowded.nextId! + 1,
+    residents: crowded.residents!.map((r) => (r.id === 1 ? { ...r, morale: 0 } : r)),
+    queue: [{ target: 'hall', toTier: 2, ticksLeft: 5, cost: {} }],
+    stock: { ...start.stock, food: 100 },
+  };
+  state.buildings[2] = { ...state.buildings[2], id: crowded.nextId! };
+  // what the engine makes of it, read here rather than guessed
+  const away = advance(state, 30, content).summary;
+  expect(away.left).toEqual(['Dai']);
+  expect(away.arrived).toHaveLength(1);
+  await seedRecord(page, townRecord({ state, anchorMs: Date.now() - 30 * 60_000 }));
+  await page.goto('/?tickMs=60000');
+  const card = page.getByTestId('away');
+  await expect(card.getByTestId('away-arrived')).toHaveText(away.arrived[0]);
+  await expect(card.getByTestId('away-left')).toHaveText('Dai');
+  await expect(card.getByTestId('away-finished')).toHaveText('The Hall: now a Village');
+  await expect(page.getByTestId('log')).toContainText(`${away.arrived[0]}, a `);
+  expect(await sidewaysScroll(page)).toBe(0);
 });

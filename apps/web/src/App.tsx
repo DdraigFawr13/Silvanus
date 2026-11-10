@@ -188,6 +188,10 @@ export function App({ worker, first, loadedTick, tickMs, save }: Props) {
   // The anchor of the last snapshot received, and whether an advance is waiting for its snapshot.
   const anchorRef = useRef<number | null>(null);
   const waitingRef = useRef(false);
+  // The longest catch-up, from the Hall's tier in the latest snapshot: a Village's is longer.
+  const capRef = useRef(
+    first.type === 'load' ? hallOf(first.state, content).catchUpCap : CATCH_UP_CAP,
+  );
   // The standby copy: the state and anchor of the latest snapshot.
   const standbyRef = useRef<SaveRecord | null>(null);
   const [savedTick, setSavedTick] = useState<number | null>(loadedTick);
@@ -231,6 +235,7 @@ export function App({ worker, first, loadedTick, tickMs, save }: Props) {
     const onMessage = (event: MessageEvent<Snapshot>) => {
       const next = event.data;
       standbyRef.current = { schema: SCHEMA, anchorMs: next.anchorMs, state: next.state };
+      capRef.current = hallOf(next.state, content).catchUpCap;
       // while an import waits, snapshots of the replaced town set no away card
       publish(next, importingRef.current === null);
       if (importingRef.current !== null) {
@@ -250,7 +255,7 @@ export function App({ worker, first, loadedTick, tickMs, save }: Props) {
     };
     const check = () => {
       if (waitingRef.current || anchorRef.current === null) return;
-      const result = due(Date.now(), anchorRef.current, tickMs, CATCH_UP_CAP);
+      const result = due(Date.now(), anchorRef.current, tickMs, capRef.current);
       if (result.ticks === 0) {
         anchorRef.current = result.anchorMs;
         return;

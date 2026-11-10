@@ -1,6 +1,6 @@
 # M1 Town
 
-- **Status:** Approved 2026-11-10
+- **Status:** Shipped 2026-11-10 (all five slices merged; J14, the M1 test on the phone, is still to come)
 - **Planned in:** round 1 (https://claude.ai/artifact/4Lu6ZT9ZDmtqhLgLaWbymR), review (https://claude.ai/artifact/5NTJDE3CuGvSkuDjkBL1W1), taste board (https://claude.ai/artifact/JrzLhbWsWXpwvPsVgqUZGf), M0 audit (`docs/audit/2026-11-10-repo.md`), chat 2026-11-10. **Decisions:** D-025, D-026, D-027, D-028, D-029; S3 adds D-034.
 
 The build starts from the commit that merges this spec. "M0" below means the code at that commit.
@@ -513,7 +513,41 @@ Taken before any code, from the zero-decision check on S4 against what S3 merged
 - **After the fresh review of the diff** (one agent, 55,317 tokens measured; 0 high, 0 medium, 5 low). Fixed 4: a test that a game day leaves its input untouched (a frozen state); `pinPreview` gives `[]` for a building at tier 0; the age reads the engine's exported `YEAR_TICKS`; "A human" is written from content's people name. Each new test was seen to fail under a planted bug. Declined 1: the confirm's "From this work" total is a display sum of the reasons `pinPreview` returns, the "morale cost" J12 asks the sheet to show; the engine decides nothing by it.
 - **Seen to fail first.** The 5 new engine tests ran against S3's engine and failed, and the 2 J12 browser tests against S3's page. The 8 older tests that pinned seed 1 at an effect of 100 failed on the new engine and were moved as above.
 
+### S5 (2026-11-10)
+
+From the zero-decision check on S5 against what S4 merged (one fresh agent, run before any code; its probes were scratch copies, not repo code). Nothing is built yet. For the S5 builder:
+
+- **J9 must be rewritten, not appended to.** A settler arrives at the tick 168 day once arrivals exist, and settlers take ids from `nextId`, so the Workshop is no longer id 14 and the commands at 340 and 560 name a resident. Rewrite the script's ids from a probe and keep every assertion exact (VER-01); record the old and new ids here.
+- **The scripted bot's band.** The check's emulation of S5's rules and its reading of the bot reached the Village at tick 1,216 (an estimate: 20th resident at tick 600, 0 left, lowest morale 40, Hall ordered about tick 1,120). That is just over the 1,200 floor. Write the bot's rules down here before running it; if the engine's first run is outside 1,200 to 2,200, stop and report the tick to Morgan (spec "Soak").
+- **Owner items for the mock-up** (`mockups/town.html`, Hall row and away card): what the Hall row shows while the Hall job runs; with both residents and stock missing, whether it shows both (refusal order gives `tooFew` before `noStock`) and as "Needs 20 residents" or "12 more"; whether "Upgrade to Village" asks first; the away card's Arrived and Left rows and whether the Village shows under Finished.
+- **Small defaults the check named:** `upgradeHall` during its own job gives `busy`; the job carries on if residents fall below 20; `jobCost` must return the Hall tier's cost for `upgradeHall` (it returns `{}` now, `build.ts`); the events `arrived`, `left` and `village` join `Event` and `fold` fills `summary.arrived` and `left`; the tavern term counts residents whose `jobId` is a tavern before the jobs pass, summed and capped at `tavernMax`, last in `reasons`; the clock change is in `App.tsx` (`due()` already takes the cap; read it from the latest snapshot's Hall tier); `step.test.ts`'s `upgradeHall` refusal moves from `notAllowed` to `tooFew` with the rule; soak `TYPES` gains `upgradeHall`, which changes pass 1's printed numbers.
+- **Checks that pass at the start:** J7 "nobody leaves a town of eight" passes today (no leaving code), so show it failing under a planted bug; J8's cap of 960 is an engine read; nothing checks that the page passes it to `due()`, so add a check or say so here.
+- **Browser seeds:** the "arrived" seed needs a second Cottage (8 beds for 8); the Hall seed needs 20 residents, and `addSettler` is not exported.
+
+Taken in the build (2026-11-10). The zero-decision check above was one fresh agent, 174,649 tokens measured.
+
+- **The scripted bot's rules**, written before its first run. It acts on every tick. Each tick it decides its commands in this order, each on the town as the commands before it left it, and sends a command only when `refusal` passes it, so it sends nothing that is refused:
+  1. The Hall: `upgradeHall` when it can.
+  2. Builds: the next of Woodcutter's camp, Cottage, Mine, Workshop not yet sent, when it can.
+  3. The Mine, once built: its method is Quarry stone while stone is under 190; else Dig ore while ore is under 60 and tools under 45; else Quarry stone. It sends `setMethod` when the method it wants is not the one running.
+  4. The Workshop, once built: buys Forge tools when ore is 10 or more; it never leaves it.
+  5. The Forager's hut: `upgrade` when tools are 5 or more; at tier 2, Snares and baskets.
+  6. Cottages: `upgrade` the lowest-tier Cottage (ties: the first in lot order) when beds equal residents and food is at least 2 a head.
+  7. The Woodcutter's camp: `setOpen` 1 when wood is 195 or more, back to its slots when wood is under 100.
+  Pass 3 sends only its own commands: no bot acts while the town starves or recovers.
+- **First run of pass 2:** the Village at tick 1,216, inside 1,200 to 2,200 (16 ticks above the floor, as the check estimated); 20th resident at tick 601, 16 commands, nobody left. Pass 3 from tick 601: 2 left in the hungry night, back to 20 after 168 ticks.
+- **J9's ids** (old → new): the Workshop 14 → 17, because settlers 14, 15 and 16 arrive at ticks 168, 192 and 216 before it is built; the Mine stays 12, the second Cottage 13. The script gains a refused `upgradeHall` at tick 200 (`tooFew`). Its exact reads changed with the rules and were read from a probe: the Workshop's short lines at 419, 491, 499, 507, 523, 539 and 555 (was 419 and 491), arrivals at 168, 192 and 216, departures at 672 and 840.
+- **The tavern in data.** The Tavern's kind carries `cheers: true`, as the Storehouse carries `storage` (GAME-04), so the engine looks for the flag, not the id. It is the D-030 rule (4 a worker, up to 12) put in data, not a new effect type.
+- **Leaving and arrival.** Leaving comes first, so a town that loses one may gain one the same day. Both set `jobsDirty`; their events are `left` and `arrived` with the resident's id and name, and `fold` fills the summary's lists. A Hall reaching its tier emits `village` with the tier and writes "Ashwick is now a Village." from content's town and tier names; `fold` adds "The Hall: now a Village" to Finished.
+- **`upgradeHall`.** Refusal order: `busy` (the Hall has a job), `notAllowed` (no next tier), `queueFull`, `tooFew`, `noStock`. `jobCost` returns the next tier's cost. A job under way carries on if residents fall below 20.
+- **The clock.** `App.tsx` keeps the cap in a ref from the loaded record's Hall and updates it from each snapshot; the browser test "a Village catches up two nights" checks it (700 game hours away gives 29 game days, 4 game hours; a Hamlet gives 20 game days).
+- **Screens.** As drawn on `mockups/town.html` (https://claude.ai/artifact/6k9547asTCDNHmfobt6Hym), whose pictures are screenshots of the built screens. Morgan approved it on 2026-11-10 ("Approved. Merge when ready") after one change round: "order the village" was weird wording for an upgrade, so the question says "Upgrade to Village? It costs … now and takes 4 game days" with an "Upgrade" button. The mock-up's fresh check (one agent, 57,514 tokens) found 1 major and about 12 minor points: 6 fixed, 1 contested, 5 declined, with reasons on the page. The Hall row's first line adds the tier name and lots; the next tier's room, cost and time follow; every missing thing is listed in ember, residents first; the queue names the job "The Hall to Village".
+- **Test seeds.** `crowd(state, total)` in `test/town.ts` and `tests/browser/helpers.ts` copies residents with new ids and no job, for towns of 9, 20 and 25 without waiting for settlers.
+- **Seen to fail first.** The 9 new and changed engine tests failed on S4's engine; the 3 new browser tests failed on S4's page (the catch-up one with "20 game days passed", the Hamlet cap). "nobody leaves a town of eight" passed at once; with the `leaveFloor` check planted out of `day.ts` (copied first) it failed, and passed again after the copy was restored.
+- **After the fresh review of the diff** (one agent, 96,977 tokens measured; 0 high, 1 medium, 7 low). Fixed 4: the Hall-limit arrival case had too few beds, so beds blocked it and the limit went untested (now 32 beds for 25); a "one a day" check on tick 25 proved nothing and is gone; the leaving tie (lowest id) is now asserted; soak pass 3 also fails if nobody leaves, so recovery is always exercised. The first and third were seen to fail under planted bugs (the Hall limit removed; ties by the highest id). Also fixed: the Village question closes if it can no longer be answered. Declined 2: an accepted Hall upgrade in J9 (seed 1 cannot reach 20 residents and the stock in 1,000 ticks, and GAME-06 keeps one determinism test; `step` runs the Hall branch like any job); the question's "Once the work starts it cannot be stopped" for a waiting job (it has not started). Noted 1: pass 2's 16 ticks above the floor.
+- **Measured.** First load 93,622 bytes gzipped of 120,000 (S4: 91,688). Soak pass 1: 402 commands, 355 refused, largest save 5,855 bytes, about 500,000 ticks per second. 67 unit tests; 25 browser tests in 36.0 s; `npm run check` 5.6 s.
+
 ## Open questions
 
 - Whether gold pays for building from M3 (D-027, proposed).
-- AGENTS.md's count of browser tests is updated by each slice that adds some (22 after S4).
+- AGENTS.md's count of browser tests is updated by each slice that adds some (25 after S5).
