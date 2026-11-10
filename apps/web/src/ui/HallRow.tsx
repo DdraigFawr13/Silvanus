@@ -7,7 +7,7 @@ import { amountsText, duration, needsText, reasonText } from './format';
 const UPGRADE: Command = { type: 'upgradeHall' };
 
 // The Hall: its tier and residents, and the way to the next tier: what it gives and costs, the
-// button, what is still missing, or the job once it is ordered (S5).
+// button, what is still missing, or the job once it is under way (S5).
 export function HallRow({ state, send }: { state: State; send: (command: Command) => void }) {
   const [confirming, setConfirming] = useState(false);
   const hall = hallOf(state, content);
@@ -55,8 +55,8 @@ export function HallRow({ state, send }: { state: State; send: (command: Command
           {confirming && why === null ? (
             <div className="confirm" data-testid="village-confirm">
               <p>
-                Order the {next.name}? It takes {amountsText(cost)} now and {duration(next.ticks)}{' '}
-                of work. Once the work starts it cannot be stopped.
+                Upgrade to {next.name}? It costs {amountsText(cost)} now and takes{' '}
+                {duration(next.ticks)}. Once the work starts it cannot be stopped.
               </p>
               <div className="btns">
                 <button
@@ -67,7 +67,7 @@ export function HallRow({ state, send }: { state: State; send: (command: Command
                     setConfirming(false);
                   }}
                 >
-                  Order it
+                  Upgrade
                 </button>
                 <button type="button" className="btn second" onClick={() => setConfirming(false)}>
                   Not yet

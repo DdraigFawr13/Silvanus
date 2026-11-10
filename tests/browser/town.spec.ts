@@ -282,7 +282,7 @@ test('the Hall row offers the Village when it can be paid for', async ({ page })
     'Needs 120 wood, 180 stone, 45 tools',
   ]);
 
-  // 20 residents and the stock: it can be ordered, after asking
+  // 20 residents and the stock: it can be upgraded, after asking
   const start = newGame(1, content);
   const state = { ...crowd(start, 20), stock: { ...start.stock, ...VILLAGE_COST } };
   await seedRecord(page, townRecord({ state }));
@@ -295,7 +295,7 @@ test('the Hall row offers the Village when it can be paid for', async ({ page })
   await expect(hall.getByTestId('village-confirm')).toHaveCount(0);
   await expect(page.getByTestId('stock-wood')).toHaveText('Wood180 / 200');
   await hall.getByTestId('village').click();
-  await hall.getByRole('button', { name: 'Order it' }).click();
+  await hall.getByRole('button', { name: 'Upgrade', exact: true }).click();
   await expect(hall).toContainText('Becoming a Village, 4 game days left');
   await expect(hall.getByTestId('village')).toHaveCount(0);
   await expect(page.getByTestId('queue')).toContainText('The Hall to Village');
