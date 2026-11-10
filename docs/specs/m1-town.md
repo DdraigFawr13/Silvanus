@@ -508,9 +508,11 @@ Taken before any code, from the zero-decision check on S4 against what S3 merged
 - **The effect** is exported as `effectOf(skill, morale)`; a building's output is `rate × the sum of its workers' effects`. A building kind without a skill would count skill 50; none has methods in M1.
 - **`pinPreview`** lives in `day.ts` and shares its terms with the day's morale, so the preview is what the day counts. It gives no `fit` for a building with no skill (the Tavern), none for a skill from 30 to 59, and `[]` for a building with no worker slots.
 - **Before the first game day** a resident has no reasons; the sheet says "Morale is weighed at the start of each game day."
-- **Screens.** Choices drawn on `mockups/people.html` (https://claude.ai/artifact/R2jofFnKAX6bWhpqKngZcP), listed on that page under "Choices drawn here".
+- **Screens.** Choices drawn on `mockups/people.html` (https://claude.ai/artifact/R2jofFnKAX6bWhpqKngZcP), listed on that page under "Choices drawn here". Morgan approved it on 2026-11-10 ("Approved, build it"), with no change round. Its fresh check (one agent, 75,038 tokens) found 1 major (a hand-set starting state not said on the page), 2 unverified and 5 minor: 3 fixed, 2 confirmed, 2 declined, with reasons on the page. The page's pictures are screenshots of the built screens after the last fix, so the built screens match it.
+- **Measured.** First load 91,664 bytes gzipped of 120,000 (S3: 88,646). Soak pass 1: 408 commands, 327 refused, largest save 7,600 bytes, 489,927 ticks per second. 60 unit tests; 22 browser tests in 33.5 s.
+- **Seen to fail first.** The 5 new engine tests ran against S3's engine and failed, and the 2 J12 browser tests against S3's page. The 8 older tests that pinned seed 1 at an effect of 100 failed on the new engine and were moved as above.
 
 ## Open questions
 
 - Whether gold pays for building from M3 (D-027, proposed).
-- AGENTS.md's count of browser tests is updated by each slice that adds some (20 after S3).
+- AGENTS.md's count of browser tests is updated by each slice that adds some (22 after S4).
