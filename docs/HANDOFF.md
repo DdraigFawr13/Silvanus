@@ -19,6 +19,7 @@ M0 Skeleton is done: built, merged, deployed, and its exit test passed on Morgan
 
 ## Just done
 
+- 2026-11-10 Morgan: "Go with recommended for audit as well" and "Merge the audit". PR #3 merged to `main` as 644ed4f and merged into this branch. Taste board answered: Lantern at the forest edge Keep, Map table Keep, Woodcut print After, Steward's ledger Cut; density "Middle: stock always visible, buildings scroll"; "One theme only, whichever look I kept". Two Keeps, so he was asked which leads.
 - 2026-11-10 Morgan in chat: "Go with your recommendations", and restated the whole loop as the goal (quoted in D-027). Recorded D-025 (M1's rules), D-026 (9 resources, 13 buildings, 9 in M1, the M1 test) and D-027; charter's M1 and M2 lines and content targets amended. Audit Outcome filled on `audit-m0` (all 19 accepted on the same instruction); draft PR #3 is not merged, he has not asked for that. Taste board published: four looks (Steward's ledger, Lantern at the forest edge, Woodcut print, Map table), collection `taste`.
 - 2026-11-10 Review page published (12 findings, a 9-row scope list, 5 questions, a draft slice order). My main proposals: production methods as the one system replacing tier recipes, upkeep and recipe choice; a short input drops a workplace to its basic method; leaving slowed to one per season with a floor of 8; Herb garden, Smithy, Apothecary and Guild hall move to M2; the building cap rises to 13; the Mine makes stone by method; the Hall takes no lot; seasons after the first playtest. All are proposals until he replies.
 - 2026-11-10 M0 audit done (kind repo, 3 areas, measured $1.39 for the readers): 19 findings, 3 high (saves can land out of order; a failed save is invisible; an installed app cannot take an update). Report on branch `audit-m0`, draft PR open, Outcome pending.
@@ -28,10 +29,10 @@ M0 Skeleton is done: built, merged, deployed, and its exit test passed on Morgan
 
 ## Next
 
-1. On "taste done": read collection `taste` on the taste board (`look_a` to `look_d`, `t_density`, `t_theme`, notes). Several Keeps: ask which leads. Then write `docs/UI_STYLE.md` (`ui-style`, "Write the style"), record the look in DECISIONS, and make mock-ups (`ui-mockups`) of the Town tab, People tab, a building's page and a resident's sheet.
+1. When Morgan says which look leads (Lantern or Map table): write `docs/UI_STYLE.md` (`ui-style`, "Write the style") from that sample's values in the taste board's source, one theme, middle density; record the look in DECISIONS; then mock-ups (`ui-mockups`) of the Town tab, People tab, a building's page and a resident's sheet.
 2. Ask Morgan (asked in chat 2026-11-10, unanswered): which milestone holds raids and the town's defence (D-027 open point). My recommendation: the threat clock and a first raid in M2 with the guild.
 3. Then the final approval page and `write-spec` from its step 3 for M1. The spec's first slice carries audit F3 (app update prompt) and F13 (state shape, command switch, stream naming, content validation, schema 2 upgrade); F1, F2, F4 to F12 and F14 to F18 are accepted fixes to schedule in the spec or a small fix PR, each code fix with a test that failed first. No build slice before Morgan approves the spec.
-4. PR #3 (audit report) stays a draft until Morgan asks for it to be merged.
+4. Check the production deployment after the audit merge shows 644ed4f on the Version line (CI-05).
 5. Not checked: how Android Chrome answers the persistent-storage request for an installed PWA (Morgan did not look at the Storage line).
 
 ## Open questions
