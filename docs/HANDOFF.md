@@ -4,15 +4,16 @@ Updated: 2026-11-10. A fresh session must be able to continue from this file alo
 
 ## Phase
 
-M1 Town is being built from `docs/specs/m1-town.md` (approved, D-030), five slices. S1 "Safe saves and updates" is merged (PR #5; Morgan: "Approved open s2 in a new session"). S2 is under way on branch `m1-s2-town`: its mock-up `mockups/town.html` is checked and published (https://claude.ai/artifact/6k9547asTCDNHmfobt6Hym) and approved by Morgan on 2026-11-10 ("Approve"); he confirmed the phone is 412 px wide. S2 is built and passes its checks locally; a fresh review of the diff found 6 points (4 fixed, 2 declined). It waits for Morgan's approval to merge. Draft PR #6. M0 is done and passed on Morgan's phone.
+M1 Town is being built from `docs/specs/m1-town.md` (approved, D-030), five slices. S1 "Safe saves and updates" is merged (PR #5; Morgan: "Approved open s2 in a new session"). S2 "Stock, lots and the Town tab" is merged (PR #6; Morgan: "you have approval to merge and create the next slice"). Its mock-up is `mockups/town.html` (https://claude.ai/artifact/6k9547asTCDNHmfobt6Hym); the phone is 412 px wide (Morgan). Next is S3, in a new session. M0 is done and passed on Morgan's phone.
 
 ## Plan map
 
 - ✔ Planning and M0 Skeleton (D-001 to D-024); M0 audit merged (PR #3), all 19 findings accepted.
 - ✔ M1 planning: round 1, review, taste board, style doc, spec (D-025 to D-030).
 - ✔ M1 S1 Safe saves and updates (PR #5).
-- ▶ M1 S2 Stock, lots and the Town tab (draft PR #6): built, reviewed, checks green; waits for Morgan's approval.
-- ○ S3 Production methods and the away card · ○ S4 People · ○ S5 Growth and the Village (then the M1 test, J14).
+- ✔ M1 S2 Stock, lots and the Town tab (PR #6).
+- ▶ M1 S3 Production methods and the away card: not started; starts with `mockups/town.html` updated for the methods list and the card.
+- ○ S4 People · ○ S5 Growth and the Village (then the M1 test, J14).
 - ○ M2 in two sessions (D-033). Town half first: lots with a character, standing orders, forecast and ledger, a practised crew, push methods if the M1 test asks. Then the guild half: the guild, staged reports, the first raid (D-029) with its clock as a sign, the Palisade.
 - ○ M3 Trade outlet, events, chronicle (v0.1), plus signs, deeds, named foes, gold hiring a second crew, three more town works (D-032, D-033).
 - ○ M4a Families, plus foremen and apprentices and heirlooms · ○ M4b Paths · ○ M5 Trade and Crown · ○ M6 Depth (v1.0)
@@ -29,8 +30,8 @@ M1 Town is being built from `docs/specs/m1-town.md` (approved, D-030), five slic
 
 ## Next
 
-1. S2: Morgan was asked to approve PR #6. After approval: HANDOFF's merged state on the branch, mark ready, wait for the ready CI run, merge by hand. S1's phone test is still open: Morgan opens the installed app after the S1 deploy, then again after S2's deploy; "Update ready" appears and Reload works.
-2. After each slice merges, check the Version line at https://silvanus-xi.vercel.app equals the merge commit (CI-05), and give Morgan the slice's "Morgan tries" line.
+1. S3 "Production methods and the away card" from the spec, on a new branch from the latest `main`, in a new session. First the zero-decision check on S3 against what S2 merged (the spec's "Build notes", S2), then the mock-up update, approved by Morgan before code. Write the slice's tests before its code (LESSONS, "spec" S2 measure).
+2. After each slice merges, check the Version line at https://silvanus-xi.vercel.app equals the merge commit (CI-05), and give Morgan the slice's "Morgan tries" line. Still open from S1 and S2: Morgan's phone tests ("Update ready" and Reload after the S2 deploy; build a Woodcutter's camp, close the app, come back). Record his answers here.
 3. The repo has auto-merge off: merge by hand once the ready CI run is green, and do not push and mark ready within the same few seconds.
 4. M2's planning starts from D-032 and D-033 and the two pages under "Planning pages". The M1 test (J14) also answers three things for it: does the town feel mechanical (push methods), do shortages annoy (parked reserves), do 6 lots feel right.
 5. S1 to S5 run in one build session while its context allows; after S5 comes Morgan's M1 test (J14), then offer an audit (VER-09).
