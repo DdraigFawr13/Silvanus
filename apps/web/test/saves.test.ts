@@ -3,7 +3,18 @@ import { IDBFactory } from 'fake-indexeddb';
 import { content } from '@silvanus/content';
 import { advance, newGame } from '@silvanus/sim';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { KEY, SCHEMA, STORE, databaseName, exportText, load, parse, save } from '../src/saves';
+import {
+  KEY,
+  SCHEMA,
+  STORE,
+  databaseName,
+  exportText,
+  importText,
+  load,
+  parse,
+  save,
+  storageAnswer,
+} from '../src/saves';
 import type { SaveRecord } from '../src/saves';
 
 // A played state, so the rng and stock fields hold real values.
@@ -67,6 +78,7 @@ describe('saves', () => {
   });
   afterEach(() => {
     vi.unstubAllGlobals();
+    vi.useRealTimers();
   });
 
   test('save then load', async () => {
@@ -134,5 +146,56 @@ describe('saves', () => {
     const text = exportText(raw);
     expect(JSON.parse(text)).toEqual(raw);
     expect(text.split('\n')[1]).toBe(`  "schema": ${SCHEMA + 1},`);
+  });
+
+  test('export then import', () => {
+    const saved = record();
+    vi.useFakeTimers();
+    vi.setSystemTime(1_800_000_000_000);
+    const imported = importText(exportText(saved));
+    expect(imported.state).toEqual(saved.state);
+    expect(imported.schema).toBe(SCHEMA);
+    // the anchor is the time of import, so a file never causes a catch-up
+    expect(imported.anchorMs).toBe(1_800_000_000_000);
+    expect(saved.anchorMs).not.toBe(1_800_000_000_000);
+  });
+
+  test('import rejects bad files', async () => {
+    const kept = record();
+    await save(kept);
+    const notASave = 'This file is not a Silvanus save.';
+    expect(() => importText('')).toThrow(notASave);
+    expect(() => importText('{ "schema": 1, ')).toThrow(notASave);
+    expect(() => importText('"a town"')).toThrow(notASave);
+    for (const [name, raw] of damagedRecords()) {
+      // undefined fields vanish in JSON, which leaves them missing: still damaged
+      expect(() => importText(JSON.stringify(raw)), name).toThrow(notASave);
+    }
+    const newer = exportText({ ...record(), schema: SCHEMA + 1 });
+    expect(() => importText(newer)).toThrow('This save is from a newer version of the game.');
+    // a rejected file changes nothing
+    expect(await load()).toEqual({ kind: 'ok', record: kept });
+  });
+
+  test('storage answer', async () => {
+    const manager = (granted: boolean) => {
+      const calls: string[] = [];
+      const storage = {
+        persist: async () => (calls.push('persist'), granted),
+        persisted: async () => (calls.push('persisted'), granted),
+      };
+      return { calls, storage };
+    };
+    const yes = manager(true);
+    expect(await storageAnswer(yes.storage)).toBe('kept');
+    // asks once, then reads the answer
+    expect(yes.calls).toEqual(['persist', 'persisted']);
+    expect(await storageAnswer(manager(false).storage)).toBe('mayClear');
+    expect(await storageAnswer(undefined)).toBe('unknown');
+    const broken = {
+      persist: () => Promise.reject(new Error('no')),
+      persisted: () => Promise.reject(new Error('no')),
+    };
+    expect(await storageAnswer(broken)).toBe('unknown');
   });
 });

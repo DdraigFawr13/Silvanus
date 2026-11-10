@@ -42,7 +42,7 @@ function shapeOk(v: unknown): v is SaveRecord {
   return Array.isArray(state.residents);
 }
 
-// Shared by load and (from S3) importText.
+// Shared by load and importText.
 export function parse(raw: unknown): Loaded {
   if (!isObject(raw) || typeof raw.schema !== 'number' || !Number.isInteger(raw.schema)) {
     return { kind: 'damaged', raw };
@@ -117,4 +117,34 @@ export async function save(record: SaveRecord): Promise<void> {
 // JSON with a 2-space indent; also used for a record the app refused.
 export function exportText(raw: unknown): string {
   return JSON.stringify(raw, null, 2);
+}
+
+// Reads a save file's text. The anchor becomes the time of import, so a file never causes a
+// catch-up.
+export function importText(text: string): SaveRecord {
+  let raw: unknown;
+  try {
+    raw = JSON.parse(text);
+  } catch {
+    throw new Error('This file is not a Silvanus save.');
+  }
+  const parsed = parse(raw);
+  if (parsed.kind === 'tooNew') throw new Error('This save is from a newer version of the game.');
+  if (parsed.kind !== 'ok') throw new Error('This file is not a Silvanus save.');
+  return { ...parsed.record, anchorMs: Date.now() };
+}
+
+export type StorageAnswer = 'kept' | 'mayClear' | 'unknown';
+
+// Asks the browser once to keep the save, then reads its answer.
+export async function storageAnswer(
+  storage: Pick<StorageManager, 'persist' | 'persisted'> | undefined,
+): Promise<StorageAnswer> {
+  if (!storage || !storage.persist || !storage.persisted) return 'unknown';
+  try {
+    await storage.persist();
+    return (await storage.persisted()) ? 'kept' : 'mayClear';
+  } catch {
+    return 'unknown';
+  }
 }

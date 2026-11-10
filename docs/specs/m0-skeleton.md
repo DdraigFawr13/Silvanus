@@ -393,6 +393,21 @@ Only `main` deploys (CI-05), so the link shows a slice after its PR merges. Morg
 - **Files:** `apps/web/vite.config.ts`: the PWA plugin. `public/icon-192.png`, `icon-512.png`, `scripts/make-icons.mjs`: the icon. `saves.ts`: `importText`. `App.tsx`: Export, Import with its in-page confirm, the storage line. `test/saves.test.ts`: J7. `AGENTS.md`: the check time, measured again.
 - **Waits on:** S2.
 
+#### S3 build notes
+
+- `vite-plugin-pwa` 2.0.0 is the one new development dependency. It injects `registerSW.js` and the manifest link into the built page; the app imports nothing from it. `npm audit` lists 6 advisories (2 low, 4 moderate) in its build-time tree (`deepmerge`, `glob`, `minimatch`); none ships in the page.
+- `index.html` names `/icon-192.png` as the page icon. S2's one 404 does not show any more: a phone-width run of the built page logged no failed request.
+- `saves.ts` adds `storageAnswer(storage)`, which calls `persist()` once, then `persisted()`, and gives `'kept'`, `'mayClear'` or `'unknown'` (also when either call fails). The page shows no Storage line until the answer is in.
+- The Import button opens a hidden file input, `data-testid` `import-file`. The confirm sits under the Export and Import row.
+- An imported record's anchor is set by `importText` and again at the Replace tap, so time spent on the confirm is not caught up either.
+- On the running page, Replace sends the record to the worker and saves it when its snapshot comes back, so the save and the standby copy are one path. "Saved at tick" is then set to the imported tick even when it is lower, and the "Caught up" line is cleared. Snapshots of the replaced town that are still on their way are shown but not autosaved.
+- On a refused-save screen, Replace saves the record and starts the game from it in the same page, with no reload. If that write fails the imported town still starts and its autosave tries again.
+- One `notice` element per screen: an import error is shown in place of the screen's own message until the next file is chosen.
+- `playwright.config.ts` blocks service workers by default, because an active one answers `/seed.html` itself. One test group allows them.
+- Four browser checks more than planned: "export and import carry the town", "an import replaces an unreadable save", "the storage line shows an answer", and "installed: starts with no network", which reads the manifest and its two icons, waits for the service worker, goes offline and opens the page again. It is the agent's part of J9; the phone is still Morgan's.
+- `saves.test.ts` adds "storage answer" beside the two J7 tests.
+- The icons were drawn in this container, which has no Georgia: the "S" is in the fallback serif (the container lists DejaVu Serif, FreeSerif and Liberation Serif).
+
 ## Verification
 
 - Every push: `npm run check`.

@@ -13,8 +13,8 @@ Shared rules come from AI-Master-Instructions and load through CLAUDE.md (`.clau
 
 ## Local checks (run before pushing)
 
-- `npm run check` (about 3 s measured on 2026-11-09, target under 60 s). In order: master sync drift check, test-traps, Prettier check, types (`tsc` on sim, content, web, root), engine purity, Vitest, soak, build, bundle size (gzipped entry at most 80,000 bytes). No lint (see the M0 spec).
-- `npm run test:browser` before a PR is marked ready (about 12 s, 4 Playwright tests; not in CI). In cloud sessions set `PLAYWRIGHT_CHROMIUM_PATH=/opt/pw-browsers/chromium` if the session hook left it unset.
+- `npm run check` (about 5 s measured on 2026-11-10, target under 60 s). In order: master sync drift check, test-traps, Prettier check, types (`tsc` on sim, content, web, root), engine purity, Vitest, soak, build, bundle size (gzipped entry at most 80,000 bytes). No lint (see the M0 spec).
+- `npm run test:browser` before a PR is marked ready (about 15 s, 8 Playwright tests; not in CI). In cloud sessions set `PLAYWRIGHT_CHROMIUM_PATH=/opt/pw-browsers/chromium` if the session hook left it unset.
 - Under a different default Node, prefix with `npm exec --yes --package=node@24.19.0 --package=npm@11.9.0 --`.
 
 ## What CI runs
