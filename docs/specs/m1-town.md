@@ -17,7 +17,7 @@ M0 is a counter: one number, one stepper, no people and nothing to decide. M1 ma
 - Each check-in offers a choice with a cost: which building takes a lot, which production method runs, who works where.
 - The Hamlet becomes a Village by the player's own act. A scripted player in the soak reaches it in 1,200 to 2,200 ticks; Morgan's playtest target is 2 to 3 real days of normal check-ins (D-026).
 - A night away (480 ticks) cannot empty the town or stall it (D-025).
-- The three audit findings marked "fix strongly recommended" are fixed before any M1 feature ships.
+- Audit findings F1, F2 and F3 are fixed before any M1 feature ships.
 
 ## Non-goals
 
@@ -29,17 +29,17 @@ M0 is a counter: one number, one stepper, no people and nothing to decide. M1 ma
 
 ## Journeys and checks
 
-Unit checks are Vitest tests; `seed 1` means `newGame(1, content)` with the real content. Browser checks are Playwright tests in `tests/browser/`, run at `?tickMs=50`.
+Unit checks are Vitest tests: engine tests in `packages/sim/test/`, save tests in `apps/web/test/saves.test.ts`, content tests in `packages/content/test/`. `seed 1` means `newGame(1, content)` with the real content. A test that needs a worker at a known strength builds its own residents with skill 50 and morale 50, which is an effect of 100 in every slice. Browser checks are Playwright tests run at `?tickMs=50`: S1's go in `tests/browser/smoke.spec.ts`, the town's in `tests/browser/town.spec.ts`, the people's in `tests/browser/people.spec.ts`. They seed a stored town with `seedRecord`, moved from `smoke.spec.ts` to `tests/browser/helpers.ts`.
 
 ### J1 A save cannot go backwards or fail silently (audit F1, F2, F4)
 
-- **Given** a running town. **When** two saves are issued in one task, older state second-issued first. **Then** the stored record is the later-issued one. **Check:** `saves.test.ts` "writes land in call order".
-- **When** two saves in a row are rejected. **Then** the page shows "Saving failed. Export a save." and clears it on the next good save. **Check:** browser test "a failed save is shown".
+- **Given** a running town. **When** `save(a)` then `save(b)` are called in one task without awaiting. **Then** the stored record is `b`, in 20 runs of 20. **Check:** `saves.test.ts` "writes land in call order".
+- **When** two saves in a row reject (the test replaces `indexedDB.open` in the page with one that fails). **Then** the page shows "Saving failed. Export a save." and clears it on the next good save. The count is kept in the page and starts at 0 on load. **Check:** browser test "a failed save is shown".
 - **When** an import replaces a town. **Then** the old record is under key `previous`. **Check:** `saves.test.ts` "replace keeps the previous record".
 
 ### J2 An installed app can take an update (audit F3)
 
-- **Given** a page controlled by an older service worker. **When** a new one is waiting. **Then** the page shows "Update ready" with a "Reload" button, and Reload activates it. **Check:** browser test "update prompt appears", which builds twice with different `VITE_VERSION` values.
+- **Given** a page controlled by an older service worker. **When** a new one is waiting. **Then** the page shows "Update ready" with a "Reload" button; after Reload the Version line shows the new build. **Check:** browser test "update prompt appears" in the `installed` describe (service workers allowed). `vite.config.ts` reads the commit for the Version line from `process.env.SILVANUS_VERSION` when it is set. The test runs `vite build --outDir dist-a` and `--outDir dist-b` in `apps/web` with two values, serves a temp folder on port 4174 with a small Node static server in `tests/browser/helpers.ts` (headers `Cache-Control: no-store`), loads the page from the first build's files, swaps the folder's files for the second build's, calls `registration.update()` in the page and waits for the notice.
 
 ### J3 An M0 save becomes a new town
 
@@ -47,13 +47,13 @@ Unit checks are Vitest tests; `seed 1` means `newGame(1, content)` with the real
 
 ### J4 Building takes stock and time
 
-- **Given** seed 1. **When** `build woodcutter` is sent. **Then** wood falls from 60 to 35 at once and the building works after 8 ticks. **Check:** `build.test.ts` "a build pays at once and finishes on time".
+- **Given** seed 1. **When** `build woodcutter` is sent. **Then** wood is 35 after `apply`, and after 8 calls of `step` the building is at tier 1 with workers. **Check:** `build.test.ts` "a build pays at once and finishes on time".
 - **When** a fifth job is queued. **Then** it is rejected and nothing is paid. **Check:** `build.test.ts` "the queue holds one job under way and three waiting".
-- **When** a seventh building is asked for in a Hamlet. **Then** it is rejected. **Check:** `build.test.ts` "no lot, no build".
+- **Given** a Hamlet state built by the test with 6 finished buildings, an empty queue and full stock. **When** `build` is sent. **Then** it is rejected with reason `noLot`. **Check:** `build.test.ts` "no lot, no build".
 
 ### J5 A method short of an input falls back and recovers
 
-- **Given** a Workshop on "Forge tools" with ore 0. **When** a production cycle runs. **Then** it produces by "Mend and make do", its `short` flag is true and one log line says so. **When** ore arrives. **Then** the next cycle forges and the flag clears. **Check:** `methods.test.ts` "a short input drops to the basic method and comes back".
+- **Given** a Workshop on "Forge tools" with 1 worker and ore 0. **When** a production cycle runs. **Then** it produces by "Mend and make do", its `short` flag is true and one log line says so. **When** ore arrives. **Then** the next cycle forges and the flag clears. **Check:** `methods.test.ts` "a short input drops to the basic method and comes back".
 - **When** the method is changed. **Then** the building produces nothing for 24 ticks. **Check:** `methods.test.ts` "retooling costs a game day".
 
 ### J6 People fill jobs the same way every time
@@ -63,8 +63,8 @@ Unit checks are Vitest tests; `seed 1` means `newGame(1, content)` with the real
 
 ### J7 The town grows and cannot collapse overnight
 
-- **Given** a free bed and food of at least 2 per resident at the start of a game day. **Then** one settler arrives and a log line names them. **Check:** `growth.test.ts` "a settler arrives".
-- **Given** a town of 20 with food 0 and no food buildings. **When** 480 ticks run. **Then** at most 3 residents have left and the town still has more than 8. **Check:** `growth.test.ts` "a hungry night costs at most three".
+- **Given** a free bed and, after the day's eating, food of at least 2 per resident. **Then** one settler arrives and a log line names them. **Check:** `growth.test.ts` "a settler arrives".
+- **Given** a town of 20, all at morale 0, with food 0 and no food buildings, starting at tick 100 and again at tick 0. **When** 480 ticks run. **Then** in both runs at least 1 and at most 3 residents have left. **Check:** `growth.test.ts` "a hungry night costs at most three".
 - **Given** a town of 8 at morale 0. **When** 480 ticks run. **Then** nobody leaves. **Check:** `growth.test.ts` "nobody leaves a town of eight".
 
 ### J8 The Hall makes the Village
@@ -73,7 +73,7 @@ Unit checks are Vitest tests; `seed 1` means `newGame(1, content)` with the real
 
 ### J9 Live play equals catch-up, with commands between
 
-- **Given** seed 1 and a fixed list of commands at fixed ticks. **Then** stepping tick by tick and advancing in chunks of 7, 480 and 1 give equal states. **Check:** `determinism.test.ts` "chunks and steps agree with commands between" (audit F9).
+- **Given** seed 1 and a fixed script of 12 commands, each with the tick it is sent at, over 1,000 ticks. **Then** four runs give equal states: `step` tick by tick with each command passed to its tick's `step`; and `apply` at each command's tick with `advance` between, no single `advance` longer than 7, then 480, then 1 tick. **Check:** `determinism.test.ts` "chunks and steps agree with commands between" (audit F9).
 
 ### J10 The soak proves reach and recovery (audit F11)
 
@@ -81,8 +81,8 @@ Unit checks are Vitest tests; `seed 1` means `newGame(1, content)` with the real
 
 ### J11 The Town tab (browser)
 
-- **Given** a new town at 412 px. **Then** the stock bar shows Food, Wood, Stone, Ore and Tools; the lots list shows the Cottage, the Forager's hut and 4 open lots; nothing scrolls sideways. **Check:** browser test "the town tab shows stock and lots".
-- **When** an open lot is tapped and "Woodcutter's camp" is chosen. **Then** the lot shows "Building, 8 game hours left" and Wood shows 35. **Check:** browser test "building from an open lot".
+- **Given** a new town at 412 px. **Then** the stock bar shows Food, Wood, Stone, Ore and Tools; the lots list shows the Cottage, the Forager's hut and 4 rows reading "Empty lot"; nothing scrolls sideways. **Check:** browser test "the town tab shows stock and lots".
+- **When** an empty lot is tapped and "Woodcutter's camp" is chosen. **Then** the lot shows "Building, 8 game hours left" and Wood shows "35 / 200". **Check:** browser test "building from an open lot".
 
 ### J12 The People tab (browser)
 
@@ -91,7 +91,7 @@ Unit checks are Vitest tests; `seed 1` means `newGame(1, content)` with the real
 
 ### J13 The away summary (browser)
 
-- **Given** a stored town whose anchor is 100 ticks old. **When** the page opens. **Then** a summary card lists what was made per resource, who arrived or left, what was finished and which buildings ran short. **Check:** browser test "away summary after catch-up".
+- **Given** a stored town whose anchor is 100 ticks old. **When** the page opens. **Then** a summary card lists what was made per resource, what was finished and which buildings ran short. **Check:** browser test "away summary after catch-up" (S3). S5 adds "the away card names who arrived".
 
 ### J14 The M1 test (device check, Morgan)
 
@@ -104,8 +104,9 @@ Unit checks are Vitest tests; `seed 1` means `newGame(1, content)` with the real
 - Leaving at most one per season and never at 8 or fewer (D-025).
 - 9 resources and 13 buildings in v0.1; M1 ships 9 buildings and uses 5 resources (D-026).
 - The look is Lantern at the forest edge, one theme (D-028). `docs/UI_STYLE.md` is the style doc.
-- Proposed here, settled when this spec is approved (recorded as D-030):
+- Settled with this spec's approval (D-030):
   - A method names the tier that unlocks it. The Mine has two tier 1 methods and the Workshop's "Forge tools" unlocks at tier 1, because a Workshop that only mends cannot supply a Hamlet. This departs from D-025's "tier 2 unlocks the second".
+  - A building's tier is not limited by the Hall's tier: a Hamlet can hold tier 3 buildings.
   - The Tavern has no methods: each staffed worker adds 4 morale to everyone, up to 12.
   - Production has no randomness in M1. The `yield` stream is retired; `arrivals` is the only stream.
   - The content schema gains one condition type, a trait's `likes` and `dislikes` lists of building kinds.
@@ -119,6 +120,8 @@ Unit checks are Vitest tests; `seed 1` means `newGame(1, content)` with the real
 - **Production resolved once per game day**: rejected because live play would show nothing for 24 minutes. Cycles of 4 ticks keep M0's rhythm.
 - **Floating-point rates**: rejected by the engine rule (integers only). Rates are hundredths of a unit with a carried remainder.
 - **Random yields**: rejected for M1; fixed yields make the method choice readable. It would fail if the town felt mechanical, which the playtest judges.
+- **Whole-unit batches per cycle, with no carried remainders** (the critic's simpler design): rejected because the smallest rate would then be 1 unit per worker per cycle, 6 a game day, and tools at 0.3 a day could not be written. It would be right if rates never needed to go below that.
+- **A separate track for the Hall upgrade**: rejected; D-025 settles one job at a time, and a waiting Hall job can be cancelled for a full refund.
 - **A Quarry building**: rejected; the Mine's method choice gives stone without a 14th building.
 - **Paying for a queued job when it starts**: rejected because the player would be refused later, while away. Paying when queued answers at once.
 - **A state library (Redux, Zustand)**: rejected; one `useSyncExternalStore` store over the worker's snapshot is enough for two tabs. It would fail if tabs needed derived caches, which M2 can revisit.
@@ -128,7 +131,7 @@ Unit checks are Vitest tests; `seed 1` means `newGame(1, content)` with the real
 ## Risks
 
 - The numbers are untested by a person → the scripted soak bot gives a floor, and J14 is the judge. Every number is in content, so retuning is a data change.
-- 60 residents × assignment each game day in a 960-tick catch-up → assignment runs at most once per tick and only when marked dirty or at the start of a day; the soak prints ticks per second and fails under 20,000.
+- 60 residents × assignment each game day in a 960-tick catch-up → assignment runs at most twice per tick and only when marked dirty; the soak prints ticks per second and fails under 20,000.
 - The save grows (residents, log) → the log is capped at 100 lines; the soak prints the largest save's size in bytes.
 - An old installed client meets a schema 2 save → J2 ships in S1, one release before schema 2 (S2).
 - 6 lots feel cramped → that is the intended squeeze; Morgan can raise `lots` in content after the playtest.
@@ -137,11 +140,12 @@ Unit checks are Vitest tests; `seed 1` means `newGame(1, content)` with the real
 
 ### Versions and layout
 
-No version changes. New runtime dependencies: `@fontsource/alegreya-sans` 5.3.0, `@fontsource/alegreya-sc` 5.3.0 in `apps/web`. New files:
+No tool version changes. New runtime dependencies: `@fontsource/alegreya-sans` 5.3.0, `@fontsource/alegreya-sc` 5.3.0 in `apps/web`. New files:
 
 ```text
 packages/sim/src/      types.ts (rewritten)  step.ts (rewritten)  build.ts  production.ts  jobs.ts  people.ts  day.ts  validate.ts  summary.ts
 packages/sim/test/     build.test.ts  methods.test.ts  jobs.test.ts  growth.test.ts  purity.test.ts  (step, determinism rewritten)
+tests/browser/         helpers.ts  town.spec.ts  people.spec.ts  (smoke.spec.ts extended)
 packages/content/src/  index.ts (rewritten)  names.ts
 packages/content/test/ content.test.ts
 apps/web/src/          store.ts  ui/TownTab.tsx  ui/PeopleTab.tsx  ui/BuildingSheet.tsx  ui/ResidentSheet.tsx  ui/BuildSheet.tsx  ui/AwayCard.tsx  ui/Sheet.tsx  ui/format.ts  app.css (rewritten)
@@ -155,7 +159,7 @@ scripts/               soak.ts (rewritten)
 
 `version: 2`. All amounts are whole numbers. Rates are hundredths of a unit per worker per production cycle; a cycle is 4 ticks.
 
-Resources, with base cap and starting stock: food 200 / 40, wood 200 / 60, stone 200 / 0, ore 100 / 0, tools 50 / 0. A resource's cap is its base cap × (1 + the sum of the tiers of finished Storehouses).
+Resources, with base cap and starting stock: food 200 / 40, wood 200 / 60, stone 200 / 0, ore 100 / 0, tools 50 / 0. A resource's cap is its base cap × (1 + the sum of the tiers of finished Storehouses). When a cap falls (a Storehouse is cleared), stock above it is cut to the cap at once and counted as lost.
 
 Hall tiers: tier 1 Hamlet, 6 lots, 25 residents, catch-up cap 480. Tier 2 Village, 10 lots, 60 residents, catch-up cap 960; costs wood 180, stone 180, tools 45; 96 ticks; needs 20 residents when ordered.
 
@@ -172,7 +176,7 @@ Buildings. Cost and ticks are for tier 1, then the upgrade to 2, then to 3.
 | `storehouse` | Storehouse | caps | wood 40, stone 20 / wood 70, stone 50 / wood 100, stone 80, tools 10 | 24 / 36 / 48 |
 | `tavern` | Tavern | work, no skill | wood 50, stone 30 / wood 70, stone 50, tools 5 / wood 100, stone 80, tools 15 | 24 / 36 / 48 |
 
-Worker slots by tier: 4 / 6 / 8 for forager, farm, woodcutter, mine and workshop; 1 / 2 / 3 for the tavern. The Hall is not in this table and takes no lot.
+Worker slots by tier: 4 / 6 / 8 for forager, farm, woodcutter, mine and workshop; 1 / 2 / 3 for the tavern; 0 for the cottage and the storehouse, whose `open` stays 0. The Hall is not in this table and takes no lot. A building under upgrade keeps working at its old tier.
 
 Methods (16). The first method listed for a building is its basic method; the Mine's "Quarry stone" is the basic method for its stone methods, "Dig ore" for its ore methods.
 
@@ -195,7 +199,7 @@ Methods (16). The first method listed for a building is its basic method; the Mi
 | workshop | `forge` | Forge tools | 1 | tools 25 | ore 25, wood 10 |
 | workshop | `hammer` | Water-wheel hammer | 2 | tools 45 | ore 40, wood 15 |
 
-A new building starts on its first method. Each method with inputs names its `fallback` (the basic method it drops to): `cutstone` → `stone`; every other one → its building's first method.
+A new building starts on the first method listed for it (the Mine on `ore`). The Mine is the one building with two no-input methods. Each method with inputs names its `fallback` (the basic method it drops to): `cutstone` → `stone`; every other one → its building's first method.
 
 Skills: `husbandry`, `woodcraft`, `mining`, `crafting`. Peoples: `human` leans husbandry and woodcraft; `dwarf` leans mining and crafting. Trades are labels from the job: Forager, Farmer, Woodcutter, Miner, Toolwright, Innkeeper, or "No trade" when idle.
 
@@ -205,7 +209,7 @@ Tuning values, all in content under `rules`: `eatPerDay` 1, `arrivalFoodPerHead`
 
 `names.ts` holds `human: { starts, ends }` and `dwarf: { starts, ends }`, copied from Story-Generator `src/content/names.ts` at commit `221ee68` (`GWERIN_NAMES.givenStarts` 16 and `.givenEnds` 9; `DVERGAR_NAMES.givenStarts` 15 and `.givenEnds` 9). A file comment records the source; the repo is Morgan's own.
 
-These numbers come from a scratch model run in the planning session: a scripted player reached the Village at tick 1,540 with every worker at 90% and morale ignored (measured on the model, not on this engine). The soak's band of 1,200 to 2,200 allows for the difference.
+These numbers come from a scratch model run in the planning session: a scripted player that acts on every tick reached the Village at tick 1,536 with every worker at 90%, 1,376 at 100% and 1,708 at 80%, morale ignored (measured on the model with the input and carry rules below, not on this engine). The soak's band of 1,200 to 2,200 allows for the difference. The band is the floor for perfect play. The 2 to 3 real days are an estimate for a player who checks in about three times a day and queues at most 3 jobs each time; only J14 can confirm it.
 
 ### Engine types (`packages/sim/src/types.ts`)
 
@@ -229,8 +233,8 @@ export type Building = {
   method: string | null;          // null for buildings without methods
   open: number;                   // open worker slots, 0..slots at this tier
   retoolLeft: number;             // ticks
-  carry: Record<string, number>;  // hundredths made and not yet whole
-  debt: Record<string, number>;   // hundredths of input owed
+  carry: Record<string, number>;  // ten-thousandths of a unit made and not yet whole
+  debt: Record<string, number>;   // hundredths of a unit of input owed, kept when the method changes
   short: boolean;                 // ran by its fallback in the last cycle
 };
 export type Job = { target: 'hall' | number; toTier: number; ticksLeft: number; cost: Record<string, number> };
@@ -242,7 +246,7 @@ export type State = {
   buildings: Building[];          // in lot order; length <= lots
   queue: Job[];                   // [0] is under way; length <= 1 + queueMax
   residents: Resident[];
-  lastLeftSeason: number;         // absolute season index of the last departure, -1 at start
+  lastLeftTick: number;           // tick of the last departure, -168 at start
   jobsDirty: boolean;
   log: LogLine[];                 // newest last, at most logMax
 };
@@ -259,82 +263,106 @@ export type Summary = {
   ticks: number;
   made: Record<string, number>; lost: Record<string, number>; used: Record<string, number>;
   arrived: string[]; left: string[]; finished: string[]; // names and "Mine, tier 2"
-  shortTicks: Record<number, number>;                     // building id -> ticks spent on a fallback
+  shortCycles: Record<number, number>;                    // building id -> production cycles run by a fallback
 };
 ```
 
-`Content` mirrors the Content section: `resources`, `hall.tiers`, `buildings` (with `tiers[]` of cost, ticks, slots or beds), `methods`, `skills`, `peoples`, `traits`, `rules`, `names`. `validateContent(content): string[]` returns one message per fault (a missing fallback, a cost in an unknown resource, a tier with no ticks, a zero or negative number, a Hall cost above a base cap) and `[]` when sound. The worker calls it on load and throws on a fault.
+`motherId`, `fatherId`, `spouseId` and `householdId` stay `null` in M1 (D-020 keeps the fields). `Content` mirrors the Content section: `resources`, `hall.tiers`, `buildings` (with `tiers[]` of cost, ticks, slots or beds), `methods`, `skills`, `peoples`, `traits`, `rules`, `names`. `validateContent(content): string[]` returns one message per fault (a missing fallback, a cost in an unknown resource, a tier with no ticks, a zero or negative number, a Hall cost above a base cap) and `[]` when sound. The worker calls it on load and throws on a fault.
 
 ### Engine rules
 
-`step(state, commands, content): { state, events }`, where `events` are typed entries the summary and tests read. `advance(state, ticks, content): { state, summary }` loops `step` and folds events with `summary.ts`; it throws a `RangeError` unless `ticks` is a whole number of 0 or more. A rejected command changes nothing and emits `{ type: 'rejected', command, reason }`.
+Three entry points, none of which changes its input:
+
+- `apply(state, commands, content): { state, events }` runs commands only (rule 1, then the jobs pass if `jobsDirty`); the tick does not move. The worker uses it for a `command` message, as in M0.
+- `step(state, commands, content): { state, events }` is `apply` followed by rules 2 to 6.
+- `advance(state, ticks, content): { state, summary }` loops `step(state, [])` and folds events with `summary.ts`; it throws `RangeError('advance: ticks must be a whole number of 0 or more')` otherwise.
+
+`events` are typed entries the summary and tests read. A rejected command changes nothing and emits `{ type: 'rejected', command, reason }`, with `reason` one of `unknown`, `noLot`, `queueFull`, `noStock`, `busy`, `notReady`, `tooFew`, `notAllowed`, `same`, `range`. Two helpers are exported for the screens, so the UI computes no rule (GAME-02): `perDay(content, methodId): { makes: Record<string, number>; uses: Record<string, number> }` in hundredths of a unit per worker per game day (rate × 6), and `pinPreview(state, residentId, buildingId, content): { id: string; amount: number }[]`, the `fit`, `likes` and `dislikes` reasons that job would give.
 
 Order inside one tick at tick `t`:
 
 1. **Commands**, in order, through a `switch` on `command.type` with a `never` default.
-   - `build`: rejected if the kind is unknown or `hall`, if `buildings.length` equals the lots, if the queue is full or if stock is short. Else pay, append a building at tier 0 with its first method, `open` 0, and append a job.
+   - `build`: rejected if the kind is unknown or `hall` (`unknown`), if `buildings.length` equals the lots, counting tier 0 buildings (`noLot`), if the queue is full (`queueFull`) or if stock is short (`noStock`). Else pay, append a building at tier 0 with its first method, `open` 0, and append a job.
    - `upgrade`: rejected if the building is at tier 0 or 3, already has a job, the queue is full or stock is short. Else pay and append a job.
    - `upgradeHall`: rejected if `hallTier` is 2, the Hall has a job, residents are fewer than the tier's need, the queue is full or stock is short.
    - `cancelJob`: only an index of 1 or more. Refund its cost up to the caps; a cancelled first build removes its tier 0 building.
-   - `clear`: rejected at tier 0 or while the building has a job. Removes the building; its workers become idle, pins to it are cleared.
-   - `setMethod`: rejected if the method is not this building's, its tier is above the building's, or it is the current one. Else set it, `retoolLeft = retoolTicks`, clear `carry`, `debt` and `short`.
+   - `clear`: rejected at tier 0 or while the building has a job (`busy`). Removes the building; its workers become idle, pins to it are cleared, and caps are recomputed (see Content).
+   - `setMethod`: rejected if the method is not this building's, its tier is above the building's, or it is the current one. Rejected at tier 0 (`notReady`). Else set it, `retoolLeft = retoolTicks`, clear `carry` and `short`, and keep `debt`.
    - `setOpen`: a whole number from 0 to the slots at this tier.
    - `pin`: the building must have worker slots, or `null` to unpin.
    - `build`, `clear`, `setOpen` and `pin` set `jobsDirty`.
-2. **Construction.** If the queue is not empty, `queue[0].ticksLeft -= 1`. At 0 the target takes `toTier`, the job is removed and `jobsDirty` is set. A building finishing tier 1 gets `open` = its slots. An upgrade raises `open` by the slots gained. A Hall finishing emits `village`.
+2. **Construction.** If the queue is not empty, `queue[0].ticksLeft -= 1`; this includes a job that reached the front in this same tick, so a job of 8 ticks sent to an empty queue at tick `t` is finished in the state whose tick is `t + 8`. At 0 the target takes `toTier`, the job is removed and `jobsDirty` is set. A building finishing tier 1 gets `open` = its slots. An upgrade raises `open` by the slots gained. A Hall finishing emits `village`.
 3. **Start of a game day**, when `t % 24 === 0` and `t > 0`: `day.ts`, in this order.
    1. Eat: `need = residents × eatPerDay`. If food covers it, subtract; else food becomes 0.
    2. Skills: each resident with a job in a building with a skill gets `workDays += 1`; at `skillDays` the skill rises by 1 (to 100 at most) and `workDays` is 0.
    3. Morale: for each resident compute the target = 50 + the sum of the reasons below, clamped to 0..100; morale moves toward it by at most `moraleStep`; `reasons` is stored.
       - `food`: +10 if food ≥ 2 × residents; −15 if food < residents; −30 if food is 0; else 0.
       - `fit`: with a job in a building that has a skill: +10 if that skill ≥ 60, −10 if < 30.
-      - `likes`: +10 if a trait likes the job's building kind; `dislikes`: −10 if one dislikes it. Both can apply.
+      - `likes`: +10 if at least one trait likes the job's building kind; `dislikes`: −10 if at least one dislikes it. Each counts once, and both can apply.
       - `idle`: −10 with no job.
       - `crowded`: −15 if residents exceed beds.
       - `tavern`: + `tavernPerWorker` × staffed tavern workers, at most `tavernMax`.
-   4. Leaving: if residents exceed `leaveFloor`, the current absolute season (`floor(t / 168)`) differs from `lastLeftSeason`, and some resident's morale is below `leaveBelow`, the one with the lowest morale (ties: lowest id) is removed, `lastLeftSeason` is set, `jobsDirty` is set and a log line names them.
-   5. Arrival: if beds exceed residents, residents are below the Hall tier's limit and food ≥ `arrivalFoodPerHead` × residents, `people.ts` makes one settler. A log line names them. `jobsDirty` is set.
-4. **Jobs**, when `jobsDirty`: `jobs.ts` reassigns and clears the flag.
-   1. Clear every `jobId`. Place each pinned resident in their building while it has an open slot left (lowest id first); a pin that does not fit is kept but the resident is treated as unpinned this pass.
-   2. For every remaining resident and every building with an open slot left, score = the building's skill value (0 for the tavern) + 15 per liking trait − 15 per disliking trait + 10 if this was their job before the pass.
+   4. Leaving: if residents exceed `leaveFloor`, `t - lastLeftTick >= 168` (one season), and some resident's morale is below `leaveBelow`, the one with the lowest morale (ties: lowest id) is removed, `lastLeftTick = t`, `jobsDirty` is set and a log line names them.
+   5. Arrival: if beds exceed residents, residents are below the Hall tier's limit and food (after step 1's eating) ≥ `arrivalFoodPerHead` × residents, `people.ts` makes one settler. A log line names them. `jobsDirty` is set.
+4. **Jobs**, when `jobsDirty`: `jobs.ts` reassigns and clears the flag. The same pass runs at the end of `apply`.
+   1. Remember each resident's `jobId` as their old job, then clear every `jobId`. Place each pinned resident in their building while it has an open slot left (lowest id first); a pin that does not fit is kept but the resident is treated as unpinned this pass.
+   2. For every remaining resident and every building with an open slot left, score = the building's skill value (0 for the tavern) + 15 per liking trait − 15 per disliking trait + 10 if this building is their old job.
    3. Sort the pairs by score, highest first; ties by resident id, then by lot order. Take pairs in order while the resident is free and the building has a slot.
-   4. A resident whose job changed gets `workDays` 0.
+   4. A resident whose job differs from their old job gets `workDays` 0.
 5. **Production**, when `(t + 1) % 4 === 0`: `production.ts`, buildings in lot order. Skip a building at tier 0, with no method, with no workers or with `retoolLeft > 0`.
    - A worker's effect is `floor((50 + skill) × (80 + floor(morale × 2 / 5)) / 100)` percent, so skill 50 and morale 50 give 100.
-   - Inputs first. For each input, `owed = debt + rate × workers` (inputs ignore skill and morale). If `floor(owed / 100)` is more than the stock of any input, the building runs its `fallback` this cycle, `short` is true, debts are unchanged, and a log line is written only when `short` turns from false to true. Else subtract the whole units, keep the remainder as `debt`, and `short` is false.
-   - Outputs: `carry += floor(rate × sum of workers' effects / 100)`; whole units move to stock up to the cap; units over the cap are lost and counted.
+   - Full stores first. If every resource the current method makes is at its cap, the building does nothing this cycle: no inputs are taken and nothing is made or lost.
+   - Inputs next. For each input, `owed = debt + rate × workers` in hundredths (inputs ignore skill and morale). If `stock × 100 < owed` for any input, the building runs its `fallback` this cycle, `short` is true, debts are unchanged, and a log line is written only when `short` turns from false to true. Else subtract `floor(owed / 100)` whole units, keep `owed % 100` as `debt`, and `short` is false. Example: one worker on Forge tools with ore 0 owes 25, and 0 < 25, so the cycle is short.
+   - Outputs, by the method that ran: `carry += rate × sum of the workers' effects` in ten-thousandths; `floor(carry / 10000)` whole units move to stock up to the cap and the remainder stays in `carry`; units over the cap are lost and counted.
 6. `retoolLeft -= 1` where above 0. Then `tick + 1`.
 
-`people.ts`: a settler draws from the `arrivals` stream, in this order: people (0 human, 1 dwarf), name start, name end, four skills each 20 + draw of 31, two distinct traits. The people's two leaning skills get +10. The name is start + end with a tripled letter collapsed to a double; a name already in the town redraws the end up to 5 times, then is kept. `newGame(seed, content)` makes `founders` settlers the same way at tick 0, with morale 50, then builds the Hall at tier 1, a Cottage and a Forager's hut at tier 1 (forager `open` 4), sets the starting stock and runs the jobs pass. Settlers arrive with morale 50 and `bornTick` = arrival tick − 20 × 672 (age 20; an assumption until M4a sets ages).
+`people.ts`: a settler draws from the `arrivals` stream, in this order: people (0 human, 1 dwarf), name start, name end, four skills in content order, each 20 + a draw of 31 (20 to 50), then two traits: the first an index from a draw of 6, the second from a draw of 5 that skips the first. The people's two leaning skills get +10. The name is the start followed by the end as written in the tables, with a letter tripled across the join collapsed to a double; a name already in the town redraws the end up to 5 times, then is kept. `newGame(seed, content)` makes `founders` settlers the same way at tick 0, with morale 50, then builds the Hall at tier 1, a Cottage and a Forager's hut at tier 1 (forager `open` 4), sets the starting stock and runs the jobs pass. Settlers arrive with morale 50 and `bornTick` = arrival tick − 20 × 672, where 672 is the ticks in a game year (age 20; an assumption until M4a sets ages). Age shown is `floor((tick − bornTick) / 672)`.
 
-Log lines are written for: arrived, left, a build or upgrade finished, a lot cleared, a method dropped to its fallback, the Village. `text` is ready to show ("Brynoc, a human, has settled in Ashwick."). The town's name is fixed as Ashwick (D-022).
+The town's name is fixed as Ashwick (D-022).
+
+### Texts
+
+Log lines, with `type` and `text`:
+
+- `arrived`: "Brynoc, a human, has settled in Ashwick." ("a dwarf" for a dwarf)
+- `left`: "Brynoc has left Ashwick."
+- `built`: "The Mine is built." · `upgraded`: "The Mine is now tier 2." · `cleared`: "The Mine was cleared from its lot."
+- `short`: "The Workshop ran short of ore and fell back to Mend and make do." (the first input found short, in the method's listed order)
+- `capLost`: "12 wood was lost when storage shrank."
+- `village`: "Ashwick is now a Village."
+
+Morale reason labels: `food` "Food", `fit` "Skill for the job", `likes` "Likes the work", `dislikes` "Dislikes the work", `idle` "No work", `crowded` "Crowded home", `tavern` "The tavern". Each shows its signed amount.
+
+Notices on the page: "Saving failed. Export a save."; "The town stopped. Export a save." with an "Export" button; "Update ready" with a "Reload" button; "That file is too large to be a save." for an import over the limit. Notices sit above the tab's content, under the stock bar (on the M0 page in S1, in the existing notice slot).
+
+Screen wording: an unbuilt lot is "Empty lot"; a lot under its first build is "Building, N game hours left"; workers show as "Workers 3 / 4" (assigned / open slots); a disabled choice says what is missing as "Needs 20 wood, 5 tools"; the Hall row says "Needs 20 residents" or the missing stock in the same form; a locked method says "Tier 2"; a retooling building says "Retooling, N game hours left"; rejected commands show their reason as `noLot` "No empty lot", `queueFull` "The work queue is full", `noStock` "Not enough stock", `busy` "Work is under way here", `tooFew` "Not enough residents"; other reasons cannot be reached from the screens. The date reads as M0's does, "Year 1, season 1, day 1, hour 0". A resident with no job has the trade "No trade".
 
 ### Soak (`scripts/soak.ts`)
 
-Pass 1, random bot, 10,000 ticks: each tick, with odds 1 in 24, one random command of a random type with random valid-looking arguments. After every tick: every stock is a whole number from 0 to its cap; residents ≤ the Hall tier's limit; no building has more workers than `open`, and `open` ≤ its slots; every `jobId` and `pinnedTo` names a living building; every morale and skill is a whole number 0..100; every rng value is 0..4294967295; `queue.length` ≤ 4; `buildings.length` ≤ lots; `log.length` ≤ 100. At the end the same commands replayed through `advance` in chunks of 97 must give an equal state. It prints ticks per second (fails under 20,000) and the largest `JSON.stringify(state).length`.
+Pass 1, random bot, 10,000 ticks: each tick, with odds 1 in 24, one random command of a random type with random valid-looking arguments. After every tick: every stock is a whole number from 0 to its cap; residents ≤ the Hall tier's limit; no building has more workers than `open`, and `open` ≤ its slots; every `jobId` and `pinnedTo` names a living building; every morale and skill is a whole number 0..100; every rng value is 0..4294967295; `queue.length` ≤ 4; `buildings.length` ≤ lots; `log.length` ≤ 100. At the end the recorded script (each command with its tick) replayed as `apply` at each command's tick with `advance` between, no `advance` longer than 97 ticks, must give an equal state. The bot draws from its own `nextU32` chain as M0's does: a command type by `value % 8`, then building and resident ids from the living ones, kinds and methods from content, and counts from 0 to 9, so some commands are rejected. It prints ticks per second (fails under 20,000) and the largest `JSON.stringify(state).length`.
 
-Pass 2, scripted bot: build order Woodcutter's camp, Cottage, Mine, Workshop; Mine on stone until 190, else ore while ore is under 60 and tools under 45; Workshop on Forge once ore ≥ 10; upgrade the Forager's hut at tools 5 and switch it to Snares; upgrade a Cottage when beds are full and food allows an arrival; lower the Woodcutter's open slots to 1 when wood ≥ 195; order the Hall when it can. Fails unless the Village comes between tick 1,200 and 2,200. If the engine's first run falls outside the band, the builder stops and reports the tick to Morgan; the band is not widened to pass (VER-01).
+Pass 2, scripted bot: build order Woodcutter's camp, Cottage, Mine, Workshop; Mine on stone until 190, else ore while ore is under 60 and tools under 45; Workshop on Forge once ore ≥ 10; upgrade the Forager's hut at tools 5 and switch it to Snares; upgrade the lowest-tier Cottage when beds equal residents and food ≥ 2 × residents; lower the Woodcutter's open slots to 1 when wood ≥ 195; order the Hall when it can. Fails unless the Village comes between tick 1,200 and 2,200. If the engine's first run falls outside the band, the builder stops and reports the tick to Morgan; the band is not widened to pass (VER-01).
 
-Pass 3, starved town: the pass 2 town at 20 residents, food set to 0 and every food building's `open` set to 0 for 480 ticks, then restored. Fails if more than 3 leave in the 480 ticks, or if the population is not back to 20 within 2,000 ticks.
+Pass 3, starved town: the pass 2 state at the tick its 20th resident arrived, with the script setting food to 0 in the state and sending `setOpen` 0 to every forager and farm, then 480 ticks, then `setOpen` back to each one's slots. Fails if more than 3 leave in the 480 ticks, or if the population is not back to 20 within 2,000 ticks.
 
 ### Web
 
-- **Worker protocol** (audit F13): every message carries `v: 2`. `load`, `advance` and `command` stay; the answer is `{ type: 'snapshot', v: 2, state, anchorMs, ticks, summary }`. The worker posts one snapshot per message it receives, as in M0. `worker.onerror` and `onmessageerror` on the page show "The town stopped. Export a save." with an Export button for the standby copy (F6).
-- **Clock:** `due()` takes the cap from `content.hall.tiers[state.hallTier - 1].catchUpCap`.
+- **Worker protocol** (audit F13): every message carries `v: 2`. `load`, `advance` and `command` stay; the answer is `{ type: 'snapshot', v: 2, state, anchorMs, ticks, summary }`. The worker posts one snapshot per message it receives, as in M0, and ignores a message whose `v` is not 2. `worker.onerror` and `onmessageerror` on the page show "The town stopped. Export a save." with an Export button for the standby copy (F6).
+- **Clock:** from S5, the page passes `content.hall.tiers[state.hallTier - 1].catchUpCap` to `due()` as its cap; until then the cap stays `CATCH_UP_CAP`.
 - **Store (`store.ts`):** holds the latest snapshot and the last non-empty summary; components read it with `useSyncExternalStore`. Lists keep stable keys so rows are updated in place.
 - **Saves:** `SCHEMA = 2`. `upgrades[1]` returns `{ schema: 2, anchorMs: now, state: newGame(old.state.seed, content) }`. One connection is opened once and reused; writes go through one promise chain (F1). `shapeOk` checks every number with `Number.isSafeInteger`, every stock against its cap, and each resident, building and job field by type (F5). Import refuses a file over 5,000,000 bytes. A replace copies the old record to key `previous` in the same transaction (F4). `replaceWith` sets the anchor and the waiting flag before posting (F14).
-- **PWA:** `registerType: 'prompt'` stays; `main.tsx` registers through `virtual:pwa-register` with `onNeedRefresh` setting an "Update ready" notice whose "Reload" button calls the returned update function with `true`. The manifest gains `id: '/'` and a third icon entry, `icon-512.png` with `purpose: 'maskable'`; `scripts/make-icons.mjs` draws the letter as an SVG path inside the safe zone and records that in a comment (F3, F18).
+- **PWA:** `registerType: 'prompt'` stays; `main.tsx` registers through `virtual:pwa-register` with `onNeedRefresh` setting an "Update ready" notice whose "Reload" button calls the returned update function with `true`. The manifest gains `id: '/'` and a third icon entry, `icon-512.png` with `purpose: 'maskable'`; `scripts/make-icons.mjs` draws the letter S as an SVG path the builder writes by hand (no font), within the middle 60% of the square so the maskable crop keeps it, and says so in a comment (F3, F18).
 - **Fonts:** `main.tsx` imports `@fontsource/alegreya-sans/400.css`, `/500.css`, `/700.css` and `@fontsource/alegreya-sc/700.css`. The workbox `globPatterns` gain `woff2`.
 - **Screens**, all from `docs/UI_STYLE.md`:
   - Header: "Ashwick", then "Hamlet" or "Village" and the date from `calendar()`. Under it the pinned stock bar: one cell per resource in content order, `amount / cap`, in `--warn` when the amount is 0 or at the cap.
-  - Town tab: the away card (after a catch-up of 10 ticks or more, until dismissed); the Hall row with its tier and the "Upgrade to Village" button or what it still needs; the work queue with a cancel button on waiting jobs; then one row per lot. A built lot shows name, tier, method, workers `n / open` and a short flag. An open lot shows "Open lot" and opens the build sheet. Last, the log's 20 newest lines.
+  - Town tab: the away card (after a catch-up of 10 ticks or more, until dismissed); the Hall row with its tier and the "Upgrade to Village" button or what it still needs; the work queue with a cancel button on waiting jobs; then one row per lot. A built lot shows name, tier, method, workers `n / open` and a short flag. An unbuilt lot shows "Empty lot" and opens the build sheet. Last, the log's 20 newest lines. S2 builds the Hall row with its tier only and the log section; S5 adds the Village button.
   - Build sheet: every building kind with its cost; kinds that cannot be paid for are shown disabled with what is missing.
-  - Building sheet: methods as a list with what each makes and uses per worker per game day (rate × 6 ÷ 100, one decimal), the current one marked, locked ones showing their tier; the open-slots stepper; the workers by name; "Upgrade" with cost and time; "Clear lot" with an in-sheet confirm.
+  - Building sheet: methods as a list with what each makes and uses per worker per game day (from `perDay`, shown as hundredths ÷ 100 with one decimal, by `toFixed(1)`), the current one marked, locked ones showing their tier; the open-slots stepper; the workers by name; "Upgrade" with cost and time; "Clear lot" with an in-sheet confirm.
   - People tab: filter chips All, Idle and one per trade present; sort by name, morale or top skill; rows of name, people, trade and morale.
-  - Resident sheet: name, people, age in game years, trade, skills as numbers, traits with what each likes and dislikes, morale with every reason and its amount, and "Pin to…" listing buildings with the `fit`, `likes` and `dislikes` terms that would apply.
+  - Resident sheet: name, people, age in game years, trade, skills as numbers, traits with what each likes and dislikes, morale with every reason and its amount, and "Pin to…" listing buildings with the reasons `pinPreview` returns for each; choosing one shows those reasons and a "Pin" button before anything is sent.
   - Tab bar: Town and People.
   - Time is shown in game hours and days, never ticks. `ui/format.ts` holds every such conversion; it is display only (GAME-02).
-- **Bundle check** (F12): `check-bundle.mjs` sums the gzipped entry, every `modulepreload` link and the worker file under `dist/assets/` whose name starts with `worker`; the limit rises to 120,000 bytes for that total. S1 records the measured total; if it is over, the builder reports it instead of raising the limit.
+- **Bundle check** (F12): `check-bundle.mjs` reads `dist/index.html` and sums the gzipped sizes of its `<script type="module" src>`, every `<link rel="modulepreload" href>` and every file in `dist/assets/` whose name starts with `worker-`; the limit rises to 120,000 bytes for that total. S1 records the measured total; if it is over, the builder reports it instead of raising the limit.
 
 ### Docs and repo fixes (audit F15 to F17)
 
@@ -347,14 +375,14 @@ Each slice is one PR from a branch cut from the latest `main`. A slice that adds
 ### S1 Safe saves and updates
 
 - **Morgan tries:** open the installed app after the S1 deploy, then again after the next deploy: "Update ready" appears and Reload works.
-- **Checks that fail now:** J1 (three checks), J2; `purity.test.ts` "the purity check catches globalThis and string comments" (F8); `step.test.ts` "a command on a production tick applies before production" (F10); browser test "hiding the page saves" (F7); the storage-line and offline tests gain real asserts (F7).
+- **Checks that fail now:** J1 (three checks), J2; `purity.test.ts` "the purity check catches globalThis and string comments" (F8); browser test "hiding the page saves" (F7: change the foragers, set `document.visibilityState` to hidden with `Object.defineProperty` and dispatch `visibilitychange`, then read the stored record). Added and expected to pass at once, because they cover untested behaviour that is already right: `step.test.ts` "a command on a production tick applies before production" (F10); the offline test asserts the service worker's state is `activated`; the storage-line test runs twice with `navigator.storage.persist` stubbed to true and to false and asserts each line's text (F7). Each of these three is shown to fail once by breaking the code it covers, then restored from a copy (LESSONS, "tests").
 - **Files:** `apps/web/src/saves.ts`: one connection, ordered writes, `previous`, safe-integer checks, import size limit. `apps/web/src/App.tsx`: failed-save notice, worker error notice, update notice, `replaceWith` anchor. `apps/web/src/main.tsx`, `vite.config.ts`: update hook, manifest `id`, maskable icon. `scripts/make-icons.mjs`: path-drawn letter. `scripts/check-sim-purity.mjs`: ban `globalThis`, `crypto`, `Intl`; fix the lookbehind and string handling. `scripts/check-bundle.mjs`: the summed total. `packages/sim/src/step.ts`: `advance` guards its tick count. Tests as named. Docs and repo fixes above. `docs/LESSONS.md` untouched unless a mistake is found.
 - **Waits on:** none
 
 ### S2 Stock, lots and the Town tab
 
 - **Morgan tries:** build a Woodcutter's camp on an open lot, close the app, come back: the wood is there and the lot is working.
-- **Checks that fail now:** J3, J4, J9, J11; `content.test.ts` "the real content is valid and runs 96 ticks"; J10 pass 1.
+- **Checks that fail now:** J3, J4, J6 "assignment is stable and respects pins and open slots", J9, J11; `content.test.ts` "the real content is valid and runs 96 ticks"; J10 pass 1. `npm run soak` runs only the passes that exist; S5 completes J10.
 - **Files:** content rewritten with all of the Content section. Engine: types, `step`, `build.ts`, `production.ts` (first methods only: `setMethod` is rejected in this slice), `jobs.ts` (the full pass), `people.ts` (founders), `validate.ts`, `summary.ts`. Day block: eating only. Web: worker protocol v2, `store.ts`, schema 2 and its upgrade, fonts, tokens, header, stock bar, Town tab, build sheet, building sheet without methods (stepper, workers, upgrade, clear). `mockups/town.html` first. Soak pass 1.
 - **Waits on:** S1
 
@@ -368,14 +396,14 @@ Each slice is one PR from a branch cut from the latest `main`. A slice that adds
 ### S4 People
 
 - **Morgan tries:** open the People tab, filter to Idle, open a resident, pin them to a job they are bad at and read why their morale falls over the next game days.
-- **Checks that fail now:** J6 "skills grow by working", J12; `growth.test.ts` "morale moves toward its reasons by 5 a day".
+- **Checks that fail now:** J6 "skills grow by working", J12; `growth.test.ts` (new in this slice) "morale moves toward its reasons by 5 a day". The `tavern` reason is 0 until S5.
 - **Files:** `day.ts`: skills and morale; `production.ts`: the worker's effect uses skill and morale (S2 and S3 use 100). `PeopleTab.tsx`, `ResidentSheet.tsx`, the tab bar. `mockups/people.html` first.
 - **Waits on:** S3
 
 ### S5 Growth and the Village
 
 - **Morgan tries:** J14, the M1 test.
-- **Checks that fail now:** J7, J8, J10 passes 2 and 3; browser test "the Hall row offers the Village when it can be paid for".
+- **Checks that fail now:** J7, J8, J10 passes 2 and 3; browser tests "the Hall row offers the Village when it can be paid for" and "the away card names who arrived".
 - **Files:** `day.ts`: leaving and arrival; `build.ts`: `upgradeHall`; the tavern's morale term; `clock.ts` cap from the Hall; the Hall row and log section in `TownTab.tsx`; soak passes 2 and 3. `mockups/town.html` updated for the Hall row first.
 - **Waits on:** S4
 
@@ -389,3 +417,4 @@ Each slice is one PR from a branch cut from the latest `main`. A slice that adds
 
 - The phone's width: the style doc assumes 412 px first and 360 px second. Morgan to confirm or correct.
 - Whether gold pays for building from M3 (D-027, proposed).
+- AGENTS.md's count of browser tests ("8 Playwright tests") is updated by each slice that adds some.
