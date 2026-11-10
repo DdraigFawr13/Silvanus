@@ -28,7 +28,7 @@ const updateApp = registerSW({
     setNotice({
       id: 'update',
       text: 'Update ready',
-      action: { label: 'Reload', run: () => void updateApp(true) },
+      action: { label: 'Reload', run: () => void updateApp(true).catch(() => {}) },
     }),
   onRegisteredSW: (_url, registration) => {
     if (!registration) return;

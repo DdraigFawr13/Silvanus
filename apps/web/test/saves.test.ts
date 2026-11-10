@@ -7,6 +7,7 @@ import {
   IMPORT_MAX_BYTES,
   KEY,
   PREVIOUS,
+  WRITE_TIMEOUT_MS,
   SCHEMA,
   STORE,
   closeConnection,
@@ -183,6 +184,32 @@ describe('saves', () => {
     expect(await readRaw()).toEqual(b);
   });
 
+  test('a save that never lands fails and frees the next one', async () => {
+    const a = record();
+    const factory = indexedDB;
+    const realOpen = factory.open.bind(factory);
+    // a database that never answers
+    factory.open = () => ({}) as IDBOpenDBRequest;
+    vi.useFakeTimers();
+    const stuck = save(a);
+    const queued = save({ ...a, anchorMs: 2 });
+    const outcomes = Promise.allSettled([stuck, queued]);
+    await vi.advanceTimersByTimeAsync(WRITE_TIMEOUT_MS - 1);
+    let settled = false;
+    void outcomes.then(() => (settled = true));
+    await vi.advanceTimersByTimeAsync(0);
+    expect(settled).toBe(false);
+    // the first gives up at the limit; the second waited its turn and gets its own limit
+    await vi.advanceTimersByTimeAsync(1 + WRITE_TIMEOUT_MS);
+    expect((await outcomes).map((o) => o.status)).toEqual(['rejected', 'rejected']);
+    await expect(stuck).rejects.toThrow('The save timed out.');
+    vi.useRealTimers();
+    factory.open = realOpen;
+    const b = { ...a, anchorMs: a.anchorMs + 60_000 };
+    await save(b);
+    expect(await readRaw()).toEqual(b);
+  });
+
   test('replace keeps the previous record', async () => {
     const a = record();
     const b = { ...a, anchorMs: a.anchorMs + 60_000 };
@@ -257,6 +284,7 @@ describe('saves', () => {
       ['food over the cap', withState({ stock: { food: content.resources.food.cap + 1 } })],
       ['anchorMs past 2^53', { ...good, anchorMs: 2 ** 53 }],
       ['anchorMs fractional', { ...good, anchorMs: 1.5 }],
+      ['anchorMs negative', { ...good, anchorMs: -1 }],
       ['a resident is not an object', withState({ residents: [7] })],
       ['resident id fractional', withResident({ id: 1.5 })],
       ['resident id past 2^53', withResident({ id: 2 ** 53 })],

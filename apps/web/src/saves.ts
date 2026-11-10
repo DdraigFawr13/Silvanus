@@ -47,7 +47,7 @@ function residentOk(v: unknown): boolean {
 // A new field in the save means a check here and, for a stored shape that changes, an upgrade
 // step below.
 function shapeOk(v: unknown): v is SaveRecord {
-  if (!isObject(v) || !Number.isSafeInteger(v.anchorMs)) return false;
+  if (!isObject(v) || !isWhole(v.anchorMs)) return false;
   const state = v.state;
   if (!isObject(state) || !isObject(state.stock) || !isObject(state.rng)) return false;
   if (![state.seed, state.tick, state.contentVersion, state.stock.food].every(isWhole)) {
@@ -97,10 +97,13 @@ function open(): Promise<IDBDatabase> {
 // dropped when the browser closes it or a read or write fails, so the next call opens a new one.
 let connection: Promise<IDBDatabase> | null = null;
 
-export function closeConnection(): void {
+// With `only`, the shared connection is closed only if it is still that one: a failed call
+// must not close the connection that has since replaced its own.
+export function closeConnection(only?: Promise<IDBDatabase>): void {
   const was = connection;
+  if (was === null || (only !== undefined && only !== was)) return;
   connection = null;
-  was?.then(
+  was.then(
     (db) => db.close(),
     () => {},
   );
@@ -109,9 +112,7 @@ export function closeConnection(): void {
 function connect(): Promise<IDBDatabase> {
   if (connection === null) {
     let mine: Promise<IDBDatabase>;
-    const drop = () => {
-      if (connection === mine) closeConnection();
-    };
+    const drop = () => closeConnection(mine);
     try {
       mine = open();
     } catch (error) {
@@ -128,8 +129,10 @@ function connect(): Promise<IDBDatabase> {
 }
 
 export async function load(): Promise<Loaded> {
+  let used: Promise<IDBDatabase> | undefined;
   try {
-    const db = await connect();
+    used = connect();
+    const db = await used;
     const raw = await new Promise<unknown>((resolve, reject) => {
       const request = db.transaction(STORE, 'readonly').objectStore(STORE).get(KEY);
       request.onsuccess = () => resolve(request.result);
@@ -137,40 +140,60 @@ export async function load(): Promise<Loaded> {
     });
     return raw === undefined ? { kind: 'none' } : parse(raw);
   } catch {
-    closeConnection();
+    if (used) closeConnection(used);
     return { kind: 'unavailable' };
   }
 }
 
+// A write that has not landed after this long is given up as failed, so a database that never
+// answers cannot hold every later save behind it in silence.
+export const WRITE_TIMEOUT_MS = 10_000;
+
 async function write(record: SaveRecord, keepPrevious: boolean): Promise<void> {
+  let used: Promise<IDBDatabase> | undefined;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timedOut = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error('The save timed out.')), WRITE_TIMEOUT_MS);
+  });
   try {
-    const db = await connect();
-    await new Promise<void>((resolve, reject) => {
-      const tx = db.transaction(STORE, 'readwrite');
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error);
-      tx.onabort = () => reject(tx.error);
-      const store = tx.objectStore(STORE);
-      const put = () => {
-        store.put(record, KEY);
-        // Commit at once: the page may be closing (the write is also made on hide).
-        tx.commit();
-      };
-      if (!keepPrevious) {
-        put();
-        return;
-      }
-      // The copy and the new record land together or not at all.
-      const old = store.get(KEY);
-      old.onsuccess = () => {
-        if (old.result !== undefined) store.put(old.result, PREVIOUS);
-        put();
-      };
-    });
+    used = connect();
+    await Promise.race([timedOut, putRecord(used, record, keepPrevious)]);
   } catch (error) {
-    closeConnection();
+    if (used) closeConnection(used);
     throw error;
+  } finally {
+    clearTimeout(timer);
   }
+}
+
+async function putRecord(
+  connecting: Promise<IDBDatabase>,
+  record: SaveRecord,
+  keepPrevious: boolean,
+): Promise<void> {
+  const db = await connecting;
+  await new Promise<void>((resolve, reject) => {
+    const tx = db.transaction(STORE, 'readwrite');
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error);
+    const store = tx.objectStore(STORE);
+    const put = () => {
+      store.put(record, KEY);
+      // Commit at once: the page may be closing (the write is also made on hide).
+      tx.commit();
+    };
+    if (!keepPrevious) {
+      put();
+      return;
+    }
+    // The copy and the new record land together or not at all.
+    const old = store.get(KEY);
+    old.onsuccess = () => {
+      if (old.result !== undefined) store.put(old.result, PREVIOUS);
+      put();
+    };
+  });
 }
 
 // Writes run one at a time in call order, so an older state is never stored last (audit F1).
