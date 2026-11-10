@@ -187,3 +187,18 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
 - **Status:** Accepted (2026-11-10)
 - **Decision:** The threat clock and a first simple raid on the town are part of M2, with the guild. Amends the charter's M2 line. Their rules are settled in M2's planning.
 - **Why:** Morgan, in chat: "Raids in m2". His loop ends on defending the town (D-027), and before this no milestone ahead of M4b built raids, so v0.1 would have shipped without them.
+
+## D-030 M1 spec approved
+
+- **Status:** Accepted (2026-11-10, approved in advance)
+- **Decision:** `docs/specs/m1-town.md` is approved, with these choices the spec made:
+  - A method names the tier that unlocks it. The Mine has two tier 1 methods and the Workshop's "Forge tools" opens at tier 1. Narrows D-025's "tier 2 unlocks the second".
+  - A building's tier is not limited by the Hall's tier.
+  - A kind marked `freeWhenNone` costs nothing to build while the town has none; only the Woodcutter's camp is marked.
+  - The Tavern has no methods; each staffed worker adds 4 morale to everyone, up to 12.
+  - Production has no randomness in M1. The `yield` stream is retired and `arrivals` is the only stream; stream names are `'arrivals'` or `test:<name>`.
+  - The content schema gains one condition type: a trait's `likes` and `dislikes` lists of building kinds.
+  - Two runtime dependencies: `@fontsource/alegreya-sans` 5.3.0 and `@fontsource/alegreya-sc` 5.3.0 (OFL-1.1), so the fonts ship inside the app.
+  - Residents' names use Story-Generator's `GWERIN_NAMES` and `DVERGAR_NAMES` given-name tables (D-012).
+  - Every cost, rate, cap and tuning value in the spec's "Content" section, as starting values for the playtest.
+- **Why:** Morgan, in chat on 2026-11-10, before the spec was finished: "I approve the m1 spec once you are done". He has not read it; each item above was told to him in chat. Forge at tier 1 because a Workshop that only mends cannot supply a Hamlet; the free first camp because wood has one source and every building costs wood (D-007).
