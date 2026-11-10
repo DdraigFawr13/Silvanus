@@ -1,9 +1,10 @@
 import { content } from '@silvanus/content';
 import { calendar } from '@silvanus/sim';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import type { ReactNode } from 'react';
 import { CATCH_UP_CAP, due } from './clock';
-import { SCHEMA, exportText, importText, storageAnswer } from './saves';
+import { clearNotice, notices, setNotice, subscribe } from './notices';
+import { SCHEMA, exportText, importFile, storageAnswer } from './saves';
 import type { SaveRecord, StorageAnswer } from './saves';
 import type { Snapshot, WorkerIn } from './worker';
 
@@ -18,10 +19,30 @@ function download(name: string, text: string) {
   URL.revokeObjectURL(url);
 }
 
+// The notices raised outside the screens (`notices.ts`), each with its button if it has one.
+function PageNotices() {
+  const list = useSyncExternalStore(subscribe, notices);
+  return (
+    <>
+      {list.map((notice) => (
+        <div className="row" key={notice.id} data-testid={`notice-${notice.id}`}>
+          <p>{notice.text}</p>
+          {notice.action && (
+            <button type="button" onClick={notice.action.run}>
+              {notice.action.label}
+            </button>
+          )}
+        </div>
+      ))}
+    </>
+  );
+}
+
 export function Notice({ message }: { message: string }) {
   return (
     <main>
       <h1>Silvanus</h1>
+      <PageNotices />
       <p data-testid="notice">{message}</p>
     </main>
   );
@@ -48,7 +69,7 @@ function Import({
     onError(null);
     setPending(null);
     try {
-      setPending(importText(await file.text()));
+      setPending(await importFile(file));
     } catch (error) {
       onError(error instanceof Error ? error.message : 'This file is not a Silvanus save.');
     }
@@ -116,6 +137,7 @@ export function Refused({
   return (
     <main>
       <h1>Silvanus</h1>
+      <PageNotices />
       <p data-testid="notice">{importError ?? message}</p>
       <Import replacing="the unreadable save" onReplace={onImport} onError={setImportError}>
         <button
@@ -138,7 +160,7 @@ type Props = {
   loadedTick: number | null;
   tickMs: number;
   // null when saving is not available in this browser
-  save: ((record: SaveRecord) => Promise<void>) | null;
+  save: ((record: SaveRecord, options?: { keepPrevious?: boolean }) => Promise<void>) | null;
 };
 
 export function App({ worker, first, loadedTick, tickMs, save }: Props) {
@@ -171,8 +193,10 @@ export function App({ worker, first, loadedTick, tickMs, save }: Props) {
     const persist = (imported = false) => {
       const record = standbyRef.current;
       if (record === null || save === null) return;
-      // A failed write leaves "Saved at tick" behind; the next save tries again.
-      save(record).then(
+      // A failed write leaves "Saved at tick" behind; the next save tries again, and two
+      // failures in a row raise the "Saving failed" notice (`watchSaves`). An import keeps the
+      // town it replaces under `previous`.
+      save(record, { keepPrevious: imported }).then(
         // two writes can finish out of order; the line never goes back within one town
         () =>
           setSavedTick((was) =>
@@ -184,18 +208,21 @@ export function App({ worker, first, loadedTick, tickMs, save }: Props) {
     const onHide = () => persist();
     const onMessage = (event: MessageEvent<Snapshot>) => {
       const next = event.data;
-      anchorRef.current = next.anchorMs;
-      if (next.ticks > 0) waitingRef.current = false;
       standbyRef.current = { schema: SCHEMA, anchorMs: next.anchorMs, state: next.state };
       setSnapshot(next);
       if (importingRef.current !== null) {
-        // Snapshots of the replaced town may still arrive; they are shown but not autosaved.
+        // Snapshots of the replaced town may still arrive; they are shown but not autosaved,
+        // and the clock stays on the imported town's anchor (audit F14).
         if (next.ticks !== 0 || next.anchorMs !== importingRef.current) return;
         importingRef.current = null;
+        anchorRef.current = next.anchorMs;
+        waitingRef.current = false;
         setCaughtUp(null);
         persist(true);
         return;
       }
+      anchorRef.current = next.anchorMs;
+      if (next.ticks > 0) waitingRef.current = false;
       if (next.ticks > 1) {
         setCaughtUp({ ticks: next.ticks, produced: next.produced, lost: next.lost });
       }
@@ -216,20 +243,47 @@ export function App({ worker, first, loadedTick, tickMs, save }: Props) {
       if (document.visibilityState === 'visible') check();
       else onHide();
     };
+    // A worker that throws sends no snapshot, so the clock would wait for ever in silence
+    // (audit F6). The town as last received can still be taken out as a file.
+    const onStopped = () => {
+      const record = standbyRef.current;
+      setNotice({
+        id: 'stopped',
+        text: 'The town stopped. Export a save.',
+        action: record
+          ? {
+              label: 'Export',
+              run: () => download(`silvanus-save-${record.state.tick}.json`, exportText(record)),
+            }
+          : undefined,
+      });
+    };
     worker.addEventListener('message', onMessage);
+    worker.addEventListener('error', onStopped);
+    worker.addEventListener('messageerror', onStopped);
     send(first);
     document.addEventListener('visibilitychange', onVisibility);
     window.addEventListener('pagehide', onHide);
     const timer = window.setInterval(check, 1000);
     return () => {
       worker.removeEventListener('message', onMessage);
+      worker.removeEventListener('error', onStopped);
+      worker.removeEventListener('messageerror', onStopped);
+      clearNotice('stopped');
       document.removeEventListener('visibilitychange', onVisibility);
       window.removeEventListener('pagehide', onHide);
       window.clearInterval(timer);
     };
   }, [worker, first, tickMs, save]);
 
-  if (snapshot === null) return <main>Loading…</main>;
+  if (snapshot === null) {
+    return (
+      <main>
+        <PageNotices />
+        Loading…
+      </main>
+    );
+  }
 
   const { state } = snapshot;
   const when = calendar(state.tick);
@@ -241,8 +295,16 @@ export function App({ worker, first, loadedTick, tickMs, save }: Props) {
     if (record) download(`silvanus-save-${record.state.tick}.json`, exportText(record));
   };
   // The imported town is saved when its snapshot comes back from the worker.
+  // The clock moves to the imported town at once, and waits for that snapshot: the 1-second
+  // timer must not advance the new town on the old town's anchor (audit F14).
   const replaceWith = (record: SaveRecord) => {
+    // The running town is stored first, as it stands, so the copy kept under `previous` is
+    // the town the player saw and not the last autosave.
+    const replaced = standbyRef.current;
+    if (replaced && save) save(replaced).catch(() => {});
     importingRef.current = record.anchorMs;
+    anchorRef.current = record.anchorMs;
+    waitingRef.current = true;
     post({ type: 'load', state: record.state, anchorMs: record.anchorMs });
   };
   const unavailable =
@@ -252,6 +314,7 @@ export function App({ worker, first, loadedTick, tickMs, save }: Props) {
   return (
     <main>
       <h1>Silvanus</h1>
+      <PageNotices />
       {notice && <p data-testid="notice">{notice}</p>}
       <p>
         Year {when.year}, season {when.season + 1}, day {when.day}, hour {when.hour}

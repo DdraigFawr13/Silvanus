@@ -1,5 +1,6 @@
 // Fails when packages/sim/src or packages/content/src use a banned word (D-002).
-// Whole words in code, with // and /* */ comments removed.
+// Whole words in code, with // and /* */ comments removed. A word after a dot counts too, so
+// `globalThis.Date` and `self.performance` are caught.
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -19,17 +20,53 @@ const BANNED = [
   'Math.log',
   'Math.exp',
   'Math.sqrt',
+  'globalThis',
+  'crypto',
+  'Intl',
 ];
 
 const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const patterns = BANNED.map((word) => ({
   word,
-  re: new RegExp(`(?<![\\w$.])${escape(word)}(?![\\w$])`),
+  re: new RegExp(`(?<![\\w$])${escape(word)}(?![\\w$])`),
 }));
 
-// Blank comments (keeping newlines so line numbers hold); strings are left as code.
+// Blank comments (keeping newlines so line numbers hold); strings are left as code. A scanner,
+// so `//` or `/*` inside a '…', "…" or `…` string is not taken for a comment. A template
+// string's `${…}` parts are read as string text, and a regex literal holding a quote is not
+// understood; neither appears in the engine.
 export function stripComments(text) {
-  return text.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, (m) => m.replace(/[^\n]/g, ' '));
+  let out = '';
+  let quote = null;
+  let i = 0;
+  while (i < text.length) {
+    const ch = text[i];
+    const two = text.slice(i, i + 2);
+    if (quote !== null) {
+      if (ch === '\\') {
+        out += two;
+        i += 2;
+        continue;
+      }
+      // a quote or double-quote string cannot run past its line
+      if (ch === quote || (ch === '\n' && quote !== '`')) quote = null;
+      out += ch;
+      i++;
+    } else if (ch === "'" || ch === '"' || ch === '`') {
+      quote = ch;
+      out += ch;
+      i++;
+    } else if (two === '//' || two === '/*') {
+      const close = two === '//' ? text.indexOf('\n', i) : text.indexOf('*/', i + 2);
+      const end = close === -1 ? text.length : two === '//' ? close : close + 2;
+      out += text.slice(i, end).replace(/[^\n]/g, ' ');
+      i = end;
+    } else {
+      out += ch;
+      i++;
+    }
+  }
+  return out;
 }
 
 export function findBanned(text) {

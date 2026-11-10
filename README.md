@@ -6,4 +6,4 @@ A fantasy frontier-town management idle sim for an Android phone, built as a PWA
 - Current state and next step: [docs/HANDOFF.md](docs/HANDOFF.md)
 - Settled decisions: [docs/DECISIONS.md](docs/DECISIONS.md)
 
-No code exists yet. Planning is in progress; M0 starts after the plan is approved.
+M0 Skeleton is built and deployed at https://silvanus-xi.vercel.app. M1 Town is being built from [docs/specs/m1-town.md](docs/specs/m1-town.md).

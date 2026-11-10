@@ -14,8 +14,8 @@ Shared rules come from AI-Master-Instructions and load through CLAUDE.md (`.clau
 
 ## Local checks (run before pushing)
 
-- `npm run check` (about 5 s measured on 2026-11-10, target under 60 s). In order: master sync drift check, test-traps, Prettier check, types (`tsc` on sim, content, web, root), engine purity, Vitest, soak, build, bundle size (gzipped entry at most 80,000 bytes). No lint (see the M0 spec).
-- `npm run test:browser` before a PR is marked ready (about 15 s, 8 Playwright tests; not in CI). In cloud sessions set `PLAYWRIGHT_CHROMIUM_PATH=/opt/pw-browsers/chromium` if the session hook left it unset.
+- `npm run check` (about 5 s measured on 2026-11-10, target under 60 s). In order: master sync drift check, test-traps, Prettier check, types (`tsc` on sim, content, web, root), engine purity, Vitest, soak, build, bundle size (first-load JavaScript, gzipped: entry, preloaded chunks and worker, at most 120,000 bytes). No lint (see the M0 spec).
+- `npm run test:browser` before a PR is marked ready (about 25 s measured on 2026-11-10, 12 Playwright tests; not in CI). In cloud sessions set `PLAYWRIGHT_CHROMIUM_PATH=/opt/pw-browsers/chromium` if the session hook left it unset.
 - Under a different default Node, prefix with `npm exec --yes --package=node@24.19.0 --package=npm@11.9.0 --`.
 
 ## What CI runs
@@ -30,10 +30,10 @@ Shared rules come from AI-Master-Instructions and load through CLAUDE.md (`.clau
 - `packages/sim` has no DOM, no framework, integer arithmetic only and a named random stream per system. Why: offline catch-up must equal live play tick for tick (D-002).
 - A new condition or effect type in the content schema needs a DECISIONS entry. Why: that set is the engine's real interface.
 - No runtime network or LLM calls in the shipped game (D-003).
-- Every change keeps the soak script passing once it exists.
+- Every change keeps the soak script (`npm run soak`) passing.
 
 ## Overrides
 
 Master rules this project deliberately changes. Each line names the rule id and the reason; the same entry is in `.ai-master.json` "overrides".
 
-- None.
+- WEB-05: the repo keeps `playwright.config.ts`, because the config only reads the session hook's browser path. The rest of the rule holds: the container's Chromium, no browser downloads.

@@ -3,10 +3,12 @@ import { newGame } from '@silvanus/sim';
 import { StrictMode } from 'react';
 import type { ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { registerSW } from 'virtual:pwa-register';
 import { App, Notice, Refused } from './App';
 import { tickMsFrom } from './clock';
 import './app.css';
-import { load, save } from './saves';
+import { setNotice, watchSaves } from './notices';
+import { load, save as write } from './saves';
 import type { SaveRecord } from './saves';
 import type { WorkerIn } from './worker';
 
@@ -14,6 +16,27 @@ import type { WorkerIn } from './worker';
 const seed = crypto.getRandomValues(new Uint32Array(1))[0];
 const root = createRoot(document.getElementById('root')!);
 const show = (node: ReactNode) => root.render(<StrictMode>{node}</StrictMode>);
+
+// Every save made by this page is counted, so two failures in a row are shown (audit F2).
+const save = watchSaves(write);
+
+// A new version waits until the player takes it: "Update ready" with a Reload button, on every
+// screen (audit F3). The browser looks for a new version when the app is opened; an installed
+// app brought back from the recents list is not opened again, so it is asked to look then too.
+const updateApp = registerSW({
+  onNeedRefresh: () =>
+    setNotice({
+      id: 'update',
+      text: 'Update ready',
+      action: { label: 'Reload', run: () => void updateApp(true) },
+    }),
+  onRegisteredSW: (_url, registration) => {
+    if (!registration) return;
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') registration.update().catch(() => {});
+    });
+  },
+});
 
 // Only one window runs the town. The lock is held until the page closes.
 function holdLock(): Promise<boolean> {
@@ -57,7 +80,7 @@ async function start() {
   // player replaces it with an imported one. A failed write still starts the imported town; its
   // autosave tries again.
   const onImport = (record: SaveRecord) =>
-    save(record).then(
+    save(record, { keepPrevious: true }).then(
       () => run(record, true),
       () => run(record, false),
     );

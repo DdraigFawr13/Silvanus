@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { apply, newGame, step } from '../src/index';
+import { advance, apply, draw, newGame, step } from '../src/index';
 import type { Command, Content, State } from '../src/index';
 import { content } from './fixtures';
 
@@ -52,5 +52,34 @@ describe('step', () => {
     expect(set.state.tick).toBe(1);
     expect(start.foragers).toBe(1);
     expect(start.tick).toBe(0);
+  });
+
+  test('a command on a production tick applies before production', () => {
+    // tick 3 is a production tick: the three foragers the command sets all gather in it
+    const start: State = { ...newGame(1, content), tick: 3 };
+    expect(start.foragers).toBe(1);
+    const result = step(start, [{ type: 'setForagers', count: 3 }], content);
+    let rng = start.rng;
+    let gathered = 0;
+    for (let i = 0; i < 3; i++) {
+      const d = draw(rng, 'yield', start.seed, content.camp.yieldMax - content.camp.yieldMin + 1);
+      rng = d.rng;
+      gathered += content.camp.yieldMin + d.value;
+    }
+    expect(result.state.stock.food).toBe(gathered);
+    expect(result.state.rng).toEqual(rng);
+    expect(result.state.tick).toBe(4);
+    // one forager could not have gathered this much
+    expect(gathered).toBeGreaterThan(content.camp.yieldMax);
+  });
+
+  test('advance refuses a bad tick count', () => {
+    const start = newGame(1, content);
+    for (const ticks of [-1, 1.5, NaN, Infinity, -Infinity]) {
+      expect(() => advance(start, ticks, content), String(ticks)).toThrow(
+        new RangeError('advance: ticks must be a whole number of 0 or more'),
+      );
+    }
+    expect(advance(start, 0, content).state).toEqual(start);
   });
 });

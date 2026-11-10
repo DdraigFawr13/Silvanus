@@ -92,7 +92,7 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
 
 - **Status:** Accepted (2026-11-09, round 5); the review round proposes changes
 - **Decision:** Capstones kept for the Guild and March charters; Market, Forge, Arcane and Faith after v1.0. v0.1 keeps lots and 12 buildings, individual residents, automatic jobs with pin, two peoples, quest writing, mid-quest decisions, residents becoming adventurers, 30 events, the chronicle and save export. Migration, two contract modes and biography pages come after v0.1.
-- **Why:** Morgan's choices. The review found v0.1 then has no population inflow; see HANDOFF.
+- **Why:** Morgan's choices. The review found v0.1 then has no population inflow; D-020 resolved it.
 
 ## D-016 v0.1 passes on the described check-in
 
@@ -133,7 +133,7 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
 ## D-022 Names, second people, charters, hosting
 
 - **Status:** Accepted (2026-11-09, delegated) for names, people and charters; hosting settled by D-024
-- **Decision:** The town is Ashwick, the forest the Skarthorn, the backer the Crown of Dunmere. The second people in v0.1 is the Dwarf. v1.0 ships the Guild and March charters only. Hosting on Vercel is proposed; the project is created only with Morgan's approval at M0.
+- **Decision:** The town is Ashwick, the forest the Skarthorn, the backer the Crown of Dunmere. The second people in v0.1 is the Dwarf. v1.0 ships the Guild and March charters only. Hosting is Vercel (D-024).
 - **Why:** Delegated as D-016. The names and the people had no recommendation on the form; they are Claude's picks and cheap to change. Amends D-015.
 
 ## D-023 Plan approved

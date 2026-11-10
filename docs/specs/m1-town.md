@@ -419,8 +419,31 @@ Each slice is one PR from a branch cut from the latest `main`. A slice that adds
 - Before a PR is marked ready: `npm run test:browser`, and the style doc's new-screen checklist for each changed screen, with screenshots at 412 px and 360 px.
 - End to end: J14 on Morgan's phone.
 
+## Build notes
+
+Small choices the builder took where the spec was silent, and places the build departs from it. Each was taken by Claude; none is Morgan's decision.
+
+### S1 (2026-11-10)
+
+- **J1's failing save.** The browser test makes every write fail by replacing `IDBDatabase.prototype.transaction` and `IDBFactory.prototype.open` in the page, not `indexedDB.open` alone: with one reused connection, a failing `open` is never called.
+- **The connection.** `load` shares it. It is dropped when the browser closes it or a read or write fails, so the next call opens a new one. A failed write rejects its own call and does not hold up the next. `closeConnection()` is exported for that and for tests.
+- **Names.** `PREVIOUS = 'previous'`, `IMPORT_MAX_BYTES = 5_000_000` (a file of exactly that size is read), `importFile(file)` for the size check, `closeConnection()`. `scripts/check-sim-purity.d.mts` gives the purity test its types.
+- **`previous` holds the running town.** Before an import is sent to the worker, the page stores the town as it stands, so the copy kept is the town the player saw and not the last autosave.
+- **`shapeOk` on schema 1.** Safe whole numbers for seed, tick, content version, food, foragers and rng values; `anchorMs` a safe integer; food at most its cap; each resident's M0 fields by type. The schema 2 list in "Saves" is S2's.
+- **A new save field** means a check in `shapeOk` and, when a stored shape changes, an upgrade step (audit F5 asked for this line).
+- **Notices.** `apps/web/src/notices.ts` is made in S1 and holds three: update ready, saving failed, the town stopped, in that order, with test ids `notice-update`, `notice-saveFailed` and `notice-stopped`. A screen's own import or storage message keeps `data-testid="notice"` and comes after them. They show on every M0 screen, the loading and refused-save ones included. The save count lives in `watchSaves`, which `main.tsx` wraps round `save`, so an import's save counts too.
+- **The stopped notice** has its Export button only when a snapshot has arrived; before that there is nothing to export.
+- **F14.** The waiting flag set by `replaceWith` is cleared when the imported town's snapshot comes back (a load answers with 0 ticks, which did not clear it). Snapshots of the replaced town that arrive in between leave the clock on the imported town's anchor.
+- **J2.** Versions `build-a` and `build-b`; the served folder is under the system temp folder; `test.setTimeout(120_000)` is also called in `beforeAll`, where the builds run; the page is reloaded once so the first service worker controls it. `seedRecord` and `readRecord` moved to `tests/browser/helpers.ts` in this slice.
+- **Looking for an update when the app comes back.** The page calls the service worker registration's `update()` when it becomes visible. An installed app left in the recents list is not opened again, so without this it would not see a deploy (the case F3 names). This is one request for the app's own `sw.js`, the same one the browser makes on each open. **Proposed, for Morgan:** whether this fits D-003; it can be removed in one edit.
+- **Purity check.** The dot is dropped from the lookbehind for every banned word, as the S1 text says (the audit named two). The scanner reads a template string's `${…}` as string text and does not understand a regex literal that holds a quote; neither appears in the engine.
+- **Bundle.** The first load measured 73,864 bytes gzipped (entry 72,888, worker 976; limit 120,000). The update hook adds one lazy chunk, `workbox-window`, about 2,200 bytes gzipped; it is not preloaded, so the check does not count it. The check counts JavaScript only, as WEB-06 does (the audit also named the CSS, 210 bytes).
+- **WEB-05 override.** Recording it meant running the master sync, which also wrote its block into `.prettierignore`.
+- **The worker check by hand.** A throw planted in the worker's command branch gave "The town stopped. Export a save." with a working Export at 412 px; the plant was removed.
+
 ## Open questions
 
 - The phone's width: the style doc assumes 412 px first and 360 px second. Morgan to confirm or correct.
 - Whether gold pays for building from M3 (D-027, proposed).
+- Whether the page may ask for an update when it becomes visible (S1 build notes; D-003).
 - AGENTS.md's count of browser tests ("8 Playwright tests") is updated by each slice that adds some.

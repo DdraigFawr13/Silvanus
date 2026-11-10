@@ -1,5 +1,8 @@
 // Draws the placeholder app icon at 192 and 512 px into apps/web/public.
 // Run by hand (`node scripts/make-icons.mjs`); the PNGs are committed.
+// The letter S is a hand-written path, not text, so no font is used and the image is the same
+// on every machine (audit F18). The stroke stays inside x 32 to 68 and y 23 to 77 of 100, within
+// the middle 60% of the square, so the maskable crop (a circle of 80%) keeps all of it.
 import { chromium } from '@playwright/test';
 
 const OUT = 'apps/web/public';
@@ -7,8 +10,8 @@ const svg = (
   size,
 ) => `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 100 100">
   <rect width="100" height="100" fill="#1c2526" />
-  <text x="50" y="50" text-anchor="middle" dominant-baseline="central"
-    font-family="Georgia, serif" font-size="84" fill="#e3e8e2">S</text>
+  <path d="M 64 36 C 64 24, 36 24, 36 37 C 36 50, 64 50, 64 63 C 64 76, 36 76, 36 64"
+    fill="none" stroke="#e3e8e2" stroke-width="8" stroke-linecap="round" />
 </svg>`;
 
 const executablePath = process.env.PLAYWRIGHT_CHROMIUM_PATH;
