@@ -55,7 +55,7 @@ Unit checks are Vitest tests: engine tests in `packages/sim/test/`, save tests i
 ### J5 A method short of an input falls back and recovers
 
 - **Given** a Workshop on "Forge tools" with 1 worker and ore 0. **When** a production cycle runs. **Then** it produces by "Mend and make do", its `short` flag is true and one log line says so. **When** ore arrives. **Then** the next cycle forges and the flag clears. **Check:** `methods.test.ts` "a short input drops to the basic method and comes back".
-- **When** the method is changed. **Then** the building produces nothing for 24 ticks. **Check:** `methods.test.ts` "retooling costs a game day".
+- **When** the method is changed to one the building does not own. **Then** the building produces nothing for 24 ticks (4 for one it owns, D-034). **Check:** `methods.test.ts` "retooling costs a game day".
 - **When** a method the building does not own is chosen (from S3, D-034). **Then** its cost is paid once and it takes 24 ticks; switching back to an owned method is free and takes 4; a short stock refuses it with `noStock`; clearing the lot loses it. **Check:** `methods.test.ts` "a method is bought once, then switching is quick and free".
 
 ### J6 People fill jobs the same way every time
