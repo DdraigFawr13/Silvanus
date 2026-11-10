@@ -435,7 +435,7 @@ Small choices the builder took where the spec was silent, and places the build d
 - **The stopped notice** has its Export button only when a snapshot has arrived; before that there is nothing to export.
 - **F14.** The waiting flag set by `replaceWith` is cleared when the imported town's snapshot comes back (a load answers with 0 ticks, which did not clear it). Snapshots of the replaced town that arrive in between leave the clock on the imported town's anchor.
 - **J2.** Versions `build-a` and `build-b`; the served folder is under the system temp folder; `test.setTimeout(120_000)` is also called in `beforeAll`, where the builds run; the page is reloaded once so the first service worker controls it. `seedRecord` and `readRecord` moved to `tests/browser/helpers.ts` in this slice.
-- **Looking for an update when the app comes back.** The page calls the service worker registration's `update()` when it becomes visible. An installed app left in the recents list is not opened again, so without this it would not see a deploy (the case F3 names). This is one request for the app's own `sw.js`, the same one the browser makes on each open. **Proposed, for Morgan:** whether this fits D-003; it can be removed in one edit.
+- **Looking for an update when the app comes back.** The page calls the service worker registration's `update()` when it becomes visible. An installed app left in the recents list is not opened again, so without this it would not see a deploy (the case F3 names). This is one request for the app's own `sw.js`, the same one the browser makes on each open. Accepted with S1's approval (D-031).
 - **Purity check.** The dot is dropped from the lookbehind for every banned word, as the S1 text says (the audit named two). The scanner reads a template string's `${…}` as string text and does not understand a regex literal that holds a quote; neither appears in the engine.
 - **Bundle.** The first load measured 73,927 bytes gzipped (entry 72,951, worker 976; limit 120,000). The update hook adds one lazy chunk, `workbox-window`, about 2,200 bytes gzipped; it is not preloaded, so the check does not count it. The check counts JavaScript only, as WEB-06 does (the audit also named the CSS, 210 bytes).
 - **WEB-05 override.** Recording it meant running the master sync, which also wrote its block into `.prettierignore`.
@@ -446,5 +446,4 @@ Small choices the builder took where the spec was silent, and places the build d
 
 - The phone's width: the style doc assumes 412 px first and 360 px second. Morgan to confirm or correct.
 - Whether gold pays for building from M3 (D-027, proposed).
-- Whether the page may ask for an update when it becomes visible (S1 build notes; D-003).
 - AGENTS.md's count of browser tests ("8 Playwright tests") is updated by each slice that adds some.

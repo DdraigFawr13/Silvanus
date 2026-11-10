@@ -202,3 +202,9 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
   - Residents' names use Story-Generator's `GWERIN_NAMES` and `DVERGAR_NAMES` given-name tables (D-012).
   - Every cost, rate, cap and tuning value in the spec's "Content" section, as starting values for the playtest.
 - **Why:** Morgan, in chat on 2026-11-10, before the spec was finished: "I approve the m1 spec once you are done". He has not read it; each item above was told to him in chat. Forge at tier 1 because a Workshop that only mends cannot supply a Hamlet; the free first camp because wood has one source and every building costs wood (D-007).
+
+## D-031 The page may look for an update when it comes back to the front
+
+- **Status:** Accepted (2026-11-10) with S1's approval. Morgan was offered "keep" (recommended) or "remove" and answered "Approved" without naming one, so the built option stands; he can still say remove.
+- **Decision:** When the page becomes visible, it asks the service worker registration to look for a new version. This is one request for the app's own `sw.js`. D-003's rule against runtime network calls does not cover it.
+- **Why:** An installed app left in the recents list is not opened again, so without this it would not see a deploy (audit F3).
