@@ -417,7 +417,7 @@ export function App({ worker, first, loadedTick, tickMs, save }: Props) {
             type="button"
             key={id}
             className={tab === id ? 'tab on' : 'tab'}
-            aria-current={tab === id ? 'page' : undefined}
+            aria-pressed={tab === id}
             data-testid={`tab-${id}`}
             onClick={() => {
               setTab(id);

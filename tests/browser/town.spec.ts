@@ -103,6 +103,37 @@ test('the building sheet sets open slots and clears a lot after asking', async (
   );
 });
 
+test('a sheet keeps keyboard focus, closes on Escape and gives focus back', async ({ page }) => {
+  await page.goto('/?tickMs=60000');
+  // the tabs say which one is shown
+  await expect(page.getByRole('button', { name: 'Town' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'People' })).toHaveAttribute(
+    'aria-pressed',
+    'false',
+  );
+  const opener = lot(page, "Forager's hut");
+  await opener.focus();
+  await page.keyboard.press('Enter');
+  // the dialog is named by its title, and Close takes focus
+  const dialog = page.getByRole('dialog', { name: "Forager's hut Tier 1" });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole('button', { name: 'Close' })).toBeFocused();
+  const inDialog = () =>
+    page.evaluate(() => document.activeElement?.closest('[role=dialog]') !== null);
+  // Tab and Shift+Tab go round the sheet's own controls and never reach the page behind it
+  for (let i = 0; i < 8; i++) {
+    await page.keyboard.press('Tab');
+    expect(await inDialog()).toBe(true);
+  }
+  for (let i = 0; i < 8; i++) {
+    await page.keyboard.press('Shift+Tab');
+    expect(await inDialog()).toBe(true);
+  }
+  await page.keyboard.press('Escape');
+  await expect(dialog).toHaveCount(0);
+  await expect(opener).toBeFocused();
+});
+
 test('a build finishes, works and is kept', async ({ page }) => {
   await page.goto('/?tickMs=50');
   await page.getByTestId('lot').filter({ hasText: 'Empty lot' }).first().click();
