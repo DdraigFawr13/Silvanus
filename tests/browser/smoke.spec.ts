@@ -118,3 +118,145 @@ test('second window stands down', async ({ page, context }) => {
   await expect(page.getByTestId('tick')).toBeVisible();
   await expect(page.getByTestId('notice')).toHaveCount(0);
 });
+
+// A save file as Export writes it; the anchor is 40 hours old, which would be a full catch-up.
+const fileState = {
+  contentVersion: 1,
+  seed: 5,
+  tick: 388,
+  rng: { yield: 12345 },
+  stock: { food: 40 },
+  foragers: 3,
+  residents: [],
+};
+const saveFile = (text: string) => ({
+  name: 'silvanus-save.json',
+  mimeType: 'application/json',
+  buffer: Buffer.from(text),
+});
+const goodFile = () =>
+  saveFile(JSON.stringify({ schema: 1, anchorMs: Date.now() - 40 * 3_600_000, state: fileState }));
+
+test('export and import carry the town', async ({ page }) => {
+  const startedMs = Date.now();
+  const state = { ...fileState, seed: 1, tick: 512, rng: {}, stock: { food: 9 }, foragers: 0 };
+  await seedRecord(page, { schema: 1, anchorMs: Date.now(), state });
+  await page.goto('/?tickMs=60000');
+  await expect(page.getByTestId('tick')).toHaveText('512');
+
+  // Export gives the town as it stands, the tap just made included.
+  await page.getByRole('button', { name: 'More foragers' }).click();
+  await expect(page.getByTestId('foragers')).toHaveText('1');
+  const download = page.waitForEvent('download');
+  await page.getByTestId('export').click();
+  const file = await download;
+  expect(file.suggestedFilename()).toBe('silvanus-save-512.json');
+  const stream = await file.createReadStream();
+  const chunks: Buffer[] = [];
+  for await (const chunk of stream) chunks.push(chunk as Buffer);
+  const exported = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+  expect(exported.schema).toBe(1);
+  expect(exported.state).toEqual({ ...state, foragers: 1 });
+
+  // A file that is not a save is refused with a message and changes nothing.
+  await page.getByTestId('import-file').setInputFiles(saveFile('{ "town": '));
+  await expect(page.getByTestId('notice')).toHaveText('This file is not a Silvanus save.');
+  await expect(page.getByTestId('import-confirm')).toHaveCount(0);
+  await expect(page.getByTestId('tick')).toHaveText('512');
+
+  // Cancel, by keyboard, keeps the town.
+  await page.getByTestId('import-file').setInputFiles(goodFile());
+  await expect(page.getByTestId('import-confirm')).toContainText('Replace tick 512 with tick 388?');
+  await expect(page.getByTestId('notice')).toHaveCount(0);
+  await page.getByTestId('cancel').focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByTestId('import-confirm')).toHaveCount(0);
+  await expect(page.getByTestId('tick')).toHaveText('512');
+  await expect(page.getByTestId('foragers')).toHaveText('1');
+
+  // Replace loads the file's town, saves it, and catches nothing up.
+  await page.getByTestId('import-file').setInputFiles(goodFile());
+  await page.getByTestId('replace').click();
+  await expect(page.getByTestId('tick')).toHaveText('388');
+  await expect(page.getByTestId('foragers')).toHaveText('3');
+  await expect(page.getByTestId('food')).toHaveText('40');
+  await expect(page.getByTestId('saved-tick')).toHaveText('388');
+  await expect(page.getByTestId('caught-up')).toHaveCount(0);
+  await expect(page.getByTestId('import-confirm')).toHaveCount(0);
+  // The stored anchor is the time of import, not the file's, so no catch-up is owed.
+  const stored = (await readRecord(page)) as { anchorMs: number };
+  expect(stored.anchorMs).toBeGreaterThanOrEqual(startedMs);
+
+  await page.goto('/?tickMs=60000');
+  await expect(page.getByTestId('tick')).toHaveText('388');
+  await expect(page.getByTestId('foragers')).toHaveText('3');
+});
+
+test('an import replaces an unreadable save', async ({ page }) => {
+  const record = { schema: 2, anchorMs: 1_700_000_000_000, town: { name: 'a later shape' } };
+  await seedRecord(page, record);
+  await page.goto('/?tickMs=60000');
+  await expect(page.getByTestId('notice')).toHaveText(
+    'This save is from a newer version of the game.',
+  );
+
+  await page.getByTestId('import-file').setInputFiles(goodFile());
+  await expect(page.getByTestId('import-confirm')).toContainText(
+    'Replace the unreadable save with tick 388?',
+  );
+  // Nothing is written until Replace.
+  expect(await readRecord(page)).toEqual(record);
+  await page.getByTestId('replace').click();
+  await expect(page.getByTestId('tick')).toHaveText('388');
+  await expect(page.getByTestId('saved-tick')).toHaveText('388');
+  await expect(page.getByTestId('notice')).toHaveCount(0);
+  const stored = (await readRecord(page)) as { schema: number; state: unknown };
+  expect(stored.schema).toBe(1);
+  expect(stored.state).toEqual(fileState);
+});
+
+test('the storage line shows an answer', async ({ page }) => {
+  await page.goto('/?tickMs=60000');
+  await expect(page.getByTestId('storage')).toHaveText(
+    /^(kept|the browser may clear this\. Export a save\.)$/,
+  );
+});
+
+test.describe('installed', () => {
+  // Every other test runs with service workers blocked, so `page.route` sees each request.
+  test.use({ serviceWorkers: 'allow' });
+
+  test('starts with no network', async ({ page, context }) => {
+    await page.goto('/?tickMs=60000');
+    await expect(page.getByTestId('tick')).toBeVisible();
+    const manifest = await page.evaluate(async () => {
+      const href = document.querySelector<HTMLLinkElement>('link[rel="manifest"]')!.href;
+      const data = await (await fetch(href)).json();
+      const icons = await Promise.all(
+        data.icons.map(async (icon: { src: string; sizes: string }) => ({
+          sizes: icon.sizes,
+          ok: (await fetch(new URL(icon.src, href))).ok,
+        })),
+      );
+      return { name: data.name, display: data.display, start: data.start_url, icons };
+    });
+    expect(manifest).toEqual({
+      name: 'Silvanus',
+      display: 'standalone',
+      start: '/',
+      icons: [
+        { sizes: '192x192', ok: true },
+        { sizes: '512x512', ok: true },
+      ],
+    });
+    // The service worker has cached the app once it is active.
+    await page.evaluate(async () => {
+      const registration = await navigator.serviceWorker.ready;
+      return registration.active!.state;
+    });
+    await context.setOffline(true);
+    await page.goto('/?tickMs=60000');
+    await expect(page.getByTestId('tick')).toBeVisible();
+    await expect(page.getByTestId('version')).not.toBeEmpty();
+  });
+});

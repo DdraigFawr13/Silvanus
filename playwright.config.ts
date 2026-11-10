@@ -11,7 +11,8 @@ export default defineConfig({
   globalTimeout: 180_000,
   expect: { timeout: 10_000 },
   reporter: 'list',
-  use: { baseURL: 'http://127.0.0.1:4173' },
+  // Service workers are blocked unless a test allows them: one would answer `/seed.html` itself.
+  use: { baseURL: 'http://127.0.0.1:4173', serviceWorkers: 'block' },
   webServer: {
     command: 'npm run build && npm run preview -- --port 4173 --strictPort',
     url: 'http://127.0.0.1:4173',

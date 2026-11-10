@@ -7,6 +7,7 @@ import { App, Notice, Refused } from './App';
 import { tickMsFrom } from './clock';
 import './app.css';
 import { load, save } from './saves';
+import type { SaveRecord } from './saves';
 import type { WorkerIn } from './worker';
 
 // The seed is the one value taken from outside the engine (GAME-01), before the first render.
@@ -35,29 +36,40 @@ async function start() {
     return;
   }
   const loaded = await load();
-  // A save the app cannot read starts no game and is never written over (GAME-05).
-  if (loaded.kind === 'tooNew') {
-    show(<Refused message="This save is from a newer version of the game." raw={loaded.raw} />);
-    return;
-  }
-  if (loaded.kind === 'damaged') {
-    show(<Refused message="This save is damaged." raw={loaded.raw} />);
-    return;
-  }
-  const worker = new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' });
-  const first: WorkerIn =
-    loaded.kind === 'ok'
-      ? { type: 'load', state: loaded.record.state, anchorMs: loaded.record.anchorMs }
+  const canSave = loaded.kind !== 'unavailable';
+  // `record` null starts a new game; `saved` says the record is what the database holds.
+  const run = (record: SaveRecord | null, saved: boolean) => {
+    const worker = new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' });
+    const first: WorkerIn = record
+      ? { type: 'load', state: record.state, anchorMs: record.anchorMs }
       : { type: 'load', state: newGame(seed, content), anchorMs: Date.now() };
-  show(
-    <App
-      worker={worker}
-      first={first}
-      loadedTick={loaded.kind === 'ok' ? loaded.record.state.tick : null}
-      tickMs={tickMsFrom(window.location.search)}
-      save={loaded.kind === 'unavailable' ? null : save}
-    />,
-  );
+    show(
+      <App
+        worker={worker}
+        first={first}
+        loadedTick={record && saved ? record.state.tick : null}
+        tickMs={tickMsFrom(window.location.search)}
+        save={canSave ? save : null}
+      />,
+    );
+  };
+  // A save the app cannot read starts no game and is never written over (GAME-05), until the
+  // player replaces it with an imported one. A failed write still starts the imported town; its
+  // autosave tries again.
+  const onImport = (record: SaveRecord) =>
+    save(record).then(
+      () => run(record, true),
+      () => run(record, false),
+    );
+  if (loaded.kind === 'tooNew' || loaded.kind === 'damaged') {
+    const message =
+      loaded.kind === 'tooNew'
+        ? 'This save is from a newer version of the game.'
+        : 'This save is damaged.';
+    show(<Refused message={message} raw={loaded.raw} onImport={onImport} />);
+    return;
+  }
+  run(loaded.kind === 'ok' ? loaded.record : null, true);
 }
 
 void start();
