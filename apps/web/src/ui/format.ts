@@ -1,5 +1,5 @@
 import { content } from '@silvanus/content';
-import { calendar } from '@silvanus/sim';
+import { YEAR_TICKS, calendar } from '@silvanus/sim';
 import type { Amounts, Reason } from '@silvanus/sim';
 
 // Every conversion from the engine's units to words. Display only: no rule lives here (GAME-02).
@@ -85,5 +85,5 @@ export function theList(names: string[]): string {
   return `${each.slice(0, -1).join(', ')} and ${each[each.length - 1]}`;
 }
 
-// Age in game years: a game year is 672 game hours.
-export const ageOf = (tick: number, bornTick: number) => Math.floor((tick - bornTick) / 672);
+// Age in whole game years.
+export const ageOf = (tick: number, bornTick: number) => Math.floor((tick - bornTick) / YEAR_TICKS);

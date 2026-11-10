@@ -34,8 +34,8 @@ export function ResidentSheet({
   return (
     <Sheet title={resident.name} onClose={onClose} testId="resident-sheet">
       <p className="sub">
-        {people === 'dwarf' ? 'A dwarf' : 'A human'}, {ageOf(state.tick, resident.bornTick)} years
-        old
+        {/^[aeiou]/i.test(people) ? 'An' : 'A'} {people}, {ageOf(state.tick, resident.bornTick)}{' '}
+        years old
       </p>
 
       <h3 className="sheet-sec">Work</h3>

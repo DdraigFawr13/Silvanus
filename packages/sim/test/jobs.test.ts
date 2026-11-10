@@ -99,8 +99,13 @@ describe('jobs', () => {
       ),
     };
     expect(pinPreview(skilled, 3, mine, content)).toEqual([{ id: 'fit', amount: 10 }]);
-    // a building with no worker slots brings nothing
+    // a building with no worker slots brings nothing, nor one not yet built
     const cottage = byKind(town, 'cottage').id;
     expect(pinPreview(town, 3, cottage, content)).toEqual([]);
+    const unbuilt = {
+      ...town,
+      buildings: town.buildings.map((b) => (b.id === mine ? { ...b, tier: 0 } : b)),
+    };
+    expect(pinPreview(unbuilt, 3, mine, content)).toEqual([]);
   });
 });

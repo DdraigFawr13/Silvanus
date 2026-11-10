@@ -86,6 +86,22 @@ describe('growth', () => {
     expect(who(near, 4).morale).toBe(70);
   });
 
+  test('a game day leaves the state it is given untouched', () => {
+    const before = dayStart(0);
+    const frozen = JSON.parse(JSON.stringify(before)) as State;
+    const freeze = (value: unknown): void => {
+      if (value && typeof value === 'object') {
+        Object.freeze(value);
+        for (const inner of Object.values(value)) freeze(inner);
+      }
+    };
+    freeze(before);
+    // a frozen input throws on any write; a forager's skill and everyone's reasons change
+    const after = step(before, [], content).state;
+    expect(before).toEqual(frozen);
+    expect(after.residents[0].reasons).not.toEqual(before.residents[0].reasons);
+  });
+
   test('a job the resident is bad at costs morale through fit', () => {
     // Ceriin (3) has mining 23, below 30. Pinned to a Mine, the day gives fit -10.
     let town = newGame(1, content);

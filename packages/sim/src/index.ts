@@ -21,6 +21,7 @@ export { jobCost, refusal } from './build';
 export { assignJobs } from './jobs';
 export { effectOf, perDay, shortInput } from './production';
 export { pinPreview } from './day';
+export { YEAR_TICKS } from './people';
 export { emptySummary } from './summary';
 export { validateContent } from './validate';
 export { bedsOf, capsOf, freeMethods, hallOf, kindOf, methodOf, shortfall, slotsOf } from './util';

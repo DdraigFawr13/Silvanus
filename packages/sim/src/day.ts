@@ -21,7 +21,7 @@ function jobTerms(resident: Resident, building: Building, content: Content): Ter
 }
 
 // What a job in a building would bring a resident's morale, for the resident sheet's "Pin to…"
-// (GAME-02). A building with no worker slots brings nothing.
+// (GAME-02). A building not yet built, or with no worker slots, brings nothing.
 export function pinPreview(
   state: State,
   residentId: number,
@@ -30,7 +30,7 @@ export function pinPreview(
 ): Term[] {
   const resident = state.residents.find((r) => r.id === residentId);
   const building = state.buildings.find((b) => b.id === buildingId);
-  if (!resident || !building) return [];
+  if (!resident || !building || building.tier === 0) return [];
   const kind = kindOf(content, building.kind)!;
   if (kind.tiers.every((tier) => tier.slots === 0)) return [];
   return jobTerms(resident, building, content);
