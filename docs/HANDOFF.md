@@ -4,7 +4,7 @@ Updated: 2026-11-10. A fresh session must be able to continue from this file alo
 
 ## Phase
 
-M0 Skeleton is done: built, merged, deployed, and its exit test passed on Morgan's phone (his answers, 2026-11-10). M1 Town is in planning on branch `m1-town-plan`: round 1 is answered; the review round and the M0 audit Morgan asked for are running. No M1 spec and no M1 code yet. Spec approved 2026-11-09 (D-024): `docs/specs/m0-skeleton.md`.
+M0 Skeleton is done: built, merged, deployed, and its exit test passed on Morgan's phone (his answers, 2026-11-10). M1 Town is in planning on branch `m1-town-plan`: round 1 is answered; the review page and the M0 audit's reply page are published and wait for Morgan's replies. No M1 spec and no M1 code yet. Spec approved 2026-11-09 (D-024): `docs/specs/m0-skeleton.md`.
 
 ## Plan map
 
@@ -19,6 +19,8 @@ M0 Skeleton is done: built, merged, deployed, and its exit test passed on Morgan
 
 ## Just done
 
+- 2026-11-10 Review page published (12 findings, a 9-row scope list, 5 questions, a draft slice order). My main proposals: production methods as the one system replacing tier recipes, upkeep and recipe choice; a short input drops a workplace to its basic method; leaving slowed to one per season with a floor of 8; Herb garden, Smithy, Apothecary and Guild hall move to M2; the building cap rises to 13; the Mine makes stone by method; the Hall takes no lot; seasons after the first playtest. All are proposals until he replies.
+- 2026-11-10 M0 audit done (kind repo, 3 areas, measured $1.39 for the readers): 19 findings, 3 high (saves can land out of order; a failed save is invisible; an installed app cannot take an update). Report on branch `audit-m0`, draft PR open, Outcome pending.
 - 2026-11-10 Morgan's round 1 answers read (46 documents, no notes written). M0 on his phone: S1, S2, install and offline, export and import all "Worked"; catch-up after a swipe-away: "Yes"; the Storage line: "Did not look". Audit: "Yes, run it before M1 building starts". Town answers: homes take lots; building costs resources and time; demolish with no refund; tiers give slots and a second recipe; he starts the Village by upgrading the hall; 9 resources (set C, adds stone); all 13 draft buildings kept (the cap is 12); 8 founders with a Hall, Cottage and Forager's hut; a stepper per building; skills grow by working; settlers join without a choice; hunger stops arrivals, lowers morale and makes residents leave; six extras marked Now. In his words he wants Europa Universalis 5 style production methods, and to "collect" and manage "funding"; both need a question in the next round.
 - 2026-11-10 M1 session started. Deployed commit checked (CI-05): Vercel's newest production deployment is READY at 4f80ea0, and the live page shows "Version 4f80ea0" with no console errors. Round 1 form published; it asks for the M0 phone results, the audit answer and the town's rules. It raises three conflicts in the charter: the M1 test ("20 minutes") is 20 ticks, under one game day; v0.1's 8 resources cannot hold everything M1 to M3 need; the 12 buildings must leave room for M2's guild buildings.
 - 2026-11-10 S3 built in the main session: the PWA plugin (manifest, service worker), two icons from `scripts/make-icons.mjs`, `importText`, `storageAnswer`, Export and Import with the in-page confirm on the main page and the refused-save screens, the Storage line. `npm run check` passes in about 5 s (20 tests, entry script 71,102 bytes gzipped); `npm run test:browser` passes 8 tests in 15 s; the 4 new ones failed before the code, and 3 planted bugs each failed a test. The zero-decision check found no question for Morgan; the small defaults taken are in the spec's "S3 build notes". No fresh reviewer has read the diff. Morgan approved it on 2026-11-10 and asked for M1 to start in a new session.
@@ -29,11 +31,10 @@ M0 Skeleton is done: built, merged, deployed, and its exit test passed on Morgan
 
 ## Next
 
-1. Finish the review round (`planning-interview`): verify the adversarial reviewer's claims, publish the review page with a `reply` card per finding, record its link here.
-2. Finish the M0 audit (`audit` skill, kind repo, 3 areas): quote-check the readers' reports, write `docs/audit/2026-11-10-repo.md`, publish the reply page. The report goes on its own branch with a draft PR, not on this one.
-3. Then round 2 with the taste board (`ui-style`) and mock-ups (`ui-mockups`), the final approval page, DECISIONS entries, then `write-spec` from its step 3. No build slice before Morgan approves the spec.
-4. Charter edits wait for the final page: the M1 test wording, 9 resources, the building count.
-5. Not checked: how Android Chrome answers the persistent-storage request for an installed PWA (Morgan did not look at the Storage line).
+1. On "review done": read collection `m1review1` on the review page (replies are `r_*` with comments `c_r_*`, scope rows `k_*`, questions `q_*`). A contradiction is the first question of round 2.
+2. On "audit replies done": read collection `audit-2026-11-10` on the audit page, fill the report's Outcome on branch `audit-m0`, and add accepted items here. Accepted code fixes belong in the M1 spec's first slice (F3, F13) or a small fix PR; each closes only with a test that failed first.
+3. Round 2: the taste board (`ui-style`) and mock-ups (`ui-mockups`) of the Town tab, People tab, a building's page and a resident's sheet. Then the final approval page, DECISIONS entries (9 resources, 13 buildings, the M1 test wording), charter edits, and `write-spec` from its step 3. No build slice before Morgan approves the spec.
+4. Not checked: how Android Chrome answers the persistent-storage request for an installed PWA (Morgan did not look at the Storage line).
 
 ## Open questions
 
@@ -41,7 +42,7 @@ M0 Skeleton is done: built, merged, deployed, and its exit test passed on Morgan
 
 ## Planning pages
 
-- Round 5: https://claude.ai/artifact/GXyCyVEpnCLUU8jVBXjfJG · Review: https://claude.ai/artifact/MTxTA5yFtYgbZrUKqmStUQ · Final: https://claude.ai/artifact/PDb43Sn8K1tcBLkqek9cPv · M0 spec: https://claude.ai/artifact/Bvt8GtrMSSTGaDjVRscCXe · S3 summary: https://claude.ai/artifact/BqkLY3zSL5CVprLRRxxndq · M1 round 1: https://claude.ai/artifact/4Lu6ZT9ZDmtqhLgLaWbymR
+- Round 5: https://claude.ai/artifact/GXyCyVEpnCLUU8jVBXjfJG · Review: https://claude.ai/artifact/MTxTA5yFtYgbZrUKqmStUQ · Final: https://claude.ai/artifact/PDb43Sn8K1tcBLkqek9cPv · M0 spec: https://claude.ai/artifact/Bvt8GtrMSSTGaDjVRscCXe · S3 summary: https://claude.ai/artifact/BqkLY3zSL5CVprLRRxxndq · M1 round 1: https://claude.ai/artifact/4Lu6ZT9ZDmtqhLgLaWbymR · M1 review: https://claude.ai/artifact/5NTJDE3CuGvSkuDjkBL1W1 · M0 audit replies: https://claude.ai/artifact/Wa5YKEgJy8xWYVhaiVRuUk
 
 ## Decisions since the last plan update
 
