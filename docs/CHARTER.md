@@ -123,7 +123,7 @@ Each ends with a build on the phone and a test Morgan runs. One session takes on
 
 1. **M0 Skeleton.** Workspace, tick loop, named random streams, saves with age and family fields, standby copy, clamp on elapsed time, persistent-storage request, export, PWA shell, hosting, soak, CI. Test: install on the phone; a counter survives closing with the right catch-up.
 2. **M1 Town.** Lots, 9 buildings at 3 tiers, production methods, 5 resources in use (food, wood, stone, ore, tools), residents as records, 2 peoples, automatic jobs with pin, arrivals, Hamlet to Village (D-025, D-026). Test: about 20 minutes of play in total over check-ins across 2 or 3 days, with real trade-offs, reaching the Village; the soak passes.
-3. **M2 Guild.** Herb garden, Smithy, Apothecary and Guild hall (D-026), recruits list, 3 classes, 6 Eaves sites, quest writing, picked parties, gear, decisions that wait. Test: a quest resolves while the phone is closed and its report reads well.
+3. **M2 Guild.** Herb garden, Smithy, Apothecary and Guild hall (D-026), recruits list, 3 classes, 6 Eaves sites, quest writing, picked parties, gear, decisions that wait, the threat clock and a first raid (D-029). Test: a quest resolves while the phone is closed and its report reads well.
 4. **M3 Trade outlet, events, chronicle.** One buyer town and caravans, one class-unlocking building, 12 events, 40 templates. Test: the check-in at the top of this file, end to end. **This is v0.1.**
 5. **M4a Families.** Marriage, children, aging, death, inheritance, heirs in the inbox, biography pages, the long soak.
 6. **M4b Paths.** Guild and March charters, 6 policies, Town tier, building branches, the Deepwood and its faction, posted bounties.

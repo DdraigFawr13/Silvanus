@@ -173,5 +173,17 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
 ## D-027 The whole loop stays the goal; gold funds building from M3
 
 - **Status:** Accepted (2026-11-10) for the goal; the reading of "funding" is Claude's and is Proposed
-- **Decision:** Moving buildings to M2 narrows M1, not the game. Morgan, 2026-11-10: "I want this to be a town simulator for like adventure and fantasy and caravans and all of that ties into getting materials and money to build the town and gear and adventurers and magic to defend it from raids from the forest". Proposed reading: M1 buildings cost stock only; once caravans pay gold (M3), gold also funds building. Open: which milestone holds raids and the town's defence; the charter names a threat clock and raids but no milestone before M4b builds them.
+- **Decision:** Moving buildings to M2 narrows M1, not the game. Morgan, 2026-11-10: "I want this to be a town simulator for like adventure and fantasy and caravans and all of that ties into getting materials and money to build the town and gear and adventurers and magic to defend it from raids from the forest". Proposed reading: M1 buildings cost stock only; once caravans pay gold (M3), gold also funds building. Raids and the town's defence are placed by D-029.
 - **Why:** His words, so later sessions do not read the M1 cuts as a change of direction.
+
+## D-028 The look: Lantern at the forest edge
+
+- **Status:** Accepted (2026-11-10)
+- **Decision:** The UI follows the taste board's look B, "Lantern at the forest edge": dark green, lamp-amber for what the player can act on, moss for what is fine. One theme only. Middle density: stock always visible, buildings scroll. The style doc is `docs/UI_STYLE.md`.
+- **Why:** Morgan's taste board answers (https://claude.ai/artifact/JrzLhbWsWXpwvPsVgqUZGf): Lantern Keep, Map table Keep, Woodcut print After, Steward's ledger Cut; then in chat, "Lantern leads".
+
+## D-029 Raids arrive in M2
+
+- **Status:** Accepted (2026-11-10)
+- **Decision:** The threat clock and a first simple raid on the town are part of M2, with the guild. Amends the charter's M2 line. Their rules are settled in M2's planning.
+- **Why:** Morgan, in chat: "Raids in m2". His loop ends on defending the town (D-027), and before this no milestone ahead of M4b built raids, so v0.1 would have shipped without them.
