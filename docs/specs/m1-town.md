@@ -470,6 +470,22 @@ Taken before any code, from the zero-decision check on S2 against what S1 merged
 - **After the fresh review of the diff** (one agent, 155,484 tokens measured; 1 medium-high, 1 low-medium, 4 low; no engine, content or screen defect). Fixed: `shapeOk` now checks each job against its target (one tier up, one job per target, the Hall's next tier only), that a building not yet built has its job, two traits per resident and the Hall's resident limit, because a hand-edited file could otherwise crash the page on every open or strand a lot; a save that should have kept the record it replaces and failed leaves that copy owed to the next save (GAME-05); a job holds its own copy of its cost; the slot stepper's browser taps wait for each answer; log rows keep their keys once the log is full. Declined: a reason line under a stepper cell at its limit (the number beside it shows the limit); cancelling by queue position while a tick finishes the front job (the tap and the tick would have to land within one message).
 - **Seen to fail first.** The 20 engine and content tests were run against S1's engine and all failed. "a damaged schema 1 save stays damaged" passes when written and failed under a planted bug. The four J11 browser tests were not run against S1's page; they read test ids it does not have.
 
+### S3 (2026-11-10)
+
+Taken before any code, from the zero-decision check on S3 against what S2 merged. It was one fresh agent, 156,343 tokens measured; a first run stopped at a rate limit before it reported. No gap needed Morgan except screen wording and layout, which the mock-up settles.
+
+- **Events.** `short` `{ buildingId, resource }` is emitted, and writes the log line, only when a building's `short` turns from false to true. `fellBack` `{ buildingId }` is emitted on every cycle run by a fallback, writes no line, and `fold` counts it into `shortCycles`. Production emits `used` for each input when at least 1 whole unit is taken.
+- **`short` on a skipped cycle.** A cycle skipped for tier 0, retooling, no workers or full stores leaves `short` as it was. Clearing it there would write the line again each time the building recovered.
+- **`setMethod` refusals.** A method id not in content gives `unknown`. A building with no methods gives `notAllowed`. Order: unknown, notReady, same, notAllowed. It is allowed while the building has an upgrade job (it keeps working at its old tier). Sent again while retooling, it starts the 24 ticks again.
+- **Full stores** are checked against the chosen method's outputs. Every fallback makes the same resource as its method, so the two cannot differ in M1's content.
+- **`perDay`** lives in `production.ts`, uses `DAY_TICKS / cycleTicks` rather than a literal 6, and is exported from the package.
+- **Retooling text** follows the S2 note "Time on screen": a fresh switch reads "Retooling, 1 game day left".
+- **The away card keeps its summary.** `store.ts` keeps the last summary of 10 ticks or more (not every advance with ticks, which replaced it within a second at test speeds). Dismiss clears it, and the next such catch-up replaces it. It is not kept over a reload. J13 runs at `?tickMs=60000`.
+- **A building that ran short and was cleared** before the card shows is named "A cleared building".
+- **J5's checks** read `carry`, `debt` and `short` rather than whole stock, since one worker on Forge tools makes 0.25 of a tool a cycle. Their Workshop is built with `finished()`, set to `forge` with `open` 1 and residents at skill 50 and morale 50. "retooling costs a game day" goes through `setMethod`, so it fails at S2's code, which refuses it.
+- **J9's script** gains its `setMethod` commands in tick order, because `chunked` finds the next command by array order.
+- **Soak pass 1** adds `setMethod` to `TYPES`, which changes the bot's draws and so its printed numbers.
+
 ## Open questions
 
 - Whether gold pays for building from M3 (D-027, proposed).

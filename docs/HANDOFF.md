@@ -12,7 +12,7 @@ M1 Town is being built from `docs/specs/m1-town.md` (approved, D-030), five slic
 - ✔ M1 planning: round 1, review, taste board, style doc, spec (D-025 to D-030).
 - ✔ M1 S1 Safe saves and updates (PR #5).
 - ✔ M1 S2 Stock, lots and the Town tab (PR #6).
-- ▶ M1 S3 Production methods and the away card: not started; starts with `mockups/town.html` updated for the methods list and the card.
+- ▶ M1 S3 Production methods and the away card: draft PR #8; mock-up waiting for Morgan's approval.
 - ○ S4 People · ○ S5 Growth and the Village (then the M1 test, J14).
 - ○ M2 in two sessions (D-033). Town half first: lots with a character, standing orders, forecast and ledger, a practised crew, push methods if the M1 test asks. Then the guild half: the guild, staged reports, the first raid (D-029) with its clock as a sign, the Palisade.
 - ○ M3 Trade outlet, events, chronicle (v0.1), plus signs, deeds, named foes, gold hiring a second crew, three more town works (D-032, D-033).
@@ -21,6 +21,7 @@ M1 Town is being built from `docs/specs/m1-town.md` (approved, D-030), five slic
 ## Just done
 
 - 2026-11-10 S3 session started on `m1/s3-methods-away` from `main` at `bbe90b1`. Deployed commit checked after S2: the live bundle at https://silvanus-xi.vercel.app carried `bbe90b1` and the manifest had its `id` (CI-05). `npm run check` passes on that commit.
+- 2026-11-10 S3 zero-decision check (fresh agent, 156,343 tokens): no gap for Morgan beyond wording; defaults in the spec's "Build notes", S3. `mockups/town.html` gained an S3 section of real-screen screenshots from a throwaway prototype, republished at https://claude.ai/artifact/6k9547asTCDNHmfobt6Hym (fresh check 141,047 tokens: 9 points, 6 fixed, 3 left with reasons; lint 0 warnings). S3's tests are written and fail on S2's code (5 engine, 2 browser); they wait uncommitted for the code.
 - 2026-11-10 S2 built on `m1-s2-town`: schema 2 town, engine (build, queue, jobs, production by first methods, eating), Town tab, build and building sheets, soak pass 1. `npm run check` passes (47 unit tests; first load 86,152 bytes gzipped of 120,000) and so do the 17 browser tests. The 20 new engine and content tests were seen to fail on S1's engine first. Screens were looked at on a production build at 412 px and 360 px beside the mock-up. Choices are in the spec's "Build notes", S2.
 - 2026-11-10 Fun ideas, two rounds in a separate session (docs only, PR #7). Morgan approved 6 additions in round 1 (D-032) and 7 town-management additions in round 2 (D-033). They change M2, M3 and M4a; M1 is untouched. The charter's first pillar, content targets and milestone lines are amended. Work is estimated at 10.5 slices in all, about two extra build sessions before v0.1.
 - 2026-11-10 S2 session started. Deployed commit checked after S1: the live bundle at https://silvanus-xi.vercel.app carried `ed1ed3d` and the manifest had its `id` and three icons (CI-05). `mockups/town.html` drafted at 412 px and 360 px (lint: 0 warnings). The zero-decision check on S2 found no gap that needed Morgan; its defaults are in the spec's "Build notes", S2. The mock-up's fresh check found 9 points: 6 fixed, 3 left with reasons (the page's check record).
@@ -31,7 +32,7 @@ M1 Town is being built from `docs/specs/m1-town.md` (approved, D-030), five slic
 
 ## Next
 
-1. S3 "Production methods and the away card" from the spec, on a new branch from the latest `main`, in a new session. First the zero-decision check on S3 against what S2 merged (the spec's "Build notes", S2), then the mock-up update, approved by Morgan before code. Write the slice's tests before its code (LESSONS, "spec" S2 measure).
+1. S3 on `m1/s3-methods-away` (PR #8): Morgan approves the S3 mock-up, then build the code to the written tests (`packages/sim/test/methods.test.ts`, J9's new `setMethod` lines, two tests at the end of `tests/browser/town.spec.ts`).
 2. After each slice merges, check the Version line at https://silvanus-xi.vercel.app equals the merge commit (CI-05), and give Morgan the slice's "Morgan tries" line. Still open from S1 and S2: Morgan's phone tests ("Update ready" and Reload after the S2 deploy; build a Woodcutter's camp, close the app, come back). Record his answers here.
 3. The repo has auto-merge off: merge by hand once the ready CI run is green, and do not push and mark ready within the same few seconds.
 4. M2's planning starts from D-032 and D-033 and the two pages under "Planning pages". The M1 test (J14) also answers three things for it: does the town feel mechanical (push methods), do shortages annoy (parked reserves), do 6 lots feel right.
