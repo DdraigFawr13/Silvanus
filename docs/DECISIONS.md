@@ -236,3 +236,9 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
   - M2 is planned as two sessions, the town half first.
   - Later: reserves and serving order (`docs/parking.md`). Tier 3 branches stay in M4b.
 - **Why:** Morgan, in chat: "none of these touch the town management as much as I would like", then "Ok I approve please add all these to the plan map". On the page he chose more to decide about each building, levers on the whole town, long projects and seeing why the numbers move. Work figures are Claude's estimates: 5.5 slices for the seven, 10.5 with D-032's six.
+
+## D-034 A building buys a method once
+
+- **Status:** Accepted (2026-11-10) by Morgan, during the S3 mock-up review. The rule and its owner are his. The prices and the 4 game hours are Claude's proposal on the mock-up, waiting for his approval.
+- **Decision:** A method a building has not had before costs stock once, paid when it is chosen, plus 1 game day to set up (`retoolTicks`). After that the building owns it: switching back to an owned method is free and takes 4 game hours (`switchTicks`, one production cycle). What a building owns belongs to that building alone; clearing its lot loses it. Every building owns its methods with no inputs from the start. Content gains a `cost` on each method; a building record gains `owned`, so saves move to schema 3 and an older town's buildings own their free methods and the one they run. Amends D-025's "changing method costs 1 game day".
+- **Why:** Morgan, in chat: "I want there to be a cost as well as time to change to a different production method that you didn't have before. Once you have "purchased" a production method, switching takes much less time and you don't have to pay again to do so." Asked whether the town or the building owns a bought method, he chose the building.
