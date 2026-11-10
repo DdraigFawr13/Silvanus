@@ -513,6 +513,17 @@ Taken before any code, from the zero-decision check on S4 against what S3 merged
 - **After the fresh review of the diff** (one agent, 55,317 tokens measured; 0 high, 0 medium, 5 low). Fixed 4: a test that a game day leaves its input untouched (a frozen state); `pinPreview` gives `[]` for a building at tier 0; the age reads the engine's exported `YEAR_TICKS`; "A human" is written from content's people name. Each new test was seen to fail under a planted bug. Declined 1: the confirm's "From this work" total is a display sum of the reasons `pinPreview` returns, the "morale cost" J12 asks the sheet to show; the engine decides nothing by it.
 - **Seen to fail first.** The 5 new engine tests ran against S3's engine and failed, and the 2 J12 browser tests against S3's page. The 8 older tests that pinned seed 1 at an effect of 100 failed on the new engine and were moved as above.
 
+### S5 (2026-11-10)
+
+From the zero-decision check on S5 against what S4 merged (one fresh agent, run before any code; its probes were scratch copies, not repo code). Nothing is built yet. For the S5 builder:
+
+- **J9 must be rewritten, not appended to.** A settler arrives at the tick 168 day once arrivals exist, and settlers take ids from `nextId`, so the Workshop is no longer id 14 and the commands at 340 and 560 name a resident. Rewrite the script's ids from a probe and keep every assertion exact (VER-01); record the old and new ids here.
+- **The scripted bot's band.** The check's emulation of S5's rules and its reading of the bot reached the Village at tick 1,216 (an estimate: 20th resident at tick 600, 0 left, lowest morale 40, Hall ordered about tick 1,120). That is just over the 1,200 floor. Write the bot's rules down here before running it; if the engine's first run is outside 1,200 to 2,200, stop and report the tick to Morgan (spec "Soak").
+- **Owner items for the mock-up** (`mockups/town.html`, Hall row and away card): what the Hall row shows while the Hall job runs; with both residents and stock missing, whether it shows both (refusal order gives `tooFew` before `noStock`) and as "Needs 20 residents" or "12 more"; whether "Upgrade to Village" asks first; the away card's Arrived and Left rows and whether the Village shows under Finished.
+- **Small defaults the check named:** `upgradeHall` during its own job gives `busy`; the job carries on if residents fall below 20; `jobCost` must return the Hall tier's cost for `upgradeHall` (it returns `{}` now, `build.ts`); the events `arrived`, `left` and `village` join `Event` and `fold` fills `summary.arrived` and `left`; the tavern term counts residents whose `jobId` is a tavern before the jobs pass, summed and capped at `tavernMax`, last in `reasons`; the clock change is in `App.tsx` (`due()` already takes the cap; read it from the latest snapshot's Hall tier); `step.test.ts`'s `upgradeHall` refusal moves from `notAllowed` to `tooFew` with the rule; soak `TYPES` gains `upgradeHall`, which changes pass 1's printed numbers.
+- **Checks that pass at the start:** J7 "nobody leaves a town of eight" passes today (no leaving code), so show it failing under a planted bug; J8's cap of 960 is an engine read; nothing checks that the page passes it to `due()`, so add a check or say so here.
+- **Browser seeds:** the "arrived" seed needs a second Cottage (8 beds for 8); the Hall seed needs 20 residents, and `addSettler` is not exported.
+
 ## Open questions
 
 - Whether gold pays for building from M3 (D-027, proposed).
