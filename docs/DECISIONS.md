@@ -147,3 +147,31 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
 - **Status:** Accepted (2026-11-09)
 - **Decision:** Morgan approved `docs/specs/m0-skeleton.md` ("Approved, start building", https://claude.ai/artifact/Bvt8GtrMSSTGaDjVRscCXe). Hosting is Vercel; at his request Claude created the project `silvanus` (id `prj_wddGMCfTiMi9txEVpWxadbxtlUmD`, team `golden-goose-engineering-group`), linked to this repo, production branch `main`. M0's one page needs no mock-up; mock-ups start with M1. The Web Worker stays in M0.
 - **Why:** Morgan's answers on the spec page. The address must not change later because saves are tied to it.
+
+## D-025 M0 passed; M1 Town's rules
+
+- **Status:** Accepted (2026-11-10; round 1 answers, then delegated)
+- **Decision:** M0's exit test passed on Morgan's phone. M1's rules:
+  - Homes are buildings on lots. The Hall takes no lot, stands from day 1 and cannot be cleared. Day 1 has 8 founders, the Hall, a Cottage and a Forager's hut.
+  - Building and upgrading cost stock and game hours. One job is under way at a time, with a queue of up to 3. A lot can be cleared with no refund, after a confirm on the page.
+  - Production methods are the one production system. Each workplace has a basic method with no inputs and up to two higher methods that need a supplied input; tier 2 unlocks the second and tier 3 the third. A workplace short of an input drops to its basic method and never stops. Changing method costs 1 game day of output. There is no separate upkeep.
+  - The Mine makes ore or stone by method. No Quarry.
+  - Jobs fill automatically; the player sets open slots per building with a stepper and can pin a resident. Skills grow slowly in the skill a job uses. Humans and dwarves arrive at even odds.
+  - Settlers join without a choice and the log says who came. Stock banks itself; there is no Collect tap.
+  - Morale is moved by food stock, job fit, a crowded home, a tavern and idleness. It changes output mildly, and at very low morale residents leave: at most one per season, and none when the town has 8 or fewer. Both numbers are tuning values.
+  - The player starts the Village by upgrading the Hall, at a population and a cost.
+  - In M1: the "while you were away" summary, the resident sheet, sort and filter on the people list, a plain dated log. After the first playtest: seasons changing yields, stock forecast, renaming, a balance report page.
+  - The soak gains a scripted bot that reports ticks to Village against a target of 2 to 3 real days, and a run that starves the town and checks it recovers.
+- **Why:** Morgan's round 1 answers (https://claude.ai/artifact/4Lu6ZT9ZDmtqhLgLaWbymR). On the review page's findings and questions (https://claude.ai/artifact/5NTJDE3CuGvSkuDjkBL1W1) he said in chat: "Go with your recommendations". Those items are Claude's recommendations, adopted on that instruction. Production methods are his own request: "something like europa unversalis 5 where I can choose production methods".
+
+## D-026 v0.1 caps and the M1 test
+
+- **Status:** Accepted (2026-11-10; resources by Morgan's answer, the rest delegated as D-025)
+- **Decision:** v0.1 has 9 resources (food, wood, stone, ore, herbs, forest materials, tools, weapons, potions); gold and renown are counted apart. v0.1 has 13 buildings. M1 ships 9 of them: Cottage, Forager's hut, Farm, Woodcutter's camp, Mine, Workshop, Storehouse, Hall, Tavern. Herb garden, Smithy, Apothecary and Guild hall arrive in M2 with the guild. The M1 test is about 20 minutes of play in total, spread over check-ins across 2 or 3 days, with real trade-offs, reaching the Village; the soak passes. Amends the charter's content targets and its M1 and M2 lines.
+- **Why:** Morgan chose set C for resources. One sitting of 20 minutes is 20 ticks, less than a game day. The four buildings moved have no use before the guild exists, and all 13 have one by M2.
+
+## D-027 The whole loop stays the goal; gold funds building from M3
+
+- **Status:** Accepted (2026-11-10) for the goal; the reading of "funding" is Claude's and is Proposed
+- **Decision:** Moving buildings to M2 narrows M1, not the game. Morgan, 2026-11-10: "I want this to be a town simulator for like adventure and fantasy and caravans and all of that ties into getting materials and money to build the town and gear and adventurers and magic to defend it from raids from the forest". Proposed reading: M1 buildings cost stock only; once caravans pay gold (M3), gold also funds building. Open: which milestone holds raids and the town's defence; the charter names a threat clock and raids but no milestone before M4b builds them.
+- **Why:** His words, so later sessions do not read the M1 cuts as a change of direction.
