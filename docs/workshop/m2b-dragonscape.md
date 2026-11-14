@@ -92,3 +92,7 @@ Morgan: "I want upgrades to make things look nicer and I want the square to be u
 ## Canvas round 6 (2026-11-14)
 
 Morgan: "The roads and streets need to look better". Built (`roads.py`): three street kinds with a darker grass verge instead of ragged speckle: the High Street in cobbled setts with kerb stones and moss in the joints; the cross street and north lane as packed-earth cart roads with two clean wheel ruts, a grass middle strip and the odd puddle; lanes and doorstep paths as soft worn tracks with stepping stones. The square sits in a smooth band of packed earth with a soft grass edge.
+
+## Canvas round 7 (2026-11-14)
+
+Morgan: "Upgrade the looks of future lot they don't read right and make the river / stream a bit bigger. So like there will be like a fisherman's hut or something on the [far] side. Think of things like that. Also there should be at least the hint of a mountain where the mine is at." Built: future lots as roped, staked plots of fallow ground with wildflowers and a sign; the stream widened into a river (sandy banks, reeds, rocks, lily pads, ripples) with a wider railed bridge and lanterns; a riverside lot on the far bank with an old jetty, a rowboat and drying nets; a jagged, stepped rock mountain behind the Mine; an idea picture of a Fisher's hut on the Upgrades artboard.
