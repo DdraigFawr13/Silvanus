@@ -14,7 +14,7 @@ const snapshot = (ticks: number, made = 0): Snapshot => ({
   summary: { ...emptySummary(), ticks, made: made > 0 ? { food: made } : {} },
 });
 
-test('the away card keeps the last catch-up of 10 ticks or more', () => {
+test('the away card keeps the last catch-up of AWAY_MIN_TICKS (40) or more', () => {
   reset();
   publish(snapshot(100, 25));
   expect(summary()?.ticks).toBe(100);
@@ -22,7 +22,7 @@ test('the away card keeps the last catch-up of 10 ticks or more', () => {
   publish(snapshot(1, 1));
   publish(snapshot(AWAY_MIN_TICKS - 1, 2));
   expect(summary()?.ticks).toBe(100);
-  // the next catch-up of 10 or more does
+  // the next catch-up of AWAY_MIN_TICKS or more does
   publish(snapshot(AWAY_MIN_TICKS, 3));
   expect(summary()?.ticks).toBe(AWAY_MIN_TICKS);
   dismissSummary();

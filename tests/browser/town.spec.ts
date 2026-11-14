@@ -426,6 +426,9 @@ test('Upgrade is on the lot row', async ({ page }) => {
   const cottage = lot(page, 'Cottage');
   await expect(cottage.getByRole('button', { name: 'Upgrade Cottage' })).toHaveClass('btn second');
   await expect(cottage.locator('.w')).toHaveText('Tier 2: Needs 5 wood, 10 stone');
+  expect(
+    (await cottage.getByRole('button', { name: 'Upgrade Cottage' }).boundingBox())!.height,
+  ).toBeGreaterThanOrEqual(44);
   // being built, or at the last tier: no Upgrade
   await expect(lot(page, 'Mine').getByRole('button', { name: /^Upgrade/ })).toHaveCount(0);
   await expect(lot(page, "Forager's hut").getByRole('button', { name: /^Upgrade/ })).toHaveCount(0);
