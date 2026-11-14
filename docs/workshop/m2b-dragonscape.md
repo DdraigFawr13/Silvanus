@@ -80,3 +80,7 @@ Built (`scene4.py` in the art folder): the town fills the Town screen (28 × 32 
 ## Canvas round 3 (2026-11-14)
 
 Morgan: no blend between the square and the roads; set the Hall back "so the town square is a little bit farther with like an ornate walkway to the hall. but not really ornate just slightly decorated"; "more feel"; "the buildings did not seem to change enough"; centre the Hall and the square ("they are not aligned"). Built (`scene5.py`): a 29-tile-wide map symmetric about the centre line (Hall door, walkway, square, south road); a slab walkway with kerbs, planters and lanterns; a worn dirt ring where the flagstones break up and the roads run in; soft shadows under buildings and trees; warm light pools at lanterns, the Hall's windows and the forge; weathered roofs; and an extra per building (a woodshed, a workbench lean-to, mine rails with a cart, a scarecrow and hay bales, a cottage garden and washing line, a herb rack).
+
+## Canvas round 4 (2026-11-14)
+
+Morgan: "I don't want the lots to constantly glow like that. I want the empty lots to have a pale glow. And add more richness around the buildings that are built". Built lots now have no glow until tapped; empty lots breathe a pale, moonlight glow; yards gained doorsteps and worn paths, stumps and chips, barrels and a tool rack, walkway benches and flowers, chickens, pumpkins, a water trough, berry bushes, rock piles and a timber stack.
