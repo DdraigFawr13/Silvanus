@@ -129,3 +129,7 @@ Art sources added (SAFE-05), both CC0, licence files read 2026-11-14:
 ## Bake-off answers (`bake1`, 2026-11-14)
 
 Packs Keep; Blender After; hand pixels After. Plan: packs as the base, hand pixels for small gaps, Blender for big set pieces. Note: "Honestly the art pack looks the best. If you can match that style when drawing things that would be good. The blender design would need multiple passes to improve it though". Written as D-045. Morgan will also try ChatGPT's image tool on a sample sheet; anything from it is recorded as AI-generated with its source before use.
+
+## ChatGPT test sheet (2026-11-14)
+
+Morgan ran the prompt in ChatGPT's image tool and sent the sheet (mine face, bat cave, tar pit, standing stones, bog, salt spring, ruin tower, thicket, Hall, cottage in three tiers). Measured: about 389,000 distinct colours and no consistent grid ("fake pixels"); its pixels are about 6 screen pixels. Cleaned (`gpt_clean.py`): magenta keyed out, snapped to a true grid by 6 × 6 block medians, reduced to 40 colours, graded like the pack, cut into 12 pieces. At that grid the pieces match the pack's scale. Placed beside the Adventure Awaits patch: good content and mood, but denser and darker than the pack, each piece sits on its own grass island that doesn't blend into the ground, and the mine's grey rock differs from the pack's brown cliff. Not in use. If used: AI-generated (OpenAI), recorded as such, islands removed, recoloured to the pack's ramps and touched up by hand.
