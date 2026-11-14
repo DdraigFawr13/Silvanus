@@ -104,3 +104,7 @@ Morgan: "I like this layout but they shouldn't be surrounded by forest. I like b
 ## Canvas round 9 (2026-11-14)
 
 Morgan: "we need another pass on the objects like walls and trees they don't look good enough". Built (`paint.py`): hand-drawn trees in place of Kenney's one-tile trees (oaks with layered, shaded crowns, pale birches, fruit trees in the orchard, and the forest as layered pines of varied size with the odd dead one); dry-stone walls of irregular shaded stones with capstones and moss; rail fences with capped posts; the Tangle redrawn as brambles with arching thorny canes.
+
+## Sites form answers (`sites1`, 2026-11-14)
+
+All recommended options picked (D-043). Notes: "Anything that gets a basic resource" (which buildings); "I still don't like how it looks though. Also the bottom needs to be clear so there is a road in and out" (the Tangle); "maybe an old ruins in the forest distance somewhere and I like the standing stones as well. But I'd like a few more good ideas" (special sites; tar pit ticked).
