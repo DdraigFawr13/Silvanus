@@ -41,6 +41,7 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 
 ## Open questions
 
+- Dedicated sites for gathering buildings (Morgan, 2026-11-14: "I want certain core buildings to have dedicated lots to them. Like for basic resource gathering"). Form (`sites1`): https://claude.ai/artifact/3xXuw4Rf4Jdi5AQHjmLbpf. Touches D-033 (lot character) and M2d; settle before the M2d spec.
 - Whether gold pays for building from M3 (D-027, proposed; settled at M3's planning).
 - Whether the Town tier counts 24 real hours away (M1 audit F18; M2d). Settlers arrive aged 20 until M5a sets ages (F22). D-034's prices are judged again after M2a (F19).
 - How Android Chrome answers the persistent-storage request for an installed PWA: Morgan did not look at the Storage line.
