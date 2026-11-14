@@ -108,3 +108,7 @@ Morgan: "we need another pass on the objects like walls and trees they don't loo
 ## Sites form answers (`sites1`, 2026-11-14)
 
 All recommended options picked (D-043). Notes: "Anything that gets a basic resource" (which buildings); "I still don't like how it looks though. Also the bottom needs to be clear so there is a road in and out" (the Tangle); "maybe an old ruins in the forest distance somewhere and I like the standing stones as well. But I'd like a few more good ideas" (special sites; tar pit ticked).
+
+## Canvas round 10 (2026-11-14)
+
+From the sites form notes. The Tangle redrawn as wild overgrowth (young oaks, birches and pines tangled with bushes and brambles, fallen logs, the odd dead tree) under a fog that thickens outward; the High Street carried south out of town as a cart road through a gateway of two lantern posts with a signpost; the river carried out to the south. Special-site ideas form (`special1`): https://claude.ai/artifact/7gRXgffZtkXETSMhZqq5iL (eleven ideas, each with its building).

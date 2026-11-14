@@ -41,6 +41,7 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 
 ## Open questions
 
+- Which special sites (D-043): tar pit, standing stones and old ruins in the forest distance are in; form (`special1`) with eleven more ideas: https://claude.ai/artifact/7gRXgffZtkXETSMhZqq5iL.
 - Whether gold pays for building from M3 (D-027, proposed; settled at M3's planning).
 - Whether the Town tier counts 24 real hours away (M1 audit F18; M2d). Settlers arrive aged 20 until M5a sets ages (F22). D-034's prices are judged again after M2a (F19).
 - How Android Chrome answers the persistent-storage request for an installed PWA: Morgan did not look at the Storage line.
