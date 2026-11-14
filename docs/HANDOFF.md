@@ -30,8 +30,7 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 
 ## Next
 
-0. Read Morgan's `m2aspec` answers (leaving gap, row A or B, approval). Then set the spec Approved, write the DECISIONS lines (D-039 for the leaving gap if yes), and build S1 then S2 on `m2a-pace`, tests seen to fail first.
-1. M2a in a new session: spec it with `write-spec` from step 3 (the approved pages are its input: D-035, D-036, the final page's "About 8" hours and the Upgrade fix), cut it into slices, then build on a new branch from `main`. Measure before retuning builds; the soak checks the hours to the Village.
+1. Build M2a on `m2a-pace` (PR #14): S1 Pace, then S2 Upgrade row (option B), per `docs/specs/m2a-pace.md` (Approved). Tests seen to fail first; `npm run check` and `npm run test:browser` before ready; Morgan's approval before merge.
 2. Still open: Morgan's phone tests from S1 and S2 ("Update ready" and Reload; build a Woodcutter's camp, close the app, come back), S3 (switch the Mine to stone; let the Workshop run out of ore overnight) and S4 (pin someone to a bad job and read why morale falls). Record answers here.
 3. The repo has auto-merge off: merge by hand once the ready CI run is green, and do not push and mark ready within the same few seconds.
 4. Phobos: Morgan will send an integration plan "in the next couple of days" (parked, D-035).
@@ -51,6 +50,7 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 
 ## Decisions since the last plan update
 
+- 2026-11-14 Morgan approved the M2a spec: leaving gap 672 ticks, Upgrade row option B (D-039).
 - 2026-11-14 Morgan approved the M2 re-plan ("Approved, start building"): D-035 to D-038.
 - 2026-11-10 Morgan: the M1 audit comes before the M1 test (J14) ("Audit before testing in a new session please"). Plan page: https://claude.ai/artifact/JBJXyeY7awmo7p5GHuRL8z.
 - 2026-11-10 D-025 to D-034, see `docs/DECISIONS.md`. D-034 (methods bought once) amends D-025.

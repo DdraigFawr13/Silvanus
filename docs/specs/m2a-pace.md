@@ -1,7 +1,7 @@
 # M2a Pace
 
-- **Status:** Draft
-- **Planned in:** M2 re-plan round 1 (https://claude.ai/artifact/3uADUApzUZwnny2PqCwnz2), review (https://claude.ai/artifact/2KcwbeGPg47mn2rZvEbVYx), final (https://claude.ai/artifact/2Q9JF8itCsoKPXsS8h8YaG), all 2026-11-14. **Decisions:** D-035, D-036; amends D-025's leaving gap (proposed, see Decisions).
+- **Status:** Approved 2026-11-14 (https://claude.ai/artifact/REo95ymqF2GDq5MqtMpzTz, `m2aspec`)
+- **Planned in:** M2 re-plan round 1 (https://claude.ai/artifact/3uADUApzUZwnny2PqCwnz2), review (https://claude.ai/artifact/2KcwbeGPg47mn2rZvEbVYx), final (https://claude.ai/artifact/2Q9JF8itCsoKPXsS8h8YaG), all 2026-11-14. **Decisions:** D-035, D-036, D-039.
 
 ## Problem
 
@@ -53,7 +53,7 @@ The build starts from `70eec4b` (main after PR #13). Every check below fails the
 
 ### J6 Upgrade is on the row (browser)
 
-- **Given** seed 1 with stock set to wood 200, stone 200, tools 50, a Woodcutter's camp built and finished, and a Mine sent to build. **Then** the Woodcutter's camp row has a button named "Upgrade Woodcutter's camp", at least 44 px tall, with the `btn` class (it can be paid for). **When** it is tapped. **Then** the building sheet opens and its first `h3.sheet-sec` reads "Upgrade to tier 2". The Mine's row (being built) has no Upgrade button; after the camp's upgrade is sent, its row has none either. **Check:** `tests/browser/town.spec.ts` "Upgrade is on the lot row" (fails now: no such button; its negative parts are guards).
+- **Given** seed 1 with stock set to wood 200, stone 200, tools 50, a Woodcutter's camp built and finished, and a Mine sent to build. **Then** the Woodcutter's camp row has a button named "Upgrade Woodcutter's camp", at least 44 px tall, with the `btn` class (it can be paid for), and the row reads "Tier 2: 40 wood, 5 tools". With wood 45, stone 10, tools 5, the Cottage row reads "Tier 2: Needs 5 wood, 10 stone" beside a `btn second` Upgrade. **When** it is tapped. **Then** the building sheet opens and its first `h3.sheet-sec` reads "Upgrade to tier 2". The Mine's row (being built) has no Upgrade button; after the camp's upgrade is sent, its row has none either. **Check:** `tests/browser/town.spec.ts` "Upgrade is on the lot row" (fails now: no such button; its negative parts are guards).
 - **Given** a building at tier 3 (seeded with `tier: 3`). **Then** its row has no Upgrade button. **Check:** the same test.
 
 ### J7 The M2a test (device check, Morgan)
@@ -64,7 +64,7 @@ The build starts from `70eec4b` (main after PR #13). Every check below fails the
 
 - 1 tick is 1 game hour and 15 s; caps 1,920 and 3,840 (D-036).
 - Upgrade is easy to find on each building row (D-035).
-- **Proposed, for Morgan:** a resident leaves at most once every 672 ticks (a game year, 2 h 48 min real), not once a season (168 ticks, 42 min real). It keeps D-025's "cannot collapse overnight" in real hours: at 60 s a season was 2 h 48 min real. It becomes `content.rules.leaveGapTicks`, a tuning value as D-025 says. Amends D-025's "at most one per season".
+- Approved by Morgan (D-039): a resident leaves at most once every 672 ticks (a game year, 2 h 48 min real), not once a season (168 ticks, 42 min real). It keeps D-025's "cannot collapse overnight" in real hours: at 60 s a season was 2 h 48 min real. It becomes `content.rules.leaveGapTicks`, a tuning value as D-025 says. Amends D-025's "at most one per season".
 - Autosave every 40 ticks and the away card after 40 ticks: both stay 10 real minutes, as at 60 s (default chosen here, small fork; WS-02).
 - Test tick lengths stay 50 ms to 60 s (default chosen here). Why: every browser test opens `?tickMs=60000` so that no tick falls inside a test and the texts it reads hold still (`tests/browser/town.spec.ts:6`); at 15 s a slow test could see a tick.
 - Content version 2 becomes 3 (rules changed; GAME-01). A version 2 save loads as now: loading sets the running version (`apps/web/src/saves.ts:203`), so no migration.
@@ -121,10 +121,11 @@ At 15 s (from content, `packages/content/src/index.ts:47-126`): tier 1 builds ta
 
 ### Web: Upgrade on the row (`apps/web/src/ui/TownTab.tsx`, `BuildingSheet.tsx`)
 
-The layout is fixed by the S2 mock-up; this is its starting point.
+Morgan picked option B on the mock-up (https://claude.ai/artifact/7xmvYWD4xV6fu36M5X69BH, D-039).
 
 - A built row becomes a `div.panel.lot` (keeping `data-testid="lot"`) holding two buttons: the row's main button `button.lot-main` with `data-testid="lot-open"` (name, tier, second line, and `›` only when there is no Upgrade button; opens the sheet) and, when the building has a next tier and no job of its own in the queue, a button labelled "Upgrade" with `aria-label="Upgrade <kind name>"`, at least 44 px tall. Nested buttons are not allowed, hence the split.
-- The Upgrade button has class `btn` when `refusal(state, upgrade, content)` is null and `btn second` otherwise (including a full queue), and no reason line on the row: either opens the building sheet, whose Upgrade section says what is missing as now. The sheet's own Upgrade section keeps its current rules.
+- The Upgrade button has class `btn` when `refusal(state, upgrade, content)` is null and `btn second` otherwise (including a full queue). Either opens the building sheet, whose Upgrade section says what is missing as now.
+- Option B: a row with the Upgrade button gains a third `line2` reading "Tier <n>: <cost>" (`amountsText(jobCost(...))`), or, when the refusal is `noStock`, "Tier <n>: Needs <shortfall>" (`needsText(shortfall(...))`) in a `.w` span (ember). The sheet's own Upgrade section keeps its current rules.
 - `tests/browser/helpers.ts`: `lot(page, name)` is unchanged; every test that opens a sheet by clicking a row (`smoke.spec.ts:32`, `town.spec.ts:82, 207, 306` and any other `lot(...).click()`) clicks `lot(page, name).getByTestId('lot-open')` instead. The Hall's `getByRole('button', { name: 'Upgrade', exact: true })` (`town.spec.ts:354`) stays exact, so the rows' "Upgrade <name>" labels do not match it.
 - `BuildingSheet.tsx`: the Upgrade section moves above Methods for every opening (at `70eec4b` Methods is at line 50 and Upgrade at line 88), so the sheet's order is Upgrade, Methods, Open slots, Workers, Clear.
 
@@ -159,4 +160,4 @@ The layout is fixed by the S2 mock-up; this is its starting point.
 
 ## Open questions
 
-- Morgan approves the leaving gap of 672 ticks (proposed above).
+- None.
