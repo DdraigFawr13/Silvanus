@@ -84,3 +84,7 @@ Morgan: no blend between the square and the roads; set the Hall back "so the tow
 ## Canvas round 4 (2026-11-14)
 
 Morgan: "I don't want the lots to constantly glow like that. I want the empty lots to have a pale glow. And add more richness around the buildings that are built". Built lots now have no glow until tapped; empty lots breathe a pale, moonlight glow; yards gained doorsteps and worn paths, stumps and chips, barrels and a tool rack, walkway benches and flowers, chickens, pumpkins, a water trough, berry bushes, rock piles and a timber stack.
+
+## Canvas round 5 (2026-11-14)
+
+Morgan: "I want upgrades to make things look nicer and I want the square to be upgradable as well for some reason. Also Its missing the cozy town vibes. Maybe because things aren't structured like a real town". Built (`paint.py`, `scene6.py`, `tiers.py`): the town laid out like a real one (High Street, cross street with lots fronting it, lanes, a stream and bridge, hedgerows, low walls, lamp posts, gardens, an orchard); buildings drawn in three tiers (Cottage, Workshop shown); the Square in three stages, proposed as D-042; a new Upgrades artboard on the canvas; the Square is tappable on the map.
