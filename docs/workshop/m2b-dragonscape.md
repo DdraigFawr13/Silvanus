@@ -139,3 +139,7 @@ Morgan on the ChatGPT pieces: "I really like this art style actually". Written a
 ## Style anchor (2026-11-14)
 
 Morgan compared two ChatGPT sheets and chose the first as the style anchor ("Yes use the first sheet"): bold outlines, simpler shading, front-facing slate roofs, tiers that keep the same building and add to it, a symmetrical Hall with a cupola. Measured against the second: grass under objects 2.9% vs 8.4% of object area, about 308,000 vs 409,000 colours, neither on a true grid. Cleaned (`gpt_clean_A.py`, pixel 6, 96 colours, no grade, so the sheet keeps its own colours) into 12 pieces in `C:\Users\Morgan\CraftWork\silvanus-art\gpt\A`. Source (SAFE-05): AI-generated with OpenAI's ChatGPT image tool by Morgan, 2026-11-14 (`gpt/sheetA.png`).
+
+## ChatGPT ground sheet (2026-11-14)
+
+28 tiles (grass, dirt, cobble, road edges, flagstones, water). Snapped to 16 × 16 each; seam test: only open water is near seamless, the rest carry a darker frame. Repaired (`gpt_ground.py`): fill tiles rebuilt from their interiors so they wrap, decorations lifted into overlays, and a test patch built with the anchor's Hall and cottages. Result: the buildings sit well; the grass reads mustard-olive and flat next to the anchor sheet's greener grass; the edge and transition tiles can't be used as drawn because of the frames. Retry prompt sent for frameless, seamless tiles. Source: AI-generated with ChatGPT by Morgan, 2026-11-14 (`gpt/ground/sheet.png`).
