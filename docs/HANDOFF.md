@@ -1,10 +1,10 @@
 # Handoff
 
-Updated: 2026-11-10. A fresh session must be able to continue from this file alone. Keep it to 60 lines; move finished entries to `docs/archive/handoff-YYYY-MM.md`.
+Updated: 2026-11-14. A fresh session must be able to continue from this file alone. Keep it to 60 lines; move finished entries to `docs/archive/handoff-YYYY-MM.md`.
 
 ## Phase
 
-M1 Town is built from `docs/specs/m1-town.md` (approved, D-030), five slices, all merged: S1 (PR #5), S2 (PR #6), S3 (PR #8, with D-034), S4 (PR #9), S5 "Growth and the Village" (PR #10; Morgan: "Approved. Merge when ready"). Mock-ups: `mockups/town.html` (https://claude.ai/artifact/6k9547asTCDNHmfobt6Hym) and `mockups/people.html` (https://claude.ai/artifact/R2jofFnKAX6bWhpqKngZcP); the phone is 412 px wide (Morgan). The M1 audit is done (PR #11, all 25 findings accepted). All 25 are fixed on `audit/m1-fixes`. Next is Morgan's M1 test (J14). M0 is done and passed on Morgan's phone.
+M1 Town is built from `docs/specs/m1-town.md` (approved, D-030), five slices, all merged: S1 (PR #5), S2 (PR #6), S3 (PR #8, with D-034), S4 (PR #9), S5 "Growth and the Village" (PR #10; Morgan: "Approved. Merge when ready"). Mock-ups: `mockups/town.html` (https://claude.ai/artifact/6k9547asTCDNHmfobt6Hym) and `mockups/people.html` (https://claude.ai/artifact/R2jofFnKAX6bWhpqKngZcP); the phone is 412 px wide (Morgan). The M1 audit is done (PR #11, all 25 findings accepted). All 25 are fixed and merged (PR #12). Next is Morgan's M1 test (J14). M0 is done and passed on Morgan's phone.
 
 ## Plan map
 
@@ -16,7 +16,7 @@ M1 Town is built from `docs/specs/m1-town.md` (approved, D-030), five slices, al
 - ✔ M1 S4 People (PR #9).
 - ✔ M1 S5 Growth and the Village (PR #10).
 - ✔ M1 audit (PR #11): 25 findings, all accepted.
-- ✔ M1 audit fixes: all 25 (`audit/m1-fixes`).
+- ✔ M1 audit fixes: all 25 (PR #12).
 - ▶ The M1 test (J14) on Morgan's phone.
 - ○ M2 in two sessions (D-033). Town half first: lots with a character, standing orders, forecast and ledger, a practised crew, push methods if the M1 test asks. Then the guild half: the guild, staged reports, the first raid (D-029) with its clock as a sign, the Palisade.
 - ○ M3 Trade outlet, events, chronicle (v0.1), plus signs, deeds, named foes, gold hiring a second crew, three more town works (D-032, D-033).
@@ -24,19 +24,17 @@ M1 Town is built from `docs/specs/m1-town.md` (approved, D-030), five slices, al
 
 ## Just done
 
-- 2026-11-10 All 25 M1 audit findings fixed on `audit/m1-fixes` (`dd912d7`, `d60d3b1`); each code fix seen to fail first. `npm run check` passes (77 unit tests, 6.1 s; first load 94,492 bytes); 27 browser tests pass (37.0 s). Screens checked at 412 px, with 200% text.
-- 2026-11-10 PR #10 merged as `2bc2181`. Deployed commit checked: the live bundle at https://silvanus-xi.vercel.app carries `2bc2181` (CI-05). M1 audit started on `audit/m1`: `npm run check` passes (67 unit tests, 7.4 s), 25 browser tests pass (43.0 s), five readers. Report written and checked (shape ok, 25 of 25 quotes); 25 findings, 0 high, 4 medium; all accepted on 2026-11-10 (Morgan: "Do what you recommend for all"); PR #11 merged.
-- 2026-11-10 S5 built on `m1/s5-village` (PR #10): leaving, arrival, the tavern term, `upgradeHall` and the Village, the catch-up cap from the Hall, the Hall row's "Upgrade to Village" (asks first) and the away card's Arrived and Left rows. Tests first, each seen to fail. Soak pass 2: the Village at tick 1,216 (band 1,200 to 2,200, 16 ticks above the floor); pass 3 lost 2 and was back to 20 after 168 ticks. Mock-up approved after one change round (Morgan: "order the village" is weird wording for an upgrade; it now says "Upgrade"). Diff review (96,977 tokens): 0 high, 1 medium, 7 low; 5 fixed, 2 declined (spec build notes). `npm run check` passes (67 unit tests; first load 93,636 bytes); 25 browser tests pass. Morgan approved the slice on 2026-11-10: "Approved. Merge when ready".
-- 2026-11-10 S4 merged as `f083aa7` (PR #9). Deployed commit checked: the live bundle at https://silvanus-xi.vercel.app carried `f083aa7` and the manifest had its `id` (CI-05). S4's "Morgan tries" sent. S5 started on `m1/s5-village` from that commit; its zero-decision check (fresh agent) ran and its findings are in the spec's build notes, S5. S5 moves to a new session: this one built S4 and its context is large (write-spec step 8).
+- 2026-11-14 Synced AI-Master-Instructions v4.12.0 to v4.15.0: VER-10 and VER-11 replace WEB-07; the `test-design` skill, its browser-tests page and the `tests.delete` guard updated. No override changes.
+- 2026-11-14 Audit fixes merged as `782553d` (PR #12); the live bundle at https://silvanus-xi.vercel.app carries `782553d` (CI-05).
+- 2026-11-10 All 25 M1 audit findings fixed (`dd912d7`, `d60d3b1`); `npm run check` passed (77 unit tests; first load 94,492 bytes); 27 browser tests passed.
 - Earlier entries are in `docs/archive/handoff-2026-11.md`.
 
 ## Next
 
-1. Merge the audit fixes PR (`audit/m1-fixes`) with a merge commit once its ready CI run is green: the report names its two fix commits, `dd912d7` and `d60d3b1`. Then check the live Version line equals the merge commit (CI-05).
-2. Then send Morgan the M1 test (J14) from the plan page https://claude.ai/artifact/JBJXyeY7awmo7p5GHuRL8z: about 20 minutes of play over check-ins across 2 or 3 days, reaching the Village, noting at least one choice he found hard. Record his findings here (GAME-06).
-3. Still open from S1 and S2: Morgan's phone tests ("Update ready" and Reload after the S2 deploy; build a Woodcutter's camp, close the app, come back), S3's, sent 2026-11-10 (switch the Mine to stone and read the cost; let the Workshop run out of ore overnight and read the away card), and S4's, sent 2026-11-10 (pin someone to a job they are bad at and read why their morale falls). S4 begun 2026-11-10 (relayed by the S4 session): "Pinned a resident but the ticks don't seem to be updating at all oh wait nvm there it goes. I guess morale will update in the next day in game"; pinning works, the morale fall is not yet read. For J14: at a game hour per real minute the date sits still up to a minute, which first read to him as stuck. Record his answers here.
-4. The repo has auto-merge off: merge by hand once the ready CI run is green, and do not push and mark ready within the same few seconds.
-5. M2's planning starts from D-032 and D-033 and the two pages under "Planning pages". The M1 test (J14) also answers three things for it: does the town feel mechanical (push methods), do shortages annoy (parked reserves), do 6 lots feel right.
+1. Send Morgan the M1 test (J14) from the plan page https://claude.ai/artifact/JBJXyeY7awmo7p5GHuRL8z: about 20 minutes of play over check-ins across 2 or 3 days, reaching the Village, noting at least one choice he found hard. Record his findings here (GAME-06).
+2. Still open: Morgan's phone tests from S1 and S2 ("Update ready" and Reload; build a Woodcutter's camp, close the app, come back), S3 (switch the Mine to stone; let the Workshop run out of ore overnight) and S4 (pin someone to a bad job and read why morale falls; begun, the fall not yet read). For J14: the date can sit still up to a real minute, which first read to him as stuck. Record answers here.
+3. The repo has auto-merge off: merge by hand once the ready CI run is green, and do not push and mark ready within the same few seconds.
+4. M2's planning starts from D-032 and D-033 and the two pages under "Planning pages". The M1 test (J14) also answers three things for it: does the town feel mechanical (push methods), do shortages annoy (parked reserves), do 6 lots feel right.
 
 ## Open questions
 

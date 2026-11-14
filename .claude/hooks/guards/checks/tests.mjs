@@ -85,6 +85,15 @@ function findHit(c, facts) {
   return filters.find((f) => filterNamesTests(f, facts)) ?? null;
 }
 
+/**
+ * True when git tracks nothing at `rel` (a root-relative path): a scratch test the agent made and never
+ * committed (D-069). Git failing means "can't confirm", so the answer is false and the check asks.
+ */
+function untracked(rel, facts) {
+  const out = facts.git(['ls-files', '-z', '--', rel]);
+  return out !== null && out === '';
+}
+
 /** Earlier stages of the call's pipeline, as words: `find … | xargs rm` takes its paths from them. */
 function piped(c, facts) {
   return facts
@@ -165,7 +174,9 @@ export const checks = [
         }
         // A rename within one folder is quiet, unless the source is a whole folder (`mv tests old-tests`).
         const renamed = (s, r) => into !== null && path.posix.dirname(r) === into && !isDir(path.resolve(c.dir, s));
-        const hit = sources.map((s) => [s, facts.rel(s, c.dir)]).find(([s, r]) => r !== null && names(facts.tests, r) && !renamed(s, r))?.[1];
+        // `rm` of a test git doesn't track deletes no committed test (D-069); `git rm` and `mv` keep asking.
+        const scratch = (r) => c.name === 'rm' && untracked(r, facts);
+        const hit = sources.map((s) => [s, facts.rel(s, c.dir)]).find(([s, r]) => r !== null && names(facts.tests, r) && !renamed(s, r) && !scratch(r))?.[1];
         if (hit) return `${move ? 'moves' : 'deletes'} test path \`${hit}\`: never delete a test to get green`;
       }
       return null;
