@@ -39,7 +39,7 @@ The build starts from `70eec4b` (main after PR #13). Every check below fails the
 
 ### J3 An 8-hour hungry night costs at most three
 
-- **Given** the starving town of 20 from `growth.test.ts`, from tick 100 and from tick 0. **When** 1,920 ticks run. **Then** 1 to 3 have left, at least 672 ticks apart. **Check:** `growth.test.ts` "a hungry night costs at most three" (fails now: 8 leave in 1,920 ticks, prototype run). The `starving(tick)` helper stays; only 480 becomes 1,920, and the 168-tick spacing at `growth.test.ts:205` becomes `content.rules.leaveGapTicks`.
+- **Given** the starving town of 20 from `growth.test.ts`, from tick 100 and from tick 0. **When** 1,920 ticks run. **Then** 1 to 3 have left, at least 672 ticks apart. The margin is zero by design: with `lastLeftTick` at -672 and the `>=` test at `day.ts:91`, 1,920 ticks allow exactly 3. **Check:** `growth.test.ts` "a hungry night costs at most three" (fails now: 8 leave in 1,920 ticks, prototype run). The `starving(tick)` helper stays; only 480 becomes 1,920, and the 168-tick spacing at `growth.test.ts:205` becomes `content.rules.leaveGapTicks`.
 - **Given** the town of 8 at morale 0. **When** 1,920 ticks run. **Then** nobody leaves. **Check:** `growth.test.ts` "nobody leaves a town of eight" (a guard: `leaveFloor` holds it now too).
 - **Then** `newGame(1, content).lastLeftTick` is `-content.rules.leaveGapTicks` (-672). **Check:** `calendar.test.ts` (fails now: -168).
 
@@ -82,6 +82,8 @@ The build starts from `70eec4b` (main after PR #13). Every check below fails the
 ## Risks
 
 - The band rests on one scripted player who builds 4 buildings and upgrades a few; a human may build more and be faster. → J7 is Morgan's own test; the band is a guard against drift, not proof of fun.
+- The band (6 to 10 h, from the final page) is deliberately loose: it guards against drift, and the soak sits mid-band at 1,776. A pin to the exact tick would fail on every tuning change.
+- Fewer check-ins (two or three a day) are not measured; the soak plays hourly. → Morgan's J7 test covers how he really plays.
 - The Hall upgrade can only be ordered at a check-in, so small tuning moves the Village tick in steps of up to 240 ticks. → The band is 4 check-ins wide.
 - At 15 s an hour away is 220 game hours, 4 times what it was, so stores fill and food runs out more often between check-ins. Measured on the prototype (hourly check-ins, to the Village): 34 food, 2 stone, 2 tools, 2 wood lost to full stores and 66 game hours at zero food, against 46 food, 1 stone and 0 hours at 60 s. → The soak prints both; Morgan's J7 test judges them; no retune in M2a.
 - Fewer departures change seed 1's pinned numbers in older tests. → S1 lists every test that reads departures (LESSONS 2026-11-10, S4 measure).
