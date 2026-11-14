@@ -100,3 +100,7 @@ Morgan: "Upgrade the looks of future lot they don't read right and make the rive
 ## Canvas round 8 (2026-11-14)
 
 Morgan: "I like this layout but they shouldn't be surrounded by forest. I like being surrounded by something that like gets removed to unlock more areas and like lots and even like specific like tar pits or something or other like niche specific sites like that with special buildings for helping advance in the tech tree / magic later". Built (`scene7.py`): the map widened to 39 × 42 tiles; the side woods removed; the town ringed by the Tangle (thorn thickets, dead trees, mist), with the Skarthorn's deep forest beyond it to the north; half-hidden special sites in the Tangle (a tar pit, standing stones, a moon spring, old ruins), each tappable; a cleared patch of stumps by the orchard. The rules questions (clearing, what it opens, which special sites, when) were added to the sites form (`sites1`): https://claude.ai/artifact/3xXuw4Rf4Jdi5AQHjmLbpf.
+
+## Canvas round 9 (2026-11-14)
+
+Morgan: "we need another pass on the objects like walls and trees they don't look good enough". Built (`paint.py`): hand-drawn trees in place of Kenney's one-tile trees (oaks with layered, shaded crowns, pale birches, fruit trees in the orchard, and the forest as layered pines of varied size with the odd dead one); dry-stone walls of irregular shaded stones with capstones and moss; rail fences with capped posts; the Tangle redrawn as brambles with arching thorny canes.
