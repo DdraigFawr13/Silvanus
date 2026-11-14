@@ -23,3 +23,26 @@ Close to D-028's lantern look already: dark panels and a warm gold that marks wh
 ## Ideas it suggests for Silvanus
 
 Proposals only, sent to Morgan on the round 1 page (`art1`). Each must respect D-025 (no reward for tapping) and the charter's pillar that residents are records.
+
+## Round 1 answers (`art1`, 2026-11-14)
+
+Page: https://claude.ai/artifact/J6PPDhkAqtFpwFMtePv1Xz (answered the second time; the first answers stayed on the phone).
+
+- Pull of DragonScape: "just having something to do and advancing my character in that game". Most time on "the skills or the quests or the battles". Must not have: "painfully slow progress and not enough engaging gameplay".
+- Wants Silvanus versions of: the pinned "now" bar with +1 pop-ups, quest chains with small goals, the painted map with the quest path, dailies and festivals, "to discover" teasers, per-hour rates. (Input for M2e and later planning; D-040 already settles goals, trader swaps and forage trips.)
+- Icon styles A painted, B flat, C pixel: all Cut. Note: "i hate all of what you made here ... I need to see higher quality mockups to choose."
+- Town view and colours: "Show me samples in round 2". Item display: compact stock bar with a small icon per cell. Board cards: "A bigger picture on every card, like DragonScape's quest art".
+- Art made by: VectorCraft, PhotoCraft, free CC0 packs like Kenney. Not OpenArt. Note: "i like the kenney look but modified to more fit my needs and desires".
+
+## Round 2 (`art2`)
+
+Page: https://claude.ai/artifact/LJsptFDjmGwyuDZNs1Qb2s. Shows Ashwick built from Kenney tiles in daylight, golden dusk and lantern night (graded in PhotoCraft), two full Town tab mock-ups (lantern colours with the night town; slate colours with the dusk town), five resource icons and three board card pictures. Numbers on the mock-ups are examples.
+
+## Art sources (SAFE-05)
+
+Working files are outside the repo, in `C:\Users\Morgan\CraftWork\silvanus-art` (scene and icon scripts, PhotoCraft exports). Nothing is in the game yet.
+
+- Kenney "Tiny Town" 1.1, CC0 1.0, https://kenney.nl/assets/tiny-town (licence file read 2026-11-14).
+- Kenney "Tiny Dungeon", CC0 1.0, https://kenney.nl/assets/tiny-dungeon (villager sprites, anvil, barrel, chest).
+- Downloaded and not used: Kenney "Medieval RTS", "Roguelike RPG Pack", "Generic Items", all CC0.
+- Food, stone and ore icons: drawn by Claude for this project in Tiny Town's palette and outline; no third-party source.
