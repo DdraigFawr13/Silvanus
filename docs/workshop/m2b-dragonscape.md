@@ -66,3 +66,7 @@ Page: https://claude.ai/artifact/7MypCWa46iLafokEYXxPaq. Kenney's 33 colours rep
 ## Final mock-up
 
 `mockups/town-art.html` (published: https://claude.ai/artifact/JpUgrhhvgo9Wi7bQfUFW9B). Ashwick palette 70% Moss and 30% Faded ink (`docs/workshop/ashwick-palette.json`); a 35-tile-wide town at 1.5 times tile size that opens centred on a two-storey Hall with banners and a cobbled square, lots to both sides along one road; four states at 412 and 360 px; check record on the page. Scripts: `scene3.py`, `mock_final.py` in the art folder. D-041 is Proposed until Morgan approves it.
+
+## After the mock-up (2026-11-14)
+
+Morgan: "actually i want the symbol buttons on the bottom. makes them easier to touch. also i need to be able to click lots on the map. I want that to be the main way to like be able to interact with things", then "use the design tool for another round of this please" (the Claude Design canvas). Canvas: https://claude.ai/artifact/MS4YKVneBzq2RyfBSBPN9J. Tab icons (a house, a villager) are in the Ashwick palette; the house is drawn for this project, the villager is a Tiny Dungeon tile.
