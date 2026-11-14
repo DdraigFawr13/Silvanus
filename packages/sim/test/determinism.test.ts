@@ -90,11 +90,12 @@ test('chunks and steps agree with commands between', () => {
   expect(stepped.log.filter((line) => line.type === 'short').map((line) => line.tick)).toEqual([
     419, 491, 499, 507, 523, 539, 555,
   ]);
-  // three settlers came, and two left once their town of 11 was unhappy
+  // three settlers came, and one left once their town of 11 was unhappy (the next may leave only
+  // 672 ticks later, D-039, after this run)
   const growth = (type: string) =>
     stepped.log.filter((line) => line.type === type).map((line) => line.tick);
   expect(growth('arrived')).toEqual([168, 192, 216]);
-  expect(growth('left')).toEqual([672, 840]);
+  expect(growth('left')).toEqual([672]);
   for (const longest of [7, 480, 1]) {
     expect(chunked(start, longest), `chunks of ${longest}`).toEqual(stepped);
   }

@@ -126,7 +126,7 @@ describe('build', () => {
     expect(done.hallTier).toBe(2);
     expect(done.queue).toEqual([]);
     expect(hallOf(done, content).lots).toBe(10);
-    expect(hallOf(done, content).catchUpCap).toBe(960);
+    expect(hallOf(done, content).catchUpCap).toBe(3_840);
     // written in the step from tick 95, as a build's line is
     expect(done.log.filter((line) => line.type === 'village')).toEqual([
       { tick: 95, type: 'village', text: 'Ashwick is now a Village.' },
@@ -154,4 +154,9 @@ describe('build', () => {
     const filled = send(rich(), ...kinds.map((kind): Command => ({ type: 'build', kind })));
     expect(why(filled.state)).toBe('queueFull');
   });
+});
+
+// Time away keeps its real hours at 15 s a game hour (D-036): 8 at the Hamlet, 16 at the Village.
+test('a Hamlet catches up 8 real hours', () => {
+  expect(hallOf(newGame(1, content), content).catchUpCap).toBe(1_920);
 });

@@ -47,6 +47,35 @@ export function BuildingSheet({
       onClose={onClose}
       testId="building-sheet"
     >
+      {next && (
+        <>
+          <h3 className="sheet-sec">Upgrade to tier {building.tier + 1}</h3>
+          <p className="sub">
+            {amountsText(next.cost)} · {duration(next.ticks)} ·{' '}
+            {next.beds > 0
+              ? `Beds ${next.beds}`
+              : next.slots > 0
+                ? `${next.slots} worker slots`
+                : ''}
+          </p>
+          <button
+            type="button"
+            className="btn"
+            data-testid="upgrade"
+            disabled={upgradeWhy !== null}
+            onClick={() => send(upgrade)}
+          >
+            Upgrade
+          </button>
+          {upgradeWhy !== null && (
+            <p className="why">
+              {upgradeWhy === 'noStock'
+                ? needsText(shortfall(state.stock, upgradeCost))
+                : reasonText(upgradeWhy)}
+            </p>
+          )}
+        </>
+      )}
       {building.method !== null && <Methods state={state} building={building} send={send} />}
       {slots > 0 && (
         <>
@@ -81,35 +110,6 @@ export function BuildingSheet({
           <p className="names">
             {workers.length > 0 ? workers.map((r) => r.name).join(', ') : 'Nobody works here.'}
           </p>
-        </>
-      )}
-      {next && (
-        <>
-          <h3 className="sheet-sec">Upgrade to tier {building.tier + 1}</h3>
-          <p className="sub">
-            {amountsText(next.cost)} · {duration(next.ticks)} ·{' '}
-            {next.beds > 0
-              ? `Beds ${next.beds}`
-              : next.slots > 0
-                ? `${next.slots} worker slots`
-                : ''}
-          </p>
-          <button
-            type="button"
-            className="btn"
-            data-testid="upgrade"
-            disabled={upgradeWhy !== null}
-            onClick={() => send(upgrade)}
-          >
-            Upgrade
-          </button>
-          {upgradeWhy !== null && (
-            <p className="why">
-              {upgradeWhy === 'noStock'
-                ? needsText(shortfall(state.stock, upgradeCost))
-                : reasonText(upgradeWhy)}
-            </p>
-          )}
         </>
       )}
       <h3 className="sheet-sec">Clear the lot</h3>

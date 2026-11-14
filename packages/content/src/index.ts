@@ -33,7 +33,7 @@ const method = (
 ): Method => ({ id, building, name, tier, makes, uses, fallback, cost });
 
 export const content: Content = {
-  version: 2,
+  version: 3,
   town: 'Ashwick',
   cycleTicks: 4,
   resources: [
@@ -49,7 +49,7 @@ export const content: Content = {
         name: 'Hamlet',
         lots: 6,
         residents: 25,
-        catchUpCap: 480,
+        catchUpCap: 1920,
         cost: {},
         ticks: 0,
         needResidents: 0,
@@ -58,7 +58,7 @@ export const content: Content = {
         name: 'Village',
         lots: 10,
         residents: 60,
-        catchUpCap: 960,
+        catchUpCap: 3840,
         cost: { wood: 180, stone: 180, tools: 45 },
         ticks: 96,
         needResidents: 20,
@@ -217,6 +217,7 @@ export const content: Content = {
     queueMax: 3,
     leaveBelow: 15,
     leaveFloor: 8,
+    leaveGapTicks: 672,
     moraleStep: 5,
     tavernPerWorker: 4,
     tavernMax: 12,

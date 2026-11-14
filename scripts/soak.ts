@@ -1,7 +1,8 @@
 // Soak (J10). Pass 1: seed 1, a bot that sends random commands, 10,000 ticks, every invariant
 // checked after every tick, then the recorded script replayed in chunks. Pass 2: a scripted
-// player that must reach the Village in 1,200 to 2,200 ticks. Pass 3: that town starved for a
-// night at 20 residents, which must lose at most 3 and be back to 20 within 2,000 ticks.
+// player who checks in for 5 real minutes every hour (15 s a game hour, D-036) and must reach the
+// Village in 6 to 10 real hours. Pass 3: that town starved for an 8-hour night at 20 residents,
+// which must lose 1 to 3 and be back to 20 within 2,000 ticks.
 import { content } from '@silvanus/content';
 import {
   advance,
@@ -256,10 +257,15 @@ if (perSecond < MIN_TICKS_PER_S) fail(`${perSecond} ticks per second is under ${
 // Pass 2: the scripted player (its rules are in the spec's build notes, S5). Each tick its
 // commands are decided in order, each on the town the ones before it left, and only sent when
 // they would be carried out.
-const BAND = { from: 1200, to: 2200 };
+// 6 to 10 real hours at 15 s a game hour (240 ticks a real hour)
+const BAND = { from: 1440, to: 2400 };
+const TICKS_PER_REAL_HOUR = 240;
+// a check-in: 5 real minutes of play, then 55 away
+const SITTING = 20;
 const ORDER = ['woodcutter', 'cottage', 'mine', 'workshop'];
 const RECOVER_TICKS = 2000;
-const NIGHT = 480;
+// 8 real hours
+const NIGHT = 1920;
 
 function scripted(s: State, ordered: { next: number }): Command[] {
   const sent: Command[] = [];
@@ -319,23 +325,31 @@ let at20: State | null = null;
 let sentCount = 0;
 let upgrades = 0;
 let mostLeft = 0;
+let lostToCaps = 0;
+let foodZeroTicks = 0;
+// Every tick is stepped, so the Village tick and the 20th arrival are exact; the player sends
+// commands only in the first SITTING ticks of each real hour.
 while (villageTick < 0 && state.tick < BAND.to + 1000) {
-  const commands = scripted(state, ordered);
+  const present = state.tick % TICKS_PER_REAL_HOUR < SITTING;
+  const commands = present ? scripted(state, ordered) : [];
   sentCount += commands.length;
   upgrades += commands.filter((c) => c.type === 'upgrade').length;
   const result = step(state, commands, content);
   for (const event of result.events) {
     if (event.type === 'rejected') fail(`the scripted bot sent a refused ${event.command.type}`);
     if (event.type === 'left') mostLeft += 1;
+    if (event.type === 'lost') lostToCaps += event.amount;
   }
   state = result.state;
   check(state);
+  if (state.stock.food === 0) foodZeroTicks += 1;
   if (at20 === null && state.residents.length >= 20) at20 = state;
   if (state.hallTier === 2) villageTick = state.tick;
 }
 console.log(
-  `pass 2: village_tick=${villageTick} commands=${sentCount} residents=${state.residents.length} ` +
-    `left=${mostLeft} twentieth_at=${at20?.tick ?? -1} upgrades=${upgrades}`,
+  `pass 2: village_tick=${villageTick} village_real_hours=${(villageTick / TICKS_PER_REAL_HOUR).toFixed(2)} ` +
+    `commands=${sentCount} residents=${state.residents.length} left=${mostLeft} ` +
+    `twentieth_at=${at20?.tick ?? -1} upgrades=${upgrades} lost=${lostToCaps} food_zero_ticks=${foodZeroTicks}`,
 );
 if (upgrades === 0) fail('the scripted town never upgraded a building');
 if (villageTick < BAND.from || villageTick > BAND.to) {

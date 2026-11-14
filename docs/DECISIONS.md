@@ -13,7 +13,7 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
 ## D-002 Time model
 
 - **Status:** Accepted (2026-11-09) Amended by D-036: a game hour is 15 s.
-- **Decision:** 1 tick is 1 game hour and 60 s of real time. Offline catch-up runs min(elapsed, cap) ticks through the same step function as live play.
+- **Decision:** 1 tick is 1 game hour and 60 s (15 s since D-036) of real time. Offline catch-up runs min(elapsed, cap) ticks through the same step function as live play.
 - **Why:** Morgan chose this pacing; one step function keeps offline and live results identical.
 
 ## D-003 No runtime LLM
@@ -109,7 +109,7 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
 ## D-018 Decisions wait; events queue
 
 - **Status:** Accepted (2026-11-09, delegated) Its cap figures move with D-036.
-- **Decision:** The tick stays at 60 s. Every decision's deadline is longer than the current offline cap. At most 5 events wait; while 5 wait, none is drawn.
+- **Decision:** The tick stays at 60 s (15 s since D-036). Every decision's deadline is longer than the current offline cap. At most 5 events wait; while 5 wait, none is drawn.
 - **Why:** Delegated as D-016. At 60 s a quest lasts 24 min to 4 h real and an 8 h absence draws 20 events, so decisions timed out unseen.
 
 ## D-019 Gear and staffing
@@ -158,10 +158,10 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
   - The Mine makes ore or stone by method. No Quarry.
   - Jobs fill automatically; the player sets open slots per building with a stepper and can pin a resident. Skills grow slowly in the skill a job uses. Humans and dwarves arrive at even odds.
   - Settlers join without a choice and the log says who came. Stock banks itself; there is no Collect tap.
-  - Morale is moved by food stock, job fit, a crowded home, a tavern and idleness. It changes output mildly, and at very low morale residents leave: at most one per season, and none when the town has 8 or fewer. Both numbers are tuning values.
+  - Morale is moved by food stock, job fit, a crowded home, a tavern and idleness. It changes output mildly, and at very low morale residents leave: at most one per season (one per 672 ticks since D-039), and none when the town has 8 or fewer. Both numbers are tuning values.
   - The player starts the Village by upgrading the Hall, at a population and a cost.
   - In M1: the "while you were away" summary, the resident sheet, sort and filter on the people list, a plain dated log. After the first playtest: seasons changing yields, stock forecast, renaming, a balance report page.
-  - The soak gains a scripted bot that reports ticks to Village against a target of 2 to 3 real days, and a run that starves the town and checks it recovers.
+  - The soak gains a scripted bot that reports ticks to Village against a target of 2 to 3 real days (6 to 10 real hours of hourly check-ins since D-036), and a run that starves the town and checks it recovers.
 - **Why:** Morgan's round 1 answers (https://claude.ai/artifact/4Lu6ZT9ZDmtqhLgLaWbymR). On the review page's findings and questions (https://claude.ai/artifact/5NTJDE3CuGvSkuDjkBL1W1) he said in chat: "Go with your recommendations". Those items are Claude's recommendations, adopted on that instruction. Production methods are his own request: "something like europa unversalis 5 where I can choose production methods".
 
 ## D-026 v0.1 caps and the M1 test
@@ -267,3 +267,8 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
 - **Decision:** M2d adds lots with a character (D-033), the Town tier, 3 new buildings and 2 new goods (chosen in M2d's mock-up), and push methods (D-032). v0.1 content targets become 16 buildings and 11 resources.
 - **Why:** Morgan asked for "more tiers and buildings" and longer chains, picked this size, and said yes to push methods after finding choices "almost too straight forward"; D-032 builds them when the M1 test finds the town mechanical.
 
+## D-039 M2a spec approved: leaving gap and the Upgrade row
+
+- **Status:** Accepted (2026-11-14) by Morgan on the spec page (https://claude.ai/artifact/REo95ymqF2GDq5MqtMpzTz, "Approved, start building"). Amends D-025's leaving rule.
+- **Decision:** A resident leaves at most once every 672 ticks (`content.rules.leaveGapTicks`, 2 h 48 min real), not once a season. Each Town tab building row that can grow shows an Upgrade button and a line with the next tier's cost or, in ember, what is missing (option B); the button opens the building sheet, whose first section is the upgrade. Autosave and the away card stay at 10 real minutes (40 ticks). Test tick lengths stay 50 ms to 60 s. Spec: `docs/specs/m2a-pace.md`.
+- **Why:** At 15 s an 8-hour hungry night is 1,920 ticks: with a season gap it cost 8 of 20 residents and the town did not recover; with 672 it costs 3 and recovers (prototype runs, 2026-11-14). Morgan picked "Yes, one per 672 game hours" and "B: the button and its cost" (mock-up https://claude.ai/artifact/7xmvYWD4xV6fu36M5X69BH).

@@ -1,9 +1,8 @@
-import { SEASON_TICKS } from './calendar';
 import { addSettler } from './people';
 import type { Building, Content, Event, Resident, State } from './types';
 import { addLog, bedsOf, hallOf, kindOf } from './util';
 
-// At most one resident leaves in a season (SEASON_TICKS, D-025).
+// At most one resident leaves in rules.leaveGapTicks (D-039, amending D-025's season).
 
 type Term = { id: string; amount: number };
 
@@ -86,9 +85,9 @@ export function startDay(s: State, content: Content, events: Event[]): void {
   }
 
   const { rules } = content;
-  // Leaving: one at most a season, never from a town of leaveFloor or fewer; the lowest morale
+  // Leaving: one at most every leaveGapTicks, never from a town of leaveFloor or fewer; the lowest morale
   // goes, ties by the lowest id (residents are kept in id order).
-  if (s.residents.length > rules.leaveFloor && s.tick - s.lastLeftTick >= SEASON_TICKS) {
+  if (s.residents.length > rules.leaveFloor && s.tick - s.lastLeftTick >= rules.leaveGapTicks) {
     let lowest: Resident | undefined;
     for (const r of s.residents) if (!lowest || r.morale < lowest.morale) lowest = r;
     if (lowest && lowest.morale < rules.leaveBelow) {

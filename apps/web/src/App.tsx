@@ -3,7 +3,7 @@ import { capsOf, hallOf } from '@silvanus/sim';
 import type { Command } from '@silvanus/sim';
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import type { ReactNode } from 'react';
-import { CATCH_UP_CAP, due } from './clock';
+import { AUTOSAVE_TICKS, CATCH_UP_CAP, due } from './clock';
 import { clearNotice, notices, setNotice, subscribe } from './notices';
 import { SCHEMA, exportText, importFile, storageAnswer } from './saves';
 import type { SaveRecord, StorageAnswer } from './saves';
@@ -250,8 +250,8 @@ export function App({ worker, first, loadedTick, tickMs, save }: Props) {
       }
       anchorRef.current = next.anchorMs;
       if (next.ticks > 0) waitingRef.current = false;
-      // Autosave every 10th tick in live play, and once after a catch-up.
-      if (next.ticks > 1 || (next.ticks === 1 && next.state.tick % 10 === 0)) persist();
+      // Autosave every AUTOSAVE_TICKS ticks in live play, and once after a catch-up.
+      if (next.ticks > 1 || (next.ticks === 1 && next.state.tick % AUTOSAVE_TICKS === 0)) persist();
     };
     const check = () => {
       if (waitingRef.current || anchorRef.current === null) return;

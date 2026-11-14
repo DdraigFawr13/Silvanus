@@ -14,6 +14,7 @@ test('the day, season and year lengths come from the calendar', () => {
   expect(calendar(DAY_TICKS)).toEqual({ year: 1, season: 0, day: 2, hour: 0 });
   expect(calendar(SEASON_TICKS)).toEqual({ year: 1, season: 1, day: 1, hour: 0 });
   expect(calendar(YEAR_TICKS)).toEqual({ year: 2, season: 0, day: 1, hour: 0 });
-  // a new town may lose a resident in its first season
-  expect(newGame(1, content).lastLeftTick).toBe(-SEASON_TICKS);
+  // a new town may lose a resident on its first day (D-039)
+  expect(content.rules.leaveGapTicks).toBe(672);
+  expect(newGame(1, content).lastLeftTick).toBe(-content.rules.leaveGapTicks);
 });

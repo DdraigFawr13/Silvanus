@@ -29,7 +29,7 @@ const workerState = (page: Page) =>
 // Opens the hut's sheet and taps its stepper until it shows `to`. Each tap sends the count the
 // sheet shows, so the next tap waits for the sheet to show the last one's answer.
 const openSlots = async (page: Page, change: 'Fewer' | 'More', to: number) => {
-  await lot(page, "Forager's hut").click();
+  await lot(page, "Forager's hut").getByTestId('lot-open').click();
   const shown = page.getByTestId('open-slots');
   for (let n = Number(await shown.innerText()); n !== to; n += change === 'More' ? 1 : -1) {
     await page.getByRole('button', { name: `${change} open slots` }).click();

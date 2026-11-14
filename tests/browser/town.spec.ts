@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { advance, newGame } from '@silvanus/sim';
+import { advance, apply, newGame } from '@silvanus/sim';
 import type { Building, State } from '@silvanus/sim';
 import { content, crowd, lot, readRecord, seedRecord, townRecord } from './helpers';
 
@@ -79,7 +79,7 @@ test('building from an open lot', async ({ page }) => {
 
 test('the building sheet sets open slots and clears a lot after asking', async ({ page }) => {
   await page.goto('/?tickMs=60000');
-  await lot(page, "Forager's hut").click();
+  await lot(page, "Forager's hut").getByTestId('lot-open').click();
   const sheet = page.getByTestId('building-sheet');
   await expect(sheet.getByRole('heading', { name: "Forager's hut Tier 1" })).toBeVisible();
   await expect(sheet.getByTestId('sheet-workers')).toHaveText('Workers 4 / 4');
@@ -117,7 +117,7 @@ test('a sheet keeps keyboard focus, closes on Escape and gives focus back', asyn
     'aria-pressed',
     'false',
   );
-  const opener = lot(page, "Forager's hut");
+  const opener = lot(page, "Forager's hut").getByTestId('lot-open');
   await opener.focus();
   await page.keyboard.press('Enter');
   // the dialog is named by its title, and Close takes focus
@@ -204,7 +204,7 @@ function withBuilt(
 test('switching a method asks first, then retools', async ({ page }) => {
   await seedRecord(page, townRecord({ state: withBuilt('mine', 'ore', 4) }));
   await page.goto('/?tickMs=60000');
-  await lot(page, 'Mine').click();
+  await lot(page, 'Mine').getByTestId('lot-open').click();
   const sheet = page.getByTestId('building-sheet');
   await expect(sheet.getByTestId('method-ore')).toContainText('Dig ore');
   await expect(sheet.getByTestId('method-ore')).toContainText('Makes 1.8 ore');
@@ -303,7 +303,7 @@ test('buying a method pays once and is kept', async ({ page }) => {
   const stock = { food: 40, wood: 46, stone: 14, ore: 18, tools: 0 };
   await seedRecord(page, townRecord({ state: { ...withBuilt('workshop', 'mend', 2), stock } }));
   await page.goto('/?tickMs=60000');
-  await lot(page, 'Workshop').click();
+  await lot(page, 'Workshop').getByTestId('lot-open').click();
   const sheet = page.getByTestId('building-sheet');
   const forge = sheet.getByTestId('method-forge');
   await expect(forge).toContainText('Costs 20 wood, 10 stone');
@@ -361,18 +361,18 @@ test('the Hall row offers the Village when it can be paid for', async ({ page })
 });
 
 test('a Village catches up two nights', async ({ page }) => {
-  // closed 700 game hours: a Hamlet would catch up 480 of them, a Village 960
+  // closed 3,000 game hours: a Hamlet would catch up 1,920 of them, a Village 3,840
   const start = newGame(1, content);
   const state = { ...crowd(start, 20), hallTier: 2 };
-  await seedRecord(page, townRecord({ state, anchorMs: Date.now() - 700 * 60_000 }));
+  await seedRecord(page, townRecord({ state, anchorMs: Date.now() - 3_000 * 60_000 }));
   await page.goto('/?tickMs=60000');
   await expect(page.getByText('Village', { exact: true })).toBeVisible();
-  await expect(page.getByTestId('away')).toContainText('29 game days, 4 game hours passed.');
+  await expect(page.getByTestId('away')).toContainText('125 game days passed.');
 });
 
 test('the away card names who arrived', async ({ page }) => {
   // 9 residents, one of them miserable, a second Cottage, food, and the Hall 5 game hours from
-  // the Village; closed 30 game hours, so one game day begins
+  // the Village; closed 40 game hours (the away card shows from 40), so one game day begins
   const start = newGame(1, content);
   const crowded = crowd(start, 9);
   const second = withBuilt('cottage', null, 0);
@@ -387,16 +387,62 @@ test('the away card names who arrived', async ({ page }) => {
   };
   state.buildings[2] = { ...state.buildings[2], id: crowded.nextId! };
   // what the engine makes of it, read here rather than guessed
-  const away = advance(state, 30, content).summary;
+  const away = advance(state, 40, content).summary;
   const sad = state.residents.find((r) => r.id === 1)!.name;
   expect(away.left).toEqual([sad]);
   expect(away.arrived).toHaveLength(1);
-  await seedRecord(page, townRecord({ state, anchorMs: Date.now() - 30 * 60_000 }));
+  await seedRecord(page, townRecord({ state, anchorMs: Date.now() - 40 * 60_000 }));
   await page.goto('/?tickMs=60000');
   const card = page.getByTestId('away');
   await expect(card.getByTestId('away-arrived')).toHaveText(away.arrived[0]);
   await expect(card.getByTestId('away-left')).toHaveText(sad);
   await expect(card.getByTestId('away-finished')).toHaveText('The Hall: now a Village');
   await expect(page.getByTestId('log')).toContainText(`${away.arrived[0]}, a `);
+  expect(await sidewaysScroll(page)).toBe(0);
+});
+
+test('Upgrade is on the lot row', async ({ page }) => {
+  // seed 1 with a finished Woodcutter's camp, a Mine being built and a Forager's hut at tier 3
+  const start = newGame(1, content);
+  let state: State = { ...start, stock: { ...start.stock, wood: 200, stone: 200, tools: 50 } };
+  state = apply(state, [{ type: 'build', kind: 'woodcutter' }], content).state;
+  state = advance(state, 8, content).state;
+  state = apply(state, [{ type: 'build', kind: 'mine' }], content).state;
+  state = {
+    ...state,
+    stock: { ...state.stock, wood: 45, stone: 10, tools: 5 },
+    buildings: state.buildings.map((b) => (b.kind === 'forager' ? { ...b, tier: 3 } : b)),
+  };
+  await seedRecord(page, townRecord({ state }));
+  await page.goto('/?tickMs=60000');
+
+  const camp = lot(page, "Woodcutter's camp");
+  const upgrade = camp.getByRole('button', { name: "Upgrade Woodcutter's camp" });
+  // the town can pay for it: the lamp-amber button, and the row says what tier 2 costs
+  await expect(upgrade).toHaveClass('btn');
+  await expect(camp).toContainText('Tier 2: 40 wood, 5 tools');
+  expect((await upgrade.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  // the town cannot pay: an outlined button, and the row says what is missing
+  const cottage = lot(page, 'Cottage');
+  await expect(cottage.getByRole('button', { name: 'Upgrade Cottage' })).toHaveClass('btn second');
+  await expect(cottage.locator('.w')).toHaveText('Tier 2: Needs 5 wood, 10 stone');
+  expect(
+    (await cottage.getByRole('button', { name: 'Upgrade Cottage' }).boundingBox())!.height,
+  ).toBeGreaterThanOrEqual(44);
+  // being built, or at the last tier: no Upgrade
+  await expect(lot(page, 'Mine').getByRole('button', { name: /^Upgrade/ })).toHaveCount(0);
+  await expect(lot(page, "Forager's hut").getByRole('button', { name: /^Upgrade/ })).toHaveCount(0);
+
+  // the button opens the sheet with the upgrade first
+  await upgrade.click();
+  const sheet = page.getByTestId('building-sheet');
+  await expect(sheet.locator('h3.sheet-sec').first()).toHaveText('Upgrade to tier 2');
+  await sheet.getByTestId('upgrade').click();
+  await sheet.getByRole('button', { name: 'Close' }).click();
+  // the camp's upgrade waits behind the Mine: no second Upgrade on its row
+  await expect(camp).toContainText('Upgrade waiting');
+  await expect(camp.getByRole('button', { name: /^Upgrade/ })).toHaveCount(0);
+  expect(await sidewaysScroll(page)).toBe(0);
+  await page.setViewportSize({ width: 360, height: 800 });
   expect(await sidewaysScroll(page)).toBe(0);
 });

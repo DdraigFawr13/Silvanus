@@ -1,5 +1,5 @@
 import { content } from '@silvanus/content';
-import { hallOf, kindOf, methodOf, slotsOf } from '@silvanus/sim';
+import { hallOf, jobCost, kindOf, methodOf, refusal, shortfall, slotsOf } from '@silvanus/sim';
 import type { Building, Command, Job, State } from '@silvanus/sim';
 import { useState, useSyncExternalStore } from 'react';
 import type { ReactNode } from 'react';
@@ -8,7 +8,7 @@ import { AwayCard } from './AwayCard';
 import { BuildSheet } from './BuildSheet';
 import { BuildingSheet } from './BuildingSheet';
 import { HallRow } from './HallRow';
-import { dateText, duration } from './format';
+import { amountsText, dateText, duration, needsText } from './format';
 
 const LOG_SHOWN = 20;
 
@@ -48,6 +48,17 @@ function lotLine(state: State, building: Building): ReactNode {
       {part}
     </span>
   ));
+}
+
+// The third line of a lot that can grow: what its next tier costs, or what is missing (D-039).
+function nextTierLine(state: State, building: Building): ReactNode {
+  const upgrade: Command = { type: 'upgrade', buildingId: building.id };
+  const cost = jobCost(state, upgrade, content);
+  const tier = `Tier ${building.tier + 1}`;
+  if (refusal(state, upgrade, content) === 'noStock') {
+    return <span className="w">{`${tier}: ${needsText(shortfall(state.stock, cost))}`}</span>;
+  }
+  return `${tier}: ${amountsText(cost)}`;
 }
 
 type Open = { type: 'build' } | { type: 'building'; id: number } | null;
@@ -142,23 +153,35 @@ export function TownTab({
               </div>
             );
           }
+          const upgrade: Command = { type: 'upgrade', buildingId: building.id };
+          const canGrow =
+            kind.tiers[building.tier] !== undefined &&
+            !state.queue.some((job) => job.target === building.id);
+          const openSheet = () => setOpen({ type: 'building', id: building.id });
           return (
-            <button
-              type="button"
-              className="panel lot"
-              key={building.id}
-              data-testid="lot"
-              onClick={() => setOpen({ type: 'building', id: building.id })}
-            >
-              <span className="grow">
-                <span className="row-top">
-                  <span className="name">{kind.name}</span>
-                  <span className="tier">Tier {building.tier}</span>
+            <div className="panel lot" key={building.id} data-testid="lot">
+              <button type="button" className="lot-main" data-testid="lot-open" onClick={openSheet}>
+                <span className="grow">
+                  <span className="row-top">
+                    <span className="name">{kind.name}</span>
+                    <span className="tier">Tier {building.tier}</span>
+                  </span>
+                  <span className="line2">{lotLine(state, building)}</span>
+                  {canGrow && <span className="line2">{nextTierLine(state, building)}</span>}
                 </span>
-                <span className="line2">{lotLine(state, building)}</span>
-              </span>
-              <span className="go">›</span>
-            </button>
+                {!canGrow && <span className="go">›</span>}
+              </button>
+              {canGrow && (
+                <button
+                  type="button"
+                  className={refusal(state, upgrade, content) === null ? 'btn' : 'btn second'}
+                  aria-label={`Upgrade ${kind.name}`}
+                  onClick={openSheet}
+                >
+                  Upgrade
+                </button>
+              )}
+            </div>
           );
         })}
         {Array.from({ length: emptyLots }, (_, i) => (

@@ -188,7 +188,8 @@ describe('growth', () => {
 
   test('a hungry night costs at most three', () => {
     for (const tick of [100, 0]) {
-      const night = advance(starving(tick), 480, content);
+      // an 8-real-hour night at 15 s (D-036)
+      const night = advance(starving(tick), 1_920, content);
       const left = 20 - night.state.residents.length;
       expect(left, `from tick ${tick}`).toBeGreaterThanOrEqual(1);
       expect(left, `from tick ${tick}`).toBeLessThanOrEqual(3);
@@ -200,9 +201,11 @@ describe('growth', () => {
       // everyone is idle and starving at morale 0, a tie, so the lowest id goes first
       const lowest = starving(tick).residents.reduce((a, b) => (b.id < a.id ? b : a));
       expect(night.summary.left[0], `from tick ${tick}`).toBe(lowest.name);
-      // a season (168 ticks) at least between two departures
+      // the leaving gap (672 ticks, D-039) at least between two departures
       for (let i = 1; i < lines.length; i++) {
-        expect(lines[i].tick - lines[i - 1].tick).toBeGreaterThanOrEqual(168);
+        expect(lines[i].tick - lines[i - 1].tick).toBeGreaterThanOrEqual(
+          content.rules.leaveGapTicks,
+        );
       }
     }
     // the lowest morale goes first, ties by the lowest id
@@ -223,7 +226,7 @@ describe('growth', () => {
       buildings: start.buildings.map((b) => (b.kind === 'forager' ? { ...b, open: 0 } : b)),
       residents: start.residents.map((r) => ({ ...r, morale: 0, jobId: null })),
     };
-    const night = advance(town, 480, content);
+    const night = advance(town, 1_920, content);
     expect(night.state.residents.map((r) => r.id)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
     expect(night.summary.left).toEqual([]);
     expect(night.state.residents.every((r) => r.morale < content.rules.leaveBelow)).toBe(true);
