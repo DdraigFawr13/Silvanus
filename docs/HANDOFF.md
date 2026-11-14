@@ -12,7 +12,7 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 - ✔ M1 Town: planning, S1 to S5, audit and fixes (D-025 to D-034; PRs #5 to #12).
 - ✔ M1 test (J14) and the M2 re-plan (D-035 to D-038; PR #13).
 - ▶ M2a Pace: merged (PR #14); waiting on Morgan's phone test (J7) (D-036, D-039).
-- ▶ M2b Art workshop: round 1 (`art1`) answered; round 2 answered (lantern colours kept, daylight but "too bright", "a new art style"); round 3 (`art3`, repainted palettes) sent, waiting on Morgan (D-037).
+- ▶ M2b Art workshop: rounds 1 to 3 answered; final mock-up `mockups/town-art.html` and D-041 (Proposed) waiting on Morgan's approval (D-037).
 - ○ M2e Choices: goals, trader swaps, forage trips, pins (D-040). Next in this repo's cloud sessions.
 - ○ M2c Town view (D-037).
 - ○ M2d Ceiling and lots: lots with a character, Town tier, 3 buildings, 2 goods, push methods (D-038).
@@ -34,7 +34,7 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 
 1. Morgan's M2a test (J7): a new town, check-ins over a day, the Village in about 8 real hours, upgrades found without help. Record his answer here in his words, then set `docs/specs/m2a-pace.md` to Shipped on the next work branch. Opening his old town first jumps it forward up to 8 real hours.
 2. M2e Choices in a new session: spec it with `write-spec` from step 3 (input: D-040 and the `play1`, `play2`, `playfinal` pages), mock-ups first for the board and pins, then build on a new branch from `main`. Mind `m2b-art-workshop` also edits HANDOFF: merge, don't overwrite.
-3. M2b Art workshop (D-037): read the `art3` answers (one `ArtifactData` list, collection `art3`; round 1 and 2 answers are in `docs/workshop/m2b-dragonscape.md`); then, once Morgan says the look is ready, write it as a DECISIONS entry (town palette, layout, icon set, card pictures, the pinned "now" bar; D-028 colours stay), add the palette and art sources to `docs/UI_STYLE.md`, and make the approved Town tab mock-up in `mockups/` with its check record (`ui-mockups`). No game code. Gameplay ideas from the workshop (dailies, festivals, quest-path map, per-hour rates) go to M2e or later planning, not into M2b.
+3. M2b Art workshop (D-037): Morgan approves or changes the final mock-up (https://claude.ai/artifact/JpUgrhhvgo9Wi7bQfUFW9B, file `mockups/town-art.html`). On approval: set D-041 to Accepted, add the art section to `docs/UI_STYLE.md` (palette file, 1.5x tiles, art sources, the now bar), open the PR from `m2b-art-workshop` and merge once green; then M2c builds the moving town from this mock-up. On a change: fix, re-run the fact check and lint, write a new check record, republish to the same link. Workshop answers: `docs/workshop/m2b-dragonscape.md`. Gameplay ideas from the workshop (dailies, festivals, quest-path map, per-hour rates) go to M2e or later planning.
 4. Still open: Morgan's phone tests from S1 and S2 ("Update ready" and Reload; build a Woodcutter's camp, close the app, come back), S3 (switch the Mine to stone; let the Workshop run out of ore overnight) and S4 (pin someone to a bad job and read why morale falls). Record answers here.
 5. The repo has auto-merge off: merge by hand once the ready CI run is green, and do not push and mark ready within the same few seconds.
 6. Phobos: Morgan will send an integration plan "in the next couple of days" (parked, D-035).

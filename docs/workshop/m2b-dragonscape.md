@@ -56,3 +56,13 @@ Working files are outside the repo, in `C:\Users\Morgan\CraftWork\silvanus-art` 
 ## Round 3 (`art3`)
 
 Page: https://claude.ai/artifact/7MypCWa46iLafokEYXxPaq. Kenney's 33 colours repainted into three Silvanus palettes (Moss, Autumn edge, Faded ink; Moss recommended), shown on a rebuilt town: lots spread out with dirt yards, a darker and colder Skarthorn with eyes and a warning post, smoke on working chimneys, crop rows, a mine entrance from Tiny Dungeon tiles. Each palette also repaints the card pictures and icons. Script: `scene2.py` in the art folder.
+
+## Round 3 answers (`art3`, 2026-11-14)
+
+- Palettes: Moss Keep, Faded ink Keep, Autumn edge After. Pick: "Mix", note: "mix of moss and faded ink but mostly moss. also I want the game to be like scrollable to the left and right to see the whole town and like the center would be the main building and then just buildings out left and right from there".
+- Layout: "Good, with the changes in my note"; needs work: the Hall should stand out more, still too crowded, note "zoom out a little bit more maybe?".
+- Look ready to write down: "Yes, with my palette pick".
+
+## Final mock-up
+
+`mockups/town-art.html` (published: https://claude.ai/artifact/JpUgrhhvgo9Wi7bQfUFW9B). Ashwick palette 70% Moss and 30% Faded ink (`docs/workshop/ashwick-palette.json`); a 35-tile-wide town at 1.5 times tile size that opens centred on a two-storey Hall with banners and a cobbled square, lots to both sides along one road; four states at 412 and 360 px; check record on the page. Scripts: `scene3.py`, `mock_final.py` in the art folder. D-041 is Proposed until Morgan approves it.
