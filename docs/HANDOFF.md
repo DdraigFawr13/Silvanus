@@ -32,7 +32,7 @@ M1 Town is built from `docs/specs/m1-town.md` (approved, D-030), five slices, al
 
 ## Next
 
-1. Settle with Morgan where a town view and faster pacing go (asked 2026-11-14), then plan M2 with them. Art options found: Project Vulcan's script-drawn sprites (his own, D-011 allows a one-time copy) or Kenney's Tiny Town (CC0). Earlier: send Morgan the M1 test (J14) from the plan page https://claude.ai/artifact/JBJXyeY7awmo7p5GHuRL8z: about 20 minutes of play over check-ins across 2 or 3 days, reaching the Village, noting at least one choice he found hard. Record his findings here (GAME-06).
+1. Plan M2 again with the `planning-interview` skill: its town half is rebuilt around a town view with people moving and faster pacing with a higher ceiling; the guild half follows as planned. Art options found: Project Vulcan's script-drawn sprites (his own, D-011 allows a one-time copy) or Kenney's Tiny Town (CC0). Earlier: send Morgan the M1 test (J14) from the plan page https://claude.ai/artifact/JBJXyeY7awmo7p5GHuRL8z: about 20 minutes of play over check-ins across 2 or 3 days, reaching the Village, noting at least one choice he found hard. Record his findings here (GAME-06).
 2. Still open: Morgan's phone tests from S1 and S2 ("Update ready" and Reload; build a Woodcutter's camp, close the app, come back), S3 (switch the Mine to stone; let the Workshop run out of ore overnight) and S4 (pin someone to a bad job and read why morale falls; begun, the fall not yet read). For J14: the date can sit still up to a real minute, which first read to him as stuck. Record answers here.
 3. The repo has auto-merge off: merge by hand once the ready CI run is green, and do not push and mark ready within the same few seconds.
 4. M2's planning starts from D-032 and D-033 and the two pages under "Planning pages". The M1 test (J14) also answers three things for it: does the town feel mechanical (push methods), do shortages annoy (parked reserves), do 6 lots feel right.
@@ -51,5 +51,6 @@ M1 Town is built from `docs/specs/m1-town.md` (approved, D-030), five slices, al
 
 ## Decisions since the last plan update
 
+- 2026-11-14 Morgan: re-plan M2 with the town view and faster pacing (picked "Re-plan M2"). D-002, D-009 and the charter's no-map-view non-goal reopen in that planning, not before.
 - 2026-11-10 Morgan: the M1 audit comes before the M1 test (J14) ("Audit before testing in a new session please"). Plan page: https://claude.ai/artifact/JBJXyeY7awmo7p5GHuRL8z.
 - 2026-11-10 D-025 to D-034, see `docs/DECISIONS.md`. D-034 (methods bought once) amends D-025.
