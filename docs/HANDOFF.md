@@ -4,26 +4,22 @@ Updated: 2026-11-14. A fresh session must be able to continue from this file alo
 
 ## Phase
 
-M1 Town is built from `docs/specs/m1-town.md` (approved, D-030), five slices, all merged: S1 (PR #5), S2 (PR #6), S3 (PR #8, with D-034), S4 (PR #9), S5 "Growth and the Village" (PR #10; Morgan: "Approved. Merge when ready"). Mock-ups: `mockups/town.html` (https://claude.ai/artifact/6k9547asTCDNHmfobt6Hym) and `mockups/people.html` (https://claude.ai/artifact/R2jofFnKAX6bWhpqKngZcP); the phone is 412 px wide (Morgan). The M1 audit is done (PR #11, all 25 findings accepted). All 25 are fixed and merged (PR #12). Next is Morgan's M1 test (J14). M0 is done and passed on Morgan's phone.
+M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master-Instructions v4.15.0). M2 is now four steps: M2a Pace, M2b Art workshop, M2c Town view, M2d Ceiling and lots. Next is M2a in a new session. M1 is done (S1 to S5, audit and fixes, PRs #5 to #12); its test (J14) led to the re-plan. Mock-ups: `mockups/town.html`, `mockups/people.html`; the phone is 412 px wide.
 
 ## Plan map
 
-- ✔ Planning and M0 Skeleton (D-001 to D-024); M0 audit merged (PR #3), all 19 findings accepted.
-- ✔ M1 planning: round 1, review, taste board, style doc, spec (D-025 to D-030).
-- ✔ M1 S1 Safe saves and updates (PR #5).
-- ✔ M1 S2 Stock, lots and the Town tab (PR #6).
-- ✔ M1 S3 Production methods and the away card (PR #8; D-034).
-- ✔ M1 S4 People (PR #9).
-- ✔ M1 S5 Growth and the Village (PR #10).
-- ✔ M1 audit (PR #11): 25 findings, all accepted.
-- ✔ M1 audit fixes: all 25 (PR #12).
-- ▶ The M1 test (J14) on Morgan's phone.
-- ○ M2 in two sessions (D-033). Town half first: lots with a character, standing orders, forecast and ledger, a practised crew, push methods if the M1 test asks. Then the guild half: the guild, staged reports, the first raid (D-029) with its clock as a sign, the Palisade.
-- ○ M3 Trade outlet, events, chronicle (v0.1), plus signs, deeds, named foes, gold hiring a second crew, three more town works (D-032, D-033).
-- ○ M4a Families, plus foremen and apprentices and heirlooms · ○ M4b Paths · ○ M5 Trade and Crown · ○ M6 Depth (v1.0)
+- ✔ Planning, M0 Skeleton and its audit (D-001 to D-024; PR #3).
+- ✔ M1 Town: planning, S1 to S5, audit and fixes (D-025 to D-034; PRs #5 to #12).
+- ✔ M1 test (J14) and the M2 re-plan (D-035 to D-038; PR #13).
+- ▶ M2a Pace: 15 s game hours, caps in real hours, an easy-to-find Upgrade, the Village in about 8 real hours (D-036).
+- ○ M2b Art workshop: taste board and Town tab mock-up (D-037).
+- ○ M2c Town view (D-037).
+- ○ M2d Ceiling and lots: lots with a character, Town tier, 3 buildings, 2 goods, push methods (D-038).
+- ○ M3 Guild · ○ M4 Trade outlet, events, chronicle (v0.1) · ○ M5a Families · ○ M5b Paths · ○ M6 Trade and Crown · ○ M7 Depth (v1.0)
 
 ## Just done
 
+- 2026-11-14 M2 final page (`m2final`) approved: "About 8" real hours to the Village, the Upgrade fix in M2a, push methods in M2d, M2d's size the Town tier plus 3 buildings and 2 goods. Written as D-035 to D-038, with the charter's milestones renumbered (M3 Guild, M4 v0.1, M5a to M7) and its clock figures updated; Phobos parked. PR #13 merged with this.
 - 2026-11-14 M1 test (J14) findings and M2 re-plan round 1 answers (`m2r1`): in `docs/archive/handoff-2026-11.md`. In short: the town "felt a little mechanical", wants a view with people moving, faster pacing (15 s game hours, the same real hours away) and a higher ceiling.
 - 2026-11-14 M2 re-plan review (`m2review1`): Morgan agreed all 12 findings and the split M2a pace, M2b art workshop, M2c town view, M2d ceiling and lots; guild to M3, v0.1 to the end of M4; Phobos parked ("you will receive a message in the next couple of days giving you plans for integration"); art workshop before the view; ceiling = more buildings and chains plus the Town tier sooner. He didn't find the building upgrades, didn't reach the Village, and found choices "almost too straight forward"; the clicking "just felt too lifeless".
 - 2026-11-14 Synced AI-Master-Instructions v4.12.0 to v4.15.0: VER-10 and VER-11 replace WEB-07; the `test-design` skill, its browser-tests page and the `tests.delete` guard updated. No override changes.
@@ -33,15 +29,15 @@ M1 Town is built from `docs/specs/m1-town.md` (approved, D-030), five slices, al
 
 ## Next
 
-1. M2 re-plan: read the final page (`m2final`) when Morgan says "final done"; on approval write DECISIONS (D-002, D-009, charter, D-018, D-029, D-033, content targets) and spec M2a with `write-spec`. The J14 test is done as far as it went: he did not reach the Village (plan page https://claude.ai/artifact/JBJXyeY7awmo7p5GHuRL8z).
-2. Still open: Morgan's phone tests from S1 and S2 ("Update ready" and Reload; build a Woodcutter's camp, close the app, come back), S3 (switch the Mine to stone; let the Workshop run out of ore overnight) and S4 (pin someone to a bad job and read why morale falls; begun, the fall not yet read). For J14: the date can sit still up to a real minute, which first read to him as stuck. Record answers here.
+1. M2a in a new session: spec it with `write-spec` from step 3 (the approved pages are its input: D-035, D-036, the final page's "About 8" hours and the Upgrade fix), cut it into slices, then build on a new branch from `main`. Measure before retuning builds; the soak checks the hours to the Village.
+2. Still open: Morgan's phone tests from S1 and S2 ("Update ready" and Reload; build a Woodcutter's camp, close the app, come back), S3 (switch the Mine to stone; let the Workshop run out of ore overnight) and S4 (pin someone to a bad job and read why morale falls). Record answers here.
 3. The repo has auto-merge off: merge by hand once the ready CI run is green, and do not push and mark ready within the same few seconds.
-4. M2's planning starts from D-032 and D-033 and the two pages under "Planning pages". The M1 test (J14) also answers three things for it: does the town feel mechanical (push methods), do shortages annoy (parked reserves), do 6 lots feel right.
+4. Phobos: Morgan will send an integration plan "in the next couple of days" (parked, D-035).
 
 ## Open questions
 
 - Whether gold pays for building from M3 (D-027, proposed; settled at M3's planning).
-- Whether the charter's 1,440-tick catch-up cap belongs to a later Hall tier (M1 audit F18). Settlers arrive aged 20 until M4a sets ages (F22). J14 judges the pacing to the Village and D-034's prices (F19, F22).
+- Whether the Town tier counts 24 real hours away (M1 audit F18; M2d). Settlers arrive aged 20 until M5a sets ages (F22). D-034's prices are judged again after M2a (F19).
 - How Android Chrome answers the persistent-storage request for an installed PWA: Morgan did not look at the Storage line.
 - The other two peoples for v1.0. Whether ranks get bigger jumps (D-021, after the first playtest).
 
@@ -53,6 +49,6 @@ M1 Town is built from `docs/specs/m1-town.md` (approved, D-030), five slices, al
 
 ## Decisions since the last plan update
 
-- 2026-11-14 Morgan: re-plan M2 with the town view and faster pacing (picked "Re-plan M2"). D-002, D-009 and the charter's no-map-view non-goal reopen in that planning, not before.
+- 2026-11-14 Morgan approved the M2 re-plan ("Approved, start building"): D-035 to D-038.
 - 2026-11-10 Morgan: the M1 audit comes before the M1 test (J14) ("Audit before testing in a new session please"). Plan page: https://claude.ai/artifact/JBJXyeY7awmo7p5GHuRL8z.
 - 2026-11-10 D-025 to D-034, see `docs/DECISIONS.md`. D-034 (methods bought once) amends D-025.

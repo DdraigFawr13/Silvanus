@@ -18,7 +18,7 @@ v0.1 passes when that check-in works end to end on the phone (D-016).
 - **The town has a direction.** Charters open and close buildings, trades and events.
 - **Story falls out of the state.** The chronicle renders what the rules produced. Nothing is narrated that did not happen.
 
-Non-goals through v1.0: town layout or a map view; played or shown fights (D-011); needs, moods or schedules for residents; runtime AI or any network call (D-003); multiplayer, accounts, cloud saves, monetization, an app-store release.
+Non-goals through v1.0: a town layout that matters to the rules (the town view of D-037 is scenery); played or shown fights (D-011); needs, moods or schedules for residents; runtime AI or any network call (D-003); multiplayer, accounts, cloud saves, monetization, an app-store release.
 
 ## Lineage
 
@@ -40,8 +40,8 @@ Read from the three repos on 2026-11-09. Silvanus overlaps all three and stays l
 
 ## Time
 
-- 1 tick is 1 game hour and 60 s of real time. A game day is 24 minutes, a season is 7 game days, a game year is 11 h 12 min (D-002).
-- Offline catch-up runs `min(elapsed, cap)` ticks through the same step function as live play. The cap grows with the Hall's tier; content holds each tier's value (`hall.tiers[].catchUpCap`: a Hamlet 480 ticks or 8 h, a Village 960 or 16 h). Whether 1,440 ticks (24 h) is a later tier's cap is open (M1 audit F18). Elapsed time below zero counts as zero.
+- 1 tick is 1 game hour and 15 s of real time. A game day is 6 minutes, a season is 7 game days (42 minutes), a game year is 2 h 48 min (D-036, amending D-002's 60 s).
+- Offline catch-up runs `min(elapsed, cap)` ticks through the same step function as live play. The cap grows with the Hall's tier; content holds each tier's value (`hall.tiers[].catchUpCap`: a Hamlet 1,920 ticks or 8 h, a Village 3,840 or 16 h, from M2a; D-036). Whether the Town tier (M2d) counts 24 h is open (M1 audit F18). Elapsed time below zero counts as zero.
 - **Decisions wait for the player (D-018).** Every decision's deadline is longer than the current catch-up cap, so each one is on screen at one check-in at least. A party that asks a question camps until it is answered or the deadline passes; then its risk posture answers.
 - **Events queue.** At most 5 events wait for a decision. While 5 wait, no new event is drawn.
 - No tap rewards. No hard loss: decline is recoverable (D-007).
@@ -52,7 +52,7 @@ Read from the three repos on 2026-11-09. Silvanus overlaps all three and stays l
 ### Lots and buildings
 
 - The town is a list of lots. A Hamlet has 6 lots and up to 25 residents; a Village has 10 and 60; a Town 16 and 100; a City 24 and 150. Hamlet and Village are in v0.1.
-- A building has a category, tiers, worker slots and production methods (inputs, outputs, governing skill); there is no separate upkeep (D-025, D-034). Tier 3 is a permanent branch point, from M4b.
+- A building has a category, tiers, worker slots and production methods (inputs, outputs, governing skill); there is no separate upkeep (D-025, D-034). Tier 3 is a permanent branch point, from M5b.
 - Special buildings unlock an adventurer class, a town function or a trade good. v0.1 has one, which unlocks a fourth class.
 
 ### Economy and gear
@@ -64,10 +64,10 @@ Read from the three repos on 2026-11-09. Silvanus overlaps all three and stays l
 ### Residents
 
 - Each resident has a name, a people, an age, a trade and rank, skills on a 0 to 100 scale, 2 to 3 traits, family ties, one morale value and a history.
-- **Arrivals (D-020).** Once per game day a settler arrives if a home is free and food is in surplus. Births arrive in M4a.
+- **Arrivals (D-020).** Once per game day a settler arrives if a home is free and food is in surplus. Births arrive in M5a.
 - **Jobs (D-005).** Residents fill building quotas by skill and trait. Any resident can be pinned. A bad fit costs morale and can become an event (D-013).
 - **Recruits.** A list shows residents and arrivals whose skills and traits suit adventuring.
-- **Families, from M4a (D-004).** Marriage, children, aging, death and inheritance. The inbox asks about notable matches and heirs (D-013). The save holds age and family fields from M0.
+- **Families, from M5a (D-004).** Marriage, children, aging, death and inheritance. The inbox asks about notable matches and heirs (D-013). The save holds age and family fields from M0.
 
 ### Adventurers and quests
 
@@ -87,10 +87,10 @@ Read from the three repos on 2026-11-09. Silvanus overlaps all three and stays l
 ### Events and chronicle
 
 - An event is data: conditions, a weight, 2 to 4 choices, outcomes and a deadline answer. v0.1 has 12, drawn about once per 3 game days, and none repeats within a game year.
-- Known weak point: played without a break, a real week draws about 140 events, 11.7 per event (computed). More events arrive from M4b.
+- Known weak point: played without a break, a real week draws about 140 events, 11.7 per event (computed at the 60 s clock; D-036 makes a game hour 15 s, so recount at M4's planning). More events arrive from M5b.
 - Every significant state change emits a typed record. Templates render records to prose. Full entries are kept for 20 game years, then one digest line per year (proposed tuning value).
 
-### Town paths, from M4b
+### Town paths, from M5b
 
 - v1.0 has two charters, Guild and March (D-015). Market, Forge, Arcane and Faith come after v1.0.
 - Capstones: the Guild's is a party that reaches a Heart site and returns. The March's is holding the wall through a great raid with no one lost. Play continues after a capstone.
@@ -99,8 +99,8 @@ Read from the three repos on 2026-11-09. Silvanus overlaps all three and stays l
 
 These counts are the scope cap.
 
-- Buildings: 13 in v0.1 (D-026), 45 in v1.0. Special buildings: 1, then 8.
-- Resources: 9 (D-026), then 20. Trades: 8, then 30. Skills: 6, then 12. Traits: 12, then 40.
+- Buildings: 16 in v0.1 (D-038), 45 in v1.0. Special buildings: 1, then 8.
+- Resources: 11 (D-038), then 20. Trades: 8, then 30. Skills: 6, then 12. Traits: 12, then 40.
 - Peoples: 2, then 4. Resident cap: 60, then 150.
 - Adventurer classes: 3 plus 1 unlocked, then 8. Quest objectives: 3, then 6.
 - Forest bands: 1, then 3. Sites: 6, then 25.
@@ -116,7 +116,7 @@ These counts are the scope cap.
 - **`apps/web`** has five tabs (Town, People, Guild, Trade, Chronicle), an inbox sheet that opens from any tab, a store holding the latest state, and a Web Worker that runs ticks.
 - **Saves.** IndexedDB with a version and upgrade steps. Autosave every 10 ticks in live play and none during catch-up. The page keeps a standby copy and writes it when hidden, because a worker is terminated on unload before it can answer (Project-Vulcan lesson, 2026-10-18). The app asks the browser for persistent storage and refuses to load a save newer than its code. Export and import as a JSON file from M0.
 - **Hosting.** One fixed address, because saves are tied to it. Vercel, at https://silvanus-xi.vercel.app (D-024).
-- **Verification.** A headless soak plays 10,000 ticks with a random-policy bot, checks invariants and prints a balance report. From M4a it plays 100,000 ticks, which is 148.8 game years and more than two lifespans.
+- **Verification.** A headless soak plays 10,000 ticks with a random-policy bot, checks invariants and prints a balance report. From M5a it plays 100,000 ticks, which is 148.8 game years and more than two lifespans.
 
 ## Milestones
 
@@ -124,21 +124,22 @@ Each ends with a build on the phone and a test Morgan runs. One session takes on
 
 1. **M0 Skeleton.** Workspace, tick loop, named random streams, saves with age and family fields, standby copy, clamp on elapsed time, persistent-storage request, export, PWA shell, hosting, soak, CI. Test: install on the phone; a counter survives closing with the right catch-up.
 2. **M1 Town.** Lots, 9 buildings at 3 tiers, production methods, 5 resources in use (food, wood, stone, ore, tools), residents as records, 2 peoples, automatic jobs with pin, arrivals, Hamlet to Village (D-025, D-026). Test: about 20 minutes of play in total over check-ins across 2 or 3 days, with real trade-offs, reaching the Village; the soak passes.
-3. **M2 Guild.** Herb garden, Smithy, Apothecary and Guild hall (D-026), recruits list, 3 classes, 6 Eaves sites, quest writing, picked parties, gear, decisions that wait, the threat clock and a first raid (D-029). Test: a quest resolves while the phone is closed and its report reads well. Approved additions (D-032, D-033), planned as two sessions with the town half first. Town half: lots with a character, standing orders, the forecast and the ledger, a practised crew, and push methods if the M1 test asks for them. Guild half: staged reports, the raid clock as a sign, the Palisade.
-4. **M3 Trade outlet, events, chronicle.** One buyer town and caravans, one class-unlocking building, 12 events, 40 templates. Test: the check-in at the top of this file, end to end. **This is v0.1.** Approved additions: signs on big events, deeds, named foes (last, so it can slip), gold hiring a second crew, the Well, the Watchtower and the Cart track.
-5. **M4a Families.** Marriage, children, aging, death, inheritance, heirs in the inbox, biography pages, the long soak. Approved additions: foremen and apprentices; heirlooms pass to heirs.
-6. **M4b Paths.** Guild and March charters, 6 policies, Town tier, building branches, the Deepwood and its faction, posted bounties.
-7. **M5 Trade and Crown.** Partners, reactive prices, rumours, escorts, levies and favor.
-8. **M6 Depth.** City tier, the Heart, capstones, content to v1.0 counts, art and sound. **This is v1.0.**
+3. **M2 A living town (D-035).** M2a Pace: 15 s game hours (D-036) and an easy-to-find Upgrade; test: a new town reaches the Village in about 8 real hours of check-ins. M2b Art workshop: taste board and Town tab mock-up; test: Morgan approves the look. M2c Town view (D-037); test: watch the town over a check-in. M2d Ceiling and lots: lots with a character, the Town tier, 3 buildings, 2 goods, push methods (D-038); test: the town keeps growing past the Village with choices that aren't obvious.
+4. **M3 Guild.** Herb garden, Smithy, Apothecary and Guild hall (D-026), recruits list, 3 classes, 6 Eaves sites, quest writing, picked parties, gear, decisions that wait, the threat clock and a first raid (D-029). Test: a quest resolves while the phone is closed and its report reads well. Approved additions (D-032, D-033): staged reports, the raid clock as a sign, the Palisade. Standing orders, the forecast and ledger, a practised crew and day and night go here or in M4 (D-035).
+5. **M4 Trade outlet, events, chronicle.** One buyer town and caravans, one class-unlocking building, 12 events, 40 templates. Test: the check-in at the top of this file, end to end. **This is v0.1.** Approved additions: signs on big events, deeds, named foes (last, so it can slip), gold hiring a second crew, the Well, the Watchtower and the Cart track.
+6. **M5a Families.** Marriage, children, aging, death, inheritance, heirs in the inbox, biography pages, the long soak. Approved additions: foremen and apprentices; heirlooms pass to heirs.
+7. **M5b Paths.** Guild and March charters, 6 policies, building branches, the Deepwood and its faction, posted bounties.
+8. **M6 Trade and Crown.** Partners, reactive prices, rumours, escorts, levies and favor.
+9. **M7 Depth.** City tier, the Heart, capstones, content to v1.0 counts, art and sound. **This is v1.0.**
 
 ## Risks
 
 - **Scope drift.** Three parent games each bring a full feature list. Control: the content targets, `docs/parking.md`, and v0.1 ending at M3.
 - **A roster too large to manage.** 150 residents on a phone. Control: automatic jobs, list filters, the recruits list, and only residents who need a decision reaching the inbox.
 - **The idle economy diverges.** Control: the soak and balance report from M0, storage caps, integers.
-- **Flat prose.** Templates repeat. Control: trait and context slots, the one-year repeat rule, more events from M4b.
+- **Flat prose.** Templates repeat. Control: trait and context slots, the one-year repeat rule, more events from M5b.
 - **Save loss.** Control: export from M0, persistent storage, upgrade steps with a test each.
-- **Generations pass too fast to follow.** Played without a break, a day is 2.14 game years. Control: judged at the M4a playtest; the tick length is the lever.
+- **Generations pass too fast to follow.** Played without a break, a day is 2.14 game years at the 60 s clock and about 8.56 at 15 s (D-036, computed). Control: judged at the M5a playtest; the tick length is the lever.
 
 ## Open
 
