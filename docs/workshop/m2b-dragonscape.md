@@ -88,3 +88,7 @@ Morgan: "I don't want the lots to constantly glow like that. I want the empty lo
 ## Canvas round 5 (2026-11-14)
 
 Morgan: "I want upgrades to make things look nicer and I want the square to be upgradable as well for some reason. Also Its missing the cozy town vibes. Maybe because things aren't structured like a real town". Built (`paint.py`, `scene6.py`, `tiers.py`): the town laid out like a real one (High Street, cross street with lots fronting it, lanes, a stream and bridge, hedgerows, low walls, lamp posts, gardens, an orchard); buildings drawn in three tiers (Cottage, Workshop shown); the Square in three stages, proposed as D-042; a new Upgrades artboard on the canvas; the Square is tappable on the map.
+
+## Canvas round 6 (2026-11-14)
+
+Morgan: "The roads and streets need to look better". Built (`roads.py`): three street kinds with a darker grass verge instead of ragged speckle: the High Street in cobbled setts with kerb stones and moss in the joints; the cross street and north lane as packed-earth cart roads with two clean wheel ruts, a grass middle strip and the odd puddle; lanes and doorstep paths as soft worn tracks with stepping stones. The square sits in a smooth band of packed earth with a soft grass edge.
