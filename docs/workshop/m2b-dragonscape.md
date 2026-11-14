@@ -125,3 +125,7 @@ Art sources added (SAFE-05), both CC0, licence files read 2026-11-14:
 
 - Ishtar Pixels, "Adventure Awaits Asset Pack" 1.0, https://opengameart.org/content/adventure-awaits-asset-pack-10 (credit appreciated, not required).
 - inkbubi, "Seasons of Forest" free sample v1.1, https://opengameart.org/node/180257 (licence file says CC0; an earlier version carried a non-CC0 clause the author withdrew; full version is paid at https://inkbubi.itch.io/seasons-of-forest-tileset and not used).
+
+## Bake-off answers (`bake1`, 2026-11-14)
+
+Packs Keep; Blender After; hand pixels After. Plan: packs as the base, hand pixels for small gaps, Blender for big set pieces. Note: "Honestly the art pack looks the best. If you can match that style when drawing things that would be good. The blender design would need multiple passes to improve it though". Written as D-045. Morgan will also try ChatGPT's image tool on a sample sheet; anything from it is recorded as AI-generated with its source before use.
