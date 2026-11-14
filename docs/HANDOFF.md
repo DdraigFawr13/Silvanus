@@ -33,7 +33,7 @@ M1 Town is built from `docs/specs/m1-town.md` (approved, D-030), five slices, al
 
 ## Next
 
-1. M2 re-plan: the review round (an adversarial reviewer plus my review), then round 2. Plan M2 again with the `planning-interview` skill: its town half is rebuilt around a town view with people moving and faster pacing with a higher ceiling; the guild half follows as planned. Art options found: Project Vulcan's script-drawn sprites (his own, D-011 allows a one-time copy) or Kenney's Tiny Town (CC0). Earlier: send Morgan the M1 test (J14) from the plan page https://claude.ai/artifact/JBJXyeY7awmo7p5GHuRL8z: about 20 minutes of play over check-ins across 2 or 3 days, reaching the Village, noting at least one choice he found hard. Record his findings here (GAME-06).
+1. M2 re-plan: read the review page's answers when Morgan says "review done" (proposed split M2a pace, M2b art workshop, M2c town view, M2d ceiling and lots; guild to M3, v0.1 to M4; Phobos parked), then the final page. Plan M2 again with the `planning-interview` skill: its town half is rebuilt around a town view with people moving and faster pacing with a higher ceiling; the guild half follows as planned. Art options found: Project Vulcan's script-drawn sprites (his own, D-011 allows a one-time copy) or Kenney's Tiny Town (CC0). Earlier: send Morgan the M1 test (J14) from the plan page https://claude.ai/artifact/JBJXyeY7awmo7p5GHuRL8z: about 20 minutes of play over check-ins across 2 or 3 days, reaching the Village, noting at least one choice he found hard. Record his findings here (GAME-06).
 2. Still open: Morgan's phone tests from S1 and S2 ("Update ready" and Reload; build a Woodcutter's camp, close the app, come back), S3 (switch the Mine to stone; let the Workshop run out of ore overnight) and S4 (pin someone to a bad job and read why morale falls; begun, the fall not yet read). For J14: the date can sit still up to a real minute, which first read to him as stuck. Record answers here.
 3. The repo has auto-merge off: merge by hand once the ready CI run is green, and do not push and mark ready within the same few seconds.
 4. M2's planning starts from D-032 and D-033 and the two pages under "Planning pages". The M1 test (J14) also answers three things for it: does the town feel mechanical (push methods), do shortages annoy (parked reserves), do 6 lots feel right.
@@ -48,7 +48,7 @@ M1 Town is built from `docs/specs/m1-town.md` (approved, D-030), five slices, al
 ## Planning pages
 
 - Round 5: https://claude.ai/artifact/GXyCyVEpnCLUU8jVBXjfJG · Review: https://claude.ai/artifact/MTxTA5yFtYgbZrUKqmStUQ · Final: https://claude.ai/artifact/PDb43Sn8K1tcBLkqek9cPv · M0 spec: https://claude.ai/artifact/Bvt8GtrMSSTGaDjVRscCXe · S3 summary: https://claude.ai/artifact/BqkLY3zSL5CVprLRRxxndq · M1 round 1: https://claude.ai/artifact/4Lu6ZT9ZDmtqhLgLaWbymR · M1 review: https://claude.ai/artifact/5NTJDE3CuGvSkuDjkBL1W1 · M0 audit replies: https://claude.ai/artifact/Wa5YKEgJy8xWYVhaiVRuUk · Taste board: https://claude.ai/artifact/JrzLhbWsWXpwvPsVgqUZGf
-- M2 re-plan round 1 (sent 2026-11-14, collection `m2r1`): https://claude.ai/artifact/3uADUApzUZwnny2PqCwnz2
+- M2 re-plan round 1 (`m2r1`): https://claude.ai/artifact/3uADUApzUZwnny2PqCwnz2 · Review (`m2review1`, sent 2026-11-14): https://claude.ai/artifact/2KcwbeGPg47mn2rZvEbVYx
 - Fun round 1: https://claude.ai/artifact/7NFqLKmYoVrgEB4TgHsdop · Fun round 2 (town): https://claude.ai/artifact/NbBSXFajzEL8reyh2M7rsE
 
 ## Decisions since the last plan update
