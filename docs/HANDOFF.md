@@ -24,6 +24,7 @@ M1 Town is built from `docs/specs/m1-town.md` (approved, D-030), five slices, al
 
 ## Just done
 
+- 2026-11-14 M1 test (J14), Morgan's first findings: "it felt a little mechanical. I'd like more graphically pleasing actual view of the town and people walking or moving around it. Kind of like project Vulcan"; "look for free art that can work as a placeholder"; "everything is a little slow and boring. I would rather have it go faster with a higher ceiling"; "the rest of the updates will help a lot". This is new evidence against D-009 (text and icons), the charter's no-map-view non-goal and D-002 (60 s ticks). Not yet asked: whether he reached the Village, the hard choice, shortages, 6 lots.
 - 2026-11-14 Synced AI-Master-Instructions v4.12.0 to v4.15.0: VER-10 and VER-11 replace WEB-07; the `test-design` skill, its browser-tests page and the `tests.delete` guard updated. No override changes.
 - 2026-11-14 Audit fixes merged as `782553d` (PR #12); the live bundle at https://silvanus-xi.vercel.app carries `782553d` (CI-05).
 - 2026-11-10 All 25 M1 audit findings fixed (`dd912d7`, `d60d3b1`); `npm run check` passed (77 unit tests; first load 94,492 bytes); 27 browser tests passed.
@@ -31,7 +32,7 @@ M1 Town is built from `docs/specs/m1-town.md` (approved, D-030), five slices, al
 
 ## Next
 
-1. Send Morgan the M1 test (J14) from the plan page https://claude.ai/artifact/JBJXyeY7awmo7p5GHuRL8z: about 20 minutes of play over check-ins across 2 or 3 days, reaching the Village, noting at least one choice he found hard. Record his findings here (GAME-06).
+1. Settle with Morgan where a town view and faster pacing go (asked 2026-11-14), then plan M2 with them. Art options found: Project Vulcan's script-drawn sprites (his own, D-011 allows a one-time copy) or Kenney's Tiny Town (CC0). Earlier: send Morgan the M1 test (J14) from the plan page https://claude.ai/artifact/JBJXyeY7awmo7p5GHuRL8z: about 20 minutes of play over check-ins across 2 or 3 days, reaching the Village, noting at least one choice he found hard. Record his findings here (GAME-06).
 2. Still open: Morgan's phone tests from S1 and S2 ("Update ready" and Reload; build a Woodcutter's camp, close the app, come back), S3 (switch the Mine to stone; let the Workshop run out of ore overnight) and S4 (pin someone to a bad job and read why morale falls; begun, the fall not yet read). For J14: the date can sit still up to a real minute, which first read to him as stuck. Record answers here.
 3. The repo has auto-merge off: merge by hand once the ready CI run is green, and do not push and mark ready within the same few seconds.
 4. M2's planning starts from D-032 and D-033 and the two pages under "Planning pages". The M1 test (J14) also answers three things for it: does the town feel mechanical (push methods), do shortages annoy (parked reserves), do 6 lots feel right.
