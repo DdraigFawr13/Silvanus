@@ -278,6 +278,17 @@ export function budgetProblems(size, budget) {
   return problems;
 }
 
+/**
+ * Problems with how Claude Code loads the rules: it reads CLAUDE.md (or .claude/CLAUDE.md), not AGENTS.md, so
+ * without an import of RULES.md and AGENTS.md a session starts with neither (Project-Vulcan, D-071).
+ */
+export function loaderProblems(targetDir) {
+  const rel = ['CLAUDE.md', '.claude/CLAUDE.md'].find((p) => fs.existsSync(path.join(targetDir, p)));
+  if (!rel) return [`no CLAUDE.md, so Claude Code loads neither AGENTS.md nor ${RULES_OUT}; add one importing @AGENTS.md and @${RULES_OUT}`];
+  const lines = fs.readFileSync(path.join(targetDir, rel), 'utf8').split('\n').map((l) => l.trim());
+  return ['AGENTS.md', RULES_OUT].filter((f) => !lines.includes(`@${f}`)).map((f) => `${rel} does not import @${f}, so sessions start without it`);
+}
+
 /** The HANDOFF file a project keeps, as CTX-02 places it: docs/HANDOFF.md or HANDOFF.md; null when none. */
 export function findHandoff(targetDir) {
   return ['docs/HANDOFF.md', 'HANDOFF.md'].find((p) => fs.existsSync(path.join(targetDir, p))) ?? null;
@@ -503,6 +514,7 @@ export function check({ targetDir }) {
     else if (sha256(fs.readFileSync(abs)) !== hash) problems.push(`modified ${rel} (synced files are edited in the master, rule SRC-06)`);
   }
   problems.push(...settingsProblems(targetDir, lock));
+  problems.push(...loaderProblems(targetDir));
   const over = budgetProblems(measure(targetDir), lock.budget);
   if (over.length) problems.push(`start-up size over budget: ${over.join(', ')}`);
   return problems;

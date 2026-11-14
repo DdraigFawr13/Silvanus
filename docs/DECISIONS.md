@@ -12,7 +12,7 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
 
 ## D-002 Time model
 
-- **Status:** Accepted (2026-11-09)
+- **Status:** Accepted (2026-11-09) Amended by D-036: a game hour is 15 s.
 - **Decision:** 1 tick is 1 game hour and 60 s of real time. Offline catch-up runs min(elapsed, cap) ticks through the same step function as live play.
 - **Why:** Morgan chose this pacing; one step function keeps offline and live results identical.
 
@@ -54,7 +54,7 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
 
 ## D-009 Presentation and focus
 
-- **Status:** Accepted (2026-11-09)
+- **Status:** Accepted (2026-11-09) Amended by D-037: v0.1 has a town view.
 - **Decision:** Text and icons for v0.1. Depth is balanced evenly across town, guild and characters.
 - **Why:** Morgan's choices.
 
@@ -108,7 +108,7 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
 
 ## D-018 Decisions wait; events queue
 
-- **Status:** Accepted (2026-11-09, delegated)
+- **Status:** Accepted (2026-11-09, delegated) Its cap figures move with D-036.
 - **Decision:** The tick stays at 60 s. Every decision's deadline is longer than the current offline cap. At most 5 events wait; while 5 wait, none is drawn.
 - **Why:** Delegated as D-016. At 60 s a quest lasts 24 min to 4 h real and an 8 h absence draws 20 events, so decisions timed out unseen.
 
@@ -166,7 +166,7 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
 
 ## D-026 v0.1 caps and the M1 test
 
-- **Status:** Accepted (2026-11-10; resources by Morgan's answer, the rest delegated as D-025)
+- **Status:** Accepted (2026-11-10; resources by Morgan's answer, the rest delegated as D-025) Its counts are amended by D-038.
 - **Decision:** v0.1 has 9 resources (food, wood, stone, ore, herbs, forest materials, tools, weapons, potions); gold and renown are counted apart. v0.1 has 13 buildings. M1 ships 9 of them: Cottage, Forager's hut, Farm, Woodcutter's camp, Mine, Workshop, Storehouse, Hall, Tavern. Herb garden, Smithy, Apothecary and Guild hall arrive in M2 with the guild. The M1 test is about 20 minutes of play in total, spread over check-ins across 2 or 3 days, with real trade-offs, reaching the Village; the soak passes. Amends the charter's content targets and its M1 and M2 lines.
 - **Why:** Morgan chose set C for resources. One sitting of 20 minutes is 20 ticks, less than a game day. The four buildings moved have no use before the guild exists, and all 13 have one by M2.
 
@@ -184,7 +184,7 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
 
 ## D-029 Raids arrive in M2
 
-- **Status:** Accepted (2026-11-10)
+- **Status:** Accepted (2026-11-10) Amended by D-035: the first raid moves to M3.
 - **Decision:** The threat clock and a first simple raid on the town are part of M2, with the guild. Amends the charter's M2 line. Their rules are settled in M2's planning.
 - **Why:** Morgan, in chat: "Raids in m2". His loop ends on defending the town (D-027), and before this no milestone ahead of M4b built raids, so v0.1 would have shipped without them.
 
@@ -224,7 +224,7 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
 
 ## D-033 Fun round 2: seven town-management additions approved
 
-- **Status:** Accepted (2026-11-10)
+- **Status:** Accepted (2026-11-10) Amended by D-035 and D-037: its town items move to M3 or M4 (lots stay in M2d); the map shows lot spots and a road as scenery.
 - **Decision:** Morgan approved round 2 (https://claude.ai/artifact/NbBSXFajzEL8reyh2M7rsE) by his answer on each idea. Each is specified in its milestone's planning, not here. M1 is not changed.
   - The lie of the land: each lot has a character drawn from the town's seed on its own random stream (good soil, riverside, rock outcrop, forest edge, or plain) that raises some buildings' output; a forest-edge lot is the first a raid reaches. A feature only adds and no method needs one, so no seed makes a dead end. Lots become records in the save and the build sheet gains a lot picker. Amends the charter's first pillar: the player chooses a place, still with no grid, roads or adjacency. Adds one condition type, a lot's feature (M2).
   - Standing orders: the Hall holds 1 town-wide order as a Hamlet and 2 as a Village, each with a gain and a cost (Short rations, Long days, Open gates), taking effect after 1 game day. Policies in v0.1 go from 0 to 3; M4b adds 3 more to reach the 6. Adds one effect type: an order changes a rule value (M2).
@@ -242,3 +242,28 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
 - **Status:** Accepted (2026-11-10) by Morgan, during the S3 mock-up review. The rule and its owner are his. The prices and the 4 game hours are Claude's proposal on the mock-up; they are starting values, and the M1 test (J14) judges them (M1 audit F19, Morgan: "Do what you recommend for all").
 - **Decision:** A method a building has not had before costs stock once, paid when it is chosen, plus 1 game day to set up (`retoolTicks`). After that the building owns it: switching back to an owned method is free and takes 4 game hours (`switchTicks`, one production cycle). What a building owns belongs to that building alone; clearing its lot loses it. Every building owns its methods with no inputs from the start. Content gains a `cost` on each method; a building record gains `owned`, so saves move to schema 3 and an older town's buildings own their free methods and the one they run. Amends D-025's "changing method costs 1 game day".
 - **Why:** Morgan, in chat: "I want there to be a cost as well as time to change to a different production method that you didn't have before. Once you have "purchased" a production method, switching takes much less time and you don't have to pay again to do so." Asked whether the town or the building owns a bought method, he chose the building.
+
+## D-035 M2 re-planned in four steps
+
+- **Status:** Accepted (2026-11-14) by Morgan on the final page (https://claude.ai/artifact/2Q9JF8itCsoKPXsS8h8YaG, "Approved, start building"), after round 1 (https://claude.ai/artifact/3uADUApzUZwnny2PqCwnz2) and a review he agreed in full (https://claude.ai/artifact/2KcwbeGPg47mn2rZvEbVYx).
+- **Decision:** M2 becomes four steps, each with its own phone test: M2a Pace (D-036, plus an easy-to-find Upgrade on each building row), M2b Art workshop (taste board and a mock-up of the Town tab, no game code), M2c Town view (D-037), M2d Ceiling and lots (D-038). The guild becomes M3; trade, events and the chronicle become M4, which is now v0.1. Later milestones move one number on: M5a Families, M5b Paths, M6 Trade and Crown, M7 Depth (v1.0). Standing orders, the forecast and ledger, a practised crew, and day and night go to M3 or M4, decided at their planning. Project Phobos for residents is parked until Morgan sends an integration plan.
+- **Why:** The M1 test (J14): "it felt a little mechanical", "a lot of clicking and watching numbers", "too lifeless", slow from "Waiting for build", choices "almost too straight forward"; he did not reach the Village or find the building upgrades. He chose a view of the town, a faster pace and a higher ceiling, in that order after pace. Session counts on the pages are Claude's estimates.
+
+## D-036 A game hour is 15 s
+
+- **Status:** Accepted (2026-11-14), final page. Amends D-002.
+- **Decision:** 1 tick is 1 game hour and 15 s of real time. Catch-up caps keep their real hours: 1,920 ticks at the Hamlet and 3,840 at the Village (8 and 16 real hours). A new town reaches the Village in about 8 real hours of check-ins; the soak checks a band around it. Build times are retuned only if still slow after measuring. Saves need no change: stored tick counts are game hours. Decisions that wait (D-018) get deadlines longer than the cap in force, more than 3,840 ticks at the Village.
+- **Why:** Morgan: "everything is a little slow and boring. I would rather have it go faster". He picked 15 s, a faster clock with retuned timers, the same real hours away, and "About 8" hours to the Village. At the M1 tuning the soak reached the Village at game hour 1,216, about 5 real hours at 15 s.
+
+## D-037 v0.1 has a town view
+
+- **Status:** Accepted (2026-11-14), final page. Amends D-009 and the charter's non-goal "town layout or a map view".
+- **Decision:** The Town tab gains a drawn map with one fixed spot per lot. Residents walk between home, work and the Hall; working buildings show smoke, idle ones look quiet, builds show scaffolding, settlers come and go on the road, and stock piles by the Storehouse. Tapping a building opens its sheet. The view draws only from the latest state the engine sent, uses its own cosmetic random numbers (never a game stream), jumps to the present after time away, draws at 30 frames a second or less only while the Town tab is open and stops when hidden, and is a plain canvas loaded after the first screen. The road and lot spots are scenery: the rules still have no grid, roads or adjacency (D-033). Placeholder art starts from Kenney's Tiny Town (CC0) and free villager sprites, chosen and recoloured toward D-028's look in the M2b workshop; every pack's link and licence is recorded before use (SAFE-05).
+- **Why:** Morgan: "I'd like more graphically pleasing actual view of the town and people walking or moving around it. Kind of like project Vulcan", "I just like seeing some animation showing things happening". He chose each part on round 1, and an art workshop first ("We will need to do a full workshop on this").
+
+## D-038 M2d: the Town tier, more buildings, push methods
+
+- **Status:** Accepted (2026-11-14), final page. Amends D-026's counts and moves the Town tier from M5b (was M4b).
+- **Decision:** M2d adds lots with a character (D-033), the Town tier, 3 new buildings and 2 new goods (chosen in M2d's mock-up), and push methods (D-032). v0.1 content targets become 16 buildings and 11 resources.
+- **Why:** Morgan asked for "more tiers and buildings" and longer chains, picked this size, and said yes to push methods after finding choices "almost too straight forward"; D-032 builds them when the M1 test finds the town mechanical.
+
