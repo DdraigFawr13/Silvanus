@@ -361,18 +361,18 @@ test('the Hall row offers the Village when it can be paid for', async ({ page })
 });
 
 test('a Village catches up two nights', async ({ page }) => {
-  // closed 700 game hours: a Hamlet would catch up 480 of them, a Village 960
+  // closed 3,000 game hours: a Hamlet would catch up 1,920 of them, a Village 3,840
   const start = newGame(1, content);
   const state = { ...crowd(start, 20), hallTier: 2 };
-  await seedRecord(page, townRecord({ state, anchorMs: Date.now() - 700 * 60_000 }));
+  await seedRecord(page, townRecord({ state, anchorMs: Date.now() - 3_000 * 60_000 }));
   await page.goto('/?tickMs=60000');
   await expect(page.getByText('Village', { exact: true })).toBeVisible();
-  await expect(page.getByTestId('away')).toContainText('29 game days, 4 game hours passed.');
+  await expect(page.getByTestId('away')).toContainText('125 game days passed.');
 });
 
 test('the away card names who arrived', async ({ page }) => {
   // 9 residents, one of them miserable, a second Cottage, food, and the Hall 5 game hours from
-  // the Village; closed 30 game hours, so one game day begins
+  // the Village; closed 40 game hours (the away card shows from 40), so one game day begins
   const start = newGame(1, content);
   const crowded = crowd(start, 9);
   const second = withBuilt('cottage', null, 0);
@@ -387,11 +387,11 @@ test('the away card names who arrived', async ({ page }) => {
   };
   state.buildings[2] = { ...state.buildings[2], id: crowded.nextId! };
   // what the engine makes of it, read here rather than guessed
-  const away = advance(state, 30, content).summary;
+  const away = advance(state, 40, content).summary;
   const sad = state.residents.find((r) => r.id === 1)!.name;
   expect(away.left).toEqual([sad]);
   expect(away.arrived).toHaveLength(1);
-  await seedRecord(page, townRecord({ state, anchorMs: Date.now() - 30 * 60_000 }));
+  await seedRecord(page, townRecord({ state, anchorMs: Date.now() - 40 * 60_000 }));
   await page.goto('/?tickMs=60000');
   const card = page.getByTestId('away');
   await expect(card.getByTestId('away-arrived')).toHaveText(away.arrived[0]);

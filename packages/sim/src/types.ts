@@ -51,7 +51,7 @@ export type State = {
   buildings: Building[]; // in lot order; length <= lots
   queue: Job[]; // [0] is under way; length <= 1 + queueMax
   residents: Resident[];
-  lastLeftTick: number; // tick of the last departure, minus a season at start
+  lastLeftTick: number; // tick of the last departure, minus the leaving gap at start
   jobsDirty: boolean;
   log: LogLine[]; // newest last, at most logMax
 };
@@ -156,6 +156,7 @@ export type Content = {
     queueMax: number;
     leaveBelow: number;
     leaveFloor: number;
+    leaveGapTicks: number; // ticks between two departures, at least (D-039)
     moraleStep: number;
     tavernPerWorker: number;
     tavernMax: number;

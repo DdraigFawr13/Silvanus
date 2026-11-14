@@ -1,8 +1,13 @@
-export const TICK_MS = 60_000;
-// a Hamlet's; the page reads the town's own from its Hall's tier
-export const CATCH_UP_CAP = 480;
+// a game hour is 15 s (D-036)
+export const TICK_MS = 15_000;
+// a Hamlet's (8 real hours); the page reads the town's own from its Hall's tier
+export const CATCH_UP_CAP = 1_920;
+// live play autosaves every 10 real minutes
+export const AUTOSAVE_TICKS = 600_000 / TICK_MS;
 
 const MIN_TICK_MS = 50;
+// a test tick may be longer than a real one, so no tick falls inside a browser test (D-039)
+export const MAX_TEST_TICK_MS = 60_000;
 
 // Ticks due since the anchor (the wall-clock time at which the stored tick was true).
 export function due(
@@ -23,7 +28,7 @@ export function testTickMs(search: string): number | null {
   const value = new URLSearchParams(search).get('tickMs');
   if (value === null || !/^[0-9]+$/.test(value)) return null;
   const n = Number(value);
-  return n >= MIN_TICK_MS && n <= TICK_MS ? n : null;
+  return n >= MIN_TICK_MS && n <= MAX_TEST_TICK_MS ? n : null;
 }
 
 // The tick length for this address: the test one when it is set, else TICK_MS.
