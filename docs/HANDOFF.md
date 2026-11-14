@@ -41,6 +41,7 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 
 ## Open questions
 
+- How the art is made from here: bake-off of CC0 artist packs vs Blender renders vs hand pixels (`bake1`): https://claude.ai/artifact/CUFAJHqxAonUvThfqMWaVW. Recommended: packs as the base, hand pixels for small gaps, Blender for big set pieces.
 - Whether gold pays for building from M3 (D-027, proposed; settled at M3's planning).
 - Whether the Town tier counts 24 real hours away (M1 audit F18; M2d). Settlers arrive aged 20 until M5a sets ages (F22). D-034's prices are judged again after M2a (F19).
 - How Android Chrome answers the persistent-storage request for an installed PWA: Morgan did not look at the Storage line.

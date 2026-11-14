@@ -116,3 +116,12 @@ From the sites form notes. The Tangle redrawn as wild overgrowth (young oaks, bi
 ## Special-sites answers (`special1`, 2026-11-14)
 
 Keep: sunken bog, salt spring, bat caves. After: the Hollow Oak ("I like druids though but way later like a dlc type thing"). Cut: amber seep, bee cliffs, fae ring, moon spring, star-fall crater, witch's ruin, wyrm bones. Written as D-044. On the canvas the moon spring became the salt spring, the bog took the south-east corner, the ruins became a broken tower far off in the Skarthorn, and the bat caves open high on the mountain.
+
+## Art bake-off (2026-11-14)
+
+Morgan: "The cliffs and trees and everything still looks kind of bad. How can you do a better job at asset creation?", then "Yes, run it" to a bake-off. The same patch (a cliff with the mine's cave, pines on top, oaks, a pine, rocks, bushes) made three ways: (1) real CC0 artist packs graded to our look (`bake_r1.py`); (2) modelled in Blender 5.2, toon-lit, rendered at 320 × 192, palette-reduced with a pixel outline (`bake_r2_blender.py`); (3) hand-placed pixel sprites (`bake_r3.py`). Form (`bake1`): https://claude.ai/artifact/CUFAJHqxAonUvThfqMWaVW.
+
+Art sources added (SAFE-05), both CC0, licence files read 2026-11-14:
+
+- Ishtar Pixels, "Adventure Awaits Asset Pack" 1.0, https://opengameart.org/content/adventure-awaits-asset-pack-10 (credit appreciated, not required).
+- inkbubi, "Seasons of Forest" free sample v1.1, https://opengameart.org/node/180257 (licence file says CC0; an earlier version carried a non-CC0 clause the author withdrew; full version is paid at https://inkbubi.itch.io/seasons-of-forest-tileset and not used).
