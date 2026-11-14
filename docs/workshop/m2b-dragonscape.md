@@ -143,3 +143,7 @@ Morgan compared two ChatGPT sheets and chose the first as the style anchor ("Yes
 ## ChatGPT ground sheet (2026-11-14)
 
 28 tiles (grass, dirt, cobble, road edges, flagstones, water). Snapped to 16 × 16 each; seam test: only open water is near seamless, the rest carry a darker frame. Repaired (`gpt_ground.py`): fill tiles rebuilt from their interiors so they wrap, decorations lifted into overlays, and a test patch built with the anchor's Hall and cottages. Result: the buildings sit well; the grass reads mustard-olive and flat next to the anchor sheet's greener grass; the edge and transition tiles can't be used as drawn because of the frames. Retry prompt sent for frameless, seamless tiles. Source: AI-generated with ChatGPT by Morgan, 2026-11-14 (`gpt/ground/sheet.png`).
+
+## ChatGPT props sheet (2026-11-14)
+
+Objects only, no ground islands, consistent with the anchor (oaks, birches, pines, dead tree, log, rocks, bushes, brambles, wall, fence, hedge, lamp post, well, notice board, bench, barrels, crates, hay, wheelbarrow, market stall, bridge, jetty with rowboat). Cleaned like the anchor (`gpt_clean_props.py`, pixel 6) into 33 pieces; the soft shadows had been drawn over magenta and came out purple, so those 2,844 pixels became a translucent dark shadow. Placed with the anchor's buildings on the repaired ground: one coherent style; the flat mustard grass is the weak part. Source: AI-generated with ChatGPT by Morgan, 2026-11-14 (`gpt/props/sheet.png`).
