@@ -13,30 +13,30 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 - ✔ M1 test (J14) and the M2 re-plan (D-035 to D-038; PR #13).
 - ▶ M2a Pace: merged (PR #14); waiting on Morgan's phone test (J7) (D-036, D-039).
 - ▶ M2b Art workshop: round 1 (`art1`) sent 2026-11-13, waiting on Morgan's answers; then taste board samples and Town tab mock-up (D-037).
+- ○ M2e Choices: goals, trader swaps, forage trips, pins (D-040). Next in this repo's cloud sessions.
 - ○ M2c Town view (D-037).
 - ○ M2d Ceiling and lots: lots with a character, Town tier, 3 buildings, 2 goods, push methods (D-038).
 - ○ M3 Guild · ○ M4 Trade outlet, events, chronicle (v0.1) · ○ M5a Families · ○ M5b Paths · ○ M6 Trade and Crown · ○ M7 Depth (v1.0)
 
 ## Just done
 
+- 2026-11-14 Morgan, starting the M2a test town: "it needs to be clearer who is pinned and who isnt" (People tab shows only " · Pinned" at the end of a row, `apps/web/src/ui/PeopleTab.tsx:110`); "There also isn't really anything to actually do at this point so it's kind of boring. There is nothing I can actively just do. See the game dragonscape for reference to like always having something to do". The second touches D-025 (no Collect tap) and the Avoid list item "any reward for tapping" (`docs/UI_STYLE.md:74`): a direction question, asked in chat.
+- 2026-11-14 Morgan chose a planning round on "always something to do" before more game steps, and will run the M2b art workshop himself in a desktop session ("so it can potentially use the artcraft apps"). Round 1 (`play1`): https://claude.ai/artifact/HdpkiWhhZkeEPV2FLgAFKg.
+- 2026-11-14 `play1` answers: goals list and delivery requests Now; town orders, push methods, events, guild quests, town works, forecast Soon; keep D-025 (but energy taps also ticked: finding f1); something at every check-in; a new step now; pins as a label and a filter. Review and round 2 (`play2`): https://claude.ai/artifact/2zZSib54mLApaC8wtUfJXG. Recommended there: deliveries as swaps, pick-one-of-three goals, pins, events right after.
+- 2026-11-14 `play2` answers: swaps ("but gold would be nice to have"), three goals at a time, events right after this step; wants trips, collecting and upgrading, a board, lots to look at; must not be endless tapping, a pushy mobile-game feel or "annoyingly slow progress". The art session's DragonScape notes are on branch `m2b-art-workshop` (`docs/workshop/m2b-dragonscape.md`). Final page (`playfinal`, step M2e Choices): https://claude.ai/artifact/FJuq2TKb8gmPAfcEbdymhQ.
 - 2026-11-13 M2b Art workshop started on branch `m2b-art-workshop` at Morgan's request, ahead of the M2a test. Morgan named DragonScape Idle (dragonscapeidle.com) as inspiration, "games with something to always do", and sent 15 phone screenshots (kept out of this public repo). What was read from them: `docs/workshop/m2b-dragonscape.md`. Round 1 form (`art1`): https://claude.ai/artifact/J6PPDhkAqtFpwFMtePv1Xz. Morgan allowed the craft apps for art.
 - 2026-11-14 Morgan approved PR #14 ("Approved"); merged by hand once CI was green. M2a built on `m2a-pace`: S1 Pace (`d427645`: 15 s game hours, caps 1,920 and 3,840, 10-minute autosave and away card, leaving gap 672 ticks, content version 3, soak plays hourly check-ins) and S2 Upgrade row option B (`41ea051`). Tests seen to fail first. `npm run check` passed in 5.6 s (81 unit tests; soak Village at 7.40 real hours, hungry night 3 left, back to 20 in 216 ticks; first load 94,685 bytes); 28 browser tests passed in 36.7 s. Built rows match the mock-up at 412 and 360 px.
 - 2026-11-14 M2a spec written on branch `m2a-pace`: `docs/specs/m2a-pace.md` (Draft), checked by paraphrase, critic and zero-decision agents, then a re-check (no high left). Measured on a prototype: hourly 5-minute check-ins reach the Village at tick 1,776 (7.40 h) at 15 s, so no retune; an 8-hour hungry night loses 8 of 20 with the season gap and 3 with a 672-tick gap. Mock-up of the Upgrade row (A: button; B: button and cost, recommended): https://claude.ai/artifact/7xmvYWD4xV6fu36M5X69BH. Approval form (`m2aspec`): https://claude.ai/artifact/REo95ymqF2GDq5MqtMpzTz. The option A prototype is in `git stash` on this branch, not committed.
-- 2026-11-14 M2 final page (`m2final`) approved: "About 8" real hours to the Village, the Upgrade fix in M2a, push methods in M2d, M2d's size the Town tier plus 3 buildings and 2 goods. Written as D-035 to D-038, with the charter's milestones renumbered (M3 Guild, M4 v0.1, M5a to M7) and its clock figures updated; Phobos parked. PR #13 merged with this.
-- 2026-11-14 M1 test (J14) findings and M2 re-plan round 1 answers (`m2r1`): in `docs/archive/handoff-2026-11.md`. In short: the town "felt a little mechanical", wants a view with people moving, faster pacing (15 s game hours, the same real hours away) and a higher ceiling.
-- 2026-11-14 M2 re-plan review (`m2review1`): Morgan agreed all 12 findings and the split M2a pace, M2b art workshop, M2c town view, M2d ceiling and lots; guild to M3, v0.1 to the end of M4; Phobos parked ("you will receive a message in the next couple of days giving you plans for integration"); art workshop before the view; ceiling = more buildings and chains plus the Town tier sooner. He didn't find the building upgrades, didn't reach the Village, and found choices "almost too straight forward"; the clicking "just felt too lifeless".
-- 2026-11-14 Synced AI-Master-Instructions v4.12.0 to v4.15.0: VER-10 and VER-11 replace WEB-07; the `test-design` skill, its browser-tests page and the `tests.delete` guard updated. No override changes.
-- 2026-11-14 Audit fixes merged as `782553d` (PR #12); the live bundle at https://silvanus-xi.vercel.app carries `782553d` (CI-05).
-- 2026-11-10 All 25 M1 audit findings fixed (`dd912d7`, `d60d3b1`); `npm run check` passed (77 unit tests; first load 94,492 bytes); 27 browser tests passed.
 - Earlier entries are in `docs/archive/handoff-2026-11.md`.
 
 ## Next
 
 1. Morgan's M2a test (J7): a new town, check-ins over a day, the Village in about 8 real hours, upgrades found without help. Record his answer here in his words, then set `docs/specs/m2a-pace.md` to Shipped on the next work branch. Opening his old town first jumps it forward up to 8 real hours.
-2. M2b Art workshop (D-037), started 2026-11-13: read the `art1` answers (one `ArtifactData` list, collection `art1`), then round 2 shows real icon and town samples made in the craft apps for the picked direction, then the Town tab mock-up (`ui-mockups`). No game code. Gameplay ideas from the workshop go to `docs/parking.md` or M2d/M3 planning, not into M2b.
-3. Still open: Morgan's phone tests from S1 and S2 ("Update ready" and Reload; build a Woodcutter's camp, close the app, come back), S3 (switch the Mine to stone; let the Workshop run out of ore overnight) and S4 (pin someone to a bad job and read why morale falls). Record answers here.
-4. The repo has auto-merge off: merge by hand once the ready CI run is green, and do not push and mark ready within the same few seconds.
-5. Phobos: Morgan will send an integration plan "in the next couple of days" (parked, D-035).
+2. M2e Choices in a new session: spec it with `write-spec` from step 3 (input: D-040 and the `play1`, `play2`, `playfinal` pages), mock-ups first for the board and pins, then build on a new branch from `main`. Mind `m2b-art-workshop` also edits HANDOFF: merge, don't overwrite.
+3. M2b Art workshop (D-037), started 2026-11-13: read the `art1` answers (one `ArtifactData` list, collection `art1`), then round 2 shows real icon and town samples made in the craft apps for the picked direction, then the Town tab mock-up (`ui-mockups`). No game code. Gameplay ideas from the workshop go to `docs/parking.md` or M2d/M3 planning, not into M2b. D-040 settles what `art1`'s "Always something to do" section asked (goals board, trader swaps, forage trips; energy taps dropped), so those answers are input to the M2e spec only. Round 2 adds art the M2e board needs: goal, trader and forage cards and an icon per good. On 2026-11-13 Morgan said "round 1 done" but the `art1` collection was empty: the answers were likely saved on the phone only; reopening the page while signed in uploads them.
+4. Still open: Morgan's phone tests from S1 and S2 ("Update ready" and Reload; build a Woodcutter's camp, close the app, come back), S3 (switch the Mine to stone; let the Workshop run out of ore overnight) and S4 (pin someone to a bad job and read why morale falls). Record answers here.
+5. The repo has auto-merge off: merge by hand once the ready CI run is green, and do not push and mark ready within the same few seconds.
+6. Phobos: Morgan will send an integration plan "in the next couple of days" (parked, D-035).
 
 ## Open questions
 
@@ -53,7 +53,6 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 
 ## Decisions since the last plan update
 
+- 2026-11-14 Morgan approved M2e Choices (D-040): swaps now, gold in M3; forage trips in; a goal pays about an hour of work; a trader offer about every real hour.
 - 2026-11-14 Morgan approved the M2a spec: leaving gap 672 ticks, Upgrade row option B (D-039).
 - 2026-11-14 Morgan approved the M2 re-plan ("Approved, start building"): D-035 to D-038.
-- 2026-11-10 Morgan: the M1 audit comes before the M1 test (J14) ("Audit before testing in a new session please"). Plan page: https://claude.ai/artifact/JBJXyeY7awmo7p5GHuRL8z.
-- 2026-11-10 D-025 to D-034, see `docs/DECISIONS.md`. D-034 (methods bought once) amends D-025.
