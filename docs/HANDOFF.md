@@ -12,7 +12,8 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 - ✔ M1 Town: planning, S1 to S5, audit and fixes (D-025 to D-034; PRs #5 to #12).
 - ✔ M1 test (J14) and the M2 re-plan (D-035 to D-038; PR #13).
 - ▶ M2a Pace: merged (PR #14); waiting on Morgan's phone test (J7) (D-036, D-039).
-- ○ M2b Art workshop: taste board and Town tab mock-up (D-037).
+- ▶ M2b Art workshop: Morgan's desktop session, branch `m2b-art-workshop` (D-037).
+- ○ M2e Choices: goals, trader swaps, forage trips, pins (D-040). Next in this repo's cloud sessions.
 - ○ M2c Town view (D-037).
 - ○ M2d Ceiling and lots: lots with a character, Town tier, 3 buildings, 2 goods, push methods (D-038).
 - ○ M3 Guild · ○ M4 Trade outlet, events, chronicle (v0.1) · ○ M5a Families · ○ M5b Paths · ○ M6 Trade and Crown · ○ M7 Depth (v1.0)
@@ -30,7 +31,7 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 ## Next
 
 1. Morgan's M2a test (J7): a new town, check-ins over a day, the Village in about 8 real hours, upgrades found without help. Record his answer here in his words, then set `docs/specs/m2a-pace.md` to Shipped on the next work branch. Opening his old town first jumps it forward up to 8 real hours.
-2. Read `playfinal` ("final done"); on approval write DECISIONS and HANDOFF, then spec M2e Choices with `write-spec` from step 3. Mind `m2b-art-workshop` also edits HANDOFF: merge, don't overwrite. M2b Art workshop runs in Morgan's desktop session (D-037). The pin marker on the People tab gets a mock-up then a fix (answer `o_pins`).
+2. M2e Choices in a new session: spec it with `write-spec` from step 3 (input: D-040 and the `play1`, `play2`, `playfinal` pages), mock-ups first for the board and pins, then build on a new branch from `main`. Mind `m2b-art-workshop` also edits HANDOFF: merge, don't overwrite.
 3. Still open: Morgan's phone tests from S1 and S2 ("Update ready" and Reload; build a Woodcutter's camp, close the app, come back), S3 (switch the Mine to stone; let the Workshop run out of ore overnight) and S4 (pin someone to a bad job and read why morale falls). Record answers here.
 4. The repo has auto-merge off: merge by hand once the ready CI run is green, and do not push and mark ready within the same few seconds.
 5. Phobos: Morgan will send an integration plan "in the next couple of days" (parked, D-035).
@@ -50,5 +51,6 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 
 ## Decisions since the last plan update
 
+- 2026-11-14 Morgan approved M2e Choices (D-040): swaps now, gold in M3; forage trips in; a goal pays about an hour of work; a trader offer about every real hour.
 - 2026-11-14 Morgan approved the M2a spec: leaving gap 672 ticks, Upgrade row option B (D-039).
 - 2026-11-14 Morgan approved the M2 re-plan ("Approved, start building"): D-035 to D-038.

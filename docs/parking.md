@@ -10,3 +10,4 @@ Ideas outside the charter's content targets. One dated line each.
 - 2026-11-10 Party bonds between adventurers who return together (not before M4b; would amend D-011).
 - 2026-11-10 Reserves per resource and a serving order when an input is short (judge at the M1 test; fun round 2).
 - 2026-11-14 Project Phobos controllers for residents: parked until Morgan sends an integration plan (D-035).
+- 2026-11-14 Energy-gated tap actions (forage, chop, explore yourself), from DragonScape Idle: dropped, D-025 stays (D-040).
