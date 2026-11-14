@@ -12,3 +12,4 @@ Ideas outside the charter's content targets. One dated line each.
 - 2026-11-14 Project Phobos controllers for residents: parked until Morgan sends an integration plan (D-035).
 - 2026-11-14 Energy-gated tap actions (forage, chop, explore yourself), from DragonScape Idle: dropped, D-025 stays (D-040).
 - 2026-11-14 Riverside buildings for M2d's three new buildings (D-038): a Fisher's hut (fish as food) and a watermill; Morgan asked for things like a fisherman's hut on the river's far side (M2b workshop).
+- 2026-11-14 The Hollow Oak and druids (nature magic, a druid's grove): "way later like a dlc type thing" (special-sites form).

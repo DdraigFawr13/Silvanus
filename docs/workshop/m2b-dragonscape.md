@@ -112,3 +112,7 @@ All recommended options picked (D-043). Notes: "Anything that gets a basic resou
 ## Canvas round 10 (2026-11-14)
 
 From the sites form notes. The Tangle redrawn as wild overgrowth (young oaks, birches and pines tangled with bushes and brambles, fallen logs, the odd dead tree) under a fog that thickens outward; the High Street carried south out of town as a cart road through a gateway of two lantern posts with a signpost; the river carried out to the south. Special-site ideas form (`special1`): https://claude.ai/artifact/7gRXgffZtkXETSMhZqq5iL (eleven ideas, each with its building).
+
+## Special-sites answers (`special1`, 2026-11-14)
+
+Keep: sunken bog, salt spring, bat caves. After: the Hollow Oak ("I like druids though but way later like a dlc type thing"). Cut: amber seep, bee cliffs, fae ring, moon spring, star-fall crater, witch's ruin, wyrm bones. Written as D-044. On the canvas the moon spring became the salt spring, the bog took the south-east corner, the ruins became a broken tower far off in the Skarthorn, and the bat caves open high on the mountain.
