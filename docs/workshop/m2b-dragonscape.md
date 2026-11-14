@@ -46,3 +46,13 @@ Working files are outside the repo, in `C:\Users\Morgan\CraftWork\silvanus-art` 
 - Kenney "Tiny Dungeon", CC0 1.0, https://kenney.nl/assets/tiny-dungeon (villager sprites, anvil, barrel, chest).
 - Downloaded and not used: Kenney "Medieval RTS", "Roguelike RPG Pack", "Generic Items", all CC0.
 - Food, stone and ore icons: drawn by Claude for this project in Tiny Town's palette and outline; no third-party source.
+
+## Round 2 answers (`art2`, 2026-11-14)
+
+- Town light: "1 · Daylight", note: "but it needs to be modified a bit like idk it is too bright and i want this to be more of like a new art style as well".
+- Town picture needs: a more dangerous forest, more detail (fences, crops, smoke, signs), lots easier to tell apart, less crowded.
+- Mock-up A (lantern colours) Keep; B (slate) Cut, so D-028 stands. Order: picture, then board, then buildings. The "now" bar: pinned on every tab, like DragonScape. Icon set: Keep. Card pictures: keep as shown. Section note: "still need more work on the art though".
+
+## Round 3 (`art3`)
+
+Page: https://claude.ai/artifact/7MypCWa46iLafokEYXxPaq. Kenney's 33 colours repainted into three Silvanus palettes (Moss, Autumn edge, Faded ink; Moss recommended), shown on a rebuilt town: lots spread out with dirt yards, a darker and colder Skarthorn with eyes and a warning post, smoke on working chimneys, crop rows, a mine entrance from Tiny Dungeon tiles. Each palette also repaints the card pictures and icons. Script: `scene2.py` in the art folder.
