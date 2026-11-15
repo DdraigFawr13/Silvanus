@@ -183,9 +183,9 @@ Second pass, same day. Morgan: "i don't want the forest entrance straight above 
 
 Third pass. Morgan: "to the north should be like the real forest. The trees around the town should be sparser so it shows they are like at the edge of the true wilds". North forest: two layers of trees, darker (0.5), edge pushed down to y 114. Sides and south: a sparse fringe (18 % near the town rising to 78 % at the map edge), lighter trees (0.86), with bushes, brambles, stumps and logs. Also asked: the mountain and mine don't read as a mountain or as one piece; proposed a 1-generation PixelLab cliff tileset, waiting for Morgan's yes.
 
-Morgan on the third pass: "A bit better but still not organic enough and like really not the vibe I am going for but I guess we should see what artcraft comes up with first. I really want more of like a haunting vibe and a real town maybe like some stardew valley type shit. Just feeling like a proper town that is part of this landscape would be really nice to see". PixelLab work paused (39 generations left; the cliff tileset was not run).
+Morgan on the third pass: "A bit better but still not organic enough and like really not the vibe I am going for but I guess we should see what artcraft comes up with first. I really want more of like a haunting vibe and a real town maybe like some stardew valley type shit. Just feeling like a proper town that is part of this landscape would be really nice to see". Morgan then corrected "artcraft" to PixelLab: "I meant pixel lab I only want to test in pixel lab". 39 generations left; the cliff tileset was not run.
 
-## Brief for the next town attempt (ArtCraft or any tool), 2026-11-15
+## Brief for the next town attempt (PixelLab), 2026-11-15
 
 Layout (D-047 as amended): wide map that scrolls left and right and opens on the Hall; dense dark Skarthorn along the north with the forest road leaving to the north-west through a lantern gate; mountain and mine in the upper right as one landform with a waterfall feeding the east river; open south with the road out; a sparse fringe of trees round the sides.
 
