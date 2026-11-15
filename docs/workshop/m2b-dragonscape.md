@@ -182,3 +182,17 @@ Morgan: "we lost the vision on the town layout a bit. It's supposed to have the 
 Second pass, same day. Morgan: "i don't want the forest entrance straight above the town I wanted it off to the left somewhere. I also want the town to feel more organic". The forest road now leaves the High Street to the north-west, past the woodcutter, through a lantern gate; the forest is unbroken behind the Hall. Streets curve (High Street and cross street follow sine curves; lanes are polylines), houses sit at uneven spacing and set-backs with two on the south side of the High Street, trees and bushes stand in town, and the town's edge is more ragged. Communication: Claude follows `docs/workshop/pixellab-guide.md` section 4 (a brief before each call, results in place).
 
 Third pass. Morgan: "to the north should be like the real forest. The trees around the town should be sparser so it shows they are like at the edge of the true wilds". North forest: two layers of trees, darker (0.5), edge pushed down to y 114. Sides and south: a sparse fringe (18 % near the town rising to 78 % at the map edge), lighter trees (0.86), with bushes, brambles, stumps and logs. Also asked: the mountain and mine don't read as a mountain or as one piece; proposed a 1-generation PixelLab cliff tileset, waiting for Morgan's yes.
+
+Morgan on the third pass: "A bit better but still not organic enough and like really not the vibe I am going for but I guess we should see what artcraft comes up with first. I really want more of like a haunting vibe and a real town maybe like some stardew valley type shit. Just feeling like a proper town that is part of this landscape would be really nice to see". PixelLab work paused (39 generations left; the cliff tileset was not run).
+
+## Brief for the next town attempt (ArtCraft or any tool), 2026-11-15
+
+Layout (D-047 as amended): wide map that scrolls left and right and opens on the Hall; dense dark Skarthorn along the north with the forest road leaving to the north-west through a lantern gate; mountain and mine in the upper right as one landform with a waterfall feeding the east river; open south with the road out; a sparse fringe of trees round the sides.
+
+What the current renders miss, in Morgan's words and Claude's reading (inference):
+- "not organic enough": the town is pieces placed on a flat field. A real town grows from its paths: houses face the lanes they stand on, yards and gardens fill the space between, paths run to every door, and walls, hedges and fences mark plots.
+- "a proper town that is part of this landscape": the ground should change under the town (worn earth near doors, packed paths, rougher grass at the edges), the land should have shape (a slope, the stream cutting through, rock showing near the mountain), and the forest should creep into the gaps.
+- "a haunting vibe": dusk light shared by every piece, long shadows, mist pooled in low ground and between the trees, warm lit windows against a cold landscape, crows, dead trees and the graveyard at the edge; quiet rather than gloomy.
+- "like some stardew valley type": read as the genre's qualities, not one game's look: a cosy farming-town map with winding paths, fenced gardens, a town square with life in it, and every building with its own yard. Silvanus's own anchor style (D-046) stays the look.
+- Mountain: a real landform in tiers with a cliff face, foothills fading into the forest, the mine cut into the face, not a strip of cliff pieces.
+
