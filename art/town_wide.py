@@ -36,7 +36,7 @@ def river_dist(x, y):
 def in_town(x, y, grown):
     k = 1.08 if grown else 1.0
     nx, ny = (x - CX) / (400 * k), (y - 290) / (190 * k)
-    return nx * nx + ny * ny + 0.05 * np.sin(x / 17.0) * np.cos(y / 13.0) < 1
+    return nx * nx + ny * ny + 0.12 * np.sin(x / 31.0) * np.cos(y / 19.0) + 0.06 * np.sin(x / 11.0 + y / 7.0) < 1
 
 
 def south_way(x, y):
@@ -47,20 +47,32 @@ def south_way(x, y):
 def build(state):
     R = random.Random(7)
     grown = state == "grown"
+    hs = lambda x: HY + 10 * np.sin((x - CX) / 130.0) - 6 * np.sin((x - CX) / 57.0)       # High Street centre line
+    cs = lambda y: CX + 16 * np.sin((y - HY) / 40.0) * min(1.0, (y - HY) / 30.0)          # cross street centre line
     roads = [
-        lambda x, y, j: abs(y - HY) < 8 + j and 30 < x < 900,                               # High Street
-        lambda x, y, j: abs(x - CX) < 7 + j and y > HY,                                     # cross street, south out
-        lambda x, y, j: abs(x - CX) < 5 + j * 0.4 and 190 < y < 240,                        # Hall walkway
-        lambda x, y, j: abs(x - CX) < 4 + j and y < 120,                                    # north road into the Skarthorn
-        lambda x, y, j: abs(x - (150 + (y - 170) * 0.25)) < 4 + j and 170 < y < HY,         # lane to the woodcutter
-        lambda x, y, j: abs(x - 820) < 4 + j and 112 < y < HY,                              # mine track
-        lambda x, y, j: abs(y - 372) < 4 + j and 220 < x < CX or abs(y - 380) < 4 + j and CX < x < 740,  # back lanes
-        lambda x, y, j: abs(x - 110) < 4 + j and HY < y < 380,                              # lane to the forager
+        ([(x, hs(x)) for x in range(30, 920, 15)], 8),                                      # High Street, gently curving
+        ([(cs(y), y) for y in range(HY, 500, 12)], 7),                                      # cross street, south out
+        ([(CX, 190), (CX, 240)], 5),                                                        # Hall walkway
+        ([(205, hs(205)), (192, 250), (170, 205), (152, 165), (132, 115), (120, 60), (112, -6)], 7),  # north-west road into the Skarthorn
+        ([(770, hs(770)), (787, 255), (800, 205), (812, 160), (820, 112)], 4),              # mine track
+        ([(250, 376), (320, 364), (400, 372), (cs(372), 372)], 4),                          # back lanes
+        ([(cs(386), 386), (560, 394), (640, 382), (735, 392)], 4),
+        ([(92, hs(92)), (100, 342), (94, 388)], 4),                                         # lane to the forager
     ]
-    plots = [] if grown else [(380, 278), (590, 278), (270, 345), (660, 345), (230, 278), (720, 278)]
-    plot_shapes = [(lambda px, py: (lambda x, y, j: ((x - px) / 15) ** 2 + ((y - py) / 9) ** 2 < 1 + j * 0.03))(px, py)
-                   for px, py in plots]
-    dirt = sb.mask(W, H, roads + plot_shapes)
+    plots = [] if grown else [(268, hs(268) - 22), (392, hs(392) - 22), (586, hs(586) - 22), (702, hs(702) - 22),
+                              (312, 352), (640, 362)]
+    Y, X = np.mgrid[0:H, 0:W].astype(float)
+    J = sb.jag(X, Y)
+    dirt = np.zeros((H, W), bool)
+    for pts, half in roads:
+        d = np.full((H, W), 1e9)
+        for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+            dx, dy = x1 - x0, y1 - y0
+            t = np.clip(((X - x0) * dx + (Y - y0) * dy) / (dx * dx + dy * dy), 0, 1)
+            d = np.minimum(d, np.hypot(X - x0 - t * dx, Y - y0 - t * dy))
+        dirt |= d < half + J
+    for px, py in plots:
+        dirt |= ((X - px) / 15) ** 2 + ((Y - py) / 9) ** 2 < 1 + J * 0.03
     img = wang_ground(W, H, dirt)
     wm = np.zeros((H, W), bool)
     for y in range(80, H):
@@ -96,12 +108,12 @@ def build(state):
     for i in range(10):
         fd.line((896 + i, 46, 898 + i, 96), fill=(112, 160, 170, 255) if i % 3 else (190, 214, 216, 255))
     img.alpha_composite(fall)
-    # Hall, square, and the lantern gate where the north road enters the Skarthorn
+    # Hall and square; the lantern gate where the north-west road enters the Skarthorn
     add(piece("hall", 2 if grown else 0), CX, 194)
     sq = piece("square", 2 if grown else 0)
     img.alpha_composite(sq, (CX - sq.width // 2, 290 - sq.height))
-    for x in (CX - 12, CX + 12):
-        add(piece("generic", 33), x, 112, False)
+    for x in (120, 146):
+        add(piece("generic", 33), x, 118, False)                                            # lantern gate, north-west road
 
     def home(p, x, by, flip=False):
         add(p, x, by)
@@ -112,17 +124,19 @@ def build(state):
         add(piece("generic", R.choice([8, 9, 10, 13, 14])), x + s * (p.width // 2 + 14), by - 10, False)
         add(piece("generic", 23), x - s * 8, by + 6, False)
 
-    # High Street, both sides of the square
+    # High Street, both sides of the square: uneven spacing and set-backs, a few on the south side facing it
+    def street(k, d, x, back=0, flip=None, south=False):
+        by = hs(x) + (46 if south else -10) - back
+        home(piece(k, d), x, by, R.random() < 0.5 if flip is None else flip)
     if grown:
-        home(piece("generic", 0), 170, 290, True); home(piece("generic", 3), 230, 290)
-        home(piece("generic", 1), 300, 290); home(piece("buildings", 11), 380, 290)
-        home(piece("generic", 2), 590, 290); home(piece("generic", 4), 660, 290)
-        home(piece("buildings", 17), 730, 290)
+        street("generic", 0, 162, 4); street("generic", 3, 236, 0); street("generic", 1, 312, 9)
+        street("buildings", 11, 388, 2); street("generic", 2, 584, 6); street("generic", 4, 652, 0)
+        street("buildings", 17, 732, 5); street("generic", 5, 200, 0, south=True); street("generic", 1, 690, 0, south=True)
     else:
-        home(piece("generic", 0), 300, 290, True)
-        add(piece("buildings", 9), 660, 290)
+        street("generic", 0, 312, 9, True)
+        add(piece("buildings", 9), 652, hs(652) - 10)
     # resource buildings on their own sites (D-043)
-    add(piece("buildings", 2 if grown else 0), 150, 168)                                   # woodcutter, forest edge
+    add(piece("buildings", 2 if grown else 0), 206, 176)                                   # woodcutter, by the north-west road
     add(piece("buildings", 5 if grown else 3), 770, 432)                                   # farm, south-east
     fields = Image.new("RGBA", (W, H)); fd = ImageDraw.Draw(fields)
     for r in range(6 if grown else 3):
@@ -132,22 +146,22 @@ def build(state):
             fd.rectangle((x, y - 2, x + 2, y + 1), fill=(118, 150, 60, 255) if r % 2 else (196, 168, 70, 255))
     img.alpha_composite(fields)
     if grown:
-        add(piece("generic", 10), 190, 174, False); add(piece("generic", 6), 112, 176, False)
+        add(piece("generic", 10), 236, 180, False); add(piece("generic", 6), 236, 156, False)
         add(piece("buildings", 14), 860, 220)                                               # storehouse by the river
         add(piece("buildings", 8), 110, 400); add(piece("generic", 12), 146, 404, False)    # forager, west woods
-        home(piece("generic", 5), 300, 362); home(piece("generic", 1), 600, 368)
-        home(piece("generic", 3), 380, 362, True)
+        home(piece("generic", 3), 302, 356, True); home(piece("generic", 2), 386, 362)
+        home(piece("generic", 0), 604, 384)
         for x in (660, 690, 720):
             add(piece("generic", 18), x, 440, False)
         for x, by in [(820, 380), (830, 330), (800, 350)]:
             add(piece("props", 12), x, by)                                                  # orchard
-        for x in (200, 320, 640, 760):
-            add(piece("props", 18), x, HY - 4, False)
+        for x in (200, 340, 620, 770):
+            add(piece("props", 18), x, hs(x) - 4, False)
         add(piece("generic", 25), CX + 18, HY + 22, False); add(piece("generic", 26), CX - 30, HY + 24, False)
         add(piece("props", 24), 400, 210, False); add(piece("props", 24), 560, 210, False)
     for x in (CX - 22, CX + 22):
         add(piece("props", 18), x, HY + 18, False)
-    add(piece("props", 29), 905, HY + 8, False)                                             # High Street bridge
+    add(piece("props", 29), 905, hs(905) + 8, False)                                             # High Street bridge
     add(piece("props", 30), 940, 250, False)                                                # jetty, far bank
     for y in range(130, H, 20):
         d_x = [x for x in range(820, W) if wm[y, x]]
@@ -155,6 +169,9 @@ def build(state):
             add(piece("props", R.choice([16, 17])), min(d_x) - 6, y, False)
         if d_x and R.random() < 0.6:
             add(piece("props", R.choice([16, 17])), max(d_x) + 6, y, False)
+    spots = [(330, 196), (628, 190), (262, 226), (700, 228), (420, 430), (570, 448), (352, 446), (150, 250), (842, 268)]
+    for x, by in spots[:9 if grown else 6]:
+        add(piece("props", R.choice([0, 1, 2, 12])), x, by)                                  # trees and bushes left standing in town
     add(piece("sites", 0), 70, 456, False)                                                  # tar pit, west
     add(piece("sites", 3), 250, 470, False)                                                 # standing stones
     # the Skarthorn along the north and the Tangle round the sides; the mountain and the road out stay clear
