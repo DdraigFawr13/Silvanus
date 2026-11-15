@@ -203,3 +203,4 @@ Morgan: "I want to see mockups of the higher detail maybe through pixel lab". Th
 
 - 1 town heart: houses face the lanes, fenced yards, lit lamps, mist and crows (Claude's reading: the closest yet to "a proper town").
 - 2 mountain corner: reads as a real mountain with the mine and waterfalls, but drawn at a three-quarter angle, not the map's top-down view.
+- 3 town edge: a winding lane, vegetable garden, stone walls, woodpiles, washing lines, dead trees and a headstone, the dark forest behind; drawn at a three-quarter angle like 2.
