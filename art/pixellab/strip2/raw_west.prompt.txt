@@ -1,0 +1,10 @@
+tool: create_image_pixen
+{
+ "width": 512,
+ "height": 512,
+ "view": "high top-down",
+ "detail": "highly detailed",
+ "outline": "single color outline",
+ "description": "West side of the village: a dirt road leading off the top-left edge into dense dark pine forest, a woodcutter's cabin with log piles and a chopping block beside the road, a few small cottages with vegetable gardens and picket fences, sparse trees, stumps and brambles, an old graveyard with leaning headstones near the bottom left, a dirt lane crossing to the right edge, and a dense belt of tall dark pine and oak trees running along the whole right edge from top to bottom, crows. top-down view of a haunted fantasy frontier village at dusk, cozy but eerie, cool blue-green dusk light, low mist pooled between trees, warm glowing yellow windows, mossy stone and dark timber cottages with slate roofs, moss green grass and warm brown dirt paths"
+}
+job_id: 78628669-ded7-4e63-bb0f-faf9ec822745

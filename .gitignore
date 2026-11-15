@@ -14,3 +14,4 @@
 /apps/web/dist-a/
 /apps/web/dist-b/
 /.vercel/
+art/__pycache__/

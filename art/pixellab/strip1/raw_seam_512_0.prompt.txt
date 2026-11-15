@@ -1,0 +1,5 @@
+tool: edit_image_pixen
+{
+ "description": "This is one continuous top-down village scene with a visible vertical seam down the middle. Join the left and right halves seamlessly: continue the paths, grass, trees, fences and mist across the middle so no seam shows. Keep the exact pixel style, colours, lighting and everything near the left and right edges unchanged."
+}
+job_id: c5ae112d-1326-4467-876a-eb96cd82910c

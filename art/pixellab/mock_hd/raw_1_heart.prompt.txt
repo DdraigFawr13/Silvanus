@@ -1,0 +1,3 @@
+description: Town heart: a stone town hall with a clock tower at the top centre, a cobbled town square with a well and market stalls in front of it, a winding dirt high street with cottages facing it, each with a fenced yard, garden and flower boxes, paths to every door, lamp posts, a few old trees, crows. top-down view of a haunted fantasy frontier village at dusk, cozy but eerie, cool blue-green dusk light, low mist pooled between trees, warm glowing yellow windows, mossy stone and dark timber cottages with slate roofs, moss green grass and warm brown dirt paths
+width 512, height 512, view high top-down, detail highly detailed, outline single color outline
+job_id: 8570fd8a-354b-423f-bb34-caaf261289e6
