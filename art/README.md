@@ -34,6 +34,8 @@ The props and `A/` pieces came from older scripts that also graded against a Ken
 - `gpt_scene_b.py`: shared helpers: `ground(W, H, mask)` draws grass with dirt where the mask is set (jagged edge, lit lip, overhang shadow), `mask`, `jag`, `put` (sprite with shadow), `P`.
 - `gpt_town.py`: the 30 × 30-tile town (480 × 480 px), `build("day1")` and `build("grown")`. Roads, river, plots, sprites, dark Tangle trees and mist.
 - `gpt_scene_c.py`: mountain and cliff test scene.
+- `pixellab_town.py`: `wang_ground(W, H, mask)` lays the PixelLab grass-to-dirt tileset (`pixellab/t1_grass_dirt/`) on a 16 px corner grid; run alone, it re-renders the old square map with it for comparison.
+- `town_wide.py`: the current town map (D-047 as amended 2026-11-15), 60 × 30 tiles, scrolls left and right. `gpt_town.py` is the superseded square map.
 
 ## Piece index
 
