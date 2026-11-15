@@ -212,3 +212,10 @@ Can PixelLab hold mock-up 1's style? Two 1-generation tests, approved by Morgan;
 - A, same recipe (`create_image_pixen`, 512 px, mock-up 1's wording plus the mountain): holds the style well (palette, mist, lamps, mossy cottages) and the mountain, mine, track and waterfall read as one landform with houses below. The view is a little more tilted than mock-up 1.
 - B, edit a 256 px corner of mock-up 1 (`edit_image_pixen`): keeps the pixels' style exactly, but the mountain is a small cone and the market stalls stay; 256 px is too small for a map section.
 - Reading (inference): the same wording on `create_image_pixen` is the cheap way to make matching sections. Not yet tested: joining sections into one continuous map without seams (`edit_image` on a padded canvas, 10-25 generations).
+
+## First map strip (2026-11-15)
+
+Morgan on the mountain: "it should be in like a larger mountain that we don't actually see the entirety of. And I want it as part of the main scrollable map. And the river source doesn't need to be shown" (D-047 amended). Morgan approved about 5 generations; the redone east section made it 6 (all `create_image_pixen` or `edit_image_pixen`, 1 each). Files and prompts: `art/pixellab/strip1/`. Source: AI-generated with PixelLab by Claude for Morgan, 2026-11-15.
+
+- West (forest road off the top-left, woodcutter, gardens, graveyard) and east (mine at the foot of an off-map mountain, river in from the top, bridge) hold mock-up 1's style; east is drawn more tilted.
+- Joins: `_strip_raw.png` (sections butted) and `_strip_joined.png` (four 256 px join repaints, centre 160 px pasted back). The repaints did not join the scenes: they mostly added mist over the seam, and the east seam still shows a hard edge. Reading (inference): repainting a seam afterwards doesn't work with this tool; the joins need planning (sections that share an edge, or seams on natural breaks).
