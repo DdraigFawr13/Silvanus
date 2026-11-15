@@ -1,0 +1,1 @@
+{"date":"2026-11-15","session":"b9053b0b-bc85-5819-8e88-3a8b2fef3bc1","commit_calls":1,"counts":{"gate.page":1},"warnings":[{"ts":"2026-11-15T06:11:21.935Z","check":"gate.page","outcome":"warn","detail":"the reply has 460 words and no artifact link: publish what Morgan must read as a page and link it"}]}
