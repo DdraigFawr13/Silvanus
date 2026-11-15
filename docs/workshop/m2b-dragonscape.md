@@ -219,3 +219,15 @@ Morgan on the mountain: "it should be in like a larger mountain that we don't ac
 
 - West (forest road off the top-left, woodcutter, gardens, graveyard) and east (mine at the foot of an off-map mountain, river in from the top, bridge) hold mock-up 1's style; east is drawn more tilted.
 - Joins: `_strip_raw.png` (sections butted) and `_strip_joined.png` (four 256 px join repaints, centre 160 px pasted back). The repaints did not join the scenes: they mostly added mist over the seam, and the east seam still shows a hard edge. Reading (inference): repainting a seam afterwards doesn't work with this tool; the joins need planning (sections that share an edge, or seams on natural breaks).
+
+## Map strip 2: joins on natural breaks (2026-11-15)
+
+Morgan approved hiding the joins on a tree belt and the river (2 generations) and asked for "a realism pass because there is like the mine cart track to the right side of the mine that looks weird". West redone with a dense tree belt down its right edge; east redone with the river down its left edge and the mine track running straight out of the mine mouth to a spoil heap. Files: `art/pixellab/strip2/`. `_strip_graded.png` matches the outer sections' colour (mean and spread per channel) to mock-up 1: a local derivative of PixelLab pixels, no new pixels drawn. Source: AI-generated with PixelLab by Claude for Morgan, 2026-11-15, `create_image_pixen`.
+
+Realism review (Claude's reading):
+- Fixed: the mine track now leaves the mine mouth and curves down to the spoil heap and lane.
+- Fixed by the grade: the west was brighter and greener than the heart.
+- The east river is a ruler-straight canal with two identical footbridges.
+- Mock-up 1's right edge cuts a building in half at the east join.
+- A road strip runs down the west section's far right, beyond the tree belt, along the join.
+- The east is still drawn more tilted than the heart.
