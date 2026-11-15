@@ -196,3 +196,10 @@ What the current renders miss, in Morgan's words and Claude's reading (inference
 - "like some stardew valley type": read as the genre's qualities, not one game's look: a cosy farming-town map with winding paths, fenced gardens, a town square with life in it, and every building with its own yard. Silvanus's own anchor style (D-046) stays the look.
 - Mountain: a real landform in tiers with a cliff face, foothills fading into the forest, the mine cut into the face, not a strip of cliff pieces.
 
+
+## PixelLab higher-detail mock-ups (2026-11-15)
+
+Morgan: "I want to see mockups of the higher detail maybe through pixel lab". Three `create_image_pixen` calls (1 generation each, 512 × 512, high top-down, highly detailed, single colour outline; prompts beside each image), approved by Morgan. Free plan runs one job at a time. Assets in `art/pixellab/mock_hd/`. Source: AI-generated with PixelLab by Claude for Morgan, 2026-11-15, `create_image_pixen`. Mock-ups only, not game art.
+
+- 1 town heart: houses face the lanes, fenced yards, lit lamps, mist and crows (Claude's reading: the closest yet to "a proper town").
+- 2 mountain corner: reads as a real mountain with the mine and waterfalls, but drawn at a three-quarter angle, not the map's top-down view.
