@@ -1,6 +1,6 @@
 # Handoff
 
-Updated: 2026-11-14. A fresh session must be able to continue from this file alone. Keep it to 60 lines; move finished entries to `docs/archive/handoff-YYYY-MM.md`.
+Updated: 2026-11-15. A fresh session must be able to continue from this file alone. Keep it to 60 lines; move finished entries to `docs/archive/handoff-YYYY-MM.md`.
 
 ## Phase
 
@@ -20,12 +20,12 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 
 ## Just done
 
+- 2026-11-15 M2b PixelLab (cloud session, branch `claude/vibrant-davinci-m5m64c`, cut from `m2b-art-workshop`): token saved as a network secret on the "Network" environment (proxy-injected for `api.pixellab.ai`; use the token from PixelLab's "Claude Code" option, not "Claude web"). Calls go over HTTPS JSON-RPC with a placeholder bearer; no `mcp__pixellab__*` tools needed. Trial: 40 generations, 39 left. Test 1 (grass to dirt tileset) rendered on the town map: `art/gpt/_town_compare_pl.png`; roads blend, diagonal lane stair-steps, grass paler than the anchor. No PixelLab skill in the catalog; community ones not installed. Waiting on Morgan: build on it, and 1 generation for richer grass chained to the road tiles?
 - 2026-11-14 M2b art: the town map from the ChatGPT pieces is "not quite there yet" (Morgan); Morgan chose PixelLab and a cloud session. The art workspace moved into `art/` (outputs pixel-identical to the PC copies), `.mcp.json` added (token from `PIXELLAB_API_TOKEN`, never in the repo).
 - 2026-11-14 Morgan, starting the M2a test town: "it needs to be clearer who is pinned and who isnt" (People tab shows only " · Pinned" at the end of a row, `apps/web/src/ui/PeopleTab.tsx:110`); "There also isn't really anything to actually do at this point so it's kind of boring. There is nothing I can actively just do. See the game dragonscape for reference to like always having something to do". The second touches D-025 (no Collect tap) and the Avoid list item "any reward for tapping" (`docs/UI_STYLE.md:74`): a direction question, asked in chat.
 - 2026-11-14 Morgan chose a planning round on "always something to do" before more game steps, and will run the M2b art workshop themself in a desktop session ("so it can potentially use the artcraft apps"). Round 1 (`play1`): https://claude.ai/artifact/HdpkiWhhZkeEPV2FLgAFKg.
 - 2026-11-14 `play1` answers: goals list and delivery requests Now; town orders, push methods, events, guild quests, town works, forecast Soon; keep D-025 (but energy taps also ticked: finding f1); something at every check-in; a new step now; pins as a label and a filter. Review and round 2 (`play2`): https://claude.ai/artifact/2zZSib54mLApaC8wtUfJXG. Recommended there: deliveries as swaps, pick-one-of-three goals, pins, events right after.
 - 2026-11-14 `play2` answers: swaps ("but gold would be nice to have"), three goals at a time, events right after this step; wants trips, collecting and upgrading, a board, lots to look at; must not be endless tapping, a pushy mobile-game feel or "annoyingly slow progress". The art session's DragonScape notes are on branch `m2b-art-workshop` (`docs/workshop/m2b-dragonscape.md`). Final page (`playfinal`, step M2e Choices): https://claude.ai/artifact/FJuq2TKb8gmPAfcEbdymhQ.
-- 2026-11-14 M2b `art1` answers (second try; the first stayed on the phone): all three sketched icon styles Cut ("I need to see higher quality mockups to choose"); "the kenney look but modified"; VectorCraft, PhotoCraft and CC0 packs, not OpenArt; compact stock bar with icons; a bigger picture on every board card; town light and colours to be shown in round 2. Full answers and art sources: `docs/workshop/m2b-dragonscape.md`. Round 2 (`art2`): https://claude.ai/artifact/LJsptFDjmGwyuDZNs1Qb2s, built from Kenney Tiny Town and Tiny Dungeon (CC0) in `C:\Users\Morgan\CraftWork\silvanus-art`, graded in PhotoCraft.
 - Earlier entries are in `docs/archive/handoff-2026-11.md`.
 
 ## Next
