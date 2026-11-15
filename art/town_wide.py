@@ -16,7 +16,7 @@ from pixellab_town import wang_ground
 B = ROOT + "gpt/"
 W, H = 960, 480
 CX, HY = 480, 300           # town spine and High Street
-FOREST = 104                # the Skarthorn's edge along the north
+FOREST = 114                # the Skarthorn's edge along the north
 MTN_X = 700                 # mountain and cliffs from here to the east edge
 
 RIVER = [(902, 92), (908, 150), (892, 220), (912, 290), (924, 370), (936, 480)]
@@ -33,10 +33,15 @@ def river_dist(x, y):
     return best, wid
 
 
-def in_town(x, y, grown):
+def town_r(x, y, grown):
+    """Below 1 inside the town; grows outwards (a ragged ellipse)."""
     k = 1.08 if grown else 1.0
     nx, ny = (x - CX) / (400 * k), (y - 290) / (190 * k)
-    return nx * nx + ny * ny + 0.12 * np.sin(x / 31.0) * np.cos(y / 19.0) + 0.06 * np.sin(x / 11.0 + y / 7.0) < 1
+    return nx * nx + ny * ny + 0.12 * np.sin(x / 31.0) * np.cos(y / 19.0) + 0.06 * np.sin(x / 11.0 + y / 7.0)
+
+
+def in_town(x, y, grown):
+    return town_r(x, y, grown) < 1
 
 
 def south_way(x, y):
@@ -174,15 +179,20 @@ def build(state):
         add(piece("props", R.choice([0, 1, 2, 12])), x, by)                                  # trees and bushes left standing in town
     add(piece("sites", 0), 70, 456, False)                                                  # tar pit, west
     add(piece("sites", 3), 250, 470, False)                                                 # standing stones
-    # the Skarthorn along the north and the Tangle round the sides; the mountain and the road out stay clear
+    # the Skarthorn along the north: the true wilds, dense and dark. Round the sides and south the town sits at the
+    # edge of them: a sparse fringe of trees, bushes, stumps and dead trees that thickens towards the map edge.
+    # The mountain and the road out stay clear.
     blocked = dirt | wm
     for gy in range(-6, H + 20, 13):
         for gx in range(-10, W + 10, 15):
             x, y = gx + R.randint(-5, 5), gy + R.randint(-4, 4)
             if not (0 <= x < W and 0 <= y < H + 8):
                 continue
-            north = y < FOREST + 6 * np.sin(x / 23.0)
-            if not north and in_town(x, y, grown):
+            north = y < FOREST + 6 * np.sin(x / 23.0) + 10 * np.sin(x / 71.0)
+            r = town_r(x, y, grown)
+            if not north and r < 1:
+                continue
+            if not north and R.random() > 0.18 + 0.6 * min(1.0, (r - 1) / 0.9):
                 continue
             if x > MTN_X - 30 and 22 < y < 112 or south_way(x, y):
                 continue
@@ -190,8 +200,16 @@ def build(state):
                 continue
             if (30 < x < 110 and 430 < y < 480) or (210 < x < 290 and 446 < y < 490) or (650 < x < 800 and 376 < y < 452):
                 continue
-            k = R.choices([0, 1, 2, 5, 6, 7, 8, 14, 15], [3, 3, 2, 3, 3, 2, 3, 2, 2])[0]
-            add(dark(piece("props", k)), x, y, k < 9)
+            if north:
+                for ox, oy in ((0, 0), (7, 6)):                                             # two layers: no gaps
+                    k = R.choices([0, 1, 2, 5, 6, 7, 8], [3, 3, 2, 4, 4, 3, 1])[0]
+                    add(dark(piece("props", k), 0.5), x + ox, y + oy)
+            elif R.random() < 0.3:
+                k = R.choice([("props", 12), ("props", 14), ("generic", 34), ("generic", 30), ("props", 16)])
+                add(piece(*k), x, y, False)                                                  # bushes, brambles, stumps, logs
+            else:
+                k = R.choices([0, 1, 2, 5, 6, 7, 8], [3, 3, 2, 3, 3, 2, 2])[0]
+                add(dark(piece("props", k), 0.86), x, y)
     sprites.sort(key=lambda s: s[0])
     for _, p, cx, by, sh in sprites:
         sb.put(img, p, cx, by, sh)
