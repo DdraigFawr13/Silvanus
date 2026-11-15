@@ -204,3 +204,11 @@ Morgan: "I want to see mockups of the higher detail maybe through pixel lab". Th
 - 1 town heart: houses face the lanes, fenced yards, lit lamps, mist and crows (Claude's reading: the closest yet to "a proper town").
 - 2 mountain corner: reads as a real mountain with the mine and waterfalls, but drawn at a three-quarter angle, not the map's top-down view.
 - 3 town edge: a winding lane, vegetable garden, stone walls, woodpiles, washing lines, dead trees and a headstone, the dark forest behind; drawn at a three-quarter angle like 2.
+
+## Style tests for D-048 (2026-11-15)
+
+Can PixelLab hold mock-up 1's style? Two 1-generation tests, approved by Morgan; files and prompts in `art/pixellab/style_test/`. Source: AI-generated with PixelLab by Claude for Morgan, 2026-11-15.
+
+- A, same recipe (`create_image_pixen`, 512 px, mock-up 1's wording plus the mountain): holds the style well (palette, mist, lamps, mossy cottages) and the mountain, mine, track and waterfall read as one landform with houses below. The view is a little more tilted than mock-up 1.
+- B, edit a 256 px corner of mock-up 1 (`edit_image_pixen`): keeps the pixels' style exactly, but the mountain is a small cone and the market stalls stay; 256 px is too small for a map section.
+- Reading (inference): the same wording on `create_image_pixen` is the cheap way to make matching sections. Not yet tested: joining sections into one continuous map without seams (`edit_image` on a padded canvas, 10-25 generations).

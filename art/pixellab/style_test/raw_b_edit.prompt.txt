@@ -1,0 +1,6 @@
+tool: edit_image_pixen
+{
+ "description": "Turn this into the mountain corner of the same village, keeping the exact pixel style, colours, lighting and top-down view: replace the town hall with a grey rocky mountain with stepped cliff ledges and a timber-framed mine entrance with a minecart track and a dirt path leading down, add a waterfall falling from the rock into a stream on the right, keep the dark trees, mist and lamp posts."
+}
+input: input_crop_heart_tr.png (mock_hd/raw_1_heart.png, x 256-512, y 0-256)
+job_id: 44ac340d-5dd9-4e9e-95f8-263feb9306d0
