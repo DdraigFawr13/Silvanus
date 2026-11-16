@@ -32,7 +32,8 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 3. M2b art re-plan (D-037). Step 1 done: the agreed checklist is `docs/workshop/art-checklist.md` (55 items; D-043, D-044, D-047, D-048 amended: no Tangle ring drawn, sites toward the edges, a swamp east of the river and no waterfall, any tool that matches mock-up 1's mood). Step 2 next, waiting on Morgan's go: one target picture in mock-up 1's mood at 412 px (lots, glows, day one and grown), scored item by item against the checklist before Morgan sees it; ask before any paid call (1,881 PixelLab generations left on Tier 1; read `docs/workshop/pixellab-guide.md` and the AGENTS art rule first). PRs #20 and #21 merged 2026-11-16; work on a new branch from `main`. The PixelLab token is a network secret on the "Network" cloud environment. Still open: D-041 Proposed and partly superseded; the UI_STYLE art section waits for the final art; `m2b-art-workshop` can be deleted with Morgan's OK.
 4. Still open: Morgan's phone tests from S1 and S2 ("Update ready" and Reload; build a Woodcutter's camp, close the app, come back), S3 (switch the Mine to stone; let the Workshop run out of ore overnight) and S4 (pin someone to a bad job and read why morale falls). Record answers here.
 5. The repo has auto-merge off: merge by hand once the ready CI run is green, and do not push and mark ready within the same few seconds.
-6. Phobos: Morgan will send an integration plan "in the next couple of days" (parked, D-035).
+6. Phobos (D-054): nothing to build here yet. Phobos tunes content offline after M2e ships and opens normal PRs; a net enters `packages/sim` only after it beats the rule it replaces.
+7. Factions planning (D-054): round 1 answered 2026-11-14 (5 factions, one standing each, off-screen wars, none fall, a drawn map with pins, plain rules first, one clan in M3; ways and success test left open). Review and round 2 (`factions-review1`) published, reviewer $0.57 measured. Next: read it with one `ArtifactData` list when Morgan says "factions review done", then the final page. Planning only; M2e stays next for building.
 
 ## Open questions
 
@@ -47,14 +48,13 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 - M2 re-plan round 1 (`m2r1`): https://claude.ai/artifact/3uADUApzUZwnny2PqCwnz2 · Review (`m2review1`): https://claude.ai/artifact/2KcwbeGPg47mn2rZvEbVYx · Final (`m2final`): https://claude.ai/artifact/2Q9JF8itCsoKPXsS8h8YaG
 - M2e spec check (`m2espec`): https://claude.ai/artifact/7sCHDMu36YxScF5DSp6rn9
 - M2b art checklist (`artreq1`): https://claude.ai/artifact/JPNjVV94KuDzqzNfQQtqzY · Agreed list: https://claude.ai/artifact/8ivWjfn17NLzUWBFZG2ba6
+- Phobos ideas: https://claude.ai/artifact/T1D4NsM1RRARVsxYvqbjB9 · Factions round 1 (`factions1`): https://claude.ai/artifact/5b2MDpvaSXAD7gwuX7U4Y4 · Review and round 2 (`factions-review1`): https://claude.ai/artifact/1Srtak3r52ErqMJRkiAQVn
 - Fun round 1: https://claude.ai/artifact/7NFqLKmYoVrgEB4TgHsdop · Fun round 2 (town): https://claude.ai/artifact/NbBSXFajzEL8reyh2M7rsE
 
 ## Decisions since the last plan update
 
 - 2026-11-16 Morgan fixed the town map at 1024 × 768 art pixels with zoom steps 1×, 2×, 3× (D-047 amended).
 - 2026-11-16 Morgan agreed the art checklist (`artreq1`): no Tangle ring drawn but clearing stays (D-043), special sites toward the edges (D-044), a swamp east of the river and no waterfall (D-047), any tool that matches mock-up 1's mood (D-048).
+- 2026-11-14 D-054 Phobos integration plan accepted (Morgan: "Ok let's start with what you say"); factions on a wider map to be planned ("I just want the generic faction managed").
 - 2026-11-14 Morgan chose how the art is made (D-045): CC0 artist packs as the base, hand pixels in their style for gaps, Blender for set pieces after several passes.
 - 2026-11-14 Morgan picked the special sites (D-044): tar pit, standing stones, distant ruins, sunken bog, salt spring, bat caves; the Hollow Oak parked.
-- 2026-11-14 Morgan settled dedicated sites and the Tangle on the sites form (D-043); the Square as a town work (D-042) and the art (D-041) are still Proposed.
-- 2026-11-14 Morgan approved M2e Choices (D-040): swaps now, gold in M3; forage trips in; a goal pays about an hour of work; a trader offer about every real hour.
-- 2026-11-14 Morgan approved the M2a spec: leaving gap 672 ticks, Upgrade row option B (D-039).
