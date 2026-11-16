@@ -19,11 +19,11 @@ Morgan, starting the M2a test town: "There is nothing I can actively just do", p
 ## Goals
 
 - A **board** section on the Town tab holds three kinds of card: goals, trader offers and a forage trip.
-- **Goals:** three on offer; the player picks one; its progress shows; finishing it pays goods worth about a real hour of the town's work, into the stores with most room; then three new goals are drawn.
+- **Goals:** three on offer; the player picks one; its progress shows; finishing it pays goods worth about a real hour of the town's work, split across the stores that have room; then three new goals are drawn.
 - **Trader:** a new swap offer every 240 ticks, at most 3 waiting, each lasting longer than the catch-up cap in force (D-018), also after the Hall grows. Accepting takes the goods at once; the payment arrives 24 ticks later. Declining costs nothing.
-- **Forage trip:** the player sends 2 residents of their choice for 24 ticks; their jobs stand empty; they come back with a random mix of goods.
+- **Forage trip:** the player sends 2 residents of their choice for 24 ticks; they leave their jobs (free residents may take the open slots); they come back with a random mix of goods.
 - **Pins:** a pin label by each pinned resident's name and a Pinned filter on the People tab.
-- **Measured test:** on soak pass 2, every check-in after the first has a real choice, judged before the player acts: an offer the town can pay for, a goal to pick, or a build or upgrade the town can pay for. A trip alone does not count (it is always there). The first check-in is excluded because its offer only comes at tick 24. The board's own share is printed too.
+- **Measured test:** on soak pass 2, every check-in after the first has a real choice, judged at the check-in's first tick (`tick % 240 == 0`), before the player acts: an offer the town can pay for, a goal to pick, or a build or upgrade the town can pay for. A trip alone does not count (it is always there). The first check-in (tick 0) is excluded because it is judged before the first goals and offer are drawn. The board's own share is printed too.
 
 ## Non-goals
 
@@ -51,7 +51,7 @@ The build starts from `56a08b1` (main after PR #17). Every named test is new or 
 
 ### J3 The trader comes every real hour
 
-- **Given** `newGame(1, content)`. **Then** after `advance(…, 25)` one offer waits (drawn at tick 24); after 265 two; after 505 three; after 745 still three (none drawn while 3 wait), and `nextOfferTick` is 984. **Check:** `board.test.ts` "an offer an hour, three at most".
+- **Given** `newGame(1, content)`. **Then** after `advance(…, 13)` one offer waits (drawn at tick 12); after 253 two; after 493 three; after 733 still three (none drawn while 3 wait), and `nextOfferTick` is 972. **Check:** `board.test.ts` "an offer an hour, three at most".
 - **Then** each offer's `give` is one of the two resources with the most stock for their cap, its `get` one of the two with the least that is below 80% of its cap and is not `give`, and `get.amount = max(1, floor(give.amount × value(give) / value(get)))`. When no resource is below 80%, no offer is drawn that hour. **Check:** `board.test.ts` "an offer swaps plenty for short".
 - **Then** an offer drawn at tick t at the Hamlet has `until` t + 2,160. When the Hall reaches the Village, every waiting offer's `until` becomes at least the upgrade tick + 3,840 + 240. At `until`, the offer is dropped and the log says "The trader moved on." **Check:** `board.test.ts` "an offer outlasts the catch-up cap".
 
@@ -63,9 +63,9 @@ The build starts from `56a08b1` (main after PR #17). Every named test is new or 
 ### J5 A forage trip
 
 - **Given** seed 1's founders. **When** `sendTrip` names 2 residents at tick 30. **Then** both have `jobId` null and `assignJobs` places neither until tick 54. At the game day at tick 48 each counts the morale reason `trip` (0) in place of `idle` and gets no skill day; they still eat and count for beds. Sent at tick 24, the day at tick 24 counts `trip` and the day at 48 does not (the return comes first). **Check:** `board.test.ts` "a trip takes two from work" (both cases).
-- **When** tick t + 24 runs. **Then** the finds (Design, rule 6b) go into stock up to the caps, the log says "<A> and <B> came back from the forest edge with <amounts>.", a `tripBack` event is written, and both have jobs again after that step (the return comes before rule 4's job pass). Their `workDays` restart at 0, as for any job change (`jobs.ts:50`). **Check:** `board.test.ts` "a trip brings back finds".
+- **When** tick t + 24 runs. **Then** the finds (Design, rule 6b) go into stock up to the caps, the log says "<A> and <B> came back from the forest edge with <amounts>.", a `tripBack` event is written, and both have jobs again after that step (the return comes before rule 4's job pass). While they were out, free residents may have taken their slots (`jobs.ts:28-48`); on return they are placed like anyone else, without the +10 for their old job (`jobs.ts:39`), and their `workDays` restart at 0 (`jobs.ts:50`). A pinned member gets their pinned slot back if it is open. **Check:** `board.test.ts` "a trip brings back finds".
 - **Then** `sendTrip` is refused `busy` while a trip is out, `unknown` for an id that is not a resident, and `range` unless it names exactly 2 distinct ids. **Check:** `board.test.ts` "trip refusals".
-- **Given** a member leaves the town during the trip. **Then** their id is removed from `trip.residentIds` when they leave; the trip returns with the other, the log names only them, and the finds are drawn as usual. If both leave, `trip` becomes null and no finds are drawn. **Check:** `board.test.ts` "a trip whose member left".
+- **Given** a member leaves the town during the trip. **Then** their id is removed from `trip.residentIds` when they leave; the trip returns with the other, the log names only them, and the finds are drawn as usual. If both leave, `trip` becomes null and no finds are drawn. (With `leaveGapTicks` 672 against a 24-tick trip, both can only leave in a hand-built state; the test builds one.) **Check:** `board.test.ts` "a trip whose member left".
 
 ### J6 Same seed, same board; catch-up equals live play
 
@@ -74,7 +74,7 @@ The build starts from `56a08b1` (main after PR #17). Every named test is new or 
 
 ### J7 Saves carry the board
 
-- **Given** a schema 3 save. **When** it loads. **Then** it is schema 4 with an empty board (`goals: []`, `active: null`, `progress: 0`, `offers: []`, `nextOfferId: 1`, `nextOfferTick: tick + 24`, `deliveries: []`, `trip: null`), and the next tick draws goals. **Check:** `apps/web/test/saves.test.ts` "a schema 3 town gains a board".
+- **Given** a schema 3 save. **When** it loads. **Then** it is schema 4 with an empty board (`goals: []`, `active: null`, `progress: 0`, `offers: []`, `nextOfferId: 1`, `nextOfferTick: tick + 12`, `deliveries: []`, `trip: null`), and the next tick draws goals. **Check:** `apps/web/test/saves.test.ts` "a schema 3 town gains a board".
 - **Given** a schema 4 save with an offer of an unknown resource, an active goal not in `goals`, a trip naming a missing resident, a resident on a trip with a job, or two offers sharing an id. **Then** it loads as damaged. **Check:** `saves.test.ts` "unsafe numbers are damaged" gains these cases (at the start commit a schema 4 save loads as `tooNew`, so they fail).
 
 ### J8 The board on screen (browser)
@@ -92,18 +92,18 @@ The build starts from `56a08b1` (main after PR #17). Every named test is new or 
 ### J10 The soak proves a choice every check-in
 
 - Pass 1's bot also sends `pickGoal`, `acceptOffer`, `declineOffer` and `sendTrip` (weight 2 each; ids from the board when it has any, else 0, which is refused; `sendTrip` names 2 random residents), and each is carried out at least once.
-- Pass 2's scripted player, at each check-in, after its existing rules: picks the first goal on offer when none is active; accepts each offer it can pay whose `give` stock is above half its cap; sends a trip when none is out, of the 2 residents with the highest ids whose `pinnedTo` is null. Each check-in is judged before the player acts. It prints `checkins=`, `no_choice=`, `board_choice=` (check-ins with a payable offer or a goal to pick), `goals_met=`, `offers_taken=`, `trips=` and `reward_lost=` (value lost: units lost from deliveries and finds × their value, plus a reward's value that found no room). It fails if `no_choice` > 0 after the first check-in, from S1 on (S1 counts goals and builds; S2 adds offers). Counters a slice has not fed yet print 0.
+- Pass 2's scripted player, at each check-in, after its existing rules: picks the first goal on offer when none is active (in the sitting's first tick); accepts each offer it can pay whose `give` stock is above half its cap; sends a trip when none is out, of the 2 residents with the highest ids whose `pinnedTo` is null. Each check-in is judged at its first tick, before the player's commands. It prints `checkins=`, `no_choice=`, `board_choice=` (check-ins with a payable offer or a goal to pick), `goals_met=`, `offers_taken=`, `trips=` and `reward_lost=` (value lost: units lost from deliveries and finds × their value, plus a reward's value that found no room). It fails if `no_choice` > 0 after the first check-in, from S1 on (S1 counts goals and builds; S2 adds offers). Counters a slice has not fed yet print 0. The soak writes its own board invariant checks, as it does for the rest of the state (`scripts/soak.ts` `check`); it does not import `apps/web`.
 - Pass 2's band (1,440 to 2,400 ticks) still holds (**guard**: it passes now; the board's goods may move it). The lever is `rules.rewardPct` (every goal reward × rewardPct / 100, default 100): if the band fails, the slice measures the Village tick at 100, 75 and 50, reports all three to Morgan and keeps 100 until he picks.
 - **Check:** `npm run soak`.
 
 ## Decisions
 
-- **D-049 (Proposed)** Goal condition types: `make` (resource, amount, counted from the pick), `building` (kind, tier), `residents` (count). One effect type: `reward`, a value paid into the stores with most room.
+- **D-049 (Proposed)** Goal condition types: `make` (resource, amount, counted from the pick), `building` (kind, tier), `residents` (count). One effect type: `reward`, a value split across the stores that have room.
 - **D-050 (Proposed)** The trader's swap: plenty for short by stock / cap, `get` only below 80% of its cap, sized at 20% of the `give` resource's base cap, paid value for value; payment 24 ticks later; an offer lasts the catch-up cap + 240 ticks and is stretched when the Hall grows.
 - **D-051 (Proposed)** Forage trips: 2 residents the player chooses, 24 ticks, one trip at a time, 3 finds from a content table; morale counts `trip` 0 while out.
 - **D-052 (Proposed)** Goods that do not fit when a reward, delivery or trip lands are lost and logged. Nothing waits to be collected (D-025: no Collect tap).
 - **D-053 (Proposed)** Each resource has a whole-number `value` (food 4, wood 5, stone 5, ore 7, tools 15). It is not a price and is never shown.
-- Content version 3 becomes 4; save schema 3 becomes 4 (GAME-05). First offer at tick 24, so a new town sees one in its first sitting (default chosen here).
+- Content version 3 becomes 4; save schema 3 becomes 4 (GAME-05). First offer at tick 12, inside a new town's first 20-tick sitting (default chosen here).
 - `make` goals can be offered again after another goal (they are things to do, not milestones); `building` and `residents` goals cannot, because a met one is never eligible. At the Village, unmet Hamlet goals stay eligible.
 
 ## Alternatives rejected
@@ -121,7 +121,7 @@ The build starts from `56a08b1` (main after PR #17). Every named test is new or 
 
 ## Risks
 
-- **Full stores.** Measured on soak pass 2 (seed 1, hourly check-ins, 2026-11-15): by hour 7 food, wood, stone and tools are at 100% of their caps. → Rewards go into the stores with most room; the trader pays only in goods below 80%; `make` goals are offered only when the goods fit (rule 6c). With full stores and the one-off goals met, the board may offer fewer than 3 goals, or none ("No goals until the town grows"); then the check-in's choices are building and upgrading, which J10 counts. If deliveries or finds fill a store under a picked `make` goal, its production stops and the card says "Stores full: use some <resource> to go on". `reward_lost` is printed; if it passes 500 value in pass 2, the slice reports it and changes no number.
+- **Full stores.** Measured on soak pass 2 (seed 1, hourly check-ins, 2026-11-15): by hour 7 food, wood, stone and tools are at 100% of their caps. → Rewards are split across the stores that have room; the trader pays only in goods below 80%; `make` goals are offered only when the goods fit (rule 6c). With full stores and the one-off goals met, the board may offer fewer than 3 goals, or none ("No goals until the town grows"); then the check-in's choices are building and upgrading, which J10 counts. If deliveries or finds fill a store under a picked `make` goal, its production stops and the card says "Stores full: use some <resource> to go on". `reward_lost` is printed; if it passes 500 value in pass 2, the slice reports it and changes no number.
 - **The scripted player may reach the Village faster** once it takes goals and offers (a goal pays about an hour of work, so income may rise by half or more; estimate). → J10 keeps the band, with `rewardPct` as the lever Morgan picks (D-036's pace is his).
 - **A check-in with an active goal, no payable offer and nothing to build** has no choice by J10's count. If `no_choice` > 0, the slice reports which check-ins and why before changing any number.
 - **Values are a hidden price list.** They decide every swap. → Starting values (D-030 style), derived from production rates (Design); J9 judges them. J2's bands use the same values, so they only catch typos.
@@ -151,7 +151,7 @@ The build starts from `56a08b1` (main after PR #17). Every named test is new or 
   | `stoneworks` | Stone for the Village | 2 | make 120 stone | 2,300 |
 
 - `trips: { size: number; ticks: number; draws: number; finds: { resource: string; min: number; max: number }[] }` = size 2, ticks 24, draws 3, finds food 15 to 30, wood 10 to 25, stone 8 to 20, ore 6 to 15, tools 2 to 6. Mean value 229 (computed 2026-11-15), about a fifth of an hour of the town's work.
-- `rules` gain `rewardPct: 100`, `goalsOffered: 3`, `offerEveryTicks: 240`, `offersMax: 3`, `firstOfferTick: 24`, `deliveryTicks: 24`, `tradeSharePct: 20`, `tradeGetBelowPct: 80`, `offerExtraTicks: 240`.
+- `rules` gain `rewardPct: 100`, `goalsOffered: 3`, `offerEveryTicks: 240`, `offersMax: 3`, `firstOfferTick: 12`, `deliveryTicks: 24`, `tradeSharePct: 20`, `tradeGetBelowPct: 80`, `offerExtraTicks: 240`.
 - `validateContent` gains: goal ids unique; `hall` a Hall tier; the resource or kind exists; a `building` tier exists for the kind; `amount`, `count` and `reward` positive; a `make` amount at most the base cap; at least `goalsOffered` goals with `hall` 1; trip finds name known resources with 1 ≤ min ≤ max; `size`, `ticks`, `draws` positive; every resource has a positive `value`.
 
 ### State (`packages/sim/src/types.ts`)
@@ -179,8 +179,9 @@ type Board = {
 - `{ type: 'pickGoal'; id: string }`: `unknown` if not in `goals`; `same` if active. Sets `active`, `progress` 0.
 - `{ type: 'acceptOffer'; id: number }`: `unknown` if no such offer; `noStock` if stock < `give.amount`. Pays `give`, pushes a delivery at `tick + deliveryTicks`, removes the offer, logs "Sent <give> to the trader."
 - `{ type: 'declineOffer'; id: number }`: `unknown` if no such offer. Removes it. Nothing is logged.
+- Goods that do not fit from a delivery or trip are one `lost` event per resource, in content order.
 - `{ type: 'sendTrip'; residentIds: number[] }`: `busy` if a trip is out; `range` unless exactly `trips.size` distinct ids; `unknown` if one is not a resident. Sets `trip` with `back = tick + trips.ticks`, each named resident's `jobId` null (`pinnedTo` kept), `jobsDirty` true. A `pin` command on a resident on a trip is allowed and takes effect on return.
-- Events gain `goalDone { id; paid: Amounts }`, `delivered { resource; amount }`, `tripBack { finds: Amounts }`, `offerGone { id }`. Each writes the log line in J2 to J5. None is a `made` event, so none moves a `make` goal. Goods that do not fit are `lost` events (as `cancelJob` does, `build.ts:162`), not `capLost`. `fold` adds paid goods to `summary.made`, so the away card counts them.
+- Events gain `goalDone { id; paid: Amounts }`, `delivered { resource; amount }`, `tripBack { finds: Amounts }`, `offerGone { id }`. Each writes the log line in J2 to J5. None is a `made` event, so none moves a `make` goal. Goods that do not fit are `lost` events (as `cancelJob` does, `build.ts:162`), not `capLost`. `fold` adds the goods each of `goalDone.paid`, `delivered` and `tripBack.finds` put into stock (after caps) to `summary.made`, so the away card counts them; S1 adds all three cases.
 - Log amounts use a new sim helper `amountsLine(amounts, content)` in `util.ts`, the same format as the web's `amountsText` ("40 wood, 5 tools", content order); the web keeps its own.
 
 ### Rule 6, the board (`board.ts`), in two places in `step`
@@ -200,7 +201,7 @@ type Board = {
 
 **Hall upgrade** (the `village` event in `construct`, which runs before 6a, so the stretch comes before that tick's expiry check): every waiting offer's `until` becomes `max(until, tick + newCatchUpCap + offerExtraTicks)`.
 
-**Paying a reward of value V** (`V = goal.reward × rewardPct / 100`, floored): the resources with room, in content order. Up to 3 rounds; each round reads room once at its start: `share = floor(V / k)` for the k resources with room; each gets `n = min(room, floor(share / value))` units, and V drops by `n × value`. Stop after 3 rounds, when no resource has room, or when `share` is below the smallest value among those with room. What is left is dropped. The log lists only resources paid more than 0, and ends "(stores full: the rest was lost)" only when a resource had no room at the start of round 1 and V left is 15 or more; that leftover counts in `reward_lost`. No `lost` event (no units were made). `rewardPreview(state, goalId, content)` runs the same split on the current stock, for the card.
+**Paying a reward of value V** (`V = goal.reward × rewardPct / 100`, floored): the resources with room, in content order. Up to 3 rounds; each round reads room once at its start: `share = floor(V / k)` for the k resources with room; each gets `n = min(room, floor(share / value))` units, and V drops by `n × value`. Stop after 3 rounds, when no resource has room, or when `share` is below the smallest value among those with room. What is left is dropped. The log lists only resources paid more than 0, and ends "(stores full: the rest was lost)" when V left is 15 or more; any leftover of 15 or more counts in `reward_lost` (less is rounding). No `lost` event (no units were made). `rewardPreview(state, goalId, content)` runs the same split on the current stock, for the card.
 
 **Rules 3 and 4:** `assignJobs` skips residents in `board.trip`. When `startDay` removes a leaver, it also removes their id from `board.trip.residentIds`; an empty trip becomes null. `startDay` gives them the reason `{ id: 'trip', amount: 0 }` in place of `idle` and no skill day. `newGame` sets the empty board with `nextOfferTick: rules.firstOfferTick`.
 
@@ -231,22 +232,22 @@ A mock-up of the board, the trip sheet and the People row (`mockups/board.html`,
 ### S1 Goals
 
 - **Morgan tries:** open the Town tab; pick one of three goals; watch its progress; when it is met, the stores rise and three new goals appear.
-- **Checks that fail now:** J1, J2, J6, J7 (upgrade, goal cases and the whole board shape), J8 "the board offers three goals", J10 (`goals_met` > 0, `pickGoal` carried out, `no_choice` gate).
+- **Checks that fail now:** J1, J2, J6, J7 (all its cases: S1 builds the whole board check), J8 "the board offers three goals", J10 (`goals_met` > 0, `pickGoal` carried out, `no_choice` gate).
 - **Files:** `packages/sim/src/{types,util,step,newGame,summary,validate,build,index}.ts` and new `board.ts`: the whole `Board` state and types, `pickGoal`, rule 6c, `amountsLine`, `goalProgress`, `rewardPreview`. `packages/content/src/index.ts`: `version`, `value`, `goals`, all the new `rules`. `apps/web/src/saves.ts`: schema 4 and the whole board shape check. `apps/web/src/ui/Board.tsx`, `TownTab.tsx`, `app.css`. The away card and log need no change: log lines are plain text and `fold` puts paid goods in `made`. Tests: `packages/sim/test/board.test.ts`, `packages/content/test/content.test.ts`, `apps/web/test/saves.test.ts`, `packages/sim/test/determinism.test.ts`, `tests/browser/board.spec.ts`. `scripts/soak.ts`.
 - **Waits on:** the mock-up.
 
 ### S2 The trader
 
 - **Morgan tries:** an offer waits at the first sitting; accept it, and the payment arrives a game day later; decline another.
-- **Checks that fail now:** J3, J4, J7 (offer cases), J8 "the trader's offer", J10 (`offers_taken` > 0, accept and decline carried out).
-- **Files:** `board.ts` (6a steps 1, 3, 4; the Hall stretch; accept and decline), `build.ts`, `saves.ts` (offer and delivery cases), `Board.tsx`, tests, soak.
+- **Checks that fail now:** J3, J4, J8 "the trader's offer", J10 (`offers_taken` > 0, accept and decline carried out).
+- **Files:** `board.ts` (6a steps 1, 3, 4; the Hall stretch; accept and decline), `build.ts`, `Board.tsx`, tests (`board.test.ts`, `determinism.test.ts` with accept and decline in its script, `board.spec.ts`), soak.
 - **Waits on:** S1.
 
 ### S3 Trips and pins
 
 - **Morgan tries:** send two residents to the forest edge; see them "On a trip" on the People tab; a game day later read what they found. Pin someone and filter by Pinned.
-- **Checks that fail now:** J5, J7 (trip cases), J8 "sending a trip" and the pin case, J10 (`trips` > 0, `sendTrip` carried out).
-- **Files:** `board.ts` (6a step 2, `sendTrip`), `build.ts`, `jobs.ts`, `day.ts` (the `trip` reason, pruning leavers), `saves.ts` test cases for trips, `Board.tsx`, new `TripSheet.tsx`, `PeopleTab.tsx`, `apps/web/src/ui/people.ts` if the trade text lives there, tests, soak.
+- **Checks that fail now:** J5, J8 "sending a trip" and the pin case, J10 (`trips` > 0, `sendTrip` carried out).
+- **Files:** `board.ts` (6a step 2, `sendTrip`), `build.ts`, `jobs.ts`, `day.ts` (the `trip` reason, pruning leavers), `determinism.test.ts` (a trip in its script), `Board.tsx`, new `TripSheet.tsx`, `PeopleTab.tsx`, `apps/web/src/ui/people.ts` if the trade text lives there, tests, soak.
 - **Waits on:** S2. S1 to S3 ship in one PR, so J9 tests all three.
 
 ## Verification
@@ -257,4 +258,4 @@ A mock-up of the board, the trip sheet and the People row (`mockups/board.html`,
 
 ## Open questions
 
-- Escalated to Morgan on the approval page: rewards as a value into the stores with most room (recommended) or a fixed bundle that may be lost; the player choosing the 2 trip residents; the starting values (D-053) and trip finds.
+- Escalated to Morgan on the approval page: rewards as a value split across the stores with room (recommended) or a fixed bundle that may be lost; the player choosing the 2 trip residents; what to do if goals speed up the pace (`rewardPct`); the starting values (D-053).
