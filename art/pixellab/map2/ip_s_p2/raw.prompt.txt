@@ -1,0 +1,6 @@
+tool: inpaint_image_pro_flash (9 generations)
+window: map x 768-1024, y 384-640; mask = blank pixels plus map y >= 480, x 920-1024 (in_mask.png)
+context: map x 256-1024, y 0-768
+prompt:
+South-east corner of a haunted fantasy frontier village map at dusk, seen from high top-down. On the left of the picture the river flows straight down and off the bottom edge, with its right bank near x 180, the same width, colour and banks as above. To the right of the river: the far bank, where the rocky foot of a mountain thins into dark grass, scattered dark pines, grey boulders, a dead tree, a fallen log and low mist, running off the right and bottom edges. No buildings, no paths. Keep the ground as dark and shadowed as the art on the left. Same pixel style, colours, single colour outline, mist and cool blue-green dusk light as the surrounding art. Do not repeat anything from above.
+job_id: fe49325f-4dab-443c-99a8-8eeda206679d

@@ -307,3 +307,13 @@ Morgan picked A, redo with the three changes. `inpaint_image_pro_flash`, 9 gener
 - The mask reached 32 px into the village's pine row; the prompt gave the street's x (104-148 in the window) and asked for the same dark ground.
 - Joins: unmasked pixels identical (image difference). Mean brightness across x 472-728: 69 at y 476, 61 at y 479, 63 at y 480 (first new row), 58 at y 483: no step (the first test was 31 against 57). Dirt measured at x 579-620 on y 490, 592-607 on y 512, 585-612 on y 620: the street runs on through the pine row and off the bottom edge, narrowing to about 16 px between the pines.
 - Flaws: the village lane's lower edge is now a straight line along y 480 either side of the road; the piece's left and right edges meet blank map and are untested.
+
+## South row by masked inpainting (2026-11-16)
+
+Morgan: "Yes ok now you are understanding how to line things up. We will need to fix the color mismatch but yeah do the rest of the south row". Five `inpaint_image_pro_flash` calls (9 generations each, 45 in all; 1,937 left). Each window keeps some existing art, the mask covers its blank pixels plus a band reaching 32 px into the art above or beside it, and the prompt gives measured positions (river x 864-948, jetty path x about 770). Files in `art/pixellab/map2/ip_s_p*/` (window, mask, context, prompt, job id); review page https://claude.ai/artifact/VrSULVpxTb63nqH1YRbjA1. Map 72% drawn. Source: AI-generated with PixelLab by Claude for Morgan, 2026-11-16.
+
+- `s_p1` (x 696-952): river and jetty path continue, a barn and two fenced fields; joins 65/64 (top), 49/49 (left).
+- `s_p2` (corner, x 920-1024): river continues; right of it the east pieces' bright grass ends on a straight line, 99 to 35 brightness within 20 px.
+- `s_p3` (x 232-504): pine row into a fringe; joins 50/48, 54/50; a mist patch cut off straight near x 504.
+- `s_p4` failed (`failed/ip_s_p4/`): a fully blank window with the whole map as context drew a small copy of the village. `s_p4b` (x 104-360, 512 px context): woodcutter's camp, every join within 3; a faint vertical line at x 256-264.
+- Colour (mean over each area): village brightness 61, saturation 0.39; east 63 and 0.45 (bank grass 67 and 0.49); new south row 47 and 0.40; north-west forest 40. Asked Morgan which mismatch they meant.

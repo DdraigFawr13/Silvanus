@@ -48,6 +48,13 @@ How Claude works with PixelLab for Silvanus, so every new piece matches the anch
 - Log line in `docs/workshop/m2b-dragonscape.md`: "AI-generated with PixelLab by Claude for Morgan, <date>, <tool> (<mode>, <size>, <cost>)", the job or tileset id, chain ids, and the prompt as sent.
 - Generation count after each call goes in HANDOFF's Just done line.
 
+## Seamless map pieces (tested 2026-11-16)
+
+- Use `inpaint_image_pro_flash` (9 generations a 256 px window), not `edit_image_pixen`: the cheap edit copies whatever sits beside the blank part.
+- Every window holds some existing art; the mask covers the blank pixels plus a band 32 px into the art beside or above; the prompt gives measured positions of roads and rivers that cross the edge.
+- A fully blank window with a whole-map context draws a small copy of the map: keep the context to about 512 px round the window.
+- Check each join at 3x and measure brightness either side before reporting (LESSONS 2026-11-16).
+
 ## Open, not yet tested
 
 - Whether trial accounts can use the pro-flash object tool and `create_image_pro_from_style` (only pro tilesets say "not a trial").
