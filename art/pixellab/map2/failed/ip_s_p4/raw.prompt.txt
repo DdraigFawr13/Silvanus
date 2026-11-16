@@ -1,0 +1,7 @@
+tool: inpaint_image_pro_flash (9 generations)
+window: map x 0-256, y 384-640; mask = blank pixels plus map y >= 480, x 0-264 (in_mask.png)
+context: map x 0-768, y 0-768
+prompt:
+West edge of a haunted fantasy frontier village map at dusk, seen from high top-down. Dark pine forest along the left edge and the top. In a clearing in the middle, a woodcutter's camp: a small dark timber cabin with one warm lit window, stacks of cut logs, a sawhorse with a saw, a chopping block with an axe, tree stumps and wood chips. A narrow dirt track leaves the camp to the right. Sparse birches, bushes and low mist round the clearing. Keep the ground as dark and shadowed as the art on the right. Same pixel style, colours, single colour outline, mist and cool blue-green dusk light as the surrounding art.
+job_id: 10c4bc2a-6bfe-4fd5-8738-6c7748f56ca9
+result: failed, drew a small copy of the whole village from the context; not used in map.png

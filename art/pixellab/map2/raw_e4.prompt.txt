@@ -1,0 +1,4 @@
+tool: edit_image_pixen (1 generation), no_background false, 256x256
+window: map.png x 768-1024, y 256-512; new region (0, 128, 256, 256)
+description: Fill the empty bottom half by continuing this exact scene, seamless with the rest: the same winding river continuing down and off the bottom edge, a small wooden jetty with a rowing boat on its left bank, reeds; on the right bank scattered pines, a dead tree, boulders and low mist. No buildings. Same top-down village at dusk, pixel style, colours, outline, mist and light; carry lanes, fences and tree lines across the join. Keep the existing part unchanged.
+job_id: 130a05d6-83f3-4c3b-8947-7a53f6ebe3f2

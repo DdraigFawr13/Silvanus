@@ -1,0 +1,4 @@
+tool: edit_image_pixen (1 generation), no_background false, 256x256
+description: Fill the empty right half by continuing this exact scene eastwards, seamless with the left half: same top-down village edge at dusk, same pixel style, colours, outline and lighting. Carry the grass and bushes across the join; beyond the lane, a sparse fringe of trees, bushes, stumps and a dead tree with low mist, thickening towards the right edge. No buildings. Leave the left half unchanged.
+input: in_grow.png (left 128 px = raw_edge.png x 128-256; right 128 px transparent)
+job_id: c6657ae6-3d3e-4887-907d-6f0a03b3547c

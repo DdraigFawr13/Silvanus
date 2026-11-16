@@ -1,0 +1,6 @@
+tool: inpaint_image_pro_flash (9 generations; 1991 -> 1982)
+source: in_source.png = map2/map.png x 472-728, y 384-640 (before this piece), blanks filled flat green; mask rectangle x 0, y 96, 256 x 160 (reaches 32 px into the village's pine row); output_method Modify current layer; no_background false
+context: in_context.png = map2/map.png x 216-984, y 0-768, bounding box x 256, y 384
+prompt:
+South edge of a haunted fantasy frontier village at dusk, seen from high top-down. At the top of the masked area the village's dark row of pine trees continues seamlessly from the pines just above it, on the same dark shadowed ground, then thins going down into a sparse fringe: a few birches, bushes, tree stumps, a dead tree, long dark grass and low mist. The village's dirt street comes down through the gate at the top, between x 104 and x 148, and continues straight down through a gap in the pine row and off the bottom edge as the road out of town, the same width and colour, with a wooden signpost beside it. To the right of the road, a small fenced vegetable plot. Keep the ground as dark and shadowed as the village edge just above. Same pixel style, colours, single colour outline, mist and cool blue-green dusk light as the surrounding art. Do not repeat the fence or the lane from above.
+job_id: 5fe90d97-5d30-45ac-abbe-9d7e861e3fae

@@ -1,0 +1,4 @@
+tool: edit_image_pixen (1 generation), no_background false, 256x256
+description: Keep the left half exactly as it is. In the right half, end the town on open ground at the right edge: replace the cottage and market stall cut off by the right edge with mossy grass, a dirt lane running from top to bottom near the right edge, a low wooden fence, a few bushes and one whole tree. No building may touch the right edge. Same top-down village at dusk, same pixel style, colours, outline, mist and lighting.
+input: in_edge.png (mock_hd/raw_1_heart.png x 256-512, y 0-256)
+job_id: f4a2e657-0536-4b1f-bf50-841fd9f785a6

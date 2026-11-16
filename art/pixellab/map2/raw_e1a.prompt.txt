@@ -1,0 +1,4 @@
+tool: edit_image_pixen (1 generation), no_background false, 256x256
+window: map.png x 640-896, y 0-256; new region (128, 0, 256, 256)
+description: Fill the empty right half by continuing this exact scene, seamless with the rest: north-east of town: dark pine forest along the top edge, a wide river flowing in from the top edge and running straight down the right side, a stone bridge over it with a dirt lane, a minecart track crossing the bridge toward the town. Same top-down village at dusk, pixel style, colours, outline, mist and light; carry lanes, fences and tree lines across the join. Keep the existing part unchanged.
+job_id: ad9fa24a-1775-45f4-b5d4-7d2a70a9ca7e
