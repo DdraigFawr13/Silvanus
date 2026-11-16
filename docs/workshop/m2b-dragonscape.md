@@ -405,3 +405,14 @@ Morgan on stage A: "The mine cliffs still look a bit weird and the river cutting
 - Joins (36): two windows each at x 480-536 and 960-1012, then free fixes (a 1 px line at y 255, brightness ramps). At 3× the west join is clean; the east one keeps a soft edge where the stone wall starts.
 - Top band: 1408 × 512, brightness 50, edge share 0.184 (ground only 0.164). Still wrong: the top-left lines and repeated stumps, a cottage roof left in the middle tile's bottom-left (x 510-595, y 440-512), a grey slab near the river. 96 used, 1,576 left; 254 left of the 350.
 - Rest (Claude's estimate): about 280-310 more. Asked Morgan: raise the cap by 60 and do the bottom row next (about 130), stay within 254, or pause.
+
+## Building-block map, stage C: the whole town (2026-11-16)
+
+Morgan on stage B: "Do as you recommend. I like the mine now but it cuts off the river and makes it look weird. Continue building" (cap raised by 60: 314 left). Page: https://claude.ai/artifact/Bz6Za6MUxK71aVHBXW28Z8 (built by `docs/workshop/pages/build_full.py`; scores in `full_scores.json`: 24 met, 20 partly, 11 missed). Files: `art/pixellab/blocks/` (ids beside each raw file); `bottom_guide.py`, `full_map.py`, `full_final.py`, `full_places.json`. Source: AI-generated with PixelLab by Claude for Morgan, 2026-11-16.
+
+- River (18): two masked inpaint windows over map x 1300-1408: the river now flows in from the top edge down the mountain's right side and on to the bridge.
+- Bottom row: `bottom_guide.py` turns every cottage into an earth plot, the mirrored lake into grass, the south pine block into an open fringe (the south road kept, M11), keeps the bridge, swamp and C's garden beds (fields), and starts rows 376-512 from the finished top band. Four pixflux redraws of it (4) came out bright and flat, a farm-game look (orange fenced fields, a stray house, a canal river): not used. Restyling straight from the hand-edited guide worked (75): middle 56 / 0.29 / 0.162, west 62 / 0.31 / 0.150, east 59 / 0.30 / 0.177 (river under the bridge, swamp with dead trees). The restyle drew a cottage (from a roof left in the test tile) and a timber frame into the ground.
+- Joins (36): 4 windows for the two bottom vertical joins, free fixes; the row join is a least-difference cut in y 420-500 plus a free grade of each bottom tile halfway to the top band; a faint line remains on the left at y 512.
+- Grown map: the five buildings plus 10 cottages reusing the two designs. Whole map 52 / 0.33 / 0.190; ground only 53 / 0.33 / 0.162. 133 used, 1,443 left; 181 left under the cap.
+- Lesson (Claude's reading): pixflux over large flat painted areas drifts to a bright, flat style; a restyle straight from a hand-edited guide holds mock-up 1's mood better.
+- To finish (Claude's estimate): about 117-130 (fixes 63; 3 cottage types, farmhouse, fisher's hut and jetty, stalls, forager 54; free overlays). Asked Morgan: finishing stage, approve now, or pause.

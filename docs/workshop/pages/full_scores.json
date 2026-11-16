@@ -1,0 +1,277 @@
+{
+"L1": [
+"The target look is mock-up 1",
+"p",
+"Mist, crows, grey stone, warm windows and the dusk grade throughout; brightness 52 against 55, edge share 0.190 against 0.263, so a little darker and plainer, the ground plainer than the buildings."
+],
+"L2": [
+"Same top-down three-quarter view",
+"m",
+"Ground, mountain and all buildings in the same high three-quarter view."
+],
+"L3": [
+"Higher detail, at mock-up 1's level",
+"p",
+"Buildings at mock-up 1's detail; the ground is plainer (edge share 0.162 without buildings)."
+],
+"L4": [
+"Grounded",
+"m",
+"Houses face their lanes with doors on paths, fences, lamp posts, trees among the houses, the Hall on its walkway."
+],
+"L5": [
+"Haunting dusk, subtle",
+"m",
+"Mist over the town, river and swamp, crows, cool light, warm windows, dead trees in the south fringe and the swamp."
+],
+"L6": [
+"Cosy, a proper town",
+"m",
+"Reads as a lived-in town set in its landscape: forest, mountain, river, fields."
+],
+"L7": [
+"Every building has character",
+"p",
+"Each building is detailed (Hall, mine entrance, woodcutter's camp, cottages with flower boxes and lanterns), but only two cottage designs exist, so they repeat."
+],
+"L8": [
+"One colour and light, natural variation",
+"p",
+"One grade overall after free ramps; straight lines remain: along y 512 on the left where the rows meet, and in the top-left fringe (x 390, y 400, y 130)."
+],
+"L9": [
+"Walls, fences and trees drawn well",
+"m",
+"Pines, dead trees, fences and stone walls clean."
+],
+"L10": [
+"Any tool that matches mock-up 1's mood",
+"m",
+"PixelLab restyle and inpainting for the ground, pro-flash objects for the buildings."
+],
+"M1": [
+"One seamless map that scrolls and zooms",
+"p",
+"One picture, 1408 × 888, with every tile join repaired except a faint line on the left between the rows; not yet in the game."
+],
+"M2": [
+"Map size (now about 1408 × 888)",
+"m",
+"1408 × 888 at the 2× scale."
+],
+"M3": [
+"The Hall is the centre",
+"p",
+"The Hall is top centre of the town, but sits right of the map's middle (its door at x 893 of 1408)."
+],
+"M4": [
+"North forest dense behind the Hall",
+"m",
+"Dense dark pines along the whole top from the west edge to the mountain."
+],
+"M5": [
+"Sparse fringe sides and south",
+"p",
+"West and south: grass with scattered pines, stumps, bushes and dead trees; stumps repeat in the top-left."
+],
+"M6": [
+"Forest road north-west through a lantern gate",
+"m",
+"The road leaves north through a stone lantern gate, west of the town, past the woodcutter's camp."
+],
+"M7": [
+"Mine upper right, mountain off the edges, track to town",
+"m",
+"The stepped mountain runs off the top and right edges; the mine entrance in its tunnel; rails toward the town; no bridge to it."
+],
+"M8": [
+"Mountain reads as a real landform",
+"p",
+"Stone tiers with ledges, moss and pines, foothills with boulders; the stone reads a little like stacked blocks."
+],
+"M9": [
+"Swamp east of the river",
+"m",
+"East of the river, lower right: dark pools, reeds, mud and dead trees under mist."
+],
+"M10": [
+"River, bridge, jetty, fisher's lot",
+"p",
+"A wide river flows down from the top edge past the mountain and under an arched stone bridge to the swamp side; no jetty and no fisher's lot yet."
+],
+"M11": [
+"South edge open",
+"m",
+"The south edge is an open fringe; the road runs south off the map."
+],
+"M12": [
+"Land has shape",
+"p",
+"Worn earth plots, packed lanes, rougher grass at the edges, boulders near the mountain; little slope."
+],
+"M14": [
+"Special sites toward the edges",
+"x",
+"None drawn."
+],
+"M16": [
+"Gathering buildings on their own sites",
+"p",
+"Woodcutter at the forest edge, mine in the mountain, field beds in the south-east; no farmhouse or forager yet."
+],
+"T1": [
+"The Hall stands out",
+"m",
+"Largest building, clock tower, lit windows, its own walkway."
+],
+"T2": [
+"Hall, walkway and square in line",
+"m",
+"Hall door, walkway and the square's well line up."
+],
+"T3": [
+"Square with notice board",
+"p",
+"A paved square with a well and a covered board by its fence; no stalls."
+],
+"T4": [
+"Square upgrades",
+"x",
+"One stage."
+],
+"T5": [
+"Real town layout",
+"p",
+"A High Street across, a cross street south off the map, lanes to the edge lots, fences, lamps; no cobbled High Street, few hedgerows."
+],
+"T6": [
+"Organic",
+"m",
+"Curving lanes, uneven spacing and set-backs, houses on both sides of the street, trees inside the town."
+],
+"T7": [
+"Town grows from its paths",
+"p",
+"Doors on paths; yards between houses are bare."
+],
+"T8": [
+"Closer, not crowded",
+"m",
+"Space between houses."
+],
+"T9": [
+"Good roads",
+"p",
+"Dirt lanes with wear, the forest road and the south road; no cobbled High Street."
+],
+"P1": [
+"Every lot is a button",
+"p",
+"Every building is a separate piece on its own plot, so each can be a tap target; not wired."
+],
+"P2": [
+"Pale glow on empty lots",
+"x",
+"Not drawn yet."
+],
+"P3": [
+"Gold glow when tapped",
+"x",
+"Not drawn yet."
+],
+"P4": [
+"Build marker",
+"x",
+"Not drawn yet."
+],
+"P5": [
+"Dressed yards",
+"x",
+"Bare bases; no yards yet."
+],
+"P6": [
+"Staked future lots",
+"p",
+"Empty earth plots on day one; not roped or signed."
+],
+"P7": [
+"Day one and grown",
+"m",
+"The empty ground is day one; the grown map is the same ground with the buildings."
+],
+"P8": [
+"Each tier better",
+"p",
+"Possible (one asset per tier); not made."
+],
+"P9": [
+"Lots easy to tell apart",
+"p",
+"Two cottage designs repeat, so many lots look alike."
+],
+"P10": [
+"Land one painting, buildings separate",
+"m",
+"One painted ground, every building a separate piece."
+],
+"P11": [
+"The town moves",
+"x",
+"Still."
+],
+"S1": [
+"Phone first, 412 px",
+"m",
+"Shown at 412 px, with a 2× phone view."
+],
+"S2": [
+"Town tab layout",
+"x",
+"Not in this round."
+],
+"S3": [
+"Picture buttons",
+"x",
+"Not in this round."
+],
+"S4": [
+"Lantern colours",
+"x",
+"Not in this round."
+],
+"S5": [
+"Board card pictures",
+"x",
+"Not in this round."
+],
+"R1": [
+"Published page, captions from pixels",
+"m",
+"This page."
+],
+"R2": [
+"Scored before you see it",
+"m",
+"This list."
+],
+"R3": [
+"Joins line up",
+"p",
+"All six tile joins repaired by inpainting and free ramps; a faint line remains on the left between the rows, and the collage lines in the top-left."
+],
+"R4": [
+"Finished art at phone size, day one and grown",
+"m",
+"Day one and grown, at 412 px and in a 2× phone view."
+],
+"R5": [
+"No easier method without asking",
+"m",
+"The block map you picked."
+],
+"R6": [
+"Ask before every paid call",
+"m",
+"133 this stage, within the 314 left after you raised the cap."
+]
+}
