@@ -241,3 +241,12 @@ Test page: https://claude.ai/artifact/479JEXAAH5a7NcKuiZzcaS (strip 2 graded, 15
 Morgan: "Typically played at 2 px when interacting. 3 px when moving around across the town" (D-047 amended). Overview: Claude offered A, keep the wide map with the whole town as a thin overview band and a tap to jump there (recommended); B, a taller map that fills the portrait screen (reopens the layout); C, no overview, a corner minimap. Morgan: "A is good" (D-047 amended). Not yet answered: Morgan's phone's real pixel ratio (the page's "Your phone" line).
 
 Map size. Claude offered A, 1536 × 512 now and widen later by the same method (recommended, about 16 generations to make seamless, estimated); B, 2048 × 512 now (about 21, estimated); C, 1536 × 640. Lots: Hamlet 6, Village 10, Town 16, City 24 (`docs/CHARTER.md:54`). Morgan: "Go with your recommendations" (D-047 amended).
+
+## Seamless test: tools and costs (2026-11-16)
+
+From PixelLab's docs (https://api.pixellab.ai/mcp/docs, read 2026-11-16):
+- `edit_image_pixen`, 1 generation: input at most 256 px a side, output at most 65,536 px in area, both sides multiples of 4. It redraws the whole input, so a 512 px-tall seam needs two calls, and the strip 1 seam repaints mostly added mist.
+- `inpaint_image`, 10 generations for a square canvas up to 256 × 256 (15 up to 341, 25 above): redraws only a masked area and keeps every other pixel identical. Made for seams; a 512 px-tall seam needs two 256 × 256 windows, so both seams of strip 2 are 4 calls, 40 generations (estimate from the docs' prices).
+- So the earlier estimate of "about 16 generations" to make the strip seamless by growing it in 128 px steps does not hold: `edit_image_pixen` cannot take a 512 px-tall input.
+
+This session ran on the Default environment, which has no PixelLab token, and cannot be moved to "Network" (it has unrestricted network access). PixelLab calls need a new session on "Network", started in this repo so `.mcp.json` loads.
