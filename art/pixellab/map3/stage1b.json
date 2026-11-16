@@ -1,0 +1,6 @@
+{"base": "art/pixellab/map3/guide.png", "pieces": [
+ ["art/pixellab/map3/raw_T1.png", 500, 0, []],
+ ["art/pixellab/target3/raw_mine_ref.png", 892, 0, [["left", 1004, 1012]]],
+ ["art/pixellab/map3/T2_east.png", 1250, 0, [["left", 1250, 1290]]],
+ ["art/pixellab/map3/T2_south.png", 896, 360, [["left", 1004, 1012], ["top", 360, 400]]]
+]}

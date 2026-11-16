@@ -1,1 +1,1 @@
-{"date":"2026-11-16","session":"fa62ee32-b5e7-5261-8b8a-f9389602325e","commit_calls":1,"counts":{}}
+{"date":"2026-11-16","session":"fa62ee32-b5e7-5261-8b8a-f9389602325e","commit_calls":2,"counts":{"gate.ci":1},"warnings":[{"ts":"2026-11-16T14:18:05.333Z","check":"gate.ci","outcome":"warn","detail":"pushed origin/m2b-target3 at 14:17 UTC and scheduled no CI check: schedule one about 5 minutes out (send_later) and read the check runs then; don't promise a CI notice"}]}
