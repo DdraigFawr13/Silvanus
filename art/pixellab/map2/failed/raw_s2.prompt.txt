@@ -1,0 +1,5 @@
+tool: edit_image_pixen (1 generation), no_background false, 256x256
+window: map.png x 256-512, y 384-640; new region (0, 128, 256, 256)
+description: Fill the empty bottom half by continuing this exact scene, seamless with the rest: the pines above thin into a sparse fringe of bushes, stumps, a dead tree and birches, a small vegetable plot behind a low fence, long grass, low mist. No buildings. Same top-down village at dusk, pixel style, colours, outline, mist and light; carry lanes, fences and tree lines across the join. Keep the existing part unchanged.
+job_id: 333caac1-99ac-4088-9430-5701282a29c8
+result: failed, copied centre 2's bottom band; not used in map.png

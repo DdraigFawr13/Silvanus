@@ -268,3 +268,11 @@ Morgan chose "Grow centre 2" (about 16 generations approved). Centre 2 sits at x
 - Kept (4): north-east `e1a` (forest, river from the top edge, stone bridge), `e2a` (mountain cliffs off the top and right edges, mine entrance, spoil heap, lantern), then `e3` and `e4` grown down from them (a winding river with reeds and boulders, a jetty and boat, the mountain foot thinning to grass). No visible joins between them; a faint line where centre 2's pine border meets the river bank.
 - Failed (4, in `failed/`): `e1b`, `e2b` filled the east bottom half beside the town and copied the town's cottages, turned the river into a straight canal, and repeated each other. `w1`, `w2` filled the west beside centre 2's left edge and copied its lane-and-bushes strip three times; no lantern gate.
 - Reading (Claude's inference): a blank half next to strong features (cottages, a lane) gets a copy of them. Growing down from art above (the river) works. Zoomed out, the east is drawn at a larger scale than the town: the bridge and mine are big next to the cottages.
+
+## Growing on: option A (2026-11-16)
+
+Morgan picked A on the review page (https://claude.ai/artifact/VrSULVpxTb63nqH1YRbjA1), "carry on growing", 12 generations. 4 used, 8 left (`get_balance`); stopped after three failures in four. Files in `art/pixellab/map2/` (failures in `failed/`). Source: AI-generated with PixelLab by Claude for Morgan, 2026-11-16.
+
+- Kept: `w1r`, the north-west forest (x 128-256), worded "only dense pine forest, no lanes". It added a fenced road running west anyway, which can serve as D-047's forest road.
+- Failed: `w2r` (x 0-128) is a pixel-for-pixel copy of `w1r`; `s2` and `s3`, grown down from centre 2's bottom edge, each copied that edge's lane, fence, gate and pine row, so the band repeats with cut cottages on the join.
+- Reading (Claude's inference): `edit_image_pixen` copies whatever sits in the context half unless the asked-for content is very different from it (the river and mountain were; forest next to forest and town next to town were not). Growing down worked only under the river. This method won't finish the map at a useful failure rate.
