@@ -1,5 +1,0 @@
-tool: inpaint_image_pro_flash (9 generations), refused by PixelLab before any charge
-source: in_source.png = map2/map.png x 384-640, y 384-640, blanks filled flat green; mask rectangle x 0, y 128, 256 x 128
-context: in_context.png = map2/map.png x 128-896, y 0-768, bounding box x 256, y 384
-prompt: prompt.txt
-result: "error: trial generations used up — no generations left for Pro Flash generation or any other generation tool." get_balance after: 8 remaining, credits $0.00.

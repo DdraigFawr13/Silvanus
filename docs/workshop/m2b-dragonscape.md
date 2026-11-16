@@ -290,3 +290,11 @@ Morgan picked C ("look into the pro edit tool, spend nothing"). Found from the M
 ## Masked inpainting test refused (2026-11-16)
 
 Morgan picked A, one free test of `inpaint_image_pro_flash` (9 generations) south of the village. PixelLab refused it before charging: "error: trial generations used up — no generations left for Pro Flash generation or any other generation tool." `get_balance` afterwards: 8 left, credits $0.00, trial; the daily bonus line no longer shows. So the trial's 8 can't pay for a 9-generation call, and the bonus doesn't top it up. Inputs kept in `art/pixellab/inpaint1/` for a rerun once generations are bought.
+
+## Masked inpainting test (2026-11-16)
+
+Morgan bought PixelLab's Pixel Apprentice plan (Tier 1): 2,000 generations a cycle, next reset 2026-12-16 (`get_balance`). The test from `art/pixellab/inpaint1/` ran: `inpaint_image_pro_flash`, 9 generations, 1,991 left. Source: AI-generated with PixelLab by Claude for Morgan, 2026-11-16.
+
+- No copying: the masked bottom half is new ground (the pines thin into birches, stumps and a dead tree, a road with a signpost, a fenced vegetable plot, mist), and the unmasked top half came back pixel-identical (checked by image difference). Matches the style and D-047's sparse fringe and road out.
+- Flaws: the new road sits about 100 px left of the village street's gap; a slight line where the village's pine row ends. Next pieces state the road's position.
+- Not yet pasted into `map2/map.png`; the trial composite is `inpaint1/_map_test.png`.
