@@ -1,0 +1,4 @@
+tool: edit_image_pixen (1 generation), no_background false, 256x256
+window: map.png x 128-384, y 0-256; new region (0, 0, 128, 256)
+description: Fill the empty left half by continuing this exact scene, seamless with the rest: only dense dark pine forest, the true wilds, with low mist between the trunks and a few ferns. No lanes, no paths, no bushes, no clearings, no buildings. Same top-down village at dusk, pixel style, colours, outline, mist and light; carry lanes, fences and tree lines across the join. Keep the existing part unchanged.
+job_id: dca122a5-cd0d-4c1c-bbc7-a4ae39fccb9d

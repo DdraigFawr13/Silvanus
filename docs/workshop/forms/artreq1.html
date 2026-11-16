@@ -1,0 +1,297 @@
+<title>Silvanus Art Checklist</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@500;700&family=Alegreya+Sans:wght@400;500;700&display=swap">
+<!--
+  planning-interview form template. Copy it, fill CONFIG at the bottom, publish with the Artifact tool
+  and capabilities {"db": {}, "user": {}}. Answers save to the artifact database collection CONFIG.round
+  as one document per answer id: { v: <value>, at: <ms> }. Read them back with ArtifactData "list".
+  Restyle the tokens in :root to suit the project; keep the layout and the save code.
+-->
+<style>
+/* Layout: one narrow phone column; sticky progress header, section tabs, one card per question. */
+:root {
+  --bg: #e9ece6; --surface: #f7f8f4; --ink: #1f2a2a; --muted: #5b6763; --line: #cfd5cc;
+  --accent: #2f6b5e; --accent-ink: #ffffff; --brass: #9a6b1f; --chip: #e1e6dd;
+  --now: #2f6b5e; --soon: #3d6a96; --later: #7a6a52; --no: #8a8f8b; --bad: #a8452f; --warn: #9a6b1f;
+  --display: "Alegreya SC", Georgia, serif; --body: "Alegreya Sans", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #141b1c; --surface: #1c2526; --ink: #e3e8e2; --muted: #9aa6a1; --line: #2f3b3c;
+  --accent: #6cb8a4; --accent-ink: #0f1617; --brass: #d6a75a; --chip: #253031;
+  --now: #6cb8a4; --soon: #7fa8d6; --later: #bba57f; --no: #7d8582; --bad: #e07f66; --warn: #d6a75a; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #141b1c; --surface: #1c2526; --ink: #e3e8e2; --muted: #9aa6a1; --line: #2f3b3c;
+  --accent: #6cb8a4; --accent-ink: #0f1617; --brass: #d6a75a; --chip: #253031;
+  --now: #6cb8a4; --soon: #7fa8d6; --later: #bba57f; --no: #7d8582; --bad: #e07f66; --warn: #d6a75a; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.45; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line);
+  padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.hrow { max-width: 680px; margin: 0 auto; display: flex; align-items: baseline; gap: 12px; }
+.hrow h1 { font-family: var(--display); font-size: 1.15rem; margin: 0; letter-spacing: .03em; flex: 1; }
+.meter { max-width: 680px; margin: 8px auto 0; height: 6px; background: var(--chip); border-radius: 3px; overflow: hidden; }
+.meter i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .3s; }
+#count, #save { font-size: .8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+main { max-width: 680px; margin: 0 auto; padding-block: 16px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 14px; }
+nav.tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
+nav.tabs button { flex: none; font: 500 .85rem var(--body); border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+nav.tabs button[aria-current="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+h2 { font-family: var(--display); font-size: 1.3rem; margin: 10px 0 0; text-wrap: balance; letter-spacing: .02em; }
+.sub { color: var(--muted); margin: -6px 0 0; font-size: .92rem; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: grid; gap: 10px; min-width: 0; }
+.card.done { border-left: 4px solid var(--accent); }
+.card p { margin: 0; } .card ul, .card ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.card h3 { margin: 0; font-size: 1.04rem; text-wrap: balance; }
+.why { color: var(--muted); font-size: .9rem; }
+.opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.opt { font: 500 .92rem var(--body); text-align: left; border: 1px solid var(--line); background: var(--chip); color: var(--ink); border-radius: 8px; padding: 9px 12px; cursor: pointer; min-height: 44px; }
+.opt[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.rec { margin-left: 6px; font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--brass); font-weight: 700; }
+.opt[aria-pressed="true"] .rec { color: inherit; }
+.grid4, .grid3 { display: grid; gap: 6px; } .grid4 { grid-template-columns: repeat(4, 1fr); } .grid3 { grid-template-columns: repeat(3, 1fr); }
+.seg { font: 500 .86rem var(--body); min-height: 42px; border-radius: 6px; border: 1px solid var(--line); background: var(--chip); color: var(--ink); cursor: pointer; }
+.seg[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.seg[aria-pressed="true"][data-v="soon"] { background: var(--soon); border-color: var(--soon); }
+.seg[aria-pressed="true"][data-v="later"], .seg[aria-pressed="true"][data-v="discuss"], .seg[aria-pressed="true"][data-v="after"] { background: var(--later); border-color: var(--later); }
+.seg[aria-pressed="true"][data-v="change"] { background: var(--later); border-color: var(--later); }
+.seg[aria-pressed="true"][data-v="back"] { background: var(--soon); border-color: var(--soon); }
+.seg[aria-pressed="true"][data-v="remove"] { background: var(--bad); border-color: var(--bad); }
+.row .src { font-size: .78rem; letter-spacing: .04em; color: var(--brass); font-weight: 700; }
+.row .quote { margin: 0; padding: 6px 10px; border-left: 3px solid var(--line); font-style: italic; font-size: .93rem; }
+.seg[aria-pressed="true"][data-v="no"] { background: var(--no); border-color: var(--no); }
+.seg[aria-pressed="true"][data-v="disagree"], .seg[aria-pressed="true"][data-v="cut"] { background: var(--bad); border-color: var(--bad); }
+.row { display: grid; gap: 6px; padding: 10px 0; border-top: 1px solid var(--line); }
+.row:first-of-type { border-top: 0; padding-top: 0; }
+.row .name { font-weight: 700; } .row .desc { color: var(--muted); font-size: .88rem; }
+.tag { font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; color: var(--brass); font-weight: 700; margin-left: 6px; }
+.pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.pill { font-size: .7rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; border-radius: 999px; padding: 2px 8px; border: 1px solid currentColor; color: var(--muted); }
+.pill.high { color: var(--bad); } .pill.medium { color: var(--warn); }
+.take { background: var(--chip); border-radius: 6px; padding: 10px 12px; font-size: .95rem; }
+.take b { color: var(--brass); }
+textarea { width: 100%; box-sizing: border-box; min-height: 56px; font: .95rem var(--body); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; resize: vertical; }
+textarea.qnote { min-height: 40px; font-size: .9rem; }
+.row textarea.qnote { min-height: 36px; margin-top: 2px; }
+button:focus-visible, textarea:focus-visible { outline: 3px solid var(--brass); outline-offset: 2px; }
+.foot { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.btn { font: 700 .95rem var(--body); background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 8px; padding: 12px 18px; cursor: pointer; min-height: 44px; }
+.note { font-size: .85rem; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { .meter i { transition: none; } }
+</style>
+
+<header>
+  <div class="hrow"><h1 id="heading"></h1><span id="count">0 / 0</span></div>
+  <div class="meter"><i id="bar"></i></div>
+  <div class="hrow" style="margin-top:4px"><span id="save">Loading…</span></div>
+</header>
+<main>
+  <section class="card" id="intro"></section>
+  <nav class="tabs" id="tabs"></nav>
+  <div id="content" style="display:grid;gap:14px"></div>
+  <div class="foot"><button class="btn" id="next" type="button">Next section</button><span class="note" id="where"></span></div>
+</main>
+
+<script>
+/* ===== CONFIG: the only part to edit =====
+  round:   database collection and storage key, e.g. "round1", "review1", "final".
+  heading: header text. intro: trusted HTML strings shown first (recap, how to answer, what to say when done).
+  sections[]: { id, title, sub, notes (default true), items[] }. Every single, multi, priority and keep item gets its own
+  notes box, saved as "note_<id>"; set note: false on an item to drop it. Section notes save as "n_<section id>",
+  reply comments as "c_<id>". Item types:
+    single   { id, q, why?, opts: ["a", { t: "b", rec: 1 }] }        one choice; rec marks your recommendation
+    multi    { id, q, why?, opts }                                     any number
+    text     { id, q, why? }                                           free text (not counted in progress); any item without opts shows as text
+    priority { id, name, desc?, tag? }                                 Now / Soon / Later / No
+    keep     { id, name, desc?, tag? }                                 Keep / After / Cut
+    reply    { id, title, body, take, sev?: "high"|"medium"|"low", src? }   Agree / Disagree / Discuss + comment
+    info     { html, onRender?(el) }                                   trusted HTML: recaps, plans, wireframes; onRender may draw on a canvas
+*/
+const CONFIG = {
+  round: "artreq1",
+  heading: "Art checklist",
+  intro: [
+    "<b>Step 1 of 4 of the art re-plan.</b> This is everything you have asked for in the town's art and layout, collected from D-041, D-047, D-048, the brief and the workshop log. The target picture (step 2) and every later result will be scored against this list, item by item.",
+    "For each item tap <b>Keep</b> (right as written), <b>Change</b> (write how in its note) or <b>Remove</b> (you don't want it). Add anything missing in a section's notes or in the last section.",
+    "The italic lines are your own words with where they came from. Items tagged <b>Claude's words</b> have no quote of yours behind them: Claude wrote them in the brief or a decision, so check those hardest.",
+    "Before you start, check the line under the title says <b>Synced with Claude</b>. If it says \"this device only\", your answers won't reach me. When you're done, say <b>checklist done</b> in chat."
+  ],
+  sections: [
+    { id: "look", title: "The look", sub: "How the art itself should look.", items: [
+      { type: "check", id: "L1", name: "The target look is PixelLab mock-up 1 (the town heart, art/pixellab/mock_hd/raw_1_heart.png).", src: "D-048 · chat 2026-11-15", quotes: ["Mockup 1 is exactly really the vibe I was thinking about and i love the view perspective and the sort of grounded nature of it"] },
+      { type: "check", id: "L2", name: "Every part of the map uses mock-up 1's top-down three-quarter view. No section drawn more tilted.", src: "D-048 · chat 2026-11-15", quotes: ["i love the view perspective"], desc: "The east sections of strips 1 and 2 came out more tilted than the heart (workshop log)." },
+      { type: "check", id: "L3", name: "Higher detail, at mock-up 1's level.", src: "Workshop log 2026-11-15", quotes: ["I want to see mockups of the higher detail maybe through pixel lab"] },
+      { type: "check", id: "L4", name: "Grounded: houses face the lanes they stand on, fenced yards and gardens, paths to the doors, lamp posts, trees among the houses.", src: "D-048 · chat 2026-11-15", quotes: ["the sort of grounded nature of it"] },
+      { type: "check", id: "L5", name: "A haunting dusk mood, kept subtle: mist, crows, cool light, warm lit windows, dead trees.", src: "D-048, D-041 · canvas round 2 and chat, 2026-11-14 and 15", quotes: ["I actually want this design changed to be a little more graveyard keeper in style but like haunted woods type thing but subtle", "I really want more of like a haunting vibe"] },
+      { type: "check", id: "L6", name: "Cosy, a proper town that belongs in its landscape.", src: "Canvas round 5 2026-11-14 · chat 2026-11-15", quotes: ["Its missing the cozy town vibes. Maybe because things aren't structured like a real town", "a real town maybe like some stardew valley type shit. Just feeling like a proper town that is part of this landscape would be really nice to see"] },
+      { type: "check", id: "L7", name: "Every building has character: ivy, moss, lanterns, trade signs, clutter.", src: "D-041 · canvas round 2 2026-11-14", quotes: ["buildings need to have more character to them. more detail and vibe"] },
+      { type: "check", id: "L8", name: "One colour and light across the whole map: no part lighter, greener or darker than the rest, and every piece hangs together.", src: "Workshop log 2026-11-16", quotes: ["We will need to fix the color mismatch", "Fix colours and honestly fix the cohesiveness"] },
+      { type: "check", id: "L9", name: "Walls, fences and trees drawn well, not as plain filler.", src: "Canvas round 9 2026-11-14", quotes: ["we need another pass on the objects like walls and trees they don't look good enough"] },
+      { type: "check", id: "L10", name: "New town art is made in PixelLab only.", src: "D-048 · chat 2026-11-15", quotes: ["I meant pixel lab I only want to test in pixel lab"] }
+    ]},
+    { id: "land", title: "The land", sub: "The whole map: what sits where.", items: [
+      { type: "check", id: "M1", name: "One seamless map that scrolls left and right and zooms. Zoomed out, the whole town fits the screen; zoomed in, yards and windows read.", src: "D-047 · chat 2026-11-15", quotes: ["I really do eventually want it to be like just a solid scrollable across the screen so I can see the whole town and zoom in and out eventually"] },
+      { type: "check", id: "M2", name: "The map is 1024 × 768 art pixels, with zoom steps 1×, 2× and 3×.", tag: "picked, no quote", src: "D-047 · chat form 2026-11-16", desc: "You picked these on a chat form; no words recorded. Zoomed out it is 309 px tall on the 412 px phone." },
+      { type: "check", id: "M3", name: "The Hall is the centre and the map opens on it; buildings spread out left and right from there.", src: "D-041 · art3 2026-11-14", quotes: ["also I want the game to be like scrollable to the left and right to see the whole town and like the center would be the main building and then just buildings out left and right from there"] },
+      { type: "check", id: "M4", name: "North: the true forest (the Skarthorn), dense and dark, unbroken behind the Hall.", src: "D-047 · chat 2026-11-15", quotes: ["to the north should be like the real forest"] },
+      { type: "check", id: "M5", name: "Sides and south: a sparse fringe of trees, bushes, stumps and dead trees that thickens towards the map edge.", src: "D-047 · chat 2026-11-15", quotes: ["The trees around the town should be sparser so it shows they are like at the edge of the true wilds"] },
+      { type: "check", id: "M6", name: "The road into the forest leaves to the north-west, past the woodcutter, through a lantern-lit gate.", src: "D-047, D-041 · canvas round 2 2026-11-14, chat 2026-11-15", quotes: ["also do something where the road enters the forest", "i don't want the forest entrance straight above the town I wanted it off to the left somewhere"] },
+      { type: "check", id: "M7", name: "The mine sits upper right at the foot of a big mountain that runs off the top and right edges (only its lower cliffs show), with a track down to the town.", src: "D-047 · chat 2026-11-15", quotes: ["it should be in like a larger mountain that we don't actually see the entirety of. And I want it as part of the main scrollable map", "there should be at least the hint of a mountain where the mine is at"] },
+      { type: "check", id: "M8", name: "The mountain reads as a real landform: tiers, a cliff face, foothills fading into the forest, the mine cut into the face.", tag: "Claude's words", src: "Brief for the next town attempt, 2026-11-15" },
+      { type: "check", id: "M9", name: "A waterfall beside the mine feeds the river.", tag: "Claude's words", src: "Brief for the next town attempt, 2026-11-15", quotes: ["And the river source doesn't need to be shown"], desc: "The waterfall is in Claude's brief, not in D-047. Your quote above is from the same day. They fit only if the river comes in from off the map and a waterfall drops into it from the mountain partway. Keep, change or remove the waterfall." },
+      { type: "check", id: "M10", name: "A wide river runs in from off the map past the mountain and down the east side, with a bridge, a jetty and a fisher's lot on the far bank.", src: "D-047 · canvas round 7 2026-11-14", quotes: ["make the river / stream a bit bigger. So like there will be like a fisherman's hut or something on the [far] side"], desc: "Where the river runs was left to Claude: \"Do whatever you think best for the river ... same vibe\"." },
+      { type: "check", id: "M11", name: "The south edge is open, with no forest: the road in and out.", src: "D-043, D-047 · sites form and chat", quotes: ["the bottom needs to be clear so there is a road in and out", "be scrollable from left to right with the bottom open to having a way out"] },
+      { type: "check", id: "M12", name: "The land has shape and the town is part of it: worn earth by doors, packed paths, rougher grass at the edges, a slope, rock near the mountain, forest creeping into the gaps.", tag: "Claude's words", src: "Brief, from your 2026-11-15 words", quotes: ["a proper town that is part of this landscape"] },
+      { type: "check", id: "M13", name: "The Tangle rings the town: wild overgrowth that is cleared later to open lots and sites.", src: "D-043 · canvas round 8 and sites form 2026-11-14", quotes: ["I like being surrounded by something that like gets removed to unlock more areas and like lots", "I still don't like how it looks though"] },
+      { type: "check", id: "M14", name: "Special sites in clearings: tar pit, standing stones, sunken bog and salt spring in or beyond the Tangle; old ruins far off in the forest; bat caves high on the mountain.", src: "D-044 · sites and special-sites forms 2026-11-14", quotes: ["maybe an old ruins in the forest distance somewhere and I like the standing stones as well"] },
+      { type: "check", id: "M15", name: "A small old graveyard at the edge of town.", src: "D-041, brief · canvas round 2 2026-11-14", quotes: ["a little more graveyard keeper in style"], desc: "The graveyard itself is Claude's reading of this quote; it was drawn on the canvas and you didn't object." },
+      { type: "check", id: "M16", name: "Gathering buildings stand on their own sites: the woodcutter at the forest edge to the west, the mine in the mountain, the farm on fields to the south-east, the forager in the woods.", src: "D-043, D-047 · sites form 2026-11-14", quotes: ["I want certain core buildings to have dedicated lots to them. Like for basic resource gathering"], desc: "The west and south-east placements are in D-047 with no quote of yours." }
+    ]},
+    { id: "town", title: "The town", sub: "Streets, the Hall, the square and the buildings.", items: [
+      { type: "check", id: "T1", name: "The Hall stands out from every other building.", src: "D-041 · art3 2026-11-14", desc: "You ticked \"the Hall should stand out more\" on the art3 form." },
+      { type: "check", id: "T2", name: "The Hall sits top centre, set back, with a slightly decorated walkway down to the square; Hall, walkway and square line up.", src: "D-047 · canvas round 3 2026-11-14", quotes: ["so the town square is a little bit farther with like an ornate walkway to the hall. but not really ornate just slightly decorated", "they are not aligned"] },
+      { type: "check", id: "T3", name: "A square in front of the Hall where events happen and seasons and festivals show; its notice board opens the board.", src: "D-041, D-040 · canvas round 2 2026-11-14", quotes: ["have a little square in front of the town hall where like events could be held or it shows like seasons and festivals and whatnot"] },
+      { type: "check", id: "T4", name: "The square upgrades: a well on packed earth, then flagstones, lanterns and benches, then a fountain and stalls.", tag: "proposed", src: "D-042 (Proposed) · canvas round 5 2026-11-14", quotes: ["I want the square to be upgradable as well for some reason"] },
+      { type: "check", id: "T5", name: "Laid out like a real town: a High Street across, a cross street running south off the map, lanes to the edge lots, hedgerows and low walls between plots, lamp posts, gardens and an orchard, with buildings running down towards the bottom.", src: "D-041, D-047 · canvas rounds 2 and 5 2026-11-14", quotes: ["make that whole area the town and also have buildings going like down toward the bottom", "Maybe because things aren't structured like a real town"] },
+      { type: "check", id: "T6", name: "Organic: streets curve, houses sit at uneven spacing and set-backs (some on the south side of the High Street), trees and bushes stand inside the town.", src: "D-047 · chat 2026-11-15", quotes: ["I also want the town to feel more organic", "A bit better but still not organic enough"] },
+      { type: "check", id: "T7", name: "The town grows from its paths: houses face their lanes, yards and gardens fill the space between, a path runs to every door, walls, hedges and fences mark the plots.", tag: "Claude's words", src: "Brief, Claude's reading of \"not organic enough\", 2026-11-15" },
+      { type: "check", id: "T8", name: "Buildings a little closer together, but not crowded.", src: "D-041 · canvas round 2 and art3 2026-11-14", quotes: ["have the buildings maybe closer together a little and more organic", "zoom out a little bit more maybe?"], desc: "On art3 you also ticked \"still too crowded\"." },
+      { type: "check", id: "T9", name: "Good roads: slightly gritty dirt roads, the High Street in cobbles, cart roads with ruts, worn tracks to the doors.", src: "D-041 · canvas rounds 2 and 6 2026-11-14", quotes: ["make the town have like generic but slightly gritty roads", "The roads and streets need to look better"] }
+    ]},
+    { id: "lots", title: "Lots and growth", sub: "What you tap, and how the town changes as it grows.", items: [
+      { type: "check", id: "P1", name: "Every lot on the map is a button that opens its sheet. Tapping the map is the main way to play.", src: "D-041 · chat after the mock-up, 2026-11-14", quotes: ["also i need to be able to click lots on the map. I want that to be the main way to like be able to interact with things"] },
+      { type: "check", id: "P2", name: "Empty lots carry a soft pale glow.", src: "D-041 · canvas rounds 2 and 4 2026-11-14", quotes: ["the lots need to have a better glow", "I want the empty lots to have a pale glow"] },
+      { type: "check", id: "P3", name: "Built lots show no glow until tapped, then glow gold.", src: "D-041 · canvas round 4 2026-11-14", quotes: ["I don't want the lots to constantly glow like that"] },
+      { type: "check", id: "P4", name: "An empty plot carries a Build marker that opens the build sheet.", tag: "Claude's words", src: "D-041 decision text" },
+      { type: "check", id: "P5", name: "Built lots have dressed yards: doorsteps, worn paths and props that belong to that building.", src: "D-041 · canvas round 4 2026-11-14", quotes: ["add more richness around the buildings that are built"] },
+      { type: "check", id: "P6", name: "Staked future lots show where the Village will grow: roped plots of fallow ground with a sign.", src: "D-041 · canvas round 7 2026-11-14", quotes: ["Upgrade the looks of future lot they don't read right"] },
+      { type: "check", id: "P7", name: "Day one is open: buildings on grass. Each building gains its garden, fence, washing line, woodpile and flower boxes as it is built and upgraded, until the grown town is dense.", src: "D-047 · layout1 form 2026-11-14", quotes: ["Start open (B) and fill in towards dense (A) as you build and upgrade"] },
+      { type: "check", id: "P8", name: "Each upgrade visibly improves the building. Tier 2 adds a stone footing, window boxes, a fenced yard and a lean-to; tier 3 builds bigger with a garden, a hedge and lanterns.", src: "D-041 · canvas rounds 3 and 5 2026-11-14", quotes: ["the buildings did not seem to change enough", "I want upgrades to make things look nicer"] },
+      { type: "check", id: "P9", name: "Lots are easy to tell apart.", src: "art2 form 2026-11-14", desc: "You ticked it as a need on the art2 form." },
+      { type: "check", id: "P10", name: "The land is one painted picture, and buildings are separate pieces the game adds as they are built.", src: "Workshop log 2026-11-16", quotes: ["I just want a canvas style map I can scroll left and right on on my phone with assets and blending you do in pixel lab ... you create building blocks and then blend things together"], desc: "Your verdict on the prototype that tried this: \"No that still sucks.\" Keep this item if the idea is right and the result was bad." },
+      { type: "check", id: "P11", name: "The town moves: residents walk between home, work and the Hall, working buildings smoke, builds show scaffolding, settlers come and go on the road.", src: "D-037 · M2 re-plan 2026-11-14", quotes: ["I just like seeing some animation showing things happening"], desc: "That comes in M2c; the target picture would only leave room for it." }
+    ]},
+    { id: "screen", title: "The screen", sub: "The Town tab around the map, on the phone.", items: [
+      { type: "check", id: "S1", name: "Made for your phone first: 412 px wide, upright.", tag: "no quote", src: "HANDOFF (phase line)" },
+      { type: "check", id: "S2", name: "The Town tab: a compact header with the stock (an icon per good) and the \"now\" bar, the map filling the rest, then the tab bar.", src: "D-041 · art1 and art2 forms 2026-11-14", desc: "You picked a compact stock bar with an icon per cell, and the \"now\" bar pinned on every tab." },
+      { type: "check", id: "S3", name: "Picture buttons in the tab bar at the bottom: an icon over a short label, 76 px tall.", src: "D-041 · chat after the mock-up, 2026-11-14", quotes: ["actually i want the symbol buttons on the bottom. makes them easier to touch"] },
+      { type: "check", id: "S4", name: "The screens keep the lantern colours: dark green, lamp amber for what you can act on.", src: "D-028, D-041 · art2 form 2026-11-14", desc: "You kept mock-up A (lantern colours) and cut B (slate)." },
+      { type: "check", id: "S5", name: "Each board card has a picture header in the same art.", src: "D-041 · art1 form 2026-11-14", desc: "You picked \"A bigger picture on every card, like DragonScape's quest art\"." }
+    ]},
+    { id: "how", title: "How I show you", sub: "How art results reach you and get judged.", items: [
+      { type: "check", id: "R1", name: "Every art result goes on a published page: each image captioned only from what is in it, then the decision with options and a recommendation.", src: "Pixellab guide section 4 · chat 2026-11-16", quotes: ["Can you always show these images in like an artifact with descriptions In a way I can see and make informed decisions on?"] },
+      { type: "check", id: "R2", name: "Every result is scored against this checklist, item by item, beside the approved target picture, before you see it.", tag: "Claude's words", src: "AGENTS rule, LESSONS ×2 · chat 2026-11-16", quotes: ["Also why are you not understanding what I really want? Why are you forgetting and missing the design decisions we made"] },
+      { type: "check", id: "R3", name: "Joins line up: roads, lanes, rivers and colour carry across every join, checked and measured at full size.", src: "LESSONS · chat 2026-11-16", quotes: ["Those don't match up at all", "Yes ok now you are understanding how to line things up"] },
+      { type: "check", id: "R4", name: "You see finished art in place at phone size, never sketches: old beside new, day one and grown.", src: "LESSONS art1 · art1 form 2026-11-14", quotes: ["I need to see higher quality mockups to choose"] },
+      { type: "check", id: "R5", name: "Claude never swaps the approved look for an easier method without asking you first.", tag: "Claude's words", src: "AGENTS rule, 2026-11-16" },
+      { type: "check", id: "R6", name: "Claude asks before every paid PixelLab call, with its cost in generations and what is left.", tag: "no quote", src: "Pixellab guide section 4, SAFE-01" }
+    ]},
+    { id: "dropped", title: "Dropped earlier", sub: "Things older decisions asked for that later ones replaced. Confirm they stay gone.", items: [
+      { type: "dropped", id: "X1", name: "Kenney Tiny Town tiles as the base art.", src: "D-041 → D-045 → D-046 → D-048", quotes: ["i like the kenney look but modified to more fit my needs and desires"] },
+      { type: "dropped", id: "X2", name: "Tiles shown at 1.5 times their size (24 px a tile).", src: "D-041 → D-047's 1×/2×/3× zoom" },
+      { type: "dropped", id: "X3", name: "The Ashwick palette: 70% Moss, 30% Faded ink.", src: "D-041 (Proposed); not named in D-048", quotes: ["mix of moss and faded ink but mostly moss"], desc: "D-048 doesn't say this palette is gone; mock-up 1 has its own colours. Tell me if any of it should carry over." },
+      { type: "dropped", id: "X4", name: "No AI-generated art.", src: "D-041 → reversed by D-046 and D-048" },
+      { type: "dropped", id: "X5", name: "CC0 artist packs (Adventure Awaits) as the base.", src: "D-045 → D-046 → D-048", quotes: ["Honestly the art pack looks the best"] },
+      { type: "dropped", id: "X6", name: "The ChatGPT pieces as game art (now reference only).", src: "D-046 → D-048", quotes: ["I really like this art style actually"] },
+      { type: "dropped", id: "X7", name: "The 2026-11-16 map and phone prototype as the starting point for the target picture.", src: "Workshop log 2026-11-16", quotes: ["No that still sucks. Can we rethink how we are designing?"], desc: "Stays dropped = the target picture starts fresh from mock-up 1." }
+    ]},
+    { id: "more", title: "Anything else", notes: false, items: [
+      { type: "text", id: "missing", q: "What is missing from this list? Anything you picture in the town that isn't written here." },
+      { type: "text", id: "top3", q: "Which three items matter most to you? (Give their codes, like L1, P1, M7.) The target picture is judged on these first." },
+      { type: "text", id: "other", q: "Anything else about how we work on the art." }
+    ]}
+  ]
+}
+;
+
+const state = {}; let db = null, active = 0;
+const KEY = "pi-" + CONFIG.round;
+const $ = s => document.querySelector(s);
+function el(tag, attrs = {}, ...kids) { const e = document.createElement(tag); for (const k in attrs) { if (k.startsWith("on")) e.addEventListener(k.slice(2), attrs[k]); else if (k === "class") e.className = attrs[k]; else e.setAttribute(k, attrs[k]); } kids.flat().forEach(k => k != null && e.append(k)); return e; }
+const answered = v => Array.isArray(v) ? v.length > 0 : !!v;
+const counted = it => ["single", "multi", "priority", "keep", "check", "dropped", "reply"].includes(it.type);
+function progress() {
+  const ks = CONFIG.sections.flatMap(s => s.items.filter(counted).map(i => i.id));
+  const n = ks.filter(k => answered(state[k])).length;
+  $("#count").textContent = n + " / " + ks.length; $("#bar").style.width = (ks.length ? 100 * n / ks.length : 0) + "%";
+}
+const timers = {};
+function put(key, value) {
+  state[key] = value; progress();
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  if (!db) { $("#save").textContent = "Saved on this device only"; return; }
+  clearTimeout(timers[key]); $("#save").textContent = "Saving…";
+  timers[key] = setTimeout(async () => {
+    try { await db.collection(CONFIG.round).doc(key).set({ v: value, at: Date.now() }); $("#save").textContent = "Saved"; }
+    catch (e) { $("#save").textContent = "Couldn't save (" + (e && e.code || "error") + "). Kept on this device."; }
+  }, 500);
+}
+function textBox(key, label, ph, cls, rows) { const ta = el("textarea", { id: key, "aria-label": label, placeholder: ph || "" }); if (cls) ta.className = cls; if (rows) ta.rows = rows; ta.value = state[key] || ""; ta.addEventListener("input", () => put(key, ta.value)); return ta; }
+function chips(it) {
+  return el("div", { class: "opts" }, ...it.opts.map(o => { const t = typeof o === "string" ? o : o.t;
+    const on = it.type === "multi" ? (state[it.id] || []).includes(t) : state[it.id] === t;
+    return el("button", { class: "opt", type: "button", "aria-pressed": on ? "true" : "false", onclick: () => {
+      if (it.type === "multi") { const c = new Set(state[it.id] || []); c.has(t) ? c.delete(t) : c.add(t); put(it.id, [...c]); } else put(it.id, state[it.id] === t ? "" : t);
+      render(); } }, t, o.rec ? el("span", { class: "rec" }, "recommended") : null); }));
+}
+function seg(id, cls, values, label) {
+  return el("div", { class: cls }, ...values.map(([v, txt]) => el("button", { class: "seg", type: "button", "data-v": v, "aria-pressed": state[id] === v ? "true" : "false", "aria-label": label + ": " + txt, onclick: () => { put(id, state[id] === v ? "" : v); render(); } }, txt)));
+}
+/* Per-question notes: write thoughts down while answering instead of saving them for the end. */
+const noteBox = (it, label, small) => it.note === false ? null : textBox("note_" + it.id, "Notes on " + label, small ? "Note (optional)" : "Notes (optional): thoughts, doubts, reasons", "qnote", small ? 1 : 2);
+const SETS = { priority: [["now", "Now"], ["soon", "Soon"], ["later", "Later"], ["no", "No"]], keep: [["keep", "Keep"], ["after", "After"], ["cut", "Cut"]], check: [["keep", "Keep"], ["change", "Change"], ["remove", "Remove"]], dropped: [["dropped", "Stays dropped"], ["back", "Bring back"], ["change", "Change"]] };
+const GROUPED = ["priority", "keep", "check", "dropped"];
+const GROUP_HELP = { priority: "Now = first usable version. Soon = right after. Later = someday. No = drop it.", check: "Keep = right as written. Change = say how in its note. Remove = you don't want it.", dropped: "These were in older decisions and later replaced. Stays dropped = gone for good. Bring back = you still want it." };
+function renderItems(items) {
+  const out = []; let group = null;
+  for (const it of items) {
+    if (GROUPED.includes(it.type)) {
+      if (!group || group.dataset.type !== it.type) {
+        group = el("section", { class: "card", "data-type": it.type });
+        if (GROUP_HELP[it.type]) group.append(el("p", { class: "why" }, GROUP_HELP[it.type]));
+        out.push(group);
+      }
+      group.append(el("div", { class: "row" }, el("div", {}, el("span", { class: "name" }, it.name), it.tag ? el("span", { class: "tag" }, it.tag) : null), it.src ? el("div", { class: "src" }, it.src) : null, ...(it.quotes || []).map(q => el("p", { class: "quote" }, "\u201C" + q + "\u201D")), it.desc ? el("div", { class: "desc" }, it.desc) : null, seg(it.id, it.type === "priority" ? "grid4" : "grid3", SETS[it.type], it.name), noteBox(it, it.name, !["check", "dropped"].includes(it.type))));
+      continue;
+    }
+    group = null;
+    if (it.type === "info") { const c = el("section", { class: "card" }); c.innerHTML = it.html; out.push(c); if (it.onRender) requestAnimationFrame(() => it.onRender(c)); continue; }
+    if (it.type === "reply") {
+      out.push(el("section", { class: "card" + (answered(state[it.id]) ? " done" : "") },
+        el("div", { class: "pills" }, it.sev ? el("span", { class: "pill " + it.sev }, it.sev) : null, it.src ? el("span", { class: "pill" }, it.src) : null),
+        el("h3", {}, it.title), it.body ? el("p", {}, it.body) : null, it.take ? el("div", { class: "take" }, el("b", {}, "My take: "), it.take) : null,
+        seg(it.id, "grid3", [["agree", "Agree"], ["disagree", "Disagree"], ["discuss", "Discuss"]], it.title), textBox("c_" + it.id, "Comment on " + it.title, "Comment (optional)")));
+      continue;
+    }
+    const card = el("section", { class: "card" + (answered(state[it.id]) ? " done" : "") }, el("h3", {}, it.q), it.why ? el("p", { class: "why" }, it.why) : null);
+    card.append(...(it.type === "text" || !Array.isArray(it.opts) ? [textBox(it.id, it.q)] : [chips(it), noteBox(it, it.q)].filter(Boolean))); out.push(card);
+  }
+  return out;
+}
+function render() {
+  const s = CONFIG.sections[active], y = window.scrollY;
+  const notes = s.notes === false ? null : el("section", { class: "card" }, el("h3", {}, "Notes on " + s.title.toLowerCase()), el("p", { class: "why" }, "Optional. Anything the options missed."), textBox("n_" + s.id, "Notes on " + s.title));
+  $("#content").replaceChildren(...[el("h2", {}, s.title), s.sub ? el("p", { class: "sub" }, s.sub) : null, ...renderItems(s.items), notes].filter(Boolean));
+  $("#tabs").replaceChildren(...CONFIG.sections.map((x, i) => el("button", { type: "button", "aria-current": i === active ? "true" : "false", onclick: () => go(i) }, x.title)));
+  $("#tabs").hidden = CONFIG.sections.length < 2;
+  $("#next").hidden = active === CONFIG.sections.length - 1;
+  $("#where").textContent = CONFIG.sections.length > 1 ? "Section " + (active + 1) + " of " + CONFIG.sections.length : "";
+  progress(); window.scrollTo(0, y);
+}
+function go(i) { active = i; render(); window.scrollTo(0, 0); try { localStorage.setItem(KEY + "-tab", i); } catch (e) {} }
+$("#next").addEventListener("click", () => go(Math.min(active + 1, CONFIG.sections.length - 1)));
+$("#heading").textContent = CONFIG.heading;
+$("#intro").innerHTML = CONFIG.intro.map(p => "<p>" + p + "</p>").join("");
+
+try { Object.assign(state, JSON.parse(localStorage.getItem(KEY) || "{}")); active = Math.min(+localStorage.getItem(KEY + "-tab") || 0, CONFIG.sections.length - 1); } catch (e) {}
+render(); $("#save").textContent = "Connecting…";
+(async () => {
+  try { db = window.claude ? await window.claude.use("db") : null; } catch (e) { db = null; }
+  if (!db) { $("#save").textContent = "Saved on this device only. Open while signed in to share answers with Claude."; return; }
+  try {
+    const snap = await db.collection(CONFIG.round).get(); const local = { ...state };
+    snap.docs.forEach(d => { const v = d.data(); if (v && "v" in v) state[d.id] = v.v; });
+    for (const k in local) if (answered(local[k]) && !answered(state[k])) put(k, local[k]);
+    $("#save").textContent = "Synced with Claude"; render();
+  } catch (e) { $("#save").textContent = "Couldn't load saved answers (" + (e && e.code || "error") + ")"; }
+})();
+</script>

@@ -1,0 +1,9 @@
+{
+ "description": "Town edge: a winding lane of small cottages with vegetable gardens, picket fences, washing lines and woodpiles, thinning out into sparse dead trees, stumps and brambles, an old graveyard with leaning headstones and a crow, the dark forest beyond. top-down view of a haunted fantasy frontier village at dusk, cozy but eerie, cool blue-green dusk light, low mist pooled between trees, warm glowing yellow windows, mossy stone and dark timber cottages with slate roofs, moss green grass and warm brown dirt paths",
+ "width": 512,
+ "height": 512,
+ "view": "high top-down",
+ "detail": "highly detailed",
+ "outline": "single color outline"
+}
+job_id: 444b6a1e-5c6c-4157-940d-8cc76009aa3e

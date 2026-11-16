@@ -1,0 +1,9 @@
+{
+ "description": "Mountain corner: a tall grey rocky mountain rising in tiers with cliff faces, a timber-framed mine entrance cut into the cliff with a minecart track leading down, a waterfall falling from a notch in the rock into a stream, dense dark pine forest pressing against the foothills, mist at the base. top-down view of a haunted fantasy frontier village at dusk, cozy but eerie, cool blue-green dusk light, low mist pooled between trees, warm glowing yellow windows, mossy stone and dark timber cottages with slate roofs, moss green grass and warm brown dirt paths",
+ "width": 512,
+ "height": 512,
+ "view": "high top-down",
+ "detail": "highly detailed",
+ "outline": "single color outline"
+}
+job_id: 8463c103-f85b-4424-adbb-e8dfc6b0c29c

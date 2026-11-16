@@ -1,0 +1,82 @@
+<title>Silvanus Town Canvas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: a full-width scrolling map window on top, controls and notes below. Single dark look from Silvanus UI_STYLE tokens (D-028). */
+:root {
+  --bg: #162120; --panel: #1f2e2c; --line: #2f4541; --line-strong: #3d5853;
+  --ink: #e6e3d6; --head: #f0d9a4; --muted: #9fb0a4; --act: #d9a441; --act-ink: #1a1608;
+  --well: #0d1514; --r: 10px;
+  --body: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.45; display: flex; flex-direction: column; }
+.viewport { flex: 0 1 auto; min-height: 0; overflow: auto; background: var(--well); border-bottom: 1px solid var(--line); touch-action: pan-x pan-y; -webkit-overflow-scrolling: touch; }
+.world { position: relative; transform-origin: 0 0; }
+.world img { position: absolute; image-rendering: pixelated; display: block; user-select: none; -webkit-user-drag: none; }
+.world .base { left: 0; top: 0; }
+.sprite { transition: opacity .25s; }
+.grown-off .sprite.grown { opacity: 0; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .sprite { transition: none; } }
+.bar { padding-block: 10px 14px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 10px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.label { color: var(--muted); font-size: 13px; min-width: 44px; }
+button { font: inherit; font-size: 14px; color: var(--ink); background: var(--panel); border: 1px solid var(--line-strong); border-radius: var(--r); padding: 8px 14px; min-height: 40px; cursor: pointer; }
+button[aria-pressed="true"] { background: var(--act); color: var(--act-ink); border-color: var(--act); font-weight: 600; }
+button:focus-visible { outline: 2px solid var(--head); outline-offset: 2px; }
+.note { color: var(--muted); font-size: 13px; margin: 0; }
+.note b { color: var(--ink); font-weight: 500; }
+</style>
+
+<div class="viewport" id="vp"><div class="world grown-off" id="world"></div></div>
+<div class="bar">
+  <div class="row"><span class="label">Zoom</span>
+    <button type="button" id="z1" aria-pressed="true">1×</button>
+    <button type="button" id="z2" aria-pressed="false">2×</button>
+    <button type="button" id="z3" aria-pressed="false">3×</button>
+  </div>
+  <div class="row"><span class="label">Town</span>
+    <button type="button" id="day1" aria-pressed="true">Day one</button>
+    <button type="button" id="grown" aria-pressed="false">Grown</button>
+  </div>
+  <p class="note"><b>Prototype.</b> The land is one painted map (72% drawn; the dark edges are not drawn yet). Grown adds cut-out cottages, a tree and a lamp as separate pieces, the way the game would add buildings as you build them. Zoom steps are whole screen pixels per art pixel (D-047), so the art stays crisp.</p>
+</div>
+
+<script>
+const ART_W = 1024, ART_H = 768;
+// Separate pieces, in art pixels (top-left). "grown" ones appear with the Grown switch.
+const SPRITES = [
+  { src: "img/cottage_a.png", x: 398, y: 106, w: 48, h: 86, grown: true },
+  { src: "img/cottage_d.png", x: 404, y: 232, w: 51, h: 45, grown: true },
+  { src: "img/cottage_f.png", x: 400, y: 296, w: 48, h: 84, grown: true },
+  { src: "img/cottage_b.png", x: 512, y: 548, w: 53, h: 82, grown: true },
+  { src: "img/tree_oak.png",  x: 300, y: 420, w: 54, h: 72, grown: true },
+  { src: "img/lamp.png",      x: 458, y: 210, w: 9,  h: 30, grown: true },
+];
+const world = document.getElementById("world"), vp = document.getElementById("vp");
+const base = new Image(); base.className = "base"; base.src = "img/map.png"; base.alt = "Silvanus town map"; world.appendChild(base);
+const els = SPRITES.map(s => { const i = new Image(); i.src = s.src; i.alt = ""; i.className = "sprite" + (s.grown ? " grown" : ""); world.appendChild(i); return [i, s]; });
+let zoom = 1;
+function layout(keepCentre) {
+  const dpr = window.devicePixelRatio || 1;
+  // one art pixel = `zoom` screen pixels; CSS px per art px:
+  const k = zoom / dpr;
+  let cx, cy;
+  if (keepCentre) { const oldK = world._k || k; cx = (vp.scrollLeft + vp.clientWidth / 2) / oldK; cy = (vp.scrollTop + vp.clientHeight / 2) / oldK; }
+  world.style.width = ART_W * k + "px"; world.style.height = ART_H * k + "px";
+  base.style.width = ART_W * k + "px"; base.style.height = ART_H * k + "px";
+  for (const [i, s] of els) { i.style.left = s.x * k + "px"; i.style.top = s.y * k + "px"; i.style.width = s.w * k + "px"; i.style.height = s.h * k + "px"; }
+  world._k = k;
+  vp.style.maxHeight = Math.ceil(ART_H * k) + 'px';
+  if (keepCentre) { vp.scrollLeft = cx * k - vp.clientWidth / 2; vp.scrollTop = cy * k - vp.clientHeight / 2; }
+}
+function setZoom(z) { zoom = z; ["z1","z2","z3"].forEach((id, n) => document.getElementById(id).setAttribute("aria-pressed", String(n + 1 === z))); layout(true); }
+["z1","z2","z3"].forEach((id, n) => document.getElementById(id).addEventListener("click", () => setZoom(n + 1)));
+function setGrown(on) { world.classList.toggle("grown-off", !on); document.getElementById("grown").setAttribute("aria-pressed", String(on)); document.getElementById("day1").setAttribute("aria-pressed", String(!on)); }
+document.getElementById("day1").addEventListener("click", () => setGrown(false));
+document.getElementById("grown").addEventListener("click", () => setGrown(true));
+layout(false);
+// open on the Hall (art x 600, y 90)
+requestAnimationFrame(() => { const k = world._k; vp.scrollLeft = 600 * k - vp.clientWidth / 2; vp.scrollTop = Math.max(0, 90 * k - vp.clientHeight / 4); });
+window.addEventListener("resize", () => layout(true));
+</script>

@@ -1,0 +1,5 @@
+tool: edit_image_pixen (1 generation), no_background false, 256x256
+window: map.png x 0-256, y 0-256; new region (0, 0, 128, 256)
+description: Fill the empty left half by continuing this exact scene, seamless with the rest: dense dark pine forest; the fenced dirt road from the right bends upward and leaves off the top edge, passing under a wooden gate hung with two lit lanterns. No other paths, no buildings. Same top-down village at dusk, pixel style, colours, outline, mist and light; carry lanes, fences and tree lines across the join. Keep the existing part unchanged.
+job_id: 58cbf550-d141-4d7a-b2f6-5cce89c8a049
+result: failed, exact copy of w1r; not used in map.png

@@ -1,0 +1,10 @@
+tool: create_image_pixen
+{
+ "width": 512,
+ "height": 512,
+ "view": "high top-down",
+ "detail": "highly detailed",
+ "outline": "single color outline",
+ "description": "East side of the village at the foot of a huge mountain: grey cliffs fill the top and right edges and run off the picture, only the lower cliffs and ledges visible, no peak, a timber-framed mine entrance cut into the base of the cliff with a minecart track and spoil heap, a river flowing in from the top edge past the cliffs and down off the bottom edge with a small wooden bridge, a dirt lane running off the left edge toward the town centre, a few cottages and lamp posts, dark pine trees. top-down view of a haunted fantasy frontier village at dusk, cozy but eerie, cool blue-green dusk light, low mist pooled between trees, warm glowing yellow windows, mossy stone and dark timber cottages with slate roofs, moss green grass and warm brown dirt paths"
+}
+job_id: 6f8dfadf-def0-4ff0-bf8d-299e40b0683d

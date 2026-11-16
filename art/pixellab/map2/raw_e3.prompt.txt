@@ -1,0 +1,4 @@
+tool: edit_image_pixen (1 generation), no_background false, 256x256
+window: map.png x 768-1024, y 128-384; new region (0, 128, 256, 256)
+description: Fill the empty bottom half by continuing this exact scene, seamless with the rest: the same winding river continuing down from the bridge, natural curving banks with reeds and rocks; on its right bank the rocky mountain foot thinning to grass, boulders, pines; on its left bank a sparse fringe of pines and stumps. No buildings. Same top-down village at dusk, pixel style, colours, outline, mist and light; carry lanes, fences and tree lines across the join. Keep the existing part unchanged.
+job_id: d87d7af4-bfdc-4199-a2b7-36a445bcbf8f

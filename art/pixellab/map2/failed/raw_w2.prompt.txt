@@ -1,0 +1,5 @@
+tool: edit_image_pixen (1 generation), no_background false, 256x256
+window: map.png x 0-256, y 0-256; new region (0, 0, 128, 256)
+description: Fill the empty left half by continuing this exact scene, seamless with the rest: deep dark pine forest filling the top and the left edge, the forest road with lanterns entering it from the right and running off the top edge, low mist between the trunks. No buildings. Same top-down village at dusk, pixel style, colours, outline, mist and light; carry lanes, fences and tree lines across the join. Keep the existing part unchanged.
+job_id: 81662cc0-0077-479a-8424-e1d439c4de94
+result: failed, not used in map.png (see the workshop log)

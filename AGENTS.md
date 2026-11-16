@@ -31,6 +31,7 @@ Shared rules come from AI-Master-Instructions and load through CLAUDE.md (`.clau
 - A new condition or effect type in the content schema needs a DECISIONS entry. Why: that set is the engine's real interface.
 - No runtime network or LLM calls in the shipped game (D-003).
 - Every change keeps the soak script (`npm run soak`) passing.
+- Before any art or layout round, re-read D-041, D-047, D-048 and the brief in `docs/workshop/m2b-dragonscape.md`, and score every result against the agreed checklist `docs/workshop/art-checklist.md`, item by item, before showing it; never trade the approved look for an easier method without asking. Why: LESSONS workshop entry ×2.
 
 ## Overrides
 

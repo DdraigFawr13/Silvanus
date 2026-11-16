@@ -7,6 +7,7 @@ package-lock.json
 /test-results/
 /playwright-report/
 /mockups/
+/art/
 
 # ai-master:start (managed by .claude/master/sync.mjs)
 .ai-master.lock
