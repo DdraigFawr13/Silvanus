@@ -253,3 +253,10 @@ Morgan approved 2 more generations ("Yes do as you suggest"). Both `edit_image_p
 - A, redraw the top half of the heart's right edge to end on open ground: it did (grass, lane, fence, bushes, no cut buildings), but the new grass is brighter and flatter than mock-up 1's dusk and the fence is ruler-straight, so the redrawn strip shows as a block with hard edges on its left (the fence line) and bottom (the cut cottage below it).
 - B, grow east from A: no visible join. Grass and bushes run on, and the fringe of trees, stumps, a dead tree and mist beyond fits D-047's sparse fringe. It added a second lane beside the first.
 - Reading (Claude's inference): new art grown onto open ground joins well; any edit to existing art leaves a seam where the edit ends. So the map should grow outward from a centre that already ends on open ground, never by repainting finished art.
+
+## New map centre (2026-11-16)
+
+Morgan chose "New centre, then grow" (about 17 generations approved for the run). Two `create_image_pixen` calls, 512 × 512, high top-down, highly detailed, single colour outline, 1 generation each; 20 left (`get_balance`). Files and prompts: `art/pixellab/map1/`. Source: AI-generated with PixelLab by Claude for Morgan, 2026-11-16. Stopped after two tries per the guide (section 3); neither meets the brief.
+
+- Heart 1 (mock-up 1's wording, plus "open grass at the left, right and bottom edges, no building cut by any edge"): the style and density are close to mock-up 1 (`_heart_vs_mock1.png`), with the forest behind the Hall, but it ignored the open edges: cottages are cut on the left, right and bottom, worse than mock-up 1. Brighter, warmer paths and a gridded street plan.
+- Heart 2 ("a small compact village in a wide grassy clearing"): the edges are open, so it would grow easily, but the village is smaller and plainer, and dense pine forest rings all four sides, against D-047's sparse fringe and open south (`_heart1_vs_2.png`).
