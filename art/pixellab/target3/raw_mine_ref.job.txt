@@ -1,0 +1,7 @@
+job_id: 0240ccb8-6263-4395-a168-81e8256a6dfb
+asset_id: 2982f7db-99fc-5e52-a236-5bfed44d2f6e
+tool: edit_image (reference mode, 400x400, seed 303, 25 generations; took 379 s)
+input: art/pixellab/target2/raw_mine.png (upload:1ddea2f8-06eb-4e99-9ea7-7ddad3bc8c67)
+reference: art/pixellab/mock_hd/raw_1_heart.png (upload:16ecc0ec-e6dc-4d28-ac15-51d18edcf8f4)
+description: Keep the layout exactly: mine entrance in the cliff, the track down to the town, the shed, the river at the top right. Take on the reference's look: grey textured rock cliffs, low mist, cool dusk light, warm lit windows, dense detailed texture.
+source: AI-generated with PixelLab by Claude for Morgan, 2026-11-16
