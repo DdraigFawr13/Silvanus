@@ -13,21 +13,24 @@ B = R / "art/pixellab/blocks"
 sys.path.insert(0, str(B))
 import place
 ACT = np.array([0xd9, 0xa4, 0x41], float)     # --act, lamp-amber (docs/UI_STYLE.md)
-ground = np.asarray(Image.open(B / "full_ground_fx.png").convert("RGB")).astype(float)
-places = [tuple(p) for p in json.load(open(B / "full_places2.json"))]
-EXTRA = [("raw_yard.png", 62, 622), ("raw_ruins.png", 4, 6), ("raw_stones.png", 18, 318), ("raw_tarpit.png", 30, 786)]
+PASS = sys.argv[1] if len(sys.argv) > 1 else "pass2"
+ground = np.asarray(Image.open(B / f"{PASS}_ground.png").convert("RGB")).astype(float)
+allitems = [tuple(p) for p in json.load(open(B / f"{PASS}_items.json"))]
+SITES = {"raw_ruins.png", "raw_stones.png", "raw_tarpit.png"}
+EXTRA = [p for p in allitems if p[0] in SITES or p[0] in ("raw_lamp.png", "raw_yard.png")]
+places = [p for p in allitems if p not in EXTRA]
 def render(g, pl):
     place.PLACES = pl
     return place.place(g, True)
 def save(a, name):
     Image.fromarray(np.clip(a, 0, 255).astype(np.uint8)).save(B / name)
-grown = render(ground, places + EXTRA)
+grown = render(ground, allitems)
 save(grown, "grown.png")
 # day one
 DAY1 = {"hall_fixed.png", "raw_mine_entrance.png", "raw_woodcutter.png"}
 day1 = [p for p in places if p[0] in DAY1] + [p for p in places if p[0] == "raw_cottage_a.png" and p[1] == 642]
 empty = [p for p in places if p not in day1 and "stall" not in p[0]]
-d1 = render(ground, day1 + [e for e in EXTRA if e[0] != "raw_yard.png"])
+d1 = render(ground, sorted(day1 + [e for e in EXTRA if e[0] != "raw_yard.png"], key=lambda p: p[2] + Image.open(B / p[0]).size[1]))
 H, W = d1.shape[:2]
 def plot_box(name, x, y):
     w, h = Image.open(B / name).size
@@ -64,8 +67,8 @@ t = t * (1 - inside) + grown * inside
 save(t, "tapped.png")
 # square stages
 sq = (800, 380, 990, 560)
-st1 = render(ground, places + EXTRA)
 for i, pl in enumerate([[p for p in places if "stall" not in p[0]], places,
                         places + [("raw_fountain.png", 914, 414)]], 1):
-    save(render(ground, pl + EXTRA)[sq[1]:sq[3], sq[0]:sq[2]], f"square_{i}.png")
+    pl = sorted(pl + EXTRA, key=lambda p: p[2] + Image.open(B / p[0]).size[1])
+    save(render(ground, pl)[sq[1]:sq[3], sq[0]:sq[2]], f"square_{i}.png")
 print("ok", len(empty), "empty plots,", len(staked), "staked")

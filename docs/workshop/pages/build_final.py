@@ -21,7 +21,9 @@ stock = [("food", "Food", 40, 200), ("wood", "Wood", 60, 200), ("stone", "Stone"
 cells = "".join(f'<div class="cell{" warn" if n == 0 else ""}"><span class="lab"><img src="{uri(B + "icon_" + k + ".png")}" alt="">{lab}{" · empty" if n == 0 else ""}</span><span class="num">{n} <small>/ {cap}</small></span></div>' for k, lab, n, cap in stock)
 phone = f'''<figure><h3>The Town tab on the phone, day one</h3>
 <div class="phone">
- <header class="top"><h1 class="town-name">Ashwick</h1><p class="town-sub"><b>Hamlet</b> · Year 1, season 1, day 1, hour 0</p><div class="stock">{cells}</div></header>
+ <header style="display:grid;gap:8px"><h1>The target map, two fix passes</h1>
+<p>You asked for two passes of small, specific fixes: the buildings and lots, the harsh seams, the lamp posts that didn't match, every road working along its whole length, and nothing overlapping. 32 generations, within the 35 left under your cap; 1,265 left.</p>
+<p><b>Answer first:</b> every road now leads somewhere, all the lamps match mock-up 1's, nothing overlaps, and the worst seams are softened. Two things I couldn't fix for free: the river above the bridge still looks like a straight-sided column, and the north-west forest is a shade darker than the town. 38 of 55 items met, 16 partly, 1 missed.</p></header>
  <div class="mapview" data-left="700"><img src="{uri(B + "dayone.png")}" alt="Day one map" width="1408" height="888"></div>
  <nav class="tabs"><button class="tab on"><img src="{uri(B + "tab_town.png")}" alt="">Town</button><button class="tab"><img src="{uri(B + "tab_people.png")}" alt="">People</button></nav>
 </div>
@@ -29,10 +31,15 @@ phone = f'''<figure><h3>The Town tab on the phone, day one</h3>
 card = f'''<figure><h3>A board card with a picture header (sample)</h3><div class="card"><img src="{uri(B + "card_pic.png")}" alt=""><div class="cbody"><b>Card title</b><p class="mute">The board's cards come with M2e; this shows only the picture header, cut from the map's square in the same art.</p></div></div></figure>'''
 figs = "".join([
  fig("Mock-up 1, the approved look", "art/pixellab/mock_hd/raw_1_heart.png", "The reference. Brightness 55, edge share 0.263."),
- fig("The finished map, grown", B + "grown.png", "1408 × 888. The forest and its lantern gate, the woodcutter's camp, the forager's turf hut, the Hall, the mountain and mine, the river past the mountain and under the bridge, the swamp; cottages in five designs along the lanes; the square with its well and two stalls; the farmhouse by the fields; the fisher's hut with its jetty and boat. Toward the edges: ruins (top-left corner), standing stones (west), a tar pit (south-west). Brightness 52, edge share 0.196."),
+ fig("The finished map, grown", B + "grown.png", "1408 × 888. The forest and its lantern gate, the woodcutter's camp, the forager's turf hut, the Hall, the mountain and mine, the river past the mountain and under the bridge, the swamp; cottages in five designs along the lanes; the square with its well and two stalls; the farmhouse by the fields; the fisher's hut with its jetty and boat. Toward the edges: ruins (top-left corner), standing stones (west), a tar pit (south-west). Brightness 51, edge share 0.198."),
  scrollfig("Grown, at full size (scroll both ways)", B + "grown.png", "1408 × 888, 1 art pixel per screen pixel.", 600),
  phone,
- fig("Day one", B + "dayone.png", "The Hall, mine, woodcutter's camp and one cottage built. Every other plot has a soft pale glow and an amber Build marker; three south plots are staked with rope, posts and a sign. Brightness 54, edge share 0.172."),
+ fig("Before and after: lamps (top before, bottom after)", B + "ba_lamps.png", "Before: three different lamp designs, each standing in a large flat circle of orange light. After: one lamp design throughout, a dark iron post with a small warm lantern as in mock-up 1, and the circles repainted as plain ground. The fenced plot now holds a cottage that sits inside its fence."),
+ fig("Before and after: the forest road", B + "ba_road.png", "Before: the road from the forest gate ended under a cottage. After: that cottage moved off it, and the road runs on down to the High Street."),
+ fig("Before and after: the bridge", B + "ba_bridge.png", "Before: grass on both sides of the bridge, no way onto it. After: a dirt path from the square's lane onto the west end, and one off the east end along the swamp's edge."),
+ fig("Before and after: the river above the bridge", B + "ba_river.png", "Before: a pale, flat band of mist with a grey slab beside it. After: the water darkened to match the river below the bridge, the slab covered with grass. It still reads as a straight-sided column."),
+ fig("Before and after: the top-left corner", B + "ba_corner.png", "Softened block edges round the ruins; still slightly lighter than the forest beside it."),
+ fig("Day one", B + "dayone.png", "The Hall, mine, woodcutter's camp and one cottage built. Every other plot has a soft pale glow and an amber Build marker; three south plots are staked with rope, posts and a sign. Brightness 54, edge share 0.174."),
  fig("A built lot, tapped", B + "tapped.png", "Cottage A by the Hall, tapped: a lamp-amber glow round it. Untapped built lots show nothing."),
  fig("Upgrades: cottage A at tiers 1, 2 and 3", B + "tiers_row.png", "Tier 2: stone footing, window boxes, a lean-to, a fenced front yard. Tier 3: bigger, a second storey, a hedge, a garden, lanterns by the gate."),
  fig("The square's stages", B + "square_row.png", "Well only; then two striped stalls; then stalls and a fountain beside the well (D-042 is still Proposed)."),
@@ -83,23 +90,22 @@ ol,ul {{ margin:0; padding-left:20px; display:grid; gap:6px; }}
 <section style="display:grid;gap:8px"><h2>Measured</h2>
 <div style="overflow-x:auto"><table><tr><th>Picture</th><th>Brightness</th><th>Saturation</th><th>Edge share</th></tr>
 <tr><td>Mock-up 1</td><td>55</td><td>0.37</td><td>0.263</td></tr>
-<tr><td>Finished map, grown</td><td>52</td><td>0.33</td><td>0.196</td></tr>
-<tr><td>Day one</td><td>54</td><td>0.32</td><td>0.172</td></tr></table></div></section>
-<section style="display:grid;gap:8px"><h2>Spent this stage: 146</h2>
-<ul><li>Repairs, 4 inpaint windows (36): the painted-in cottage and timber frame removed; the top-left fringe repainted (its lines and repeated stumps gone).</li>
-<li>Buildings (46): 3 cottage designs, a farmhouse, a fisher's hut with jetty, a forager's hut, two stalls.</li>
-<li>More checklist items (39): cottage A at tiers 2 and 3, a dressed yard, standing stones, ruins, a tar pit, a fountain.</li>
-<li>Resource icons (25): wood, food, stone, ore, tools.</li>
-<li>Free: placing, glows, Build markers, staked lots, the tapped glow, the square's stages, the phone screen.</li></ul></section>
+<tr><td>Finished map, grown</td><td>51</td><td>0.33</td><td>0.198</td></tr>
+<tr><td>Day one</td><td>54</td><td>0.32</td><td>0.174</td></tr></table></div></section>
+<section style="display:grid;gap:8px"><h2>The two passes</h2>
+<p><b>Pass 1 (32 generations):</b></p>
+<ul><li>One new lamp design from mock-up 1's lamp (5). Four small repaints remove the old lamps and their circles of light (21). One repaint carries the forest road on to the High Street (6).</li>
+<li>Free: the edges of every earlier repair window softened (colour matched across each edge, the straight line broken up). Dirt paths onto both ends of the bridge and from the mine track to the square's lane. The cottage on the road end moved off it, the yard moved behind a cottage, and everything drawn in depth order so nothing overlaps.</li></ul>
+<p><b>Pass 2 (free):</b> the line where the old and new road meet, the top-left corner's block edges, the river above the bridge darkened to match the water below, the grey slab covered, and a cottage placed inside the fenced plot so no fence crosses its gate.</p>
+<p class="mute">Seam scan (straight edges 128 px or longer): 9,024 px before, 7,936 px after. It also counts real edges such as walls and the walkway, so it is a rough guide only.</p></section>
 <section style="display:grid;gap:8px"><h2>Still not right</h2>
-<ul><li>The town is still: residents walking, smoke and scaffolding are animation (P11), for the build sessions.</li>
-<li>The north-west fringe is darker than the town below it; a faint seam where the river repair meets the mountain.</li>
-<li>Three special sites missing (sunken bog, salt spring, bat caves); only one dressed yard; no cobbled High Street.</li>
-<li>Ground plainer than mock-up 1 (edge share 0.172 on day one against 0.263).</li></ul></section>
+<ul><li>The river above the bridge: straight-sided, a repaint would fix it (about 9).</li>
+<li>The north-west forest is darker than the town below; a faint edge round the top-left ruins.</li>
+<li>The town is still (P11, animation, for the build sessions); three special sites missing; one dressed yard; no cobbled High Street.</li></ul></section>
 <section class="rec" style="display:grid;gap:8px"><h2>What next</h2>
-<ol><li><b>Recommended: approve this as the target picture.</b> Step 2 ends; step 3 (testing two ways to build it into the game) starts in a new session, and the items above become its list.</li>
-<li><b>One more art pass</b> within the 35 left: the three missing sites (about 15) and two more dressed yards (12).</li>
-<li><b>Change something first:</b> tell me what.</li></ol>
+<ol><li><b>Recommended: approve this as the target picture.</b> Step 2 ends; step 3 starts in a new session, with the list above as its starting point.</li>
+<li><b>Fix the river first</b>, about 9 generations, over the cap by about 6: one repaint of the river above the bridge.</li>
+<li><b>Change something else:</b> tell me what.</li></ol>
 <p>Reply in chat with a number.</p></section>
 <section style="display:grid;gap:4px"><h2>All 55 items: the finished map</h2>
 <p><span class="chip m">{tot["m"]} met</span> <span class="chip p">{tot["p"]} partly</span> <span class="chip x">{tot["x"]} missed</span></p>{"".join(rows)}</section>

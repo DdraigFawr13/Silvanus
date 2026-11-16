@@ -22,7 +22,7 @@
 "L5": [
 "Haunting dusk, subtle",
 "m",
-"Mist over the town, river and swamp, crows, cool light, warm windows, dead trees in the south fringe and the swamp."
+"Mist, crows, cool light, warm windows, dead trees; every lamp is now one dark iron post with a small warm lantern, as in mock-up 1, and the large painted circles of light are gone."
 ],
 "L6": [
 "Cosy, a proper town",
@@ -37,7 +37,7 @@
 "L8": [
 "One colour and light, natural variation",
 "p",
-"One grade overall; the top-left lines are gone (measured step at y 400: 0.7 against a typical 0.8). The north-west fringe is still darker than the town below it (brightness 46 against 54)."
+"The window edges are softened: the seam scan's straight edges fell from 9,024 px to 7,936 px (it also counts real walls and the walkway). Still visible: the river above the bridge reads as a straight-sided column, and the north-west forest is darker than the town."
 ],
 "L9": [
 "Walls, fences and trees drawn well",
@@ -162,12 +162,12 @@
 "T9": [
 "Good roads",
 "p",
-"Dirt lanes with wear, the forest road and the south road; no cobbled High Street."
+"Dirt lanes join up across the whole map, with a path to each end of the bridge; no cobbled High Street."
 ],
 "P1": [
 "Every lot is a button",
 "p",
-"Every building is its own piece on its own plot, and the phone screen shows tap targets on day one; not wired in the game."
+"Every building is its own piece, drawn in depth order so none overlaps a road, fence or another building; not wired in the game."
 ],
 "P2": [
 "Pale glow on empty lots",
@@ -257,7 +257,7 @@
 "R3": [
 "Joins line up",
 "p",
-"All tile joins repaired; the top-left collage lines are gone. A faint seam remains where the river window meets the mountain (x 1300) and the north-west fringe is darker than below it."
+"Every road now reaches somewhere: the forest road runs on to the High Street, the mine track joins the square's lane, and paths lead onto both ends of the bridge. Window edges softened; the river column above the bridge still has straight sides."
 ],
 "R4": [
 "Finished art at phone size, day one and grown",
@@ -272,6 +272,6 @@
 "R6": [
 "Ask before every paid call",
 "m",
-"146 this stage within the 181 left under the cap you set."
+"32 in these two passes, within the 35 left under your cap."
 ]
 }
