@@ -1,5 +1,7 @@
 # Art requirements checklist
 
+Page: https://claude.ai/artifact/8ivWjfn17NLzUWBFZG2ba6
+
 Status: agreed by Morgan on 2026-11-16 (form `artreq1`, https://claude.ai/artifact/JPNjVV94KuDzqzNfQQtqzY, source `forms/artreq1.html`; two follow-up questions in chat). Step 1 of the art re-plan (workshop log, 2026-11-16). Every art and layout result is scored against this list, item by item, beside the approved target picture, before Morgan sees it (R2). Quotes are Morgan's words; "Claude's words" items have no quote behind them but Morgan kept them. Morgan named no top three and added nothing as missing.
 
 ## The look
