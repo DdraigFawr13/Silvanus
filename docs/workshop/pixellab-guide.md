@@ -38,6 +38,7 @@ How Claude works with PixelLab for Silvanus, so every new piece matches the anch
 - Before each paid call: the tool, its cost in generations from the docs, what is left, and what the call should fix. Wait for a yes (SAFE-01). A run of several calls can be approved once, with its total named.
 - Turn Morgan's words into a short brief before calling: what it is, where it sits on the map, which anchor piece it must match, and the colours. Quote Morgan's words in the log so the brief can be checked against them.
 - Check the brief against DECISIONS first, every layout and art quote included, not only the Accepted entries (LESSONS 2026-11-15: the map dropped the scroll that only D-041 recorded).
+- Always show results on a published Artifact page, never as loose images in chat: each image with a caption saying what it is, what worked and what didn't, then the decision with its options and a recommendation (Morgan, 2026-11-16: "Can you always show these images in like an artifact with descriptions In a way I can see and make informed decisions on?"). Example: https://claude.ai/artifact/VrSULVpxTb63nqH1YRbjA1
 - Show results as finished art in place: old beside new, day one and grown, and the phone view. No sketches (LESSONS: `art1`). Say what changed and what is still wrong, in a sentence each.
 - One question at a time, with a recommendation. Taste questions with several options go on a published form (the `planning-interview` template).
 
