@@ -1,0 +1,4 @@
+tool: edit_image_pixen (1 generation), no_background false, 256x256
+window: map.png x 768-1024, y 0-256; new region (128, 0, 256, 256)
+description: Fill the empty right half by continuing this exact scene, seamless with the rest: the lower grey rock cliffs of a big mountain that runs off the top and right edges, a timber-framed mine entrance in the cliff foot, the minecart track leaving it toward the bridge, a spoil heap, a lantern, the river on the left. Same top-down village at dusk, pixel style, colours, outline, mist and light; carry lanes, fences and tree lines across the join. Keep the existing part unchanged.
+job_id: a1412cdb-07f6-4b7e-b5f0-651f93b5df4f

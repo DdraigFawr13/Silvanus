@@ -1,0 +1,5 @@
+tool: edit_image_pixen (1 generation), no_background false, 256x256
+window: map.png x 640-896, y 256-512; new region (128, 0, 256, 256)
+description: Fill the empty right half by continuing this exact scene, seamless with the rest: east edge of town: a sparse fringe of pines, bushes and stumps, the river running down from the top and on off the bottom edge, a small wooden jetty with a rowing boat on its bank. Same top-down village at dusk, pixel style, colours, outline, mist and light; carry lanes, fences and tree lines across the join. Keep the existing part unchanged.
+job_id: 45361032-d707-489c-9367-5b102f8b2cf2
+result: failed, not used in map.png (see the workshop log)

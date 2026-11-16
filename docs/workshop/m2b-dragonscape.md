@@ -260,3 +260,11 @@ Morgan chose "New centre, then grow" (about 17 generations approved for the run)
 
 - Heart 1 (mock-up 1's wording, plus "open grass at the left, right and bottom edges, no building cut by any edge"): the style and density are close to mock-up 1 (`_heart_vs_mock1.png`), with the forest behind the Hall, but it ignored the open edges: cottages are cut on the left, right and bottom, worse than mock-up 1. Brighter, warmer paths and a gridded street plan.
 - Heart 2 ("a small compact village in a wide grassy clearing"): the edges are open, so it would grow easily, but the village is smaller and plainer, and dense pine forest rings all four sides, against D-047's sparse fringe and open south (`_heart1_vs_2.png`).
+
+## Growing centre 2 (2026-11-16)
+
+Morgan chose "Grow centre 2" (about 16 generations approved). Centre 2 sits at x 256-768, y 0-512 of the 1024 × 768 canvas (`art/pixellab/map2/map.png`; on a dark backing `_map_progress.png`). Each step is one `edit_image_pixen` call (1 generation, 256 × 256 window, half of it blank), and only the new half is pasted in. Script: one window per call, prompt and job id beside each raw file. 8 generations used, 12 left (`get_balance`); stopped because the remaining 12 steps need 12 generations, more than the approved run has left. Source: AI-generated with PixelLab by Claude for Morgan, 2026-11-16.
+
+- Kept (4): north-east `e1a` (forest, river from the top edge, stone bridge), `e2a` (mountain cliffs off the top and right edges, mine entrance, spoil heap, lantern), then `e3` and `e4` grown down from them (a winding river with reeds and boulders, a jetty and boat, the mountain foot thinning to grass). No visible joins between them; a faint line where centre 2's pine border meets the river bank.
+- Failed (4, in `failed/`): `e1b`, `e2b` filled the east bottom half beside the town and copied the town's cottages, turned the river into a straight canal, and repeated each other. `w1`, `w2` filled the west beside centre 2's left edge and copied its lane-and-bushes strip three times; no lantern gate.
+- Reading (Claude's inference): a blank half next to strong features (cottages, a lane) gets a copy of them. Growing down from art above (the river) works. Zoomed out, the east is drawn at a larger scale than the town: the bridge and mine are big next to the cottages.
