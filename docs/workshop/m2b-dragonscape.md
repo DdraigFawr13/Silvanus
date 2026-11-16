@@ -286,3 +286,7 @@ Morgan picked C ("look into the pro edit tool, spend nothing"). Found from the M
 - `inpaint_image` (pro, not flash): 10-25 generations; above 256 px a side needs a Tier 2 plan (tool description).
 - Plan prices: not readable. https://www.pixellab.ai/pricing returns 404 and the home page loads its plans by script ("Loading subscription plans..."). The account shows `credits: $0.00` and `subscription: trial`; whether credits can be bought on the trial is not shown.
 - Budget: 8 plan generations left plus a daily bonus of 5 (`generations_today: 5`, spent once the plan generations reach 0). Whether one 9-generation call can draw on both is not stated (assumption, untested).
+
+## Masked inpainting test refused (2026-11-16)
+
+Morgan picked A, one free test of `inpaint_image_pro_flash` (9 generations) south of the village. PixelLab refused it before charging: "error: trial generations used up — no generations left for Pro Flash generation or any other generation tool." `get_balance` afterwards: 8 left, credits $0.00, trial; the daily bonus line no longer shows. So the trial's 8 can't pay for a 9-generation call, and the bonus doesn't top it up. Inputs kept in `art/pixellab/inpaint1/` for a rerun once generations are bought.
