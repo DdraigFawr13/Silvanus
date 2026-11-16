@@ -299,3 +299,11 @@ Morgan bought PixelLab's Pixel Apprentice plan (Tier 1): 2,000 generations a cyc
 - Flaws: the new road sits about 100 px left of the village street's gap; a slight line where the village's pine row ends. Next pieces state the road's position.
 - Not yet pasted into `map2/map.png`; the trial composite is `inpaint1/_map_test.png`.
 - Correction (2026-11-16, after Morgan: "Those don't match up at all"): the join is a hard straight edge, not "a slight line". Rows just above it average 31-32 brightness and rows just below 57-58 (mean of R, G, B across x 384-640); centre 2 darkens towards its own bottom edge, so the new ground is far lighter. Pine tops and mist are cut along it. The village street's gap is at about x 597 and the new road at about x 502, so the street never reaches the road. The review page's old/new pair also came from windows 128 px apart, not the same spot. Fix to try: a mask that overlaps the bottom 32 px of the village's pine row so the join itself is redrawn, the road's x given, and darker ground asked for.
+
+## Inpainting redo: overlapping mask (2026-11-16)
+
+Morgan picked A, redo with the three changes. `inpaint_image_pro_flash`, 9 generations, 1,982 left; files and prompt in `art/pixellab/inpaint2/`; pasted into `map2/map.png` at x 472-728, y 480-640. Source: AI-generated with PixelLab by Claude for Morgan, 2026-11-16.
+
+- The mask reached 32 px into the village's pine row; the prompt gave the street's x (104-148 in the window) and asked for the same dark ground.
+- Joins: unmasked pixels identical (image difference). Mean brightness across x 472-728: 69 at y 476, 61 at y 479, 63 at y 480 (first new row), 58 at y 483: no step (the first test was 31 against 57). Dirt measured at x 579-620 on y 490, 592-607 on y 512, 585-612 on y 620: the street runs on through the pine row and off the bottom edge, narrowing to about 16 px between the pines.
+- Flaws: the village lane's lower edge is now a straight line along y 480 either side of the road; the piece's left and right edges meet blank map and are untested.
