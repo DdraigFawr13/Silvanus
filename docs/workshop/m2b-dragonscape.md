@@ -233,3 +233,9 @@ Realism review (Claude's reading):
 - The east is still drawn more tilted than the heart.
 
 Morgan on strip 2: "Not perfect but it's ok. I really do eventually want it to be like just a solid scrollable across the screen so I can see the whole town and zoom in and out eventually" (D-047 amended: one seamless map with zoom). The three realism fixes were not run. Untried ways to a seamless map (inference, costs from PixelLab's docs on 2026-11-15): grow it outward in 128 px steps with `edit_image_pixen` (1 generation a step, about 16 for this strip), or `edit_image` on a padded 512 canvas (25 a step). Either way the map's final size and the zoom steps should be fixed first.
+
+## Zoom steps (2026-11-16)
+
+Test page: https://claude.ai/artifact/479JEXAAH5a7NcKuiZzcaS (strip 2 graded, 1536 × 512 PixelLab pixels; steps Whole town, Fill height, 1 to 4 screen dots per PixelLab pixel; it shows the phone's pixel ratio). Claude's check on a stand-in phone (412 px wide, pixel ratio 2.625, Playwright): Whole town is a band 0.23 of the map window tall at 0.62 dots per pixel, smoothed; 2 px is 3.23 windows wide and 0.75 tall; 3 px is 1.12 windows tall, so the map also scrolls up and down. Claude raised that "whole town fits the screen" (D-047) leaves a thin band on a portrait phone.
+
+Morgan: "Typically played at 2 px when interacting. 3 px when moving around across the town" (D-047 amended). Not yet answered: whether the whole-town overview may be a thin band or the map should change shape; Morgan's phone's real pixel ratio (the page's "Your phone" line).
