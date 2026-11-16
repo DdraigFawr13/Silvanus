@@ -245,3 +245,11 @@ Morgan approved a 2-generation trial ("Do as you recommend"). Both calls `edit_i
 - Step 1, a blank right half beside the heart's right edge: holds the style exactly (palette, outline, mist, lit windows) and draws a lane, fences and two cottages. But the heart's cut-off cottage and tree are not carried across: the join is a straight line.
 - Step 2, a blank corner with art on two sides: the lane and fences run on smoothly from step 1 above (no visible join), but the heart's cut roofs at the left again stop at a straight line, and it repeats step 1's cottage with its red flag.
 - Reading (Claude's inference): growing from PixelLab's own new art joins well; the heart's right edge, which cuts buildings in half, does not. A grow would work if each new piece starts where the last one left open ground, not cut buildings. Cost to grow 512 × 512 out to 1024 × 768: 16 steps if each fills half a window, 32 if each fills a corner (524,288 px to add); 24 generations left, plus 5 a day once those run out.
+
+## Grow trial 2: open edge first (2026-11-16)
+
+Morgan approved 2 more generations ("Yes do as you suggest"). Both `edit_image_pixen`, 256 × 256, 1 generation each; 22 left (`get_balance`). Files and prompts: `art/pixellab/grow2/`; map `_map.png`, east half at 2x `_map_east_x2.png`. Source: AI-generated with PixelLab by Claude for Morgan, 2026-11-16.
+
+- A, redraw the top half of the heart's right edge to end on open ground: it did (grass, lane, fence, bushes, no cut buildings), but the new grass is brighter and flatter than mock-up 1's dusk and the fence is ruler-straight, so the redrawn strip shows as a block with hard edges on its left (the fence line) and bottom (the cut cottage below it).
+- B, grow east from A: no visible join. Grass and bushes run on, and the fringe of trees, stumps, a dead tree and mist beyond fits D-047's sparse fringe. It added a second lane beside the first.
+- Reading (Claude's inference): new art grown onto open ground joins well; any edit to existing art leaves a seam where the edit ends. So the map should grow outward from a centre that already ends on open ground, never by repainting finished art.
