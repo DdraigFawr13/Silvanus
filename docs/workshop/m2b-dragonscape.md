@@ -233,3 +233,7 @@ Realism review (Claude's reading):
 - The east is still drawn more tilted than the heart.
 
 Morgan on strip 2: "Not perfect but it's ok. I really do eventually want it to be like just a solid scrollable across the screen so I can see the whole town and zoom in and out eventually" (D-047 amended: one seamless map with zoom). The three realism fixes were not run. Untried ways to a seamless map (inference, costs from PixelLab's docs on 2026-11-15): grow it outward in 128 px steps with `edit_image_pixen` (1 generation a step, about 16 for this strip), or `edit_image` on a padded 512 canvas (25 a step). Either way the map's final size and the zoom steps should be fixed first.
+
+## Map size (2026-11-16)
+
+Morgan picked 1024 × 768 art pixels (D-047 amended) over 1536 × 512 and 1536 × 1024. Zoomed out on a 412 px upright phone it is 309 px tall; growing it seamlessly costs about 16 generations (estimate, scaled from the strip's 16). Zoom steps: Morgan picked 1×, 2× and 3× screen pixels per art pixel (D-047), over 1×/2×/4× and all four. Assumes about 2.6 screen pixels per CSS pixel on the phone; not yet checked. Next: test a seamless method in PixelLab (ask before every paid call).
