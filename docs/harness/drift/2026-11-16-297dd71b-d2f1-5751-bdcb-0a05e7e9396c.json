@@ -1,1 +1,1 @@
-{"date":"2026-11-16","session":"297dd71b-d2f1-5751-bdcb-0a05e7e9396c","commit_calls":1,"counts":{}}
+{"date":"2026-11-16","session":"297dd71b-d2f1-5751-bdcb-0a05e7e9396c","commit_calls":2,"counts":{"gate.ci":1},"warnings":[{"ts":"2026-11-16T05:41:19.675Z","check":"gate.ci","outcome":"warn","detail":"pushed origin/m2b-art-requirements at 05:40 UTC and scheduled no CI check: schedule one about 5 minutes out (send_later) and read the check runs then; don't promise a CI notice"}]}

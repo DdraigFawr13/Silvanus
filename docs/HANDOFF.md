@@ -12,7 +12,7 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 - ✔ M1 Town: planning, S1 to S5, audit and fixes (D-025 to D-034; PRs #5 to #12).
 - ✔ M1 test (J14) and the M2 re-plan (D-035 to D-038; PR #13).
 - ▶ M2a Pace: merged (PR #14); waiting on Morgan's phone test (J7) (D-036, D-039).
-- ▶ M2b Art workshop: layout D-047, art direction PixelLab mock-up 1 (D-048); workshop merged so far in PR #17. Re-plan in 4 steps (2026-11-16): ▶ 1 requirements checklist (form `artreq1` waiting on Morgan) · ○ 2 target picture · ○ 3 two-method test · ○ 4 short build sessions (D-037).
+- ▶ M2b Art workshop: layout D-047, art direction PixelLab mock-up 1 (D-048); workshop merged so far in PR #17. Re-plan in 4 steps (2026-11-16): ✔ 1 requirements checklist (`docs/workshop/art-checklist.md`) · ▶ 2 target picture · ○ 3 two-method test · ○ 4 short build sessions (D-037).
 - ○ M2e Choices: goals, trader swaps, forage trips, pins (D-040). Next in this repo's cloud sessions.
 - ○ M2c Town view (D-037).
 - ○ M2d Ceiling and lots: lots with a character, Town tier, 3 buildings, 2 goods, push methods (D-038).
@@ -20,7 +20,7 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 
 ## Just done
 
-- 2026-11-16 Art re-plan step 1 (branch `m2b-art-requirements`, cut from `ccr-754ea0b1-ma2ccm` / PR #20, not from `main`): the requirements checklist is published as a phone form for Morgan to correct, `artreq1` https://claude.ai/artifact/JPNjVV94KuDzqzNfQQtqzY (source `docs/workshop/forms/artreq1.html`; 64 items, each Keep / Change / Remove with its decision id and Morgan's quote; details in the workshop log). No generations spent (1,881 left).
+- 2026-11-16 Art re-plan step 1 (branch `m2b-art-requirements`, cut from `ccr-754ea0b1-ma2ccm` / PR #20, not from `main`): Morgan corrected the requirements checklist on the phone form `artreq1` https://claude.ai/artifact/JPNjVV94KuDzqzNfQQtqzY (source `docs/workshop/forms/artreq1.html`; 64 items, each Keep / Change / Remove with its decision id and Morgan's quote; details in the workshop log). No generations spent (1,881 left).
 - 2026-11-16 Earlier the same day: map size and zoom fixed (D-047), grow and inpainting trials, Tier 1 bought, the `map2` map and a phone prototype (https://claude.ai/artifact/ShHtod3JeD9ENsNdfyNAAR). Morgan: "No that still sucks. Can we rethink how we are designing?" The work had drifted from D-041, D-048 and the brief (LESSONS ×2, AGENTS rule). Morgan approved a four-step re-plan: 1 requirements checklist; 2 one approved target picture in mock-up 1's style at 412 px; 3 a two-method test scored on the checklist; 4 short build sessions. Review page: https://claude.ai/artifact/VrSULVpxTb63nqH1YRbjA1.
 - Earlier entries are in `docs/archive/handoff-2026-11.md`.
 
@@ -28,7 +28,7 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 
 1. Morgan's M2a test (J7): a new town, check-ins over a day, the Village in about 8 real hours, upgrades found without help. Record their answer here in their words, then set `docs/specs/m2a-pace.md` to Shipped on the next work branch. Opening their old town first jumps it forward up to 8 real hours.
 2. M2e Choices in a new session: spec it with `write-spec` from step 3 (input: D-040 and the `play1`, `play2`, `playfinal` pages), mock-ups first for the board and pins, then build on a new branch from `main`. Mind `m2b-art-workshop` also edits HANDOFF: merge, don't overwrite.
-3. M2b art re-plan (D-037). Step 1 now: wait for Morgan's "checklist done", then read `artreq1` (one `ArtifactData` list, `query.limit` 200; ids map to items in `docs/workshop/forms/artreq1.html`), apply every Change and Remove and note, write the agreed checklist to `docs/workshop/art-checklist.md` and amend DECISIONS where an item changes a decision (SRC-04). Step 2 next: one target picture in mock-up 1's style at 412 px (lots, glows, day one and grown), scored item by item against the checklist before Morgan sees it; ask before any paid call (1,881 generations left on Tier 1; read `docs/workshop/pixellab-guide.md` and the AGENTS art-round rule first). Branch: this work sits on `m2b-art-requirements`, cut from `ccr-754ea0b1-ma2ccm` (PR #20, not yet merged); merge #20 first, then this. The PixelLab token is a network secret on the "Network" cloud environment. Still open: D-041 Proposed and partly superseded by D-048; the UI_STYLE art section waits for the final art; `m2b-art-workshop` can be deleted with Morgan's OK.
+3. M2b art re-plan (D-037). Step 1 done: the agreed checklist is `docs/workshop/art-checklist.md` (55 items; D-043, D-044, D-047, D-048 amended: no Tangle ring drawn, sites toward the edges, a swamp east of the river and no waterfall, any tool that matches mock-up 1's mood). Step 2 next, waiting on Morgan's go: one target picture in mock-up 1's mood at 412 px (lots, glows, day one and grown), scored item by item against the checklist before Morgan sees it; ask before any paid call (1,881 PixelLab generations left on Tier 1; read `docs/workshop/pixellab-guide.md` and the AGENTS art rule first). Branch: `m2b-art-requirements` (PR #21), cut from `ccr-754ea0b1-ma2ccm` (PR #20, not yet merged); merge #20 first, then #21. The PixelLab token is a network secret on the "Network" cloud environment. Still open: D-041 Proposed and partly superseded; the UI_STYLE art section waits for the final art; `m2b-art-workshop` can be deleted with Morgan's OK.
 4. Still open: Morgan's phone tests from S1 and S2 ("Update ready" and Reload; build a Woodcutter's camp, close the app, come back), S3 (switch the Mine to stone; let the Workshop run out of ore overnight) and S4 (pin someone to a bad job and read why morale falls). Record answers here.
 5. The repo has auto-merge off: merge by hand once the ready CI run is green, and do not push and mark ready within the same few seconds.
 6. Phobos: Morgan will send an integration plan "in the next couple of days" (parked, D-035).
@@ -50,6 +50,7 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 ## Decisions since the last plan update
 
 - 2026-11-16 Morgan fixed the town map at 1024 × 768 art pixels with zoom steps 1×, 2×, 3× (D-047 amended).
+- 2026-11-16 Morgan agreed the art checklist (`artreq1`): no Tangle ring drawn but clearing stays (D-043), special sites toward the edges (D-044), a swamp east of the river and no waterfall (D-047), any tool that matches mock-up 1's mood (D-048).
 - 2026-11-14 Morgan chose how the art is made (D-045): CC0 artist packs as the base, hand pixels in their style for gaps, Blender for set pieces after several passes.
 - 2026-11-14 Morgan picked the special sites (D-044): tar pit, standing stones, distant ruins, sunken bog, salt spring, bat caves; the Hollow Oak parked.
 - 2026-11-14 Morgan settled dedicated sites and the Tangle on the sites form (D-043); the Square as a town work (D-042) and the art (D-041) are still Proposed.
