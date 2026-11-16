@@ -276,3 +276,13 @@ Morgan picked A on the review page (https://claude.ai/artifact/VrSULVpxTb63nqH1Y
 - Kept: `w1r`, the north-west forest (x 128-256), worded "only dense pine forest, no lanes". It added a fenced road running west anyway, which can serve as D-047's forest road.
 - Failed: `w2r` (x 0-128) is a pixel-for-pixel copy of `w1r`; `s2` and `s3`, grown down from centre 2's bottom edge, each copied that edge's lane, fence, gate and pine row, so the band repeats with cut cottages on the join.
 - Reading (Claude's inference): `edit_image_pixen` copies whatever sits in the context half unless the asked-for content is very different from it (the river and mountain were; forest next to forest and town next to town were not). Growing down worked only under the river. This method won't finish the map at a useful failure rate.
+
+## Option C: the better PixelLab tools (2026-11-16)
+
+Morgan picked C ("look into the pro edit tool, spend nothing"). Found from the MCP tool list and descriptions (free), and PixelLab's API page (https://www.pixellab.ai/pixellab-api, read 2026-11-16, prices marked "Estimated" and "provisional"):
+
+- `edit_image` (pro): 10 generations up to 256 px, 15 up to 341, 25 up to 512; edits the whole picture with no mask, so it may copy just as the cheap edit did.
+- `inpaint_image_pro_flash`: redraws only a masked area and keeps every other pixel byte for byte; takes a `context_image` up to 3x the source in each side, to match the scene around it. 9 generations for a 256 px source (`get_pro_flash_capabilities`, free). API page estimate: $0.041 a 256 × 256 call. This fits the map's problem better than `edit_image` (Claude's inference): the blank area is masked and the art round it is context, not something to continue.
+- `inpaint_image` (pro, not flash): 10-25 generations; above 256 px a side needs a Tier 2 plan (tool description).
+- Plan prices: not readable. https://www.pixellab.ai/pricing returns 404 and the home page loads its plans by script ("Loading subscription plans..."). The account shows `credits: $0.00` and `subscription: trial`; whether credits can be bought on the trial is not shown.
+- Budget: 8 plan generations left plus a daily bonus of 5 (`generations_today: 5`, spent once the plan generations reach 0). Whether one 9-generation call can draw on both is not stated (assumption, untested).
