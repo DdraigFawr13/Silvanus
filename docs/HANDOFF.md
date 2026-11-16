@@ -1,6 +1,6 @@
 # Handoff
 
-Updated: 2026-11-16 (local art repairs, branch `codex/art-polish`, based on `m2b-target3`). A fresh session must be able to continue from this file alone. Keep it to 60 lines; move finished entries to `docs/archive/handoff-YYYY-MM.md`.
+Updated: 2026-11-16 (mine/river repairs, branch `codex/art-polish`, based on `m2b-target3`). A fresh session must be able to continue from this file alone. Keep it to 60 lines; move finished entries to `docs/archive/handoff-YYYY-MM.md`.
 
 ## Phase
 
@@ -20,7 +20,7 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 
 ## Just done
 
-- 2026-11-16 Codex: optional roof-removal and west-grass patches in `art/polish/stage-b/` (manifest, rebuild, preview, 55 scores). Originals retained; checks pass. No PixelLab calls; awaiting review.
+- 2026-11-16 Codex: mine exit/river fixes and phone full view in `art/polish/mine-river/`; earlier roof/grass in `art/polish/stage-b/`. Separate repair assets; PR #24, awaiting review.
 
 - 2026-11-16 Art re-plan step 2, rounds 1 and 2 (PR #22, merged 2026-11-16). Round 1: three whole-town tries; Morgan picked C but wants it about twice as big and wider (about 1408 × 888) and the mine on the town's side, no bridge (D-047, M2, M7 amended). Round 2: a 3-tile pixflux test at 2× held the layout but came out brighter and plainer than mock-up 1 (https://claude.ai/artifact/AjsFD3miKr6f6CzydcwdBX). 6 generations used, 1,875 left.
 - 2026-11-16 Target picture round 3 on branch `m2b-target3`: `edit_image` reference mode restyled the mine tile with mock-up 1's look (brightness 54 vs 55, edge share 0.233 vs 0.263; pixflux was 65, 0.199). Defects: flat lamp discs, a repeating grass mark, a mesa-like cliff top; joins untested. Page: https://claude.ai/artifact/8A3cqAv7nXHmsKT2rgvgGV. 25 used, 1,850 left.

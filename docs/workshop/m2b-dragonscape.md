@@ -417,3 +417,14 @@ Morgan asked Codex to inspect the latest work, make small fixes to obvious art p
 - Review: `art/polish/stage-b/preview.html` contains the style reference, before/after, empty/building layers, zoom and all 55 item scores. This is a local self-contained review page, not a published Claude artifact. Empty ground is not called a playable day-one state.
 - Limits seen at 3×: repair texture slightly smoother; upper forest seam and lower plot edges remain, as do the east join, block-like mountain, grey river slab and incomplete lower map. These are optional workshop repairs, not owner-approved final art.
 - Validation: `npm run check` passed (81 tests, soak, types, build; first-load JS 94,684 bytes gzipped). Local preview passed Chromium at 412 and 360 px, scale 2.625, all controls, no script errors or horizontal page overflow. No physical Android test; full game browser suite not run for this draft art-only change.
+
+
+## Codex mine exit and river follow-up (2026-11-16)
+
+Morgan: “Ok fix the mine exit and the river and give me a full view I can see on my phone”. Same draft PR #24, preserving Claude’s branch (remote `m2b-target3` still `9afcc97`).
+
+- Mine: open dark tunnel, timber supports and continuous rails curving onto the existing southwest approach. River: irregular rocky banks and visible current; isolated grey slab removed. River stays east of the mine, no waterfall or bridge; its lower outlet curves farther west, to be matched by future lower-map artwork.
+- Assets: `art/polish/mine-river/mine-exit.png` and `river-bank.png`, separately replaceable RGBA overlays controlled by a manifest. One Image Gen edit of the existing east crop; source, prompt and terms recorded in that folder’s README. No PixelLab calls. Mine overlay includes its ground apron; not yet a building-only game sprite.
+- Full view: `art/polish/mine-river/full-view.png` (entire current 1408 × 512 band), plus image-first `preview.html` with before/after, zoom, mine focus and all 55 scored requirements. The lower map is still unfinished.
+- Measured: 67,663 pixels changed (9.39% of the prior full view), zero outside the two repair masks. Existing town and earlier repairs preserved. Local joins inspected; larger block-like cliffs and unrelated seams remain.
+- Validation: pinned `npm run check` passed (81 tests, soak, types, build, 94,684-byte first-load JS). Chromium review passed at 412 × 900, 360 × 800 and 900 × 412, scale 2.625, all controls and 55 checklist entries, no script errors or page overflow. Physical Android approval and full game browser suite not run for this art-only draft.

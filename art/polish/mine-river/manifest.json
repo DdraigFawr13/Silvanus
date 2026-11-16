@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "base": "art/polish/stage-b/grown.png",
+  "baseSha256": "20139c8492b1f5e0ca211b83d10385a1c4527ddf4ae01487329b9475e1d36d37",
+  "size": [
+    1408,
+    512
+  ],
+  "patches": [
+    {
+      "id": "mine-exit",
+      "asset": "mine-exit.png",
+      "position": [
+        1041,
+        121
+      ],
+      "enabled": true
+    },
+    {
+      "id": "river-bank",
+      "asset": "river-bank.png",
+      "position": [
+        1153,
+        194
+      ],
+      "enabled": true
+    }
+  ]
+}

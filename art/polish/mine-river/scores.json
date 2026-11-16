@@ -1,0 +1,277 @@
+{
+  "L1": [
+    "The target look is mock-up 1",
+    "p",
+    "Dusk palette and building style retained. Repair texture is slightly smoother at 3×; the top band remains plainer than mock-up 1."
+  ],
+  "L2": [
+    "Same top-down three-quarter view",
+    "m",
+    "Same high three-quarter camera. Existing buildings and their placement are unchanged."
+  ],
+  "L3": [
+    "Higher detail, at mock-up 1's level",
+    "p",
+    "Existing buildings retain detail; the repaired grass is smoother than the target. Not a claim of full target-level detail."
+  ],
+  "L4": [
+    "Grounded",
+    "p",
+    "Mine tunnel, gravel threshold and continuous curved rails now join clearly. Other buildings and undressed yards are unchanged."
+  ],
+  "L5": [
+    "Haunting dusk, subtle",
+    "m",
+    "Unchanged stage B assessment: Mist along the forest edge, crows, cool light, warm windows, chimney smoke."
+  ],
+  "L6": [
+    "Cosy, a proper town",
+    "p",
+    "Five placed building assets and partial town landscape; lower town still absent."
+  ],
+  "L7": [
+    "Every building has character",
+    "m",
+    "Existing building detail retained; the repaired mine has mossy timber supports, a dark tunnel and a warm lantern."
+  ],
+  "L8": [
+    "One colour and light, natural variation",
+    "p",
+    "Dusk colours retained; local repairs remain slightly smoother at close zoom. Earlier west and east collage seams remain outside this repair."
+  ],
+  "L9": [
+    "Walls, fences and trees drawn well",
+    "m",
+    "Unchanged stage B assessment: Pines, fences and stone walls clean."
+  ],
+  "L10": [
+    "Any tool that matches mock-up 1's mood",
+    "m",
+    "Image Gen edited existing PixelLab artwork under D-048. Only two masked patches are applied."
+  ],
+  "M1": [
+    "One seamless map that scrolls and zooms",
+    "p",
+    "Unchanged stage B assessment: The whole top band, 1408 × 512, joined; the bottom row not built."
+  ],
+  "M2": [
+    "Map size (now about 1408 × 888)",
+    "p",
+    "Unchanged stage B assessment: Full width at the 2× scale; 512 of 888 rows built."
+  ],
+  "M3": [
+    "The Hall is the centre",
+    "p",
+    "Unchanged stage B assessment: Hall placed where the guide has it; whole map not built."
+  ],
+  "M4": [
+    "North forest dense behind the Hall",
+    "m",
+    "Unchanged stage B assessment: Dense dark pines along the whole top from the west edge to the mountain, unbroken behind the Hall."
+  ],
+  "M5": [
+    "Sparse fringe sides and south",
+    "p",
+    "Western fringe remains sparse; less regular stump/grass texture in the repaired clearing. Southern map absent."
+  ],
+  "M6": [
+    "Forest road north-west through a lantern gate",
+    "m",
+    "Unchanged stage B assessment: The road leaves north through a stone gate with a lantern, west of the town, with the woodcutter's camp beside it."
+  ],
+  "M7": [
+    "Mine upper right, mountain off the edges, track to town",
+    "m",
+    "Dark mine opening at the mountain foot, with continuous parallel rails curving southwest onto the existing track route. Mine stays west of the river; no bridge added."
+  ],
+  "M8": [
+    "Mountain reads as a real landform",
+    "p",
+    "Mine reads as embedded in the cliff with scree around its threshold; the larger mountain still has block-like tiers."
+  ],
+  "M9": [
+    "Swamp east of the river",
+    "x",
+    "River remains to the right of the mine with no waterfall. Swamp still absent from this partial band."
+  ],
+  "M10": [
+    "River, bridge, jetty, fisher's lot",
+    "p",
+    "Flowing river, irregular stone banks and no isolated grey slab. Lower outlet shifts west within this unfinished band; bridge, jetty and fisher’s lot still absent."
+  ],
+  "M11": [
+    "South edge open",
+    "x",
+    "Unchanged stage B assessment: Not in this patch."
+  ],
+  "M12": [
+    "Land has shape",
+    "p",
+    "Mine exit has a gravel apron; river has a coherent rocky bank. Rest of terrain unchanged."
+  ],
+  "M14": [
+    "Special sites toward the edges",
+    "x",
+    "Unchanged stage B assessment: None."
+  ],
+  "M16": [
+    "Gathering buildings on their own sites",
+    "p",
+    "Unchanged stage B assessment: The woodcutter's camp at the forest edge by the west road and the mine in the mountain; the farm and forager are further south (not built)."
+  ],
+  "T1": [
+    "The Hall stands out",
+    "m",
+    "Unchanged stage B assessment: Largest building, clock tower, lit windows."
+  ],
+  "T2": [
+    "Hall, walkway and square in line",
+    "m",
+    "Unchanged stage B assessment: Hall door, plank walkway and well line up."
+  ],
+  "T3": [
+    "Square with notice board",
+    "p",
+    "Unchanged stage B assessment: Well and a covered board by the fence; no stalls."
+  ],
+  "T4": [
+    "Square upgrades",
+    "x",
+    "Unchanged stage B assessment: One stage."
+  ],
+  "T5": [
+    "Real town layout",
+    "p",
+    "Unchanged stage B assessment: Curving lanes; only a corner of town."
+  ],
+  "T6": [
+    "Organic",
+    "m",
+    "Unchanged stage B assessment: Uneven spacing, a pine between the plots, curving paths."
+  ],
+  "T7": [
+    "Town grows from its paths",
+    "p",
+    "Unchanged stage B assessment: Paths to the Hall and cottage A doors; no yards yet."
+  ],
+  "T8": [
+    "Closer, not crowded",
+    "m",
+    "Existing five building positions and spacing retained."
+  ],
+  "T9": [
+    "Good roads",
+    "p",
+    "Unchanged stage B assessment: Dirt lanes; the walkway is planks, not cobbles; no High Street here."
+  ],
+  "P1": [
+    "Every lot is a button",
+    "x",
+    "No tappable gameplay lots; separate building files alone do not meet this requirement."
+  ],
+  "P2": [
+    "Pale glow on empty lots",
+    "x",
+    "Unchanged stage B assessment: Not drawn yet."
+  ],
+  "P3": [
+    "Gold glow when tapped",
+    "x",
+    "Unchanged stage B assessment: Not drawn yet."
+  ],
+  "P4": [
+    "Build marker",
+    "x",
+    "Unchanged stage B assessment: Not drawn yet."
+  ],
+  "P5": [
+    "Dressed yards",
+    "x",
+    "Unchanged stage B assessment: No yards yet: the assets have bare bases."
+  ],
+  "P6": [
+    "Staked future lots",
+    "p",
+    "Unchanged stage B assessment: The empty ground has bare earth plots, not yet roped or signed."
+  ],
+  "P7": [
+    "Day one and grown",
+    "p",
+    "Empty ground and five-building compositions shown. No complete day-one/grown town or upgrade progression."
+  ],
+  "P8": [
+    "Each tier better",
+    "x",
+    "No upgrade tier assets made in this pass."
+  ],
+  "P9": [
+    "Lots easy to tell apart",
+    "p",
+    "Five building assets read distinctly; full town and lot interactions still absent."
+  ],
+  "P10": [
+    "Land one painting, buildings separate",
+    "p",
+    "Original buildings remain separate. Mine-exit and river-bank are independently replaceable RGBA patches, but the mine patch includes a terrain apron and is a workshop overlay, not a finished transparent building sprite for gameplay."
+  ],
+  "P11": [
+    "The town moves",
+    "x",
+    "Unchanged stage B assessment: Still."
+  ],
+  "S1": [
+    "Phone first, 412 px",
+    "p",
+    "Image-first review and direct full-resolution PNG for phone viewing; physical Android review still pending."
+  ],
+  "S2": [
+    "Town tab layout",
+    "x",
+    "Unchanged stage B assessment: Not in this round."
+  ],
+  "S3": [
+    "Picture buttons",
+    "x",
+    "Unchanged stage B assessment: Not in this round."
+  ],
+  "S4": [
+    "Lantern colours",
+    "x",
+    "Unchanged stage B assessment: Not in this round."
+  ],
+  "S5": [
+    "Board card pictures",
+    "x",
+    "Unchanged stage B assessment: Not in this round."
+  ],
+  "R1": [
+    "Published page, captions from pixels",
+    "p",
+    "Direct phone-accessible full-view PNG on the GitHub art branch; portable HTML review includes reference, captions and scores. No Claude Artifact publication."
+  ],
+  "R2": [
+    "Scored before you see it",
+    "m",
+    "All 55 active items assessed before delivery, with the approved style reference in the review page."
+  ],
+  "R3": [
+    "Joins line up",
+    "p",
+    "Zero pixels changed outside mine/river asset masks. Local joins inspected at full size. Existing unrelated tile seams remain; lower-map river join cannot be checked until that map exists."
+  ],
+  "R4": [
+    "Finished art at phone size, day one and grown",
+    "p",
+    "Full-width before/after with zoom and mine detail; current top band only, not a finished day-one/grown town."
+  ],
+  "R5": [
+    "No easier method without asking",
+    "m",
+    "User requested mine exit and river fixes. Other areas are pixel-identical to the previous cleanup."
+  ],
+  "R6": [
+    "Ask before every paid call",
+    "m",
+    "One Image Gen edit for this requested repair. No PixelLab calls or generations used."
+  ]
+}
