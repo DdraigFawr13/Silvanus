@@ -237,3 +237,11 @@ Morgan on strip 2: "Not perfect but it's ok. I really do eventually want it to b
 ## Map size (2026-11-16)
 
 Morgan picked 1024 × 768 art pixels (D-047 amended) over 1536 × 512 and 1536 × 1024. Zoomed out on a 412 px upright phone it is 309 px tall; growing it seamlessly costs about 16 generations (estimate, scaled from the strip's 16). Zoom steps: Morgan picked 1×, 2× and 3× screen pixels per art pixel (D-047), over 1×/2×/4× and all four. Assumes about 2.6 screen pixels per CSS pixel on the phone; not yet checked. Next: test a seamless method in PixelLab (ask before every paid call).
+
+## Grow trial: outpainting from mock-up 1 (2026-11-16)
+
+Morgan approved a 2-generation trial ("Do as you recommend"). Both calls `edit_image_pixen`, 256 × 256, 1 generation each; 24 left. Files, inputs and prompts: `art/pixellab/grow1/`. Source: AI-generated with PixelLab by Claude for Morgan, 2026-11-16. Only each call's new pixels are pasted into the map (`_map_after2.png`, 640 × 512); the redrawn context is dropped (step 1 redrew it with 5 of 32,768 pixels moved by more than 30 levels).
+
+- Step 1, a blank right half beside the heart's right edge: holds the style exactly (palette, outline, mist, lit windows) and draws a lane, fences and two cottages. But the heart's cut-off cottage and tree are not carried across: the join is a straight line.
+- Step 2, a blank corner with art on two sides: the lane and fences run on smoothly from step 1 above (no visible join), but the heart's cut roofs at the left again stop at a straight line, and it repeats step 1's cottage with its red flag.
+- Reading (Claude's inference): growing from PixelLab's own new art joins well; the heart's right edge, which cuts buildings in half, does not. A grow would work if each new piece starts where the last one left open ground, not cut buildings. Cost to grow 512 × 512 out to 1024 × 768: 16 steps if each fills half a window, 32 if each fills a corner (524,288 px to add); 24 generations left, plus 5 a day once those run out.
