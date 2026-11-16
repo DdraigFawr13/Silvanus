@@ -405,3 +405,15 @@ Morgan on stage A: "The mine cliffs still look a bit weird and the river cutting
 - Joins (36): two windows each at x 480-536 and 960-1012, then free fixes (a 1 px line at y 255, brightness ramps). At 3× the west join is clean; the east one keeps a soft edge where the stone wall starts.
 - Top band: 1408 × 512, brightness 50, edge share 0.184 (ground only 0.164). Still wrong: the top-left lines and repeated stumps, a cottage roof left in the middle tile's bottom-left (x 510-595, y 440-512), a grey slab near the river. 96 used, 1,576 left; 254 left of the 350.
 - Rest (Claude's estimate): about 280-310 more. Asked Morgan: raise the cap by 60 and do the bottom row next (about 130), stay within 254, or pause.
+
+
+## Codex local repair layers for stage B (2026-11-16)
+
+Morgan asked Codex to inspect the latest work, make small fixes to obvious art problems, and use assets so later changes are easier. Based on `m2b-target3` at `9afcc97`, isolated on `codex/art-polish` so Claude’s source branch is untouched.
+
+- Two named RGBA assets in `art/polish/stage-b/`: `roof-removal.png` replaces the stray cottage roof baked into the ground; `west-grass-seams.png` softens the clearing’s horizontal collage seam and repetitive texture. Placement and enable switches live in `manifest.json`. `build.py` composes them before reusing the existing five building placements.
+- Source: one OpenAI Image Gen edit of the original west crop by Codex for Morgan; prompt and generated original saved, terms documented in the asset README. No PixelLab calls. No global recolour, replacement building assets, game-code changes or lower-map expansion.
+- Measured: 66,430 ground pixels changed (9.21%); zero outside enabled asset alpha. Original building assembly reproduces stage B exactly. The base file is hash-pinned to avoid silently applying patches to Claude’s later ground revisions.
+- Review: `art/polish/stage-b/preview.html` contains the style reference, before/after, empty/building layers, zoom and all 55 item scores. This is a local self-contained review page, not a published Claude artifact. Empty ground is not called a playable day-one state.
+- Limits seen at 3×: repair texture slightly smoother; upper forest seam and lower plot edges remain, as do the east join, block-like mountain, grey river slab and incomplete lower map. These are optional workshop repairs, not owner-approved final art.
+- Validation: `npm run check` passed (81 tests, soak, types, build; first-load JS 94,684 bytes gzipped). Local preview passed Chromium at 412 and 360 px, scale 2.625, all controls, no script errors or horizontal page overflow. No physical Android test; full game browser suite not run for this draft art-only change.

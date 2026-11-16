@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "base": "art/pixellab/blocks/stage_b_ground_final.png",
+  "buildings": "art/pixellab/blocks/stage_b_places.json",
+  "size": [
+    1408,
+    512
+  ],
+  "patches": [
+    {
+      "id": "west-grass-seams",
+      "asset": "west-grass-seams.png",
+      "position": [
+        0,
+        236
+      ],
+      "enabled": true
+    },
+    {
+      "id": "roof-removal",
+      "asset": "roof-removal.png",
+      "position": [
+        497,
+        430
+      ],
+      "enabled": true
+    }
+  ],
+  "baseSha256": "292fe145d9563ebfd826c45f2c714d14b291ceb757c6938073fe96cd02e83284"
+}

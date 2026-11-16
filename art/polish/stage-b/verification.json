@@ -1,0 +1,11 @@
+{
+  "base_sha256": "292fe145d9563ebfd826c45f2c714d14b291ceb757c6938073fe96cd02e83284",
+  "size": [
+    1408,
+    512
+  ],
+  "ground_pixels_changed": 66430,
+  "ground_percent_changed": 9.21,
+  "pixels_changed_outside_assets": 0,
+  "baseline_buildings_match": true
+}
