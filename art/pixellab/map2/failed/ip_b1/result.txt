@@ -1,0 +1,1 @@
+job d488de98-31b3-4aab-baf5-91c4941ec606 timed out in the script (no result fetched); map.png not changed. Superseded by the building-blocks approach.
