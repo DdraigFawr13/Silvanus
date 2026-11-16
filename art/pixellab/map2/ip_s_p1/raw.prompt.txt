@@ -1,0 +1,6 @@
+tool: inpaint_image_pro_flash (9 generations)
+window: map x 696-952, y 384-640; mask = blank pixels plus map y >= 480, x 696-952 (in_mask.png)
+context: map x 256-1024, y 0-768
+prompt:
+South-east edge of a haunted fantasy frontier village at dusk, seen from high top-down. The river comes down from the top of the picture between x 168 and x 252 and keeps flowing straight on down and off the bottom edge, the same width, colour and banks, with reeds. The narrow dirt path from the jetty comes down at the top near x 74 and continues down to the bottom edge. Between the village's pines on the left and the river: two small ploughed farm fields in rows with a low wooden fence and a small timber barn with a warm lit window. Sparse birches, bushes and stumps at the edges, low mist. Keep the ground as dark and shadowed as the art just above. Same pixel style, colours, single colour outline, mist and cool blue-green dusk light as the surrounding art. Do not repeat anything from above.
+job_id: 9add5cea-f91a-4d41-8408-da4046acf8ed

@@ -1,0 +1,4 @@
+tool: edit_image_pixen (1 generation), no_background false, 256x256
+description: Fill the empty bottom-right quarter by continuing this exact scene, seamless with the other three quarters: same top-down village at dusk, same pixel style, colours, outline and lighting. Carry the dirt lane, the cut-off cottage roofs, fences and trees across both edges so nothing ends at a straight line. Leave the other three quarters unchanged.
+input: in_step2.png (_map_after1.png x 384-640, y 128-384; bottom-right quarter transparent)
+job_id: 53a9bca4-a257-402a-8c6d-5355741bec40

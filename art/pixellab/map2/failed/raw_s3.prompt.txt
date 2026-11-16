@@ -1,0 +1,5 @@
+tool: edit_image_pixen (1 generation), no_background false, 256x256
+window: map.png x 512-768, y 384-640; new region (0, 128, 256, 256)
+description: Fill the empty bottom half by continuing this exact scene, seamless with the rest: the pines above thin out; the town's street runs straight down through a gap and off the bottom edge as the road out, with a signpost; to its right a small farm: a timber barn and ploughed field rows. Sparse trees, stumps. Same top-down village at dusk, pixel style, colours, outline, mist and light; carry lanes, fences and tree lines across the join. Keep the existing part unchanged.
+job_id: 5638ec96-b6b1-48ed-ab8e-0b53318fd88c
+result: failed, copied centre 2's bottom band; not used in map.png

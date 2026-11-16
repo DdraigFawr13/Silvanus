@@ -233,3 +233,105 @@ Realism review (Claude's reading):
 - The east is still drawn more tilted than the heart.
 
 Morgan on strip 2: "Not perfect but it's ok. I really do eventually want it to be like just a solid scrollable across the screen so I can see the whole town and zoom in and out eventually" (D-047 amended: one seamless map with zoom). The three realism fixes were not run. Untried ways to a seamless map (inference, costs from PixelLab's docs on 2026-11-15): grow it outward in 128 px steps with `edit_image_pixen` (1 generation a step, about 16 for this strip), or `edit_image` on a padded 512 canvas (25 a step). Either way the map's final size and the zoom steps should be fixed first.
+
+## Map size (2026-11-16)
+
+Morgan picked 1024 × 768 art pixels (D-047 amended) over 1536 × 512 and 1536 × 1024. Zoomed out on a 412 px upright phone it is 309 px tall; growing it seamlessly costs about 16 generations (estimate, scaled from the strip's 16). Zoom steps: Morgan picked 1×, 2× and 3× screen pixels per art pixel (D-047), over 1×/2×/4× and all four. Assumes about 2.6 screen pixels per CSS pixel on the phone; not yet checked. Next: test a seamless method in PixelLab (ask before every paid call).
+
+## Grow trial: outpainting from mock-up 1 (2026-11-16)
+
+Morgan approved a 2-generation trial ("Do as you recommend"). Both calls `edit_image_pixen`, 256 × 256, 1 generation each; 24 left. Files, inputs and prompts: `art/pixellab/grow1/`. Source: AI-generated with PixelLab by Claude for Morgan, 2026-11-16. Only each call's new pixels are pasted into the map (`_map_after2.png`, 640 × 512); the redrawn context is dropped (step 1 redrew it with 5 of 32,768 pixels moved by more than 30 levels).
+
+- Step 1, a blank right half beside the heart's right edge: holds the style exactly (palette, outline, mist, lit windows) and draws a lane, fences and two cottages. But the heart's cut-off cottage and tree are not carried across: the join is a straight line.
+- Step 2, a blank corner with art on two sides: the lane and fences run on smoothly from step 1 above (no visible join), but the heart's cut roofs at the left again stop at a straight line, and it repeats step 1's cottage with its red flag.
+- Reading (Claude's inference): growing from PixelLab's own new art joins well; the heart's right edge, which cuts buildings in half, does not. A grow would work if each new piece starts where the last one left open ground, not cut buildings. Cost to grow 512 × 512 out to 1024 × 768: 16 steps if each fills half a window, 32 if each fills a corner (524,288 px to add); 24 generations left, plus 5 a day once those run out.
+
+## Grow trial 2: open edge first (2026-11-16)
+
+Morgan approved 2 more generations ("Yes do as you suggest"). Both `edit_image_pixen`, 256 × 256, 1 generation each; 22 left (`get_balance`). Files and prompts: `art/pixellab/grow2/`; map `_map.png`, east half at 2x `_map_east_x2.png`. Source: AI-generated with PixelLab by Claude for Morgan, 2026-11-16.
+
+- A, redraw the top half of the heart's right edge to end on open ground: it did (grass, lane, fence, bushes, no cut buildings), but the new grass is brighter and flatter than mock-up 1's dusk and the fence is ruler-straight, so the redrawn strip shows as a block with hard edges on its left (the fence line) and bottom (the cut cottage below it).
+- B, grow east from A: no visible join. Grass and bushes run on, and the fringe of trees, stumps, a dead tree and mist beyond fits D-047's sparse fringe. It added a second lane beside the first.
+- Reading (Claude's inference): new art grown onto open ground joins well; any edit to existing art leaves a seam where the edit ends. So the map should grow outward from a centre that already ends on open ground, never by repainting finished art.
+
+## New map centre (2026-11-16)
+
+Morgan chose "New centre, then grow" (about 17 generations approved for the run). Two `create_image_pixen` calls, 512 × 512, high top-down, highly detailed, single colour outline, 1 generation each; 20 left (`get_balance`). Files and prompts: `art/pixellab/map1/`. Source: AI-generated with PixelLab by Claude for Morgan, 2026-11-16. Stopped after two tries per the guide (section 3); neither meets the brief.
+
+- Heart 1 (mock-up 1's wording, plus "open grass at the left, right and bottom edges, no building cut by any edge"): the style and density are close to mock-up 1 (`_heart_vs_mock1.png`), with the forest behind the Hall, but it ignored the open edges: cottages are cut on the left, right and bottom, worse than mock-up 1. Brighter, warmer paths and a gridded street plan.
+- Heart 2 ("a small compact village in a wide grassy clearing"): the edges are open, so it would grow easily, but the village is smaller and plainer, and dense pine forest rings all four sides, against D-047's sparse fringe and open south (`_heart1_vs_2.png`).
+
+## Growing centre 2 (2026-11-16)
+
+Morgan chose "Grow centre 2" (about 16 generations approved). Centre 2 sits at x 256-768, y 0-512 of the 1024 × 768 canvas (`art/pixellab/map2/map.png`; on a dark backing `_map_progress.png`). Each step is one `edit_image_pixen` call (1 generation, 256 × 256 window, half of it blank), and only the new half is pasted in. Script: one window per call, prompt and job id beside each raw file. 8 generations used, 12 left (`get_balance`); stopped because the remaining 12 steps need 12 generations, more than the approved run has left. Source: AI-generated with PixelLab by Claude for Morgan, 2026-11-16.
+
+- Kept (4): north-east `e1a` (forest, river from the top edge, stone bridge), `e2a` (mountain cliffs off the top and right edges, mine entrance, spoil heap, lantern), then `e3` and `e4` grown down from them (a winding river with reeds and boulders, a jetty and boat, the mountain foot thinning to grass). No visible joins between them; a faint line where centre 2's pine border meets the river bank.
+- Failed (4, in `failed/`): `e1b`, `e2b` filled the east bottom half beside the town and copied the town's cottages, turned the river into a straight canal, and repeated each other. `w1`, `w2` filled the west beside centre 2's left edge and copied its lane-and-bushes strip three times; no lantern gate.
+- Reading (Claude's inference): a blank half next to strong features (cottages, a lane) gets a copy of them. Growing down from art above (the river) works. Zoomed out, the east is drawn at a larger scale than the town: the bridge and mine are big next to the cottages.
+
+## Growing on: option A (2026-11-16)
+
+Morgan picked A on the review page (https://claude.ai/artifact/VrSULVpxTb63nqH1YRbjA1), "carry on growing", 12 generations. 4 used, 8 left (`get_balance`); stopped after three failures in four. Files in `art/pixellab/map2/` (failures in `failed/`). Source: AI-generated with PixelLab by Claude for Morgan, 2026-11-16.
+
+- Kept: `w1r`, the north-west forest (x 128-256), worded "only dense pine forest, no lanes". It added a fenced road running west anyway, which can serve as D-047's forest road.
+- Failed: `w2r` (x 0-128) is a pixel-for-pixel copy of `w1r`; `s2` and `s3`, grown down from centre 2's bottom edge, each copied that edge's lane, fence, gate and pine row, so the band repeats with cut cottages on the join.
+- Reading (Claude's inference): `edit_image_pixen` copies whatever sits in the context half unless the asked-for content is very different from it (the river and mountain were; forest next to forest and town next to town were not). Growing down worked only under the river. This method won't finish the map at a useful failure rate.
+
+## Option C: the better PixelLab tools (2026-11-16)
+
+Morgan picked C ("look into the pro edit tool, spend nothing"). Found from the MCP tool list and descriptions (free), and PixelLab's API page (https://www.pixellab.ai/pixellab-api, read 2026-11-16, prices marked "Estimated" and "provisional"):
+
+- `edit_image` (pro): 10 generations up to 256 px, 15 up to 341, 25 up to 512; edits the whole picture with no mask, so it may copy just as the cheap edit did.
+- `inpaint_image_pro_flash`: redraws only a masked area and keeps every other pixel byte for byte; takes a `context_image` up to 3x the source in each side, to match the scene around it. 9 generations for a 256 px source (`get_pro_flash_capabilities`, free). API page estimate: $0.041 a 256 × 256 call. This fits the map's problem better than `edit_image` (Claude's inference): the blank area is masked and the art round it is context, not something to continue.
+- `inpaint_image` (pro, not flash): 10-25 generations; above 256 px a side needs a Tier 2 plan (tool description).
+- Plan prices: not readable. https://www.pixellab.ai/pricing returns 404 and the home page loads its plans by script ("Loading subscription plans..."). The account shows `credits: $0.00` and `subscription: trial`; whether credits can be bought on the trial is not shown.
+- Budget: 8 plan generations left plus a daily bonus of 5 (`generations_today: 5`, spent once the plan generations reach 0). Whether one 9-generation call can draw on both is not stated (assumption, untested).
+
+## Masked inpainting test refused (2026-11-16)
+
+Morgan picked A, one free test of `inpaint_image_pro_flash` (9 generations) south of the village. PixelLab refused it before charging: "error: trial generations used up — no generations left for Pro Flash generation or any other generation tool." `get_balance` afterwards: 8 left, credits $0.00, trial; the daily bonus line no longer shows. So the trial's 8 can't pay for a 9-generation call, and the bonus doesn't top it up. Inputs kept in `art/pixellab/inpaint1/` for a rerun once generations are bought.
+
+## Masked inpainting test (2026-11-16)
+
+Morgan bought PixelLab's Pixel Apprentice plan (Tier 1): 2,000 generations a cycle, next reset 2026-12-16 (`get_balance`). The test from `art/pixellab/inpaint1/` ran: `inpaint_image_pro_flash`, 9 generations, 1,991 left. Source: AI-generated with PixelLab by Claude for Morgan, 2026-11-16.
+
+- No copying: the masked bottom half is new ground (the pines thin into birches, stumps and a dead tree, a road with a signpost, a fenced vegetable plot, mist), and the unmasked top half came back pixel-identical (checked by image difference). Matches the style and D-047's sparse fringe and road out.
+- Flaws: the new road sits about 100 px left of the village street's gap; a slight line where the village's pine row ends. Next pieces state the road's position.
+- Not yet pasted into `map2/map.png`; the trial composite is `inpaint1/_map_test.png`.
+- Correction (2026-11-16, after Morgan: "Those don't match up at all"): the join is a hard straight edge, not "a slight line". Rows just above it average 31-32 brightness and rows just below 57-58 (mean of R, G, B across x 384-640); centre 2 darkens towards its own bottom edge, so the new ground is far lighter. Pine tops and mist are cut along it. The village street's gap is at about x 597 and the new road at about x 502, so the street never reaches the road. The review page's old/new pair also came from windows 128 px apart, not the same spot. Fix to try: a mask that overlaps the bottom 32 px of the village's pine row so the join itself is redrawn, the road's x given, and darker ground asked for.
+
+## Inpainting redo: overlapping mask (2026-11-16)
+
+Morgan picked A, redo with the three changes. `inpaint_image_pro_flash`, 9 generations, 1,982 left; files and prompt in `art/pixellab/inpaint2/`; pasted into `map2/map.png` at x 472-728, y 480-640. Source: AI-generated with PixelLab by Claude for Morgan, 2026-11-16.
+
+- The mask reached 32 px into the village's pine row; the prompt gave the street's x (104-148 in the window) and asked for the same dark ground.
+- Joins: unmasked pixels identical (image difference). Mean brightness across x 472-728: 69 at y 476, 61 at y 479, 63 at y 480 (first new row), 58 at y 483: no step (the first test was 31 against 57). Dirt measured at x 579-620 on y 490, 592-607 on y 512, 585-612 on y 620: the street runs on through the pine row and off the bottom edge, narrowing to about 16 px between the pines.
+- Flaws: the village lane's lower edge is now a straight line along y 480 either side of the road; the piece's left and right edges meet blank map and are untested.
+
+## South row by masked inpainting (2026-11-16)
+
+Morgan: "Yes ok now you are understanding how to line things up. We will need to fix the color mismatch but yeah do the rest of the south row". Five `inpaint_image_pro_flash` calls (9 generations each, 45 in all; 1,937 left). Each window keeps some existing art, the mask covers its blank pixels plus a band reaching 32 px into the art above or beside it, and the prompt gives measured positions (river x 864-948, jetty path x about 770). Files in `art/pixellab/map2/ip_s_p*/` (window, mask, context, prompt, job id); review page https://claude.ai/artifact/VrSULVpxTb63nqH1YRbjA1. Map 72% drawn. Source: AI-generated with PixelLab by Claude for Morgan, 2026-11-16.
+
+- `s_p1` (x 696-952): river and jetty path continue, a barn and two fenced fields; joins 65/64 (top), 49/49 (left).
+- `s_p2` (corner, x 920-1024): river continues; right of it the east pieces' bright grass ends on a straight line, 99 to 35 brightness within 20 px.
+- `s_p3` (x 232-504): pine row into a fringe; joins 50/48, 54/50; a mist patch cut off straight near x 504.
+- `s_p4` failed (`failed/ip_s_p4/`): a fully blank window with the whole map as context drew a small copy of the village. `s_p4b` (x 104-360, 512 px context): woodcutter's camp, every join within 3; a faint vertical line at x 256-264.
+- Colour (mean over each area): village brightness 61, saturation 0.39; east 63 and 0.45 (bank grass 67 and 0.49); new south row 47 and 0.40; north-west forest 40. Asked Morgan which mismatch they meant.
+
+## Colours, building blocks and a phone prototype (2026-11-16)
+
+Morgan: "Fix colours and honestly fix the cohesiveness. Or just use this for assets ... Make it happen. Think outside the box", then "I just want a canvas style map I can scroll left and right on on my phone with assets and blending you do in pixel lab ... you create building blocks and then blend things together". Generations 1,937 to 1,881 (`get_balance`). Source of all art: AI-generated with PixelLab by Claude for Morgan, 2026-11-16.
+
+- Colours: `art/pixellab/map2/grade.py` moves only plant colours (green hue) in the east, the north-west forest and the south row towards the village's plant colours (CIELAB mean and spread, feathered 24 px); water, rock, roofs and lights unchanged. A first version that matched whole areas greyed the river and was dropped. Plant brightness and saturation after: village 65 and 0.40, east 59 and 0.38, south row 59 and 0.40. `map.png` is now graded; the original is `map_ungraded.png`.
+- Building blocks (`art/pixellab/blocks/`): the hall, five cottages, well, stall, lamp, two trees and a bush cut out of centre 2 with `remove_background` (1 generation each). The tool dropped the hall's wings and three cottages' walls on the first try; the hall and cottage f were fixed by a fuller description, cottages a and c were cut out locally (`blocks/cut/localcut.py`: flood fill from the crop's edge through ground colours, stopped by the outline; first tries in `cut/tries/`). A new cottage from `create_map_object` in style-match mode came out in another style (green roof, side-on) and is not used.
+- Tile map test: two pro tilesets on the village palette (`village_palette.txt`; grass and dirt road, grass and river; 15 generations each) and a PixelLab map painted to the D-047 layout (`blocks/ground.png`). The tiles look blocky and repetitive, and an `inpaint_map` painting pass on the square (9 generations) came out as a dark square with blotchy mist (`blocks/inp1_area.png`). Not used.
+- A timed-out patch job (`map2/failed/ip_b1/`) left the map unchanged.
+- Approach chosen (Claude's proposal, for Morgan's verdict): the land is one painted canvas (ground, roads, river, forest, mountain and fixed landmarks); buildings are separate cut-out pieces the game places as they are built, which is how D-047's "starts open and fills in" can work. Phone prototype: https://claude.ai/artifact/ShHtod3JeD9ENsNdfyNAAR (source `art/prototype/`): zoom steps 1x, 2x, 3x, opens on the Hall, a Day one / Grown switch. Checked at 412 px wide and 2.625 screen pixels per CSS pixel: no sideways page scroll, no script errors.
+
+## Art re-plan, step 1: requirements checklist (2026-11-16)
+
+Morgan, on the phone prototype: "No that still sucks. Can we rethink how we are designing? What is the best process for me getting what I am looking for. Also why are you not understanding what I really want? Why are you forgetting and missing the design decisions we made". Morgan approved a four-step re-plan ("Yes create a new session to start this process"): 1 a requirements checklist in Morgan's words for Morgan to correct; 2 one approved target picture in mock-up 1's style at 412 px, with lots, glows, day one and grown; 3 a small two-method test, each scored against the checklist beside the target; 4 short build sessions. No PixelLab generations until 1 and 2 are agreed (1,881 left on Tier 1).
+
+Step 1 form (`artreq1`): https://claude.ai/artifact/JPNjVV94KuDzqzNfQQtqzY, source `docs/workshop/forms/artreq1.html` (item ids and texts are in its CONFIG). 64 items in 7 sections (look L1-L10, land M1-M16, town T1-T9, lots and growth P1-P11, screen S1-S5, how results are shown R1-R6, dropped earlier X1-X7), each Keep / Change / Remove (dropped items: Stays dropped / Bring back / Change) with its decision id and Morgan's quote; then free text for what's missing and Morgan's top three. Collected from D-028, D-037, D-040 to D-048, the brief, this log and the pixellab guide; every quote was checked to appear word for word in these docs. Items with no quote of Morgan's behind them are tagged "Claude's words" (M8 mountain landform, M9 waterfall, M12 land shape, T7 town grows from its paths, P4 Build marker, R2, R5). Open conflict put to Morgan in M9: the brief's waterfall feeding the river against "the river source doesn't need to be shown". X3 asks whether the Ashwick palette (D-041) carries over, since D-048 doesn't say.
+
+Answers (2026-11-16): 57 Keep, 5 Change, 2 Remove, all 7 dropped items stay dropped; no top three named, nothing added as missing. Changes: L8 natural colour variation ("It should blend in but there should be some different colors throughout just natural"); L10 not PixelLab only; M9 and M10 no waterfall, a swamp biome east of the river; M14 special sites toward the map edges, unlocked slowly like a tutorial. Removed: M13 the Tangle ring, M15 the graveyard. Two follow-ups in chat: M13 against D-043 ("Drop the look only": clearing stays, on the edge fringe) and L10 ("Other tools are fine"). The brief above is now superseded where it differs (waterfall, graveyard). Agreed list: `docs/workshop/art-checklist.md`; D-043, D-044, D-047 and D-048 amended; the AGENTS art rule now points at the checklist. Step 1 done; next is step 2, the target picture.
