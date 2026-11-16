@@ -66,6 +66,6 @@ save(t, "tapped.png")
 sq = (800, 380, 990, 560)
 st1 = render(ground, places + EXTRA)
 for i, pl in enumerate([[p for p in places if "stall" not in p[0]], places,
-                        places + [("raw_fountain.png", 864, 404)]], 1):
+                        places + [("raw_fountain.png", 914, 414)]], 1):
     save(render(ground, pl + EXTRA)[sq[1]:sq[3], sq[0]:sq[2]], f"square_{i}.png")
 print("ok", len(empty), "empty plots,", len(staked), "staked")

@@ -416,3 +416,15 @@ Morgan on stage B: "Do as you recommend. I like the mine now but it cuts off the
 - Grown map: the five buildings plus 10 cottages reusing the two designs. Whole map 52 / 0.33 / 0.190; ground only 53 / 0.33 / 0.162. 133 used, 1,443 left; 181 left under the cap.
 - Lesson (Claude's reading): pixflux over large flat painted areas drifts to a bright, flat style; a restyle straight from a hand-edited guide holds mock-up 1's mood better.
 - To finish (Claude's estimate): about 117-130 (fixes 63; 3 cottage types, farmhouse, fisher's hut and jetty, stalls, forager 54; free overlays). Asked Morgan: finishing stage, approve now, or pause.
+
+## The target map, finished (2026-11-16)
+
+Morgan on stage C: "Finish the map. Then work to get more things checked off the list" (within the 181 left under the cap); later "Pause here", then "Try again" after a worker restart (work saved in commit 09d3e58 first). Page: https://claude.ai/artifact/Qq56ii1VLRVsQ57f6cjypG (built by `docs/workshop/pages/build_final.py`; scores in `final_scores.json`: 38 met, 16 partly, 1 missed). Files: `art/pixellab/blocks/` (ids beside each raw file); `finish.py`, `full_places2.json`, `overlays.py`. Source: AI-generated with PixelLab by Claude for Morgan, 2026-11-16.
+
+- Repairs (36): 4 inpaint windows remove the painted-in cottage and timber frame and repaint the top-left fringe; its collage line at y 400 measures 0.7 against a typical row step of 0.8 (was 9.1).
+- Buildings (46), `create_object_pro_flash` from mock-up 1 crops: cottages C, D, E, farmhouse with barn, fisher's hut with jetty and boat, forager's turf hut, two striped stalls. Tier 1 allows 8 jobs at once; three calls were refused and resent (not charged).
+- More items (39): cottage A at tiers 2 and 3 (style image: cottage A itself), a dressed yard, standing stones, ruins, a tar pit, a fountain. Icons (25): wood, food, stone, ore, tools at 32 px.
+- Free (`overlays.py`): day one with the Hall, mine, woodcutter and one cottage; pale glows and amber Build markers on 12 empty plots; 3 south plots staked with rope, posts and a sign; a tapped gold glow (`--act`); the square in 3 stages (the fountain moved beside the well after it first landed on it). Phone screen in `build_final.py` from UI_STYLE tokens and the game's own header words; the stock labels were cut at 358 px, so the icon moved into the label line and labels wrap.
+- Measured: grown 52 / 0.33 / 0.196, day one 54 / 0.32 / 0.172 (mock-up 1 55 / 0.37 / 0.263). 146 used, 1,297 left, 35 left under the cap.
+- Still open: no animation (P11), the north-west fringe darker than below, a faint seam at x 1300, three special sites, more dressed yards. Asked Morgan to approve it as the target picture (step 2's exit).
+- Noted: a branch `codex/art-polish` (two commits by Morgan, 2026-11-16, from stage B) appeared on origin; not reviewed or merged.
