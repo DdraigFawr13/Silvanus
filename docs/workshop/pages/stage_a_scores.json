@@ -1,0 +1,277 @@
+{
+"L1": [
+"The target look is mock-up 1",
+"p",
+"Buildings match mock-up 1 closely. The ground has mock-up 1's mist, grey cracked rock and dusk grade; brightness 46 against 55, edge share 0.197 against 0.263, so darker and plainer. The right tile is mistier than the left."
+],
+"L2": [
+"Same top-down three-quarter view",
+"m",
+"Ground and all three buildings in the same high three-quarter view."
+],
+"L3": [
+"Higher detail, at mock-up 1's level",
+"m",
+"Buildings at mock-up 1's detail; the ground plots carry stones, weeds and debris."
+],
+"L4": [
+"Grounded",
+"p",
+"Doors face their paths: the Hall onto the walkway, cottage A onto its path; cottage A is narrower than its plot, so bare earth shows either side; no gardens or yards yet."
+],
+"L5": [
+"Haunting dusk, subtle",
+"m",
+"Mist along the forest edge, crows, cool light, warm windows, chimney smoke."
+],
+"L6": [
+"Cosy, a proper town",
+"p",
+"Reads as a small lived-in corner; only three buildings."
+],
+"L7": [
+"Every building has character",
+"m",
+"Clock tower, ivy and hanging lanterns on the Hall (cross removed); flower boxes on cottage A; a wall lantern on cottage B; the mine entrance has a mossy roof, a lantern and rails."
+],
+"L8": [
+"One colour and light, natural variation",
+"p",
+"The right tile is mistier and a little darker than the left; a free ramp evens the join. A faint line from my paste remains along y 400 in the left tile."
+],
+"L9": [
+"Walls, fences and trees drawn well",
+"m",
+"Pines, fences and stone walls clean."
+],
+"L10": [
+"Any tool that matches mock-up 1's mood",
+"m",
+"PixelLab restyle for the ground, pro-flash objects styled from mock-up 1 crops."
+],
+"M1": [
+"One seamless map that scrolls and zooms",
+"p",
+"Two tiles joined; the rest not built."
+],
+"M2": [
+"Map size (now about 1408 × 888)",
+"p",
+"The patch is at the 2× scale; the whole map not built."
+],
+"M3": [
+"The Hall is the centre",
+"p",
+"Hall placed where the guide has it; whole map not built."
+],
+"M4": [
+"North forest dense behind the Hall",
+"m",
+"Dense dark pines along the whole top, unbroken behind the Hall."
+],
+"M5": [
+"Sparse fringe sides and south",
+"x",
+"Not in this patch."
+],
+"M6": [
+"Forest road north-west through a lantern gate",
+"p",
+"The gate is just left of this patch; the woodcutter's sign board and stump are in it."
+],
+"M7": [
+"Mine upper right, mountain off the edges, track to town",
+"p",
+"Timber mine entrance set into a grey cliff, no bridge, the cart track runs down-left toward the Hall. The cliff top is grassy and flat at the top edge, so the big mountain is not shown yet."
+],
+"M8": [
+"Mountain reads as a real landform",
+"p",
+"Grey cracked cliffs with ivy at the mine; one tier; a straight line across the cliff top at y 60 from my paste."
+],
+"M9": [
+"Swamp east of the river",
+"x",
+"Not in this patch."
+],
+"M10": [
+"River, bridge, jetty, fisher's lot",
+"p",
+"Dark rippled river with mist and grey cliffs beyond it; no bridge to the mine, as you asked. The bridge, jetty and fisher's lot are further south."
+],
+"M11": [
+"South edge open",
+"x",
+"Not in this patch."
+],
+"M12": [
+"Land has shape",
+"p",
+"Worn earth plots, packed paths, rougher grass at the edges; flat otherwise."
+],
+"M14": [
+"Special sites toward the edges",
+"x",
+"None."
+],
+"M16": [
+"Gathering buildings on their own sites",
+"p",
+"The mine on its own site at the cliff; others not in this stage."
+],
+"T1": [
+"The Hall stands out",
+"m",
+"Largest building, clock tower, lit windows."
+],
+"T2": [
+"Hall, walkway and square in line",
+"m",
+"Hall door, plank walkway and well line up."
+],
+"T3": [
+"Square with notice board",
+"p",
+"Well and a covered board by the fence; no stalls."
+],
+"T4": [
+"Square upgrades",
+"x",
+"One stage."
+],
+"T5": [
+"Real town layout",
+"p",
+"Curving lanes; only a corner of town."
+],
+"T6": [
+"Organic",
+"m",
+"Uneven spacing, a pine between the plots, curving paths."
+],
+"T7": [
+"Town grows from its paths",
+"p",
+"Paths to the Hall and cottage A doors; no yards yet."
+],
+"T8": [
+"Closer, not crowded",
+"m",
+"Space between the three buildings."
+],
+"T9": [
+"Good roads",
+"p",
+"Dirt lanes; the walkway is planks, not cobbles; no High Street here."
+],
+"P1": [
+"Every lot is a button",
+"p",
+"Each building is now a separate piece, so a tap target can follow it; not wired."
+],
+"P2": [
+"Pale glow on empty lots",
+"x",
+"Not drawn yet."
+],
+"P3": [
+"Gold glow when tapped",
+"x",
+"Not drawn yet."
+],
+"P4": [
+"Build marker",
+"x",
+"Not drawn yet."
+],
+"P5": [
+"Dressed yards",
+"x",
+"No yards yet: the assets have bare bases."
+],
+"P6": [
+"Staked future lots",
+"p",
+"The empty ground has bare earth plots, not yet roped or signed."
+],
+"P7": [
+"Day one and grown",
+"m",
+"The empty ground is day one; the placed version is a grown corner, both from the same art."
+],
+"P8": [
+"Each tier better",
+"p",
+"Possible now (one asset per tier); not made."
+],
+"P9": [
+"Lots easy to tell apart",
+"p",
+"Three distinct buildings; more types needed."
+],
+"P10": [
+"Land one painting, buildings separate",
+"m",
+"Exactly this: one painted ground, three separate building pieces."
+],
+"P11": [
+"The town moves",
+"x",
+"Still."
+],
+"S1": [
+"Phone first, 412 px",
+"m",
+"Shown at 412 px."
+],
+"S2": [
+"Town tab layout",
+"x",
+"Not in this round."
+],
+"S3": [
+"Picture buttons",
+"x",
+"Not in this round."
+],
+"S4": [
+"Lantern colours",
+"x",
+"Not in this round."
+],
+"S5": [
+"Board card pictures",
+"x",
+"Not in this round."
+],
+"R1": [
+"Published page, captions from pixels",
+"m",
+"This page."
+],
+"R2": [
+"Scored before you see it",
+"m",
+"This list."
+],
+"R3": [
+"Joins line up",
+"p",
+"The two ground tiles join at x 960-1010: repaired by inpainting (18) and a free brightness ramp; a faint vertical edge still shows at 3× along x 1010. Building bases blend; cottage A keeps two yellow-green corners."
+],
+"R4": [
+"Finished art at phone size, day one and grown",
+"m",
+"Day one (empty ground) and grown (with buildings), at 412 px."
+],
+"R5": [
+"No easier method without asking",
+"m",
+"The method you picked (test 1)."
+],
+"R6": [
+"Ask before every paid call",
+"m",
+"75 generations against about 77 approved for stage A."
+]
+}

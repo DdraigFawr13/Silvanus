@@ -8,7 +8,7 @@ from PIL import Image, ImageFilter
 R = pathlib.Path(__file__).resolve().parents[3]
 B = R / "art/pixellab/blocks"
 ground = np.asarray(Image.open(B / "raw_ground.png").convert("RGB")).astype(float)
-PLACES = [("raw_hall.png", 289, 74), ("raw_cottage_a.png", 142, 166), ("raw_cottage_b.png", 186, 393)]
+PLACES = [("hall_fixed.png", 289, 74), ("raw_cottage_a.png", 142, 166), ("raw_cottage_b.png", 186, 393)]
 
 def place(g, fix):
     g = g.copy(); H, W = g.shape[:2]
@@ -36,6 +36,7 @@ def place(g, fix):
         g[y0:y1, x0:x1] = g[y0:y1, x0:x1] * (1 - al) + rgb * al
     return g
 
-Image.fromarray(place(ground, True).astype(np.uint8)).save(sys.argv[1])
-if len(sys.argv) > 2:
-    Image.fromarray(place(ground, False).astype(np.uint8)).save(sys.argv[2])
+if __name__ == "__main__":
+    Image.fromarray(place(ground, True).astype(np.uint8)).save(sys.argv[1])
+    if len(sys.argv) > 2:
+        Image.fromarray(place(ground, False).astype(np.uint8)).save(sys.argv[2])
