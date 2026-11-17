@@ -47,3 +47,46 @@ test('the board offers three goals', async ({ page }) => {
   const wide = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(wide).toBeLessThanOrEqual(412);
 });
+
+test("the trader's offer", async ({ page }) => {
+  const record = town();
+  const board = record.state.board;
+  // wood 60: the wood swap can be paid, the stone one cannot (no stone yet)
+  const offers = [
+    {
+      id: 1,
+      give: { resource: 'wood', amount: 40 },
+      get: { resource: 'tools', amount: 13 },
+      until: 2172,
+    },
+    {
+      id: 2,
+      give: { resource: 'stone', amount: 40 },
+      get: { resource: 'food', amount: 50 },
+      until: 2412,
+    },
+  ];
+  record.state.board = { ...board, offers, nextOfferId: 3, nextOfferTick: 252 };
+  expect(record.state.stock.wood).toBe(60);
+  expect(record.state.stock.stone).toBe(0);
+  await seedRecord(page, record);
+  await page.goto('/?tickMs=60000');
+  const cards = page.getByTestId('offer');
+  await expect(cards).toHaveCount(2);
+  const tools = cards.filter({ hasText: '13 tools for 40 wood' });
+  const food = cards.filter({ hasText: '50 food for 40 stone' });
+  await expect(tools).toContainText('Trader');
+  await expect(tools).toContainText(`Leaves in `);
+  await expect(tools.getByRole('button', { name: /^Accept/ })).toHaveClass('btn');
+  await expect(food.getByRole('button', { name: /^Accept/ })).toHaveClass('btn second');
+  await expect(food).toContainText('Needs 40 stone');
+
+  await tools.getByRole('button', { name: /^Accept/ }).click();
+  await expect(cards).toHaveCount(1);
+  await expect(page.getByTestId('stock-wood').locator('.num')).toHaveText('20 / 200');
+  await expect(page.getByTestId('delivery')).toContainText('13 tools on the way, 1 game day left');
+
+  await food.getByRole('button', { name: /^Decline/ }).click();
+  await expect(cards).toHaveCount(0);
+  await expect(page.getByTestId('stock-stone').locator('.num')).toHaveText('0 / 200');
+});

@@ -47,6 +47,8 @@ const TYPES = [
   'setMethod',
   'upgradeHall',
   'pickGoal',
+  'acceptOffer',
+  'declineOffer',
 ] as const;
 
 // How often the bot picks each type: building and upgrading lead, and a clear is rare, so the
@@ -61,6 +63,8 @@ const WEIGHTS: [(typeof TYPES)[number], number][] = [
   ['setMethod', 3],
   ['upgradeHall', 1],
   ['pickGoal', 2],
+  ['acceptOffer', 2],
+  ['declineOffer', 2],
 ];
 const WEIGHT_TOTAL = WEIGHTS.reduce((sum, [, w]) => sum + w, 0);
 
@@ -110,6 +114,11 @@ function randomCommand(s: State): Command {
       // a goal on offer when there are any, else an id that is refused
       const on = s.board.goals;
       return { type, id: on.length ? on[roll(on.length)] : 'none' };
+    }
+    case 'acceptOffer':
+    case 'declineOffer': {
+      const offers = s.board.offers;
+      return { type, id: offers.length ? offers[roll(offers.length)].id : 0 };
     }
   }
 }
@@ -168,6 +177,24 @@ function check(s: State): void {
   const most = active?.when.type === 'make' ? active.when.amount : 0;
   if (!whole(board.progress, most)) fail(`goal progress ${board.progress}`);
   if (board.offers.length > content.rules.offersMax) fail(`${board.offers.length} offers`);
+  const known = (id: string) => content.resources.some((r) => r.id === id);
+  for (const o of board.offers) {
+    if (!whole(o.id, board.nextOfferId - 1)) fail(`offer id ${o.id}`);
+    if (o.until < s.tick) fail(`offer ${o.id} is past its until`);
+    for (const part of [o.give, o.get]) {
+      if (
+        !known(part.resource) ||
+        !whole(part.amount, Number.MAX_SAFE_INTEGER) ||
+        part.amount < 1
+      ) {
+        fail(`offer ${o.id} has ${part.amount} ${part.resource}`);
+      }
+    }
+  }
+  if (new Set(board.offers.map((o) => o.id)).size !== board.offers.length) fail('offer ids repeat');
+  for (const d of board.deliveries) {
+    if (!known(d.resource) || d.amount < 1 || d.at < s.tick) fail(`delivery ${JSON.stringify(d)}`);
+  }
   if (!whole(board.nextOfferId, Number.MAX_SAFE_INTEGER)) fail('nextOfferId');
   if (!whole(board.nextOfferTick, Number.MAX_SAFE_INTEGER)) fail('nextOfferTick');
   if (board.trip !== null) fail('a trip is out before trips exist');
@@ -247,7 +274,17 @@ if (builtKinds.size < 3) fail(`only ${builtKinds.size} kinds of building were bu
 const done = (type: string) => (sent.get(type) ?? 0) - (turnedDown.get(type) ?? 0);
 // A random bot reaches upgrades and cancels only by luck (an upgrade needs tools, a cancel a second
 // job waiting), so upgrades are pass 2's to prove, and cancelJob is build.test.ts's.
-for (const type of ['build', 'clear', 'setOpen', 'pin', 'setMethod', 'pickGoal'] as const) {
+const gated = [
+  'build',
+  'clear',
+  'setOpen',
+  'pin',
+  'setMethod',
+  'pickGoal',
+  'acceptOffer',
+  'declineOffer',
+] as const;
+for (const type of gated) {
   if (done(type) === 0) fail(`no ${type} command was carried out`);
 }
 if (peakBuildings < 5) fail(`the town never had more than ${peakBuildings} buildings`);
@@ -304,6 +341,15 @@ function scripted(s: State, ordered: { next: number }): Command[] {
       send({ type: 'pickGoal', id: town.board.goals[0] });
     }
   };
+  // every sitting tick: each offer it can pay whose give stock is above half its cap
+  const trade = () => {
+    const caps = capsOf(town, content);
+    for (const offer of s.board.offers) {
+      if (town.stock[offer.give.resource] * 2 > caps[offer.give.resource]) {
+        send({ type: 'acceptOffer', id: offer.id });
+      }
+    }
+  };
   const of = (kind: string) => town.buildings.filter((b) => b.kind === kind && b.tier > 0);
   send({ type: 'upgradeHall' });
   if (ordered.next < ORDER.length) {
@@ -345,13 +391,16 @@ function scripted(s: State, ordered: { next: number }): Command[] {
     }
   }
   board();
+  trade();
   return sent;
 }
 
-// A check-in's real choices, judged before the player acts (spec, "Goals"): a goal to pick, or a
-// build or an upgrade the town can pay for. Offers join in S2.
+// A check-in's real choices, judged before the player acts (spec, "Goals"): an offer the town
+// can pay for, a goal to pick, or a build or an upgrade the town can pay for.
 function choices(s: State): { board: boolean; any: boolean } {
-  const goal = s.board.active === null && s.board.goals.length > 0;
+  const goal =
+    (s.board.active === null && s.board.goals.length > 0) ||
+    s.board.offers.some((o) => refusal(s, { type: 'acceptOffer', id: o.id }, content) === null);
   const works: Command[] = [
     { type: 'upgradeHall' },
     ...content.buildings.map((k): Command => ({ type: 'build', kind: k.id })),
@@ -375,6 +424,7 @@ const noChoice: number[] = [];
 let boardChoice = 0;
 let goalsMet = 0;
 let rewardLost = 0;
+let offersTaken = 0;
 const fewGoals: string[] = [];
 const dearest = Math.max(...content.resources.map((r) => r.value));
 // Every tick is stepped, so the Village tick and the 20th arrival are exact; the player sends
@@ -393,8 +443,18 @@ while (villageTick < 0 && state.tick < BAND.to + 1000) {
   }
   const commands = present ? scripted(state, ordered) : [];
   sentCount += commands.length;
+  offersTaken += commands.filter((c) => c.type === 'acceptOffer').length;
   upgrades += commands.filter((c) => c.type === 'upgrade').length;
+  const due = state.board.deliveries.filter((d) => d.at <= state.tick);
   const result = step(state, commands, content);
+  // goods a delivery brought that found no room count as reward lost
+  for (const d of due) {
+    const kept = result.events
+      .filter((e) => e.type === 'delivered' && e.resource === d.resource)
+      .reduce((sum, e) => sum + (e.type === 'delivered' ? e.amount : 0), 0);
+    const value = content.resources.find((r) => r.id === d.resource)!.value;
+    rewardLost += Math.max(0, d.amount - kept) * value;
+  }
   for (const event of result.events) {
     if (event.type === 'rejected') fail(`the scripted bot sent a refused ${event.command.type}`);
     if (event.type === 'left') mostLeft += 1;
@@ -418,10 +478,11 @@ console.log(
     `commands=${sentCount} residents=${state.residents.length} left=${mostLeft} ` +
     `twentieth_at=${at20?.tick ?? -1} upgrades=${upgrades} lost=${lostToCaps} food_zero_ticks=${foodZeroTicks} ` +
     `checkins=${checkins} no_choice=${noChoice.length} board_choice=${boardChoice} goals_met=${goalsMet} ` +
-    `offers_taken=0 trips=0 reward_lost=${rewardLost} few_goals=${fewGoals.length}`,
+    `offers_taken=${offersTaken} trips=0 reward_lost=${rewardLost} few_goals=${fewGoals.length}`,
 );
 if (noChoice.length > 0) fail(`check-ins with no real choice at ticks ${noChoice.join(', ')}`);
 if (goalsMet === 0) fail('the scripted town never met a goal');
+if (offersTaken === 0) fail('the scripted town never took an offer');
 // S1 adds Hamlet goals until every check-in offers a full board (spec, "Slices")
 if (fewGoals.length > 0)
   fail(`fewer goals than ${content.rules.goalsOffered} at tick:count ${fewGoals.join(' ')}`);

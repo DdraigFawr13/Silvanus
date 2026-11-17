@@ -1,7 +1,15 @@
 import { content } from '@silvanus/content';
-import { capsOf, goalOf, goalProgress, kindOf, rewardPreview } from '@silvanus/sim';
+import {
+  capsOf,
+  goalOf,
+  goalProgress,
+  kindOf,
+  refusal,
+  rewardPreview,
+  shortfall,
+} from '@silvanus/sim';
 import type { Command, Goal, State } from '@silvanus/sim';
-import { amountsText, resourceName } from './format';
+import { amountsText, duration, needsText, resourceName } from './format';
 
 // "Make 80 wood", "Build a Mine", "A Cottage at tier 2", "12 residents"
 function conditionText(goal: Goal): string {
@@ -28,7 +36,8 @@ function progressText(state: State, goal: Goal): string {
   return `${progress.have} of ${progress.need} ${unit}`;
 }
 
-// The board on the Town tab (M2e): the goals on offer. The trader and trips join in S2 and S3.
+// The board on the Town tab (M2e): the goals on offer, the trader's offers and goods on the way.
+// Trips join in S3.
 export function Board({ state, send }: { state: State; send: (command: Command) => void }) {
   const board = state.board;
   return (
@@ -81,6 +90,54 @@ export function Board({ state, send }: { state: State; send: (command: Command) 
             </div>
           );
         })}
+        {board.offers.map((offer) => {
+          const give = { [offer.give.resource]: offer.give.amount };
+          const accept: Command = { type: 'acceptOffer', id: offer.id };
+          const can = refusal(state, accept, content) === null;
+          const title = `${amountsText({ [offer.get.resource]: offer.get.amount })} for ${amountsText(give)}`;
+          return (
+            <div className="panel" data-testid="offer" key={offer.id}>
+              <div className="row-top">
+                <span className="name">{title}</span>
+                <span className="kind">Trader</span>
+              </div>
+              <div className="line2">Leaves in {duration(offer.until - state.tick)}</div>
+              <div className="btns">
+                <button
+                  type="button"
+                  className={can ? 'btn' : 'btn second'}
+                  aria-label={`Accept ${title}`}
+                  onClick={() => send(accept)}
+                >
+                  Accept
+                </button>
+                <button
+                  type="button"
+                  className="btn second"
+                  aria-label={`Decline ${title}`}
+                  onClick={() => send({ type: 'declineOffer', id: offer.id })}
+                >
+                  Decline
+                </button>
+              </div>
+              {!can && <span className="why">{needsText(shortfall(state.stock, give))}</span>}
+            </div>
+          );
+        })}
+        {board.deliveries.length > 0 && (
+          <div className="panel" data-testid="delivery">
+            <div className="row-top">
+              <span className="name">On the way</span>
+              <span className="kind">Delivery</span>
+            </div>
+            {board.deliveries.map((d, i) => (
+              <div className="line2" key={`${d.at}-${d.resource}-${i}`}>
+                {amountsText({ [d.resource]: d.amount })} on the way, {duration(d.at - state.tick)}{' '}
+                left
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </>
   );

@@ -102,29 +102,46 @@ test('chunks and steps agree with commands between', () => {
   expect(start.tick).toBe(0);
 });
 
-// M2e J6: board commands between chunks of catch-up give the same town as stepping. The picks
-// are read off the stepped town (the goals on offer depend on the draw), then replayed.
+// M2e J6: board commands between chunks of catch-up give the same town as stepping. The
+// commands are read off the stepped town (what is on offer depends on the draws), then replayed.
 test('the board replays in chunks', () => {
   const start = newGame(1, content);
   const script: { tick: number; command: Command }[] = [];
   const met: string[] = [];
+  let delivered = 0;
   let stepped = start;
   for (let tick = 0; tick < TICKS; tick++) {
-    const commands: Command[] = SCRIPT.filter((e) => e.tick === tick).map((e) => e.command);
+    const commands: Command[] = [];
     const board = stepped.board;
-    // every 50 ticks: pick the first goal on offer when none is active, else switch to another
-    if (tick % 50 === 0 && board.goals.length > 0) {
-      const other = board.goals.find((id) => id !== board.active)!;
-      commands.push({ type: 'pickGoal', id: board.active === null ? board.goals[0] : other });
+    // every 50 ticks pick the first goal on offer when none is active; once, at 300, switch
+    if (tick % 50 === 0 && board.goals.length > 0 && board.active === null) {
+      commands.push({ type: 'pickGoal', id: board.goals[0] });
+    }
+    const other = board.goals.find((id) => id !== board.active);
+    if (tick === 300 && board.active !== null && other) {
+      commands.push({ type: 'pickGoal', id: other });
     }
     if (tick === 7) commands.push({ type: 'pickGoal', id: 'none' }); // refused: unknown
+    // S2: at 25 past each 100 ticks take the oldest offer when the stock covers it; at 75 past,
+    // decline it
+    const oldest = board.offers[0];
+    if (tick % 100 === 25 && oldest && stepped.stock[oldest.give.resource] >= oldest.give.amount) {
+      commands.push({ type: 'acceptOffer', id: oldest.id });
+    }
+    if (tick % 100 === 75 && oldest) commands.push({ type: 'declineOffer', id: oldest.id });
+    if (tick === 8) commands.push({ type: 'declineOffer', id: 99 }); // refused: unknown
     for (const command of commands) script.push({ tick, command });
     const result = step(stepped, commands, content);
-    for (const e of result.events) if (e.type === 'goalDone') met.push(e.id);
+    for (const e of result.events) {
+      if (e.type === 'goalDone') met.push(e.id);
+      if (e.type === 'delivered') delivered += 1;
+    }
     stepped = result.state;
   }
-  // the script did reach the board: at least one goal was met and paid
+  // the script did reach the board: at least one goal was met and paid, a swap was delivered
   expect(met.length).toBeGreaterThan(0);
+  expect(delivered).toBeGreaterThan(0);
+  expect(script.some((e) => e.command.type === 'declineOffer' && e.command.id !== 99)).toBe(true);
   for (const longest of [7, 480, 1]) {
     let state = start;
     let at = 0;

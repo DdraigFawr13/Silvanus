@@ -1,4 +1,4 @@
-import { goals } from './board';
+import { goals, trader } from './board';
 import { carryOut, construct, refusal } from './build';
 import { startDay } from './day';
 import { assignJobs } from './jobs';
@@ -28,8 +28,9 @@ export function apply(
   return { state: s, events };
 }
 
-// One tick: the commands, construction, the start of a game day, jobs, production, the board's
-// goals (rule 6c), then retooling and tick + 1. Never changes its input.
+// One tick: the commands, construction, the board's deliveries and offers (rule 6a), the start
+// of a game day, jobs, production, the board's goals (rule 6c), then retooling and tick + 1.
+// Never changes its input.
 export function step(
   state: State,
   list: Command[],
@@ -39,6 +40,7 @@ export function step(
   const events: Event[] = [];
   commands(s, list, content, events);
   construct(s, content, events);
+  trader(s, content, events);
   if (s.tick > 0 && s.tick % DAY_TICKS === 0) startDay(s, content, events);
   if (s.jobsDirty) assignJobs(s, content);
   if ((s.tick + 1) % content.cycleTicks === 0) produce(s, content, events);

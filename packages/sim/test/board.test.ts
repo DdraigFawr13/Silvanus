@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
-import { apply, capsOf, goalProgress, newGame, rewardPreview, step } from '../src/index';
-import type { Command, Event, State } from '../src/index';
+import { advance, apply, capsOf, goalProgress, newGame, rewardPreview, step } from '../src/index';
+import type { Command, Event, Offer, State } from '../src/index';
 import { content, finished, run } from './town';
 
 // M2e S1, the board's goals (spec J1 and J2). A goal is set on the board by hand where a test
@@ -247,5 +247,140 @@ describe('rewards', () => {
       need: 12,
     });
     expect(goalProgress(offered(town, ['quarry'], 'quarry'), content)).toBeNull();
+  });
+});
+
+// M2e S2, the trader (spec J3 and J4).
+describe('trader', () => {
+  const offer = (over: Partial<Offer> = {}): Offer => ({
+    id: 1,
+    give: { resource: 'wood', amount: 40 },
+    get: { resource: 'tools', amount: 13 },
+    until: 5000,
+    ...over,
+  });
+  const withOffers = (state: State, offers: Offer[]): State => ({
+    ...state,
+    board: { ...state.board, offers, nextOfferId: Math.max(0, ...offers.map((o) => o.id)) + 1 },
+  });
+
+  test('an offer an hour, three at most', () => {
+    const start = newGame(1, content);
+    const after = (ticks: number) => advance(start, ticks, content).state.board;
+    expect(after(12).offers).toHaveLength(0);
+    expect(after(13).offers).toHaveLength(1);
+    expect(after(253).offers).toHaveLength(2);
+    expect(after(493).offers).toHaveLength(3);
+    const full = after(733);
+    expect(full.offers).toHaveLength(3);
+    expect(full.offers.map((o) => o.id)).toEqual([1, 2, 3]);
+    expect(full.nextOfferTick).toBe(972);
+    expect(full.nextOfferId).toBe(4);
+  });
+
+  test('an offer swaps plenty for short', () => {
+    const caps = capsOf(newGame(1, content), content);
+    const value = (id: string) => content.resources.find((r) => r.id === id)!.value;
+    // many seeds and stock levels: each offer obeys the rule it was drawn by
+    let seen = 0;
+    for (let seed = 1; seed <= 40; seed++) {
+      const start = newGame(seed, content);
+      const stock = Object.fromEntries(
+        content.resources.map((r, i) => [
+          r.id,
+          Math.floor((caps[r.id] * ((seed * (i + 3)) % 11)) / 10),
+        ]),
+      );
+      const town = { ...start, stock, board: { ...start.board, nextOfferTick: 0 } };
+      const { state } = step(town, [], content);
+      const rank = (id: string) => Math.floor((stock[id] * 1000) / caps[id]);
+      const byRank = content.resources.map((r) => r.id).sort((a, b) => rank(b) - rank(a));
+      const shortOnes = byRank.filter((id) => stock[id] * 100 < caps[id] * 80).reverse();
+      const o = state.board.offers[0];
+      if (!o) continue;
+      seen += 1;
+      expect(byRank.slice(0, 2).map(rank), `seed ${seed}`).toContain(rank(o.give.resource));
+      expect(stock[o.get.resource] * 100, `seed ${seed}`).toBeLessThan(caps[o.get.resource] * 80);
+      expect(o.get.resource).not.toBe(o.give.resource);
+      const lowest = shortOnes
+        .filter((id) => id !== o.give.resource)
+        .map(rank)
+        .slice(0, 2);
+      expect(lowest, `seed ${seed}`).toContain(rank(o.get.resource));
+      expect(o.give.amount).toBe(
+        Math.min(Math.floor(caps[o.give.resource] / 5), stock[o.give.resource]),
+      );
+      expect(o.get.amount).toBe(
+        Math.max(1, Math.floor((o.give.amount * value(o.give.resource)) / value(o.get.resource))),
+      );
+    }
+    expect(seen).toBeGreaterThan(20);
+    // nothing below 80%: no offer, but the hour still passes
+    const start = newGame(1, content);
+    const rich = { ...start, stock: { ...caps }, board: { ...start.board, nextOfferTick: 0 } };
+    const none = step(rich, [], content).state.board;
+    expect(none.offers).toEqual([]);
+    expect(none.nextOfferTick).toBe(240);
+  });
+
+  test('an offer outlasts the catch-up cap', () => {
+    const drawn = advance(newGame(1, content), 13, content).state;
+    expect(drawn.board.offers[0].until).toBe(12 + 1920 + 240);
+    // the Hall reaches the Village: every waiting offer is stretched in that tick
+    const hallJob = { target: 'hall' as const, toTier: 2, ticksLeft: 1, cost: {} };
+    const growing = { ...withOffers(drawn, [offer({ until: 100 })]), queue: [hallJob] };
+    const grown = step(growing, [], content).state;
+    expect(grown.hallTier).toBe(2);
+    expect(grown.board.offers[0].until).toBe(13 + 3840 + 240);
+    // at `until` the offer is dropped and the log says so
+    const leaving = withOffers(drawn, [offer({ until: 13 })]);
+    const gone = step(leaving, [], content);
+    expect(gone.state.board.offers).toEqual([]);
+    expect(gone.events).toContainEqual({ type: 'offerGone', id: 1 });
+    expect(gone.state.log.map((l) => l.text)).toContain('The trader moved on.');
+  });
+
+  test('an accepted swap pays a day later', () => {
+    const town = withOffers(
+      { ...newGame(1, content), stock: { ...newGame(1, content).stock, wood: 50, tools: 0 } },
+      [offer({ give: { resource: 'wood', amount: 40 }, get: { resource: 'tools', amount: 13 } })],
+    );
+    const t = town.tick;
+    const sent = step(town, [{ type: 'acceptOffer', id: 1 }], content);
+    expect(sent.state.stock.wood).toBe(10);
+    expect(sent.state.board.offers).toEqual([]);
+    expect(sent.state.board.deliveries).toEqual([{ resource: 'tools', amount: 13, at: t + 24 }]);
+    expect(sent.state.log.map((l) => l.text)).toContain('Sent 40 wood to the trader.');
+    let s = run(sent.state, 23);
+    expect(s.stock.tools).toBe(0);
+    const arrives = step(s, [], content);
+    expect(arrives.state.stock.tools).toBe(13);
+    expect(arrives.events).toContainEqual({ type: 'delivered', resource: 'tools', amount: 13 });
+    expect(arrives.state.log.at(-1)!.text).toBe("The trader's 13 tools arrived.");
+    expect(arrives.state.board.deliveries).toEqual([]);
+    // tools at 45 of 50: 5 fit, 8 are lost
+    s = { ...s, stock: { ...s.stock, tools: 45 } };
+    const over = step(s, [], content);
+    expect(over.state.stock.tools).toBe(50);
+    expect(over.events).toContainEqual({ type: 'lost', resource: 'tools', amount: 8 });
+    expect(over.events).toContainEqual({ type: 'delivered', resource: 'tools', amount: 5 });
+    expect(over.state.log.at(-1)!.text).toBe(
+      "The trader's 13 tools arrived. (stores full: the rest was lost)",
+    );
+  });
+
+  test('a swap the town cannot pay; declining', () => {
+    const start = newGame(1, content);
+    const town = withOffers({ ...start, stock: { ...start.stock, wood: 30 } }, [offer()]);
+    const rejected = (command: Command) =>
+      apply(town, [command], content).events.find((e) => e.type === 'rejected');
+    expect(rejected({ type: 'acceptOffer', id: 1 })).toMatchObject({ reason: 'noStock' });
+    expect(rejected({ type: 'acceptOffer', id: 9 })).toMatchObject({ reason: 'unknown' });
+    expect(rejected({ type: 'declineOffer', id: 9 })).toMatchObject({ reason: 'unknown' });
+    const declined = apply(town, [{ type: 'declineOffer', id: 1 }], content);
+    expect(declined.state.board.offers).toEqual([]);
+    expect(declined.state.stock).toEqual(town.stock);
+    expect(declined.state.log).toEqual(town.log);
+    expect(declined.events).toEqual([]);
   });
 });

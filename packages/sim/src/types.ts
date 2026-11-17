@@ -86,7 +86,9 @@ export type Command =
   | { type: 'setMethod'; buildingId: number; method: string }
   | { type: 'setOpen'; buildingId: number; count: number }
   | { type: 'pin'; residentId: number; buildingId: number | null }
-  | { type: 'pickGoal'; id: string };
+  | { type: 'pickGoal'; id: string }
+  | { type: 'acceptOffer'; id: number }
+  | { type: 'declineOffer'; id: number };
 
 export type Reason =
   | 'unknown'

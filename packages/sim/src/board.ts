@@ -1,8 +1,8 @@
 import { draw } from './rng';
-import type { Amounts, Command, Content, Event, Goal, Reason, State } from './types';
-import { addLog, amountsLine, capsOf } from './util';
+import type { Amounts, Command, Content, Event, Goal, Offer, Reason, State } from './types';
+import { addLog, amountsLine, capsOf, hallOf } from './util';
 
-// Rule 6, the board (M2e, D-049 to D-053). S1: goals. The trader and trips come in S2 and S3.
+// Rule 6, the board (M2e, D-049 to D-053): goals (S1) and the trader (S2). Trips come in S3.
 
 export const goalOf = (content: Content, id: string | null): Goal | undefined =>
   id === null ? undefined : content.goals.find((goal) => goal.id === id);
@@ -77,14 +77,108 @@ export function boardRefusal(state: State, command: Command): Reason | null {
     if (!state.board.goals.includes(command.id)) return 'unknown';
     return state.board.active === command.id ? 'same' : null;
   }
+  if (command.type === 'acceptOffer' || command.type === 'declineOffer') {
+    const offer = state.board.offers.find((o) => o.id === command.id);
+    if (!offer) return 'unknown';
+    if (command.type === 'declineOffer') return null;
+    return state.stock[offer.give.resource] >= offer.give.amount ? null : 'noStock';
+  }
   return 'unknown';
 }
 
-export function boardCarryOut(s: State, command: Command): void {
+export function boardCarryOut(s: State, command: Command, content: Content): void {
+  const board = s.board;
   if (command.type === 'pickGoal') {
-    s.board.active = command.id;
-    s.board.progress = 0;
+    board.active = command.id;
+    board.progress = 0;
+  } else if (command.type === 'acceptOffer') {
+    const offer = board.offers.find((o) => o.id === command.id)!;
+    s.stock[offer.give.resource] -= offer.give.amount;
+    board.deliveries.push({ ...offer.get, at: s.tick + content.rules.deliveryTicks });
+    board.offers = board.offers.filter((o) => o.id !== offer.id);
+    const sent = amountsLine({ [offer.give.resource]: offer.give.amount }, content);
+    addLog(s, content, 'sent', `Sent ${sent} to the trader.`);
+  } else if (command.type === 'declineOffer') {
+    board.offers = board.offers.filter((o) => o.id !== command.id);
   }
+}
+
+// Goods arriving: as much as the store has room for; the rest is a `lost` event (D-052).
+// Returns the units kept.
+function land(s: State, content: Content, resource: string, amount: number, events: Event[]) {
+  const room = capsOf(s, content)[resource] - s.stock[resource];
+  const kept = Math.max(0, Math.min(amount, room));
+  s.stock[resource] += kept;
+  if (amount > kept) events.push({ type: 'lost', resource, amount: amount - kept });
+  return kept;
+}
+
+// The trader's swap (D-050): plenty for short by stock / cap, paid value for value. null when
+// no offer can be made this hour.
+function drawOffer(s: State, content: Content): Offer | null {
+  const caps = capsOf(s, content);
+  const order = (id: string) => content.resources.findIndex((r) => r.id === id);
+  const ranked = content.resources.map((r) => ({
+    r,
+    rank: Math.floor((s.stock[r.id] * 1000) / caps[r.id]),
+  }));
+  // highest first and lowest first, ties in content order
+  const high = ranked.slice().sort((a, b) => b.rank - a.rank || order(a.r.id) - order(b.r.id));
+  const pick = (n: number) => {
+    const result = draw(s.rng, 'trader', s.seed, n);
+    s.rng = result.rng;
+    return result.value;
+  };
+  const give = high[pick(2)].r;
+  if (s.stock[give.id] === 0) return null;
+  const below = content.rules.tradeGetBelowPct;
+  const short = ranked
+    .filter(({ r }) => r.id !== give.id && s.stock[r.id] * 100 < caps[r.id] * below)
+    .sort((a, b) => a.rank - b.rank || order(a.r.id) - order(b.r.id));
+  if (short.length === 0) return null;
+  const get = short.length === 1 ? short[0].r : short[pick(2)].r;
+  const share = Math.floor((give.cap * content.rules.tradeSharePct) / 100);
+  const amount = Math.min(share, s.stock[give.id]);
+  return {
+    id: s.board.nextOfferId++,
+    give: { resource: give.id, amount },
+    get: { resource: get.id, amount: Math.max(1, Math.floor((amount * give.value) / get.value)) },
+    until: s.tick + hallOf(s, content).catchUpCap + content.rules.offerExtraTicks,
+  };
+}
+
+// Rule 6a, after construction and before the start of a game day: deliveries land, then the
+// trader's offers (expiry, then one new offer an hour, at most offersMax waiting).
+export function trader(s: State, content: Content, events: Event[]): void {
+  const board = s.board;
+  const due = board.deliveries.filter((d) => d.at <= s.tick);
+  board.deliveries = board.deliveries.filter((d) => d.at > s.tick);
+  for (const delivery of due) {
+    const kept = land(s, content, delivery.resource, delivery.amount, events);
+    if (kept > 0) events.push({ type: 'delivered', resource: delivery.resource, amount: kept });
+    const what = amountsLine({ [delivery.resource]: delivery.amount }, content);
+    const full = kept < delivery.amount ? ' (stores full: the rest was lost)' : '';
+    addLog(s, content, 'delivered', `The trader's ${what} arrived.${full}`);
+  }
+  for (const offer of board.offers.filter((o) => o.until <= s.tick)) {
+    events.push({ type: 'offerGone', id: offer.id });
+    addLog(s, content, 'offerGone', 'The trader moved on.');
+  }
+  board.offers = board.offers.filter((o) => o.until > s.tick);
+  if (s.tick >= board.nextOfferTick) {
+    if (board.offers.length < content.rules.offersMax) {
+      const offer = drawOffer(s, content);
+      if (offer) board.offers.push(offer);
+    }
+    // a missed hour is not made up
+    board.nextOfferTick += content.rules.offerEveryTicks;
+  }
+}
+
+// The Hall reached a new tier: no waiting offer leaves inside the new catch-up cap (D-018).
+export function stretchOffers(s: State, content: Content): void {
+  const until = s.tick + hallOf(s, content).catchUpCap + content.rules.offerExtraTicks;
+  for (const offer of s.board.offers) offer.until = Math.max(offer.until, until);
 }
 
 function pay(s: State, goal: Goal, content: Content, events: Event[]): void {

@@ -125,7 +125,7 @@ describe('saves', () => {
     expect(await load()).toEqual({ kind: 'none' });
     const saved = record();
     expect(saved.state.stock.food).toBeGreaterThan(0);
-    expect(Object.keys(saved.state.rng)).toEqual(['arrivals', 'goals']);
+    expect(Object.keys(saved.state.rng)).toEqual(['arrivals', 'goals', 'trader']);
     expect(saved.state.queue).toEqual([]);
     expect(saved.state.log).toHaveLength(1);
     await save(saved);
