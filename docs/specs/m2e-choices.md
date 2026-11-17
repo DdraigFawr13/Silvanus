@@ -237,6 +237,7 @@ The mock-up of the board, the trip sheet and the People row (`mockups/board.html
 ### S1 Goals
 
 - **Built (2026-11-17):** the last five Hamlet rows above were added in S1. Without them soak pass 2 offered 0 goals at its tick-1,440 check-in (every store but ore full, every building goal met); with them it offers 3 at every check-in (`few_goals=0`). The band then failed: see HANDOFF's open questions for the `rewardPct` measurements.
+- **S2 and S3 built (2026-11-17)** on the same branch. With all three slices `rewardPct` 100, 75, 50 and 25 all give the Village at tick 1,056, so it is not a lever: goals alone set the pace (goals off, trader and trips on: 1,536). Defaults taken in the build: a delivery or trip whose goods do not all fit adds " (stores full: the rest was lost)" to its log line; a reward with no room at all logs "The stores were full, so the reward was lost."; an unpayable Accept stays tappable and is refused; the resident sheet also says "On a trip".
 
 - **Morgan tries:** open the Town tab; pick one of three goals; watch its progress; when it is met, the stores rise and three new goals appear.
 - **Checks that fail now:** J1, J2, J6, J7 (all its cases: S1 builds the whole board check), J8 "the board offers three goals", J10 (`goals_met` > 0, `pickGoal` carried out, `no_choice` gate).
