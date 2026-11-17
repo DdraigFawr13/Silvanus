@@ -1,3 +1,4 @@
+import { boardCarryOut, boardRefusal } from './board';
 import type { Amounts, Command, Content, Event, Reason, State } from './types';
 import { addLog, capsOf, covers, freeMethods, hallOf, kindOf, methodOf, slotsOf } from './util';
 
@@ -93,6 +94,8 @@ export function refusal(state: State, command: Command, content: Content): Reaso
       }
       return resident.pinnedTo === command.buildingId ? 'same' : null;
     }
+    case 'pickGoal':
+      return boardRefusal(state, command);
     default: {
       const never: never = command;
       void never;
@@ -215,6 +218,9 @@ export function carryOut(s: State, command: Command, content: Content, events: E
       s.queue.push({ target: 'hall', toTier: s.hallTier + 1, ticksLeft: ticks, cost: { ...cost } });
       return;
     }
+    case 'pickGoal':
+      boardCarryOut(s, command);
+      return;
     default: {
       const never: never = command;
       void never;

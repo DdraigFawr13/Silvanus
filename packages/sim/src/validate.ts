@@ -95,6 +95,57 @@ export function validateContent(content: Content): string[] {
   for (const resource of content.resources) {
     if (resource.start > resource.cap) faults.push(`${resource.id} starts above its cap`);
   }
+  // goods' values (D-053), the goals (D-049) and the forage trips (D-051)
+  for (const resource of content.resources) {
+    if (!positive(resource.value)) faults.push(`${resource.id} has no value`);
+  }
+  const goalIds = new Set<string>();
+  for (const goal of content.goals) {
+    const what = `goal ${goal.id}`;
+    if (goalIds.has(goal.id)) faults.push(`${what} is listed twice`);
+    goalIds.add(goal.id);
+    if (!positive(goal.hall) || goal.hall > content.hall.tiers.length) {
+      faults.push(`${what} names no Hall tier`);
+    }
+    if (!positive(goal.reward)) faults.push(`${what} has a zero or negative reward`);
+    const when = goal.when;
+    if (when.type === 'make') {
+      if (!resources.has(when.resource)) {
+        faults.push(`${what} names an unknown resource, ${when.resource}`);
+      } else if (when.amount > baseCap.get(when.resource)!) {
+        faults.push(`${what} asks for more ${when.resource} than a base store holds`);
+      }
+      if (!positive(when.amount)) faults.push(`${what} has a zero or negative amount`);
+    } else if (when.type === 'building') {
+      const kind = content.buildings.find((b) => b.id === when.kind);
+      if (!kind) faults.push(`${what} names an unknown building, ${when.kind}`);
+      else if (!positive(when.tier) || when.tier > kind.tiers.length) {
+        faults.push(`${what} names a tier ${when.kind} does not have`);
+      }
+    } else if (!positive(when.count)) {
+      faults.push(`${what} has a zero or negative count`);
+    }
+  }
+  if (content.goals.filter((g) => g.hall === 1).length < content.rules.goalsOffered) {
+    faults.push(`there must be at least ${content.rules.goalsOffered} goals at Hall tier 1`);
+  }
+  const { trips } = content;
+  for (const [name, n] of Object.entries({
+    size: trips.size,
+    ticks: trips.ticks,
+    draws: trips.draws,
+  })) {
+    if (!positive(n)) faults.push(`trips ${name} is a zero or negative number`);
+  }
+  if (trips.finds.length === 0) faults.push('trips have no finds');
+  for (const find of trips.finds) {
+    if (!resources.has(find.resource)) {
+      faults.push(`a trip find names an unknown resource, ${find.resource}`);
+    }
+    if (!positive(find.min) || !positive(find.max) || find.min > find.max) {
+      faults.push(`the trip find of ${find.resource} needs 1 <= min <= max`);
+    }
+  }
   // a settler draws two different traits
   if (content.traits.length < 2) faults.push('there must be at least 2 traits');
   // ids the engine reads by name: eating, and the founders' buildings (D-025)

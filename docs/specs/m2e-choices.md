@@ -143,6 +143,11 @@ The build starts from `56a08b1` (main after PR #17). Every named test is new or 
   | `harvest` | A good harvest | 1 | make 120 food | 1,100 |
   | `twelve` | Twelve hearths | 1 | residents 12 | 1,200 |
   | `snug` | Snug cottages | 1 | building cottage 2 | 1,200 |
+  | `masonry` | Stone for walls | 1 | make 80 stone | 1,000 |
+  | `orevein` | Follow the ore | 1 | make 30 ore | 1,100 |
+  | `toolrack` | Tools for every hand | 1 | make 15 tools | 1,200 |
+  | `firstfield` | Break the first field | 1 | building farm 1 | 1,200 |
+  | `alehouse` | Raise a tavern | 1 | building tavern 1 | 1,300 |
   | `toolmaker` | A store of tools | 2 | make 30 tools | 2,000 |
   | `deepmine` | Deeper shafts | 2 | building mine 2 | 2,200 |
   | `thirty` | Thirty souls | 2 | residents 30 | 2,100 |
@@ -230,6 +235,8 @@ As J10. `TYPES`, `WEIGHTS` and the `carried` gate gain each new command in the s
 The mock-up of the board, the trip sheet and the People row (`mockups/board.html`, https://claude.ai/artifact/NgdEzBBvKhj7FrP2ivPYXU) was approved by Morgan on 2026-11-17 ("Approved"), with its wording changes (written into "Web" above) and its recommendation on goals: on seed 1 at real hour 4 only 2 Hamlet goals are eligible, so S1 adds Hamlet goals (for example stone, ore and tools `make` goals, each worth about an hour of work) until soak pass 2 offers 3 goals at every check-in, and reports the count.
 
 ### S1 Goals
+
+- **Built (2026-11-17):** the last five Hamlet rows above were added in S1. Without them soak pass 2 offered 0 goals at its tick-1,440 check-in (every store but ore full, every building goal met); with them it offers 3 at every check-in (`few_goals=0`). The band then failed: see HANDOFF's open questions for the `rewardPct` measurements.
 
 - **Morgan tries:** open the Town tab; pick one of three goals; watch its progress; when it is met, the stores rise and three new goals appear.
 - **Checks that fail now:** J1, J2, J6, J7 (all its cases: S1 builds the whole board check), J8 "the board offers three goals", J10 (`goals_met` > 0, `pickGoal` carried out, `no_choice` gate).

@@ -125,7 +125,7 @@ describe('saves', () => {
     expect(await load()).toEqual({ kind: 'none' });
     const saved = record();
     expect(saved.state.stock.food).toBeGreaterThan(0);
-    expect(Object.keys(saved.state.rng)).toEqual(['arrivals']);
+    expect(Object.keys(saved.state.rng)).toEqual(['arrivals', 'goals']);
     expect(saved.state.queue).toEqual([]);
     expect(saved.state.log).toHaveLength(1);
     await save(saved);
@@ -340,6 +340,36 @@ describe('saves', () => {
     expect(parse(broken)).toEqual({ kind: 'damaged', raw: broken });
   });
 
+  test('a schema 3 town gains a board', () => {
+    const town = record().state;
+    const without = ({ board, ...rest }: typeof town) => {
+      void board;
+      return rest;
+    };
+    const old = { schema: 3, anchorMs: 1_700_000_000_000, state: without(town) };
+    const parsed = parse(old);
+    expect(parsed.kind).toBe('ok');
+    if (parsed.kind !== 'ok') return;
+    expect(parsed.upgradedFrom).toBe(3);
+    expect(parsed.record.schema).toBe(4);
+    expect(parsed.record.state.board).toEqual({
+      goals: [],
+      active: null,
+      progress: 0,
+      offers: [],
+      nextOfferId: 1,
+      nextOfferTick: town.tick + content.rules.firstOfferTick,
+      deliveries: [],
+      trip: null,
+    });
+    // the next tick draws goals
+    const next = advance(parsed.record.state, 1, content).state;
+    expect(next.board.goals).toHaveLength(content.rules.goalsOffered);
+    // a schema 3 record with no tick stays damaged
+    const broken = { ...old, state: { ...old.state, tick: 'x' } };
+    expect(parse(broken)).toEqual({ kind: 'damaged', raw: broken });
+  });
+
   test('a damaged schema 1 save stays damaged', () => {
     const good = m0Record();
     expect(parse(good).kind).toBe('ok');
@@ -397,6 +427,19 @@ describe('saves', () => {
     const job = { target: camp.id, toTier: 2, ticksLeft: 24, cost: { wood: 40 } };
     const hallJob = { target: 'hall', toTier: 2, ticksLeft: 96, cost: {} };
     const line = { tick: 1, type: 'built', text: 'x' };
+    const withBoard = (patch: object) => withState({ board: { ...state.board, ...patch } });
+    const offer = {
+      id: 2,
+      give: { resource: 'wood', amount: 40 },
+      get: { resource: 'tools', amount: 13 },
+      until: 2160,
+    };
+    const worker = state.residents.find((r) => r.jobId !== null)!;
+    // three residents with no job, who may be out on a trip
+    const freed = state.residents.map((r, i) => (i < 3 ? { ...r, jobId: null } : r));
+    const idle = freed.slice(0, 3);
+    const withTrip = (trip: object) =>
+      withState({ residents: freed, board: { ...state.board, trip } });
     const cases: [string, unknown][] = [
       ['tick past 2^53', withState({ tick: 2 ** 53 })],
       ['tick far past 2^53', withState({ tick: 1e300 })],
@@ -464,11 +507,70 @@ describe('saves', () => {
       ['a job with a text cost', withState({ queue: [{ ...job, cost: { wood: '40' } }] })],
       ['101 log lines', withState({ log: Array(101).fill(line) })],
       ['a log line with no text', withState({ log: [{ tick: 1, type: 'built' }] })],
+      // the board (M2e J7)
+      ['no board', withState({ board: undefined })],
+      ['an unknown goal', withBoard({ goals: ['castle'] })],
+      ['a goal offered twice', withBoard({ goals: ['quarry', 'quarry'] })],
+      ['four goals', withBoard({ goals: ['quarry', 'twelve', 'snug', 'forge'] })],
+      ['an active goal not on offer', withBoard({ goals: ['quarry'], active: 'twelve' })],
+      [
+        'progress on a building goal',
+        withBoard({ goals: ['quarry'], active: 'quarry', progress: 1 }),
+      ],
+      [
+        'progress past a make goal',
+        withBoard({ goals: ['stockpile'], active: 'stockpile', progress: 81 }),
+      ],
+      [
+        'progress fractional',
+        withBoard({ goals: ['stockpile'], active: 'stockpile', progress: 0.5 }),
+      ],
+      [
+        'an offer of an unknown resource',
+        withBoard({ offers: [{ ...offer, give: { resource: 'gold', amount: 40 } }] }),
+      ],
+      [
+        'an offer of nothing',
+        withBoard({ offers: [{ ...offer, get: { resource: 'food', amount: 0 } }] }),
+      ],
+      ['two offers share an id', withBoard({ offers: [offer, offer] })],
+      ['an offer id at nextOfferId', withBoard({ offers: [{ ...offer, id: 3 }] })],
+      [
+        'four offers',
+        withBoard({ offers: [1, 2, 3, 4].map((id) => ({ ...offer, id })), nextOfferId: 9 }),
+      ],
+      ['nextOfferTick negative', withBoard({ nextOfferTick: -1 })],
+      [
+        'a delivery of an unknown resource',
+        withBoard({ deliveries: [{ resource: 'gold', amount: 1, at: 5 }] }),
+      ],
+      ['a trip naming a missing resident', withTrip({ residentIds: [999], back: 60 })],
+      [
+        'a resident on a trip with a job',
+        withState({ board: { ...state.board, trip: { residentIds: [worker.id], back: 60 } } }),
+      ],
+      ['a trip of three', withTrip({ residentIds: idle.slice(0, 3).map((r) => r.id), back: 60 })],
+      ['a trip naming one twice', withTrip({ residentIds: [idle[0].id, idle[0].id], back: 60 })],
+      ['a trip with no return tick', withTrip({ residentIds: [idle[0].id] })],
     ];
     for (const [name, raw] of cases) expect(parse(raw), name).toEqual({ kind: 'damaged', raw });
     // the same patches, kept inside the limits, are still a good record
     const fine = withState({ queue: [job, hallJob], log: Array(100).fill(line) });
     expect(parse(fine).kind).toBe('ok');
+    // and a full board inside its limits: three goals, one active, offers, a delivery, a trip
+    const board = withBoard({
+      goals: ['stockpile', 'quarry', 'twelve'],
+      active: 'stockpile',
+      progress: 80,
+      offers: [offer, { ...offer, id: 1 }, { ...offer, id: 0 }],
+      nextOfferId: 3,
+      deliveries: [{ resource: 'tools', amount: 13, at: 64 }],
+    });
+    expect(parse(board).kind).toBe('ok');
+    const out = { ...board.state.board, trip: { residentIds: [idle[0].id, idle[1].id], back: 60 } };
+    expect(parse({ ...board, state: { ...board.state, residents: freed, board: out } }).kind).toBe(
+      'ok',
+    );
     // a building still waiting to be built, with its job, is a good record too
     const ordered = apply(state, [{ type: 'build', kind: 'cottage' }], content).state;
     expect(ordered.buildings.at(-1)?.tier).toBe(0);

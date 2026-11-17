@@ -69,7 +69,26 @@ export function draft(state: State): State {
     queue: state.queue.map((job) => ({ ...job })),
     residents: state.residents.map((r) => ({ ...r, skills: { ...r.skills } })),
     log: state.log.slice(),
+    board: {
+      ...state.board,
+      goals: state.board.goals.slice(),
+      offers: state.board.offers.map((o) => ({ ...o, give: { ...o.give }, get: { ...o.get } })),
+      deliveries: state.board.deliveries.map((d) => ({ ...d })),
+      trip: state.board.trip && {
+        ...state.board.trip,
+        residentIds: state.board.trip.residentIds.slice(),
+      },
+    },
   };
+}
+
+// "40 wood, 5 tools", in the content's resource order, for log lines. The same format as the
+// web's `amountsText`, which the screens keep for themselves.
+export function amountsLine(amounts: Amounts, content: Content): string {
+  return content.resources
+    .filter((r) => amounts[r.id] !== undefined)
+    .map((r) => `${amounts[r.id]} ${r.name.toLowerCase()}`)
+    .join(', ');
 }
 
 export function addLog(s: State, content: Content, type: string, text: string): void {

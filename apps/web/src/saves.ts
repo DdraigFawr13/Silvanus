@@ -3,7 +3,7 @@ import { capsOf, freeMethods, kindOf, newGame } from '@silvanus/sim';
 import type { State } from '@silvanus/sim';
 import { testTickMs } from './clock';
 
-export const SCHEMA = 3;
+export const SCHEMA = 4;
 export const STORE = 'saves';
 export const KEY = 'main';
 // The record an import or an upgrade replaced, kept so it can be brought back by hand (audit F4).
@@ -105,6 +105,46 @@ function residentOk(v: unknown, buildingIds: Set<unknown>): boolean {
   return [v.jobId, v.pinnedTo].every((id) => id === null || buildingIds.has(id));
 }
 
+// The board (M2e): every field, and the pairs that point elsewhere (LESSONS saves entry): the
+// active goal among those on offer, offer ids below the next one, a trip's members living
+// residents with no job.
+function boardOk(v: unknown, residents: Record<string, unknown>[]): boolean {
+  if (!isObject(v)) return false;
+  const { goals, active, progress, offers, deliveries, trip } = v;
+  const { rules } = content;
+  if (!Array.isArray(goals) || goals.length > rules.goalsOffered) return false;
+  if (new Set(goals).size !== goals.length) return false;
+  if (!goals.every((id) => content.goals.some((g) => g.id === id))) return false;
+  if (active !== null && !goals.includes(active)) return false;
+  const goal = content.goals.find((g) => g.id === active);
+  if (!upTo(progress, goal?.when.type === 'make' ? goal.when.amount : 0)) return false;
+  if (!isWhole(v.nextOfferId) || !isWhole(v.nextOfferTick)) return false;
+  const nextOfferId = v.nextOfferId;
+  const known = (r: unknown) => content.resources.some((res) => res.id === r);
+  const part = (p: unknown) =>
+    isObject(p) && known(p.resource) && isWhole(p.amount) && p.amount > 0;
+  const offerOk = (o: unknown) =>
+    isObject(o) &&
+    isWhole(o.id) &&
+    o.id < nextOfferId &&
+    part(o.give) &&
+    part(o.get) &&
+    isWhole(o.until);
+  if (!Array.isArray(offers) || offers.length > rules.offersMax) return false;
+  if (!offers.every(offerOk) || new Set(offers.map((o) => o.id)).size !== offers.length) {
+    return false;
+  }
+  const deliveryOk = (d: unknown) =>
+    isObject(d) && known(d.resource) && isWhole(d.amount) && isWhole(d.at);
+  if (!Array.isArray(deliveries) || !deliveries.every(deliveryOk)) return false;
+  if (trip === null) return true;
+  if (!isObject(trip) || !isWhole(trip.back)) return false;
+  const ids = trip.residentIds;
+  if (!Array.isArray(ids) || ids.length < 1 || ids.length > content.trips.size) return false;
+  if (new Set(ids).size !== ids.length) return false;
+  return ids.every((id) => residents.some((r) => r.id === id && r.jobId === null));
+}
+
 // A new field in the save means a check here and, for a stored shape that changes, an upgrade
 // step below.
 function shapeOk(v: unknown): v is SaveRecord {
@@ -155,6 +195,7 @@ function shapeOk(v: unknown): v is SaveRecord {
     typeof line.type === 'string' &&
     typeof line.text === 'string';
   if (!Array.isArray(log) || log.length > content.rules.logMax || !log.every(lineOk)) return false;
+  if (!boardOk(state.board, residents)) return false;
 
   // every store the content has, each a whole number up to its cap, and no others
   const stock = state.stock;
@@ -180,6 +221,22 @@ const upgrades: Record<number, (old: unknown) => unknown> = {
       return { ...b, owned: [...free, ...runs] };
     });
     return { ...old, schema: 3, state: { ...old.state, buildings } };
+  },
+  // 3 to 4: the board (M2e). Empty; the next tick draws goals, and the first offer comes in the
+  // first sitting.
+  3: (old) => {
+    if (!isObject(old) || !isObject(old.state) || !isWhole(old.state.tick)) return null;
+    const board: State['board'] = {
+      goals: [],
+      active: null,
+      progress: 0,
+      offers: [],
+      nextOfferId: 1,
+      nextOfferTick: old.state.tick + content.rules.firstOfferTick,
+      deliveries: [],
+      trip: null,
+    };
+    return { ...old, schema: 4, state: { ...old.state, board } };
   },
 };
 

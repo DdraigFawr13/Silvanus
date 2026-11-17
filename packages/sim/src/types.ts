@@ -1,4 +1,4 @@
-export type StreamName = 'arrivals' | `test:${string}`;
+export type StreamName = 'arrivals' | 'goals' | 'trader' | 'trips' | `test:${string}`;
 // stream name -> unsigned 32-bit state; a stream is added on its first draw
 export type RngState = Record<string, number>;
 // resource id -> whole units (or the scaled unit a comment names)
@@ -40,6 +40,26 @@ export type Building = {
 export type Job = { target: 'hall' | number; toTier: number; ticksLeft: number; cost: Amounts };
 export type LogLine = { tick: number; type: string; text: string };
 
+// The board (M2e, rule 6): goals, the trader's offers, goods on the way and a forage trip.
+export type Offer = {
+  id: number;
+  give: { resource: string; amount: number };
+  get: { resource: string; amount: number };
+  until: number; // the tick it is dropped at
+};
+export type Delivery = { resource: string; amount: number; at: number };
+export type Trip = { residentIds: number[]; back: number };
+export type Board = {
+  goals: string[]; // on offer; [] until drawn
+  active: string | null; // one of `goals`
+  progress: number; // `make`: units made since the pick; 0 otherwise
+  offers: Offer[]; // at most offersMax, oldest first
+  nextOfferId: number; // offers number apart from nextId, so resident and building ids stay as they are
+  nextOfferTick: number;
+  deliveries: Delivery[]; // oldest first
+  trip: Trip | null;
+};
+
 export type State = {
   contentVersion: number; // from Content.version; set to the running content's version on load
   seed: number;
@@ -54,6 +74,7 @@ export type State = {
   lastLeftTick: number; // tick of the last departure, minus the leaving gap at start
   jobsDirty: boolean;
   log: LogLine[]; // newest last, at most logMax
+  board: Board;
 };
 
 export type Command =
@@ -64,7 +85,8 @@ export type Command =
   | { type: 'clear'; buildingId: number }
   | { type: 'setMethod'; buildingId: number; method: string }
   | { type: 'setOpen'; buildingId: number; count: number }
-  | { type: 'pin'; residentId: number; buildingId: number | null };
+  | { type: 'pin'; residentId: number; buildingId: number | null }
+  | { type: 'pickGoal'; id: string };
 
 export type Reason =
   | 'unknown'
@@ -91,7 +113,12 @@ export type Event =
   | { type: 'fellBack'; buildingId: number }
   | { type: 'arrived' | 'left'; residentId: number; name: string }
   // the Hall reached a new tier
-  | { type: 'village'; tier: number };
+  | { type: 'village'; tier: number }
+  // the board (rule 6); each writes a log line. `offerGone`: an offer reached its `until`
+  | { type: 'goalDone'; id: string; paid: Amounts }
+  | { type: 'delivered'; resource: string; amount: number }
+  | { type: 'tripBack'; finds: Amounts }
+  | { type: 'offerGone'; id: number };
 
 export type Summary = {
   ticks: number;
@@ -126,11 +153,21 @@ export type Method = {
   cost: Amounts; // paid once by a building to own it; {} for a method every building owns (D-034)
 };
 
+// What a goal asks for (D-049): goods made since the pick, a building at a tier, or residents.
+export type GoalWhen =
+  | { type: 'make'; resource: string; amount: number }
+  | { type: 'building'; kind: string; tier: number }
+  | { type: 'residents'; count: number };
+// `hall`: the lowest Hall tier it is offered at. `reward`: a value (D-053), split across the
+// stores with room when it is met.
+export type Goal = { id: string; name: string; hall: number; when: GoalWhen; reward: number };
+
 export type Content = {
   version: number;
   town: string;
   cycleTicks: number;
-  resources: { id: string; name: string; cap: number; start: number }[];
+  // `value`: a whole number that sizes swaps and rewards (D-053); never shown, not a price
+  resources: { id: string; name: string; cap: number; start: number; value: number }[];
   hall: {
     tiers: {
       name: string;
@@ -162,6 +199,23 @@ export type Content = {
     tavernMax: number;
     logMax: number;
     founders: number;
+    rewardPct: number; // every goal reward x rewardPct / 100 (the pace lever, spec J10)
+    goalsOffered: number;
+    offerEveryTicks: number;
+    offersMax: number;
+    firstOfferTick: number;
+    deliveryTicks: number;
+    tradeSharePct: number; // an offer's give, in percent of its resource's base cap
+    tradeGetBelowPct: number; // an offer's get, only below this percent of its cap
+    offerExtraTicks: number; // an offer lasts the catch-up cap plus this
   };
   names: Record<string, { starts: string[]; ends: string[] }>;
+  goals: Goal[];
+  // forage trips (D-051): `size` residents for `ticks`, back with `draws` finds from the table
+  trips: {
+    size: number;
+    ticks: number;
+    draws: number;
+    finds: { resource: string; min: number; max: number }[];
+  };
 };

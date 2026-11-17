@@ -101,3 +101,40 @@ test('chunks and steps agree with commands between', () => {
   }
   expect(start.tick).toBe(0);
 });
+
+// M2e J6: board commands between chunks of catch-up give the same town as stepping. The picks
+// are read off the stepped town (the goals on offer depend on the draw), then replayed.
+test('the board replays in chunks', () => {
+  const start = newGame(1, content);
+  const script: { tick: number; command: Command }[] = [];
+  const met: string[] = [];
+  let stepped = start;
+  for (let tick = 0; tick < TICKS; tick++) {
+    const commands: Command[] = SCRIPT.filter((e) => e.tick === tick).map((e) => e.command);
+    const board = stepped.board;
+    // every 50 ticks: pick the first goal on offer when none is active, else switch to another
+    if (tick % 50 === 0 && board.goals.length > 0) {
+      const other = board.goals.find((id) => id !== board.active)!;
+      commands.push({ type: 'pickGoal', id: board.active === null ? board.goals[0] : other });
+    }
+    if (tick === 7) commands.push({ type: 'pickGoal', id: 'none' }); // refused: unknown
+    for (const command of commands) script.push({ tick, command });
+    const result = step(stepped, commands, content);
+    for (const e of result.events) if (e.type === 'goalDone') met.push(e.id);
+    stepped = result.state;
+  }
+  // the script did reach the board: at least one goal was met and paid
+  expect(met.length).toBeGreaterThan(0);
+  for (const longest of [7, 480, 1]) {
+    let state = start;
+    let at = 0;
+    while (state.tick < TICKS) {
+      const now: Command[] = [];
+      while (at < script.length && script[at].tick === state.tick) now.push(script[at++].command);
+      if (now.length > 0) state = apply(state, now, content).state;
+      const next = at < script.length ? script[at].tick : TICKS;
+      state = advance(state, Math.min(longest, next - state.tick), content).state;
+    }
+    expect(state, `chunks of ${longest}`).toEqual(stepped);
+  }
+});

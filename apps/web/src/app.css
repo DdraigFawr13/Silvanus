@@ -208,6 +208,19 @@ p {
   color: var(--warn);
 }
 
+/* the board's card kind (Goal, Trader, Delivery, Trip), top right */
+.kind {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* the active goal's progress */
+.line2.progress {
+  font-weight: 700;
+  color: var(--ink);
+}
+
 .lot {
   display: flex;
   align-items: center;
