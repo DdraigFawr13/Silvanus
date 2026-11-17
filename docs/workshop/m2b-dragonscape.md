@@ -446,3 +446,22 @@ Morgan on the fix passes: "It's still not great. Any tools you might need to do 
 - Layout held: 49 of 63 sample blocks match the old ground within 2 px (edge correlation), one about 8 px; the buildings went straight back on its plots.
 - Seams and the river column gone; greener and brighter than mock-up 1 (58 / 0.46 / 0.196). Graded free (`grade_place.py`: channels halfway to mock-up 1's, saturation × 0.78, brightness × 0.95); with buildings 51 / 0.39 / 0.237, the closest to mock-up 1 (55 / 0.37 / 0.263) so far. The seam scan rose (9,248 px) because it counts the extra detail as edges.
 - PhotoCraft is on Morgan's PC; `list_computer_folders` showed no folders, so no access from this session. Page: https://claude.ai/artifact/TDS3ThjoC3epv3NiiTHuHX (built by `art/handoff_chatgpt/build_page.py`), with downloads and the Remote Control steps. Recommended: take the ChatGPT version as the target picture and fix Morgan's listed spots.
+
+## Target map fix 1: the Hall's walkway into the square (2026-11-17)
+
+D-055 named the first spot to fix: the Hall's walkway led to the square's gate, not into the square. Page: https://claude.ai/artifact/Jge8kmj5mKyNU8ba2mGf4D (built by `art/handoff_chatgpt/fix1/build_page.py`). Files: `art/handoff_chatgpt/fix_hall_path.py` turns `result_1_graded.png` into `result_2_graded.png` and `result_2_grown.png` (same buildings via `place.py`). Free pixel edit, 0 generations.
+
+- The fence across the top of the square is opened for the walkway's width (x 868-918); the walkway's own slab rows (11-row spacing) continue from y 398 to the paving's top course at y 431; a post copied from the same fence caps each cut end; the old gate's bottom rail and end post under the walkway's foot are repainted with paving from the same rows right of the well.
+- Checked at 4× and 8×: no seam where slabs meet paving. Outside the edit, 10 pixels differ by more than 2 levels (rounding through the building grade).
+- Scored: T2 met (was partly); L4, L9 met; R3 met at this spot; L1, L8 unchanged (only the map's own pixels copied). Morgan: "Approved please rescore". The walkway's foot was then repainted from the same paving rows right of the well, so the brick courses line up.
+
+## Target map rescore after fix 1 (2026-11-17)
+
+Morgan: "Approved please rescore". `result_2_grown.png` scored item by item against all 55 checklist items from six sections at 2× (`docs/workshop/pages/result2_scores.json`: item, new status, note, status before the ChatGPT clean-up). Page: https://claude.ai/artifact/TJtHoaNKavepToWf6KrXJB (built by `art/handoff_chatgpt/rescore/build_page.py`). 0 generations.
+
+- 27 met, 17 partly, 1 missed (P11), 10 carried: glows, Build markers, staked lots, tiers, day one and the phone screen were met on the old ground and are not yet redrawn on this one.
+- Measured (`art/pixellab/target3/measure.py`): grown 51 / 0.39 / 0.237, ground only 53 / 0.40 / 0.204; mock-up 1 55 / 0.37 / 0.263. Seam scan 9,216 px (counts walls and fences too); no straight seam seen at 2×.
+- Up: L1, L8, R3. Down: M10 (the fisher's hut is on the town bank; the checklist says the far bank), M16 (the farm has planter boxes, not fields), T3 (the clean-up left no notice board in the square; a covered board stands at the road fork west of the Hall), R4 (day one not redrawn).
+- New spots: two loose grey slabs in the grass south of the High Street (about x 367 to 455, y 760); some cottage plots have no path to the lane.
+- Recommended next: fix 2, free (board into the square, slabs, door paths, fisher's hut to the far bank if it fits), then dressed yards (about 35 to 45 generations, Claude's estimate).
+

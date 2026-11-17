@@ -1,6 +1,6 @@
 # Handoff
 
-Updated: 2026-11-17 (M2e merged, PR #27; next: Morgan's J9 phone check). A fresh session must be able to continue from this file alone. Keep it to 60 lines; move finished entries to `docs/archive/handoff-YYYY-MM.md`.
+Updated: 2026-11-17 (M2b art fix 1 and the rescore merged, PR #28; next: fix 2, free spots, then dressed yards). A fresh session must be able to continue from this file alone. Keep it to 60 lines; move finished entries to `docs/archive/handoff-YYYY-MM.md`.
 
 ## Phase
 
@@ -20,16 +20,16 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 
 ## Just done
 
+- 2026-11-17 M2b art fix 1 on `claude/m2b-art-fixes`: the Hall's walkway now runs into the square, not to its gate (T2). Free pixel edit, 0 generations (`art/handoff_chatgpt/fix_hall_path.py`, output `result_2_grown.png`). Page: https://claude.ai/artifact/Jge8kmj5mKyNU8ba2mGf4D. Morgan: "Approved please rescore". Rescore of `result_2_grown.png`, all 55 items: 27 met, 17 partly, 1 missed, 10 carried (met on the old map, not yet redrawn on this ground); scores `docs/workshop/pages/result2_scores.json`; page https://claude.ai/artifact/TJtHoaNKavepToWf6KrXJB. Down from met: M10 (fisher on the town bank), M16 (planters, no fields), T3 (no notice board in the square).
 - 2026-11-17 Morgan chose option 1 for the pace (D-056: the Village needs 25 residents and 200 wood, 200 stone, 50 tools; pass 3 starts at the end of a sitting) and approved the merge of PR #27. Soak green: Village at tick 1,536 (6.4 h), pass 3 back to 20 in 221 ticks, `reward_lost` 425.
 - 2026-11-17 Morgan: "Approved continue". M2e S2 (trader) and S3 (trips, pins) built on the same branch and PR. Browser tests on Edge: 32 of 33 (the same update test). With all three slices `rewardPct` no longer moves the pace (open question).
-- 2026-11-17 M2e S1 Goals built on `claude/m2e-s1-goals`, draft PR #27: board state, save schema 4, content version 4, goals on the Town tab. Added 5 Hamlet goals (`masonry`, `orevein`, `toolrack`, `firstfield`, `alehouse`): soak pass 2 now offers 3 goals at every check-in (it offered 0 at tick 1,440 without). Soak fails on pace (open question below); every other check passes. Browser tests on Edge: 28 of 29; the update test can't spawn `npx` on Windows.
 - Earlier entries are in `docs/archive/handoff-2026-11.md`.
 
 ## Next
 
 1. Morgan's M2a test (J7): a new town, check-ins over a day, the Village in about 8 real hours, upgrades found without help. Record their answer here in their words, then set `docs/specs/m2a-pace.md` to Shipped on the next work branch. Opening their old town first jumps it forward up to 8 real hours.
 2. M2e J9 (Morgan, phone): check in over two days; every check-in should offer a real choice; record whether he wants to keep playing, in his words, then set the spec to Shipped on the next work branch. Saves move to schema 4 on first open. Port 4173 was held by a leftover `vite preview` on Morgan's PC on 2026-11-17; the browser run used a scratch config on 4174.
-3. M2b art (D-037, D-055): the fix list for the target map, starting with the Hall path into the square, then the art checklist's partly met items; then step 4's build sessions with PixelLab assets. AGENTS art rule. PhotoCraft is on Morgan's PC (reachable from a desktop session). About 1,265 PixelLab generations left. Still open: D-041 Proposed and partly superseded; `m2b-art-workshop` can be deleted with Morgan's OK.
+3. M2b art (D-037, D-055): fix 1 approved; `result_2_grown.png` is the working target, scored in `result2_scores.json`. Morgan: "Do all 3" (merge #28, fix 2, then dressed yards). Next: fix 2, free (a notice board in the square, the loose slabs, paths to doors, the fisher's hut on the far bank), then dressed yards (about 35 to 45 generations, Claude's estimate); then step 4's build sessions with PixelLab assets. AGENTS art rule. PhotoCraft is on Morgan's PC (reachable from a desktop session). About 1,265 PixelLab generations left. Still open: D-041 Proposed and partly superseded; `m2b-art-workshop` can be deleted with Morgan's OK.
 4. Still open: Morgan's phone tests from S1 and S2 ("Update ready" and Reload; build a Woodcutter's camp, close the app, come back), S3 (switch the Mine to stone; let the Workshop run out of ore overnight) and S4 (pin someone to a bad job and read why morale falls). Record answers here.
 5. The repo has auto-merge off: merge by hand once the ready CI run is green, and do not push and mark ready within the same few seconds.
 6. Phobos (D-054): nothing to build here yet. Phobos tunes content offline after M2e ships and opens normal PRs; a net enters `packages/sim` only after it beats the rule it replaces.
