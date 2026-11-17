@@ -23,7 +23,6 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 - 2026-11-17 M2e S1 Goals built on `claude/m2e-s1-goals`, draft PR #27: board state, save schema 4, content version 4, goals on the Town tab. Added 5 Hamlet goals (`masonry`, `orevein`, `toolrack`, `firstfield`, `alehouse`): soak pass 2 now offers 3 goals at every check-in (it offered 0 at tick 1,440 without). Soak fails on pace (open question below); every other check passes. Browser tests on Edge: 28 of 29; the update test can't spawn `npx` on Windows.
 - 2026-11-17 Morgan approved the M2e board mock-up ("Approved"); spec "Web" and "Slices" updated with its wording and the extra Hamlet goals. PR #26.
 - 2026-11-17 Morgan approved the target picture (D-055) on the map page https://claude.ai/artifact/Qp25MdMLv74XmFa5FxAskf (answered in chat, the page holds no answers): "as for direction it is good and creating assets in pixel lab is approved"; spots to fix later, first the Hall's path, which leads to the square's gate instead of into the square. PR #24 (Codex repairs to the older stage-B map) closed as superseded.
-- 2026-11-17 Morgan approved the M2e spec in chat: "go with recommended for all" (all four `m2espec` calls; the page itself holds no answers). D-049 to D-053 accepted; spec Status Approved.
 - Earlier entries are in `docs/archive/handoff-2026-11.md`.
 
 ## Next
