@@ -214,11 +214,11 @@ type Board = {
 
 ### Web
 
-- `apps/web/src/ui/Board.tsx` (new), placed in `TownTab.tsx` after `HallRow` and before "Work queue": `h2.sec` "Board" and `data-testid="board"`; cards `data-testid="goal"`, `"offer"`, `"delivery"` (one line per delivery under way: "<amount> <resource> on the way, <time> left"), `"trip"`.
+- `apps/web/src/ui/Board.tsx` (new), placed in `TownTab.tsx` after `HallRow` and before "Work queue": `h2.sec` "Board" and `data-testid="board"`; cards `data-testid="goal"`, `"offer"`, `"delivery"` (one line per delivery under way: "<amount> <resource> on the way, <time> left"), `"trip"`. Each card is a `panel` with the name and a small kind label at the top right (`span.kind`, `--muted`, 13 px): Goal, Trader, Delivery, Trip (mock-up).
 - Goal card: name; condition ("Make 80 wood"; "Build a Mine" for tier 1; "A Cottage at tier 2"; "12 residents"); "Worth about <rewardPreview amounts>"; "Pick" (`btn`) or, when another is active, "Pick instead" (`btn second`). The active card shows `goalProgress` ("12 of 80 wood", "8 of 12 residents"; a building goal shows "Not yet" or nothing) and no button.
-- Offer card: "The trader offers <get> for <give>", "Leaves in <duration>", Accept (`btn` when `refusal` passes, else `btn second` with "Needs <shortfall>" as the Upgrade row does) and Decline (`btn second`).
-- Trip card: "Send two to the forest edge for a day" and "Send two", which opens `TripSheet.tsx` (new, on `Sheet.tsx`): one toggle per resident not on a trip, showing name, trade and top skill; "Send" enabled at exactly 2. While out: "<A> and <B> are out at the forest edge, <time> left".
-- `PeopleTab.tsx`: `span.pin` "Pinned" after the name, in place of the trailing " · Pinned"; chip `chip-pinned` shown while anyone is pinned; a resident on a trip reads "On a trip" in place of a trade and is not counted in "with no work" or the No work chip.
+- Offer card: titled with the swap, "<get> for <give>" (for example "50 food for 40 wood"), then "Leaves in <duration>", Accept (`btn` when `refusal` passes, else `btn second` with "Needs <shortfall>" as the Upgrade row does) and Decline (`btn second`).
+- Trip card: "Send two to the forest edge for a day" and "Send two", which opens `TripSheet.tsx` (new, on `Sheet.tsx`): titled "Forage trip"; at the top, "Two go to the forest edge for a day. They leave their jobs; anyone with no work may step in.", the chosen names and "Send", enabled at exactly 2; below, one toggle row per resident not on a trip (at least 56 px, a tick box on the right), showing name, trade and top skill, residents with no work first, then by name. While out: "<A> and <B> are out at the forest edge, <time> left".
+- `PeopleTab.tsx`: `span.pin` "Pinned" right after the name, inside the name line (a 12 px outlined pill, not a tap target), in place of the trailing " · Pinned"; chip `chip-pinned` shown while anyone is pinned; a resident on a trip reads "On a trip" in place of a trade and is not counted in "with no work" or the No work chip.
 - `docs/UI_STYLE.md` tokens only; buttons at least 44 px.
 
 ### Soak (`scripts/soak.ts`)
@@ -227,7 +227,7 @@ As J10. `TYPES`, `WEIGHTS` and the `carried` gate gain each new command in the s
 
 ## Slices
 
-A mock-up of the board, the trip sheet and the People row (`mockups/board.html`, `ui-mockups` skill) is approved by Morgan before S1's code. If Morgan asks for changes, the mock-up and this spec change together before S1.
+The mock-up of the board, the trip sheet and the People row (`mockups/board.html`, https://claude.ai/artifact/NgdEzBBvKhj7FrP2ivPYXU) was approved by Morgan on 2026-11-17 ("Approved"), with its wording changes (written into "Web" above) and its recommendation on goals: on seed 1 at real hour 4 only 2 Hamlet goals are eligible, so S1 adds Hamlet goals (for example stone, ore and tools `make` goals, each worth about an hour of work) until soak pass 2 offers 3 goals at every check-in, and reports the count.
 
 ### S1 Goals
 
