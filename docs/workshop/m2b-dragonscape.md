@@ -446,3 +446,12 @@ Morgan on the fix passes: "It's still not great. Any tools you might need to do 
 - Layout held: 49 of 63 sample blocks match the old ground within 2 px (edge correlation), one about 8 px; the buildings went straight back on its plots.
 - Seams and the river column gone; greener and brighter than mock-up 1 (58 / 0.46 / 0.196). Graded free (`grade_place.py`: channels halfway to mock-up 1's, saturation × 0.78, brightness × 0.95); with buildings 51 / 0.39 / 0.237, the closest to mock-up 1 (55 / 0.37 / 0.263) so far. The seam scan rose (9,248 px) because it counts the extra detail as edges.
 - PhotoCraft is on Morgan's PC; `list_computer_folders` showed no folders, so no access from this session. Page: https://claude.ai/artifact/TDS3ThjoC3epv3NiiTHuHX (built by `art/handoff_chatgpt/build_page.py`), with downloads and the Remote Control steps. Recommended: take the ChatGPT version as the target picture and fix Morgan's listed spots.
+
+## Target map fix 1: the Hall's walkway into the square (2026-11-17)
+
+D-055 named the first spot to fix: the Hall's walkway led to the square's gate, not into the square. Page: https://claude.ai/artifact/Jge8kmj5mKyNU8ba2mGf4D (built by `art/handoff_chatgpt/fix1/build_page.py`). Files: `art/handoff_chatgpt/fix_hall_path.py` turns `result_1_graded.png` into `result_2_graded.png` and `result_2_grown.png` (same buildings via `place.py`). Free pixel edit, 0 generations.
+
+- The fence across the top of the square is opened for the walkway's width (x 868-918); the walkway's own slab rows (11-row spacing) continue from y 398 to the paving's top course at y 431; a post copied from the same fence caps each cut end; the old gate's bottom rail and end post under the walkway's foot are repainted with paving from the same rows right of the well.
+- Checked at 4× and 8×: no seam where slabs meet paving. Outside the edit, 10 pixels differ by more than 2 levels (rounding through the building grade).
+- Scored: T2 met (was partly); L4, L9 met; R3 met at this spot; L1, L8 unchanged (only the map's own pixels copied). Asked Morgan which partly met item is next.
+
