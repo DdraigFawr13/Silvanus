@@ -79,3 +79,31 @@ test('pinning shows its cost', async ({ page }) => {
   await sheet.getByTestId('unpin').click();
   await expect(sheet.getByTestId('resident-pin')).toHaveText('Not pinned');
 });
+
+test('pinned residents are labelled and filtered', async ({ page }) => {
+  const town = dayOne();
+  const hut = town.buildings.find((b) => b.kind === 'forager')!.id;
+  const pinned = town.residents.find((r) => r.jobId === hut)!;
+  const state = apply(town, [{ type: 'pin', residentId: pinned.id, buildingId: hut }], content);
+  await seedRecord(page, townRecord({ state: state.state }));
+  await page.goto('/?tickMs=60000');
+  await page.getByTestId('tab-people').click();
+  const rows = page.getByTestId('person');
+  const row = rows.filter({ hasText: pinned.name });
+  // the label sits in the name line, right after the name
+  await expect(row.locator('.name span.pin')).toHaveText('Pinned');
+  await expect(page.locator('span.pin')).toHaveCount(1);
+  await page.getByTestId('chip-pinned').click();
+  await expect(rows).toHaveCount(1);
+  await expect(rows.first()).toContainText(pinned.name);
+  await page.getByTestId('chip-all').click();
+  await expect(rows).toHaveCount(8);
+});
+
+test('no Pinned chip while nobody is pinned', async ({ page }) => {
+  await seedRecord(page, townRecord({ state: dayOne() }));
+  await page.goto('/?tickMs=60000');
+  await page.getByTestId('tab-people').click();
+  await expect(page.getByTestId('person')).toHaveCount(8);
+  await expect(page.getByTestId('chip-pinned')).toHaveCount(0);
+});

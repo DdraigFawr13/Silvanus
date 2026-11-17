@@ -9,6 +9,7 @@ import {
   apply,
   bedsOf,
   capsOf,
+  draw,
   hallOf,
   newGame,
   nextU32,
@@ -49,6 +50,7 @@ const TYPES = [
   'pickGoal',
   'acceptOffer',
   'declineOffer',
+  'sendTrip',
 ] as const;
 
 // How often the bot picks each type: building and upgrading lead, and a clear is rare, so the
@@ -65,6 +67,7 @@ const WEIGHTS: [(typeof TYPES)[number], number][] = [
   ['pickGoal', 2],
   ['acceptOffer', 2],
   ['declineOffer', 2],
+  ['sendTrip', 2],
 ];
 const WEIGHT_TOTAL = WEIGHTS.reduce((sum, [, w]) => sum + w, 0);
 
@@ -119,6 +122,11 @@ function randomCommand(s: State): Command {
     case 'declineOffer': {
       const offers = s.board.offers;
       return { type, id: offers.length ? offers[roll(offers.length)].id : 0 };
+    }
+    case 'sendTrip': {
+      // two random residents, sometimes the same one twice (refused)
+      const one = () => (s.residents.length ? s.residents[roll(s.residents.length)].id : 0);
+      return { type, residentIds: [one(), one()] };
     }
   }
 }
@@ -197,7 +205,18 @@ function check(s: State): void {
   }
   if (!whole(board.nextOfferId, Number.MAX_SAFE_INTEGER)) fail('nextOfferId');
   if (!whole(board.nextOfferTick, Number.MAX_SAFE_INTEGER)) fail('nextOfferTick');
-  if (board.trip !== null) fail('a trip is out before trips exist');
+  if (board.trip !== null) {
+    const ids = board.trip.residentIds;
+    if (ids.length < 1 || ids.length > content.trips.size || new Set(ids).size !== ids.length) {
+      fail(`a trip of ${ids.join(', ')}`);
+    }
+    for (const id of ids) {
+      const r = s.residents.find((x) => x.id === id);
+      if (!r) fail(`a trip names resident ${id}, who is gone`);
+      if (r.jobId !== null) fail(`${r.name} is on a trip and at work`);
+    }
+    if (board.trip.back < s.tick) fail(`a trip is past its return at ${board.trip.back}`);
+  }
   for (const [stream, value] of Object.entries(s.rng)) {
     if (!whole(value, 4294967295)) fail(`rng ${stream} is ${value}`);
   }
@@ -283,6 +302,7 @@ const gated = [
   'pickGoal',
   'acceptOffer',
   'declineOffer',
+  'sendTrip',
 ] as const;
 for (const type of gated) {
   if (done(type) === 0) fail(`no ${type} command was carried out`);
@@ -392,7 +412,30 @@ function scripted(s: State, ordered: { next: number }): Command[] {
   }
   board();
   trade();
+  // a trip when none is out: the 2 residents with the highest ids who are not pinned
+  if (s.tick % TICKS_PER_REAL_HOUR === 0 && town.board.trip === null) {
+    const free = town.residents.filter((r) => r.pinnedTo === null).slice(-content.trips.size);
+    if (free.length === content.trips.size) {
+      send({ type: 'sendTrip', residentIds: free.map((r) => r.id) });
+    }
+  }
   return sent;
+}
+
+// The finds a trip coming back in this state's step draws: the engine's draws on the `trips`
+// stream (rule 6b), repeated here so the soak can count what found no room.
+function findsOf(s: State): Record<string, number> {
+  const { finds, draws: count } = content.trips;
+  let rng = s.rng;
+  const found: Record<string, number> = {};
+  for (let i = 0; i < count; i++) {
+    const at = draw(rng, 'trips', s.seed, finds.length);
+    const find = finds[at.value];
+    const amount = draw(at.rng, 'trips', s.seed, find.max - find.min + 1);
+    rng = amount.rng;
+    found[find.resource] = (found[find.resource] ?? 0) + find.min + amount.value;
+  }
+  return found;
 }
 
 // A check-in's real choices, judged before the player acts (spec, "Goals"): an offer the town
@@ -425,6 +468,7 @@ let boardChoice = 0;
 let goalsMet = 0;
 let rewardLost = 0;
 let offersTaken = 0;
+let trips = 0;
 const fewGoals: string[] = [];
 const dearest = Math.max(...content.resources.map((r) => r.value));
 // Every tick is stepped, so the Village tick and the 20th arrival are exact; the player sends
@@ -444,6 +488,7 @@ while (villageTick < 0 && state.tick < BAND.to + 1000) {
   const commands = present ? scripted(state, ordered) : [];
   sentCount += commands.length;
   offersTaken += commands.filter((c) => c.type === 'acceptOffer').length;
+  trips += commands.filter((c) => c.type === 'sendTrip').length;
   upgrades += commands.filter((c) => c.type === 'upgrade').length;
   const due = state.board.deliveries.filter((d) => d.at <= state.tick);
   const result = step(state, commands, content);
@@ -459,6 +504,15 @@ while (villageTick < 0 && state.tick < BAND.to + 1000) {
     if (event.type === 'rejected') fail(`the scripted bot sent a refused ${event.command.type}`);
     if (event.type === 'left') mostLeft += 1;
     if (event.type === 'lost') lostToCaps += event.amount;
+    if (event.type === 'tripBack') {
+      // finds that found no room count as reward lost: the finds drawn, less what was kept
+      const found = findsOf(state);
+      for (const r of content.resources) {
+        const lost = (found[r.id] ?? 0) - (event.finds[r.id] ?? 0);
+        if (lost < 0) fail(`the soak's copy of the trip draws found less ${r.id} than was kept`);
+        rewardLost += lost * r.value;
+      }
+    }
     if (event.type === 'goalDone') {
       goalsMet += 1;
       const goal = content.goals.find((g) => g.id === event.id)!;
@@ -478,11 +532,12 @@ console.log(
     `commands=${sentCount} residents=${state.residents.length} left=${mostLeft} ` +
     `twentieth_at=${at20?.tick ?? -1} upgrades=${upgrades} lost=${lostToCaps} food_zero_ticks=${foodZeroTicks} ` +
     `checkins=${checkins} no_choice=${noChoice.length} board_choice=${boardChoice} goals_met=${goalsMet} ` +
-    `offers_taken=${offersTaken} trips=0 reward_lost=${rewardLost} few_goals=${fewGoals.length}`,
+    `offers_taken=${offersTaken} trips=${trips} reward_lost=${rewardLost} few_goals=${fewGoals.length}`,
 );
 if (noChoice.length > 0) fail(`check-ins with no real choice at ticks ${noChoice.join(', ')}`);
 if (goalsMet === 0) fail('the scripted town never met a goal');
 if (offersTaken === 0) fail('the scripted town never took an offer');
+if (trips === 0) fail('the scripted town never sent a trip');
 // S1 adds Hamlet goals until every check-in offers a full board (spec, "Slices")
 if (fewGoals.length > 0)
   fail(`fewer goals than ${content.rules.goalsOffered} at tick:count ${fewGoals.join(' ')}`);

@@ -1,3 +1,4 @@
+import { leaveTrip, onTrip } from './board';
 import { addSettler } from './people';
 import type { Building, Content, Event, Resident, State } from './types';
 import { addLog, bedsOf, hallOf, kindOf } from './util';
@@ -74,6 +75,7 @@ export function startDay(s: State, content: Content, events: Event[]): void {
     const terms: Term[] = [];
     if (food !== 0) terms.push({ id: 'food', amount: food });
     if (job) terms.push(...jobTerms(resident, job, content));
+    else if (onTrip(s, resident.id)) terms.push({ id: 'trip', amount: 0 });
     else terms.push({ id: 'idle', amount: -10 });
     if (crowded) terms.push({ id: 'crowded', amount: -15 });
     if (tavern > 0) terms.push({ id: 'tavern', amount: tavern });
@@ -93,6 +95,7 @@ export function startDay(s: State, content: Content, events: Event[]): void {
     if (lowest && lowest.morale < rules.leaveBelow) {
       const gone = lowest;
       s.residents = s.residents.filter((r) => r.id !== gone.id);
+      leaveTrip(s, gone.id);
       s.lastLeftTick = s.tick;
       s.jobsDirty = true;
       events.push({ type: 'left', residentId: gone.id, name: gone.name });

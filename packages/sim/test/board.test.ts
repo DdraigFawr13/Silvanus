@@ -384,3 +384,148 @@ describe('trader', () => {
     expect(declined.events).toEqual([]);
   });
 });
+
+// M2e S3, forage trips (spec J5).
+describe('trips', () => {
+  const send = (state: State, ids: number[]) =>
+    step(state, [{ type: 'sendTrip', residentIds: ids }], content);
+  // seed 1's founders at tick t, by stepping
+  const at = (tick: number) => run(newGame(1, content), tick);
+
+  test('a trip takes two from work', () => {
+    const town = at(30);
+    const [a, b] = town.residents.filter((r) => r.jobId !== null).map((r) => r.id);
+    const sent = send(town, [a, b]).state;
+    expect(sent.board.trip).toEqual({ residentIds: [a, b], back: 54 });
+    const out = (s: State) => s.residents.filter((r) => r.id === a || r.id === b);
+    expect(out(sent).map((r) => r.jobId)).toEqual([null, null]);
+    // placed by no job pass while out, through the game day at 48
+    let s = sent;
+    for (let tick = 31; tick < 54; tick++) {
+      const result = step(s, [], content);
+      s = result.state;
+      expect(
+        out(s).map((r) => r.jobId),
+        `tick ${tick}`,
+      ).toEqual([null, null]);
+    }
+    // the day at 48 counted `trip` 0 in place of `idle`, and gave no skill day
+    for (const r of out(s)) {
+      expect(r.reasons).toContainEqual({ id: 'trip', amount: 0 });
+      expect(r.reasons.some((t) => t.id === 'idle')).toBe(false);
+      const was = town.residents.find((t) => t.id === r.id)!;
+      expect(r.workDays).toBe(was.workDays);
+      expect(r.skills).toEqual(was.skills);
+    }
+    // they still eat and count for beds: the day's food went down by every head
+    expect(s.residents).toHaveLength(town.residents.length);
+
+    // sent at 24: the day at 24 counts `trip`; at 48 the return comes first
+    const early = at(24);
+    const two = early.residents.slice(0, 2).map((r) => r.id);
+    const day24 = send(early, two).state;
+    for (const r of day24.residents.slice(0, 2)) {
+      expect(r.reasons).toContainEqual({ id: 'trip', amount: 0 });
+    }
+    const day48 = run(day24, 24);
+    expect(day48.board.trip).toBeNull();
+    for (const r of day48.residents.slice(0, 2)) {
+      expect(r.reasons.some((t) => t.id === 'trip')).toBe(false);
+    }
+  });
+
+  test('a trip brings back finds', () => {
+    // a camp as well, so there are slots for everyone when the two come back
+    const town = { ...finished(at(30), 'woodcutter'), jobsDirty: true };
+    const ids = town.residents.slice(0, 2).map((r) => r.id);
+    const names = town.residents.slice(0, 2).map((r) => r.name);
+    let s = run(send(town, ids).state, 23);
+    expect(s.tick).toBe(54);
+    const before = s.stock;
+    const back = step(s, [], content);
+    const event = back.events.find((e) => e.type === 'tripBack');
+    if (event?.type !== 'tripBack') throw new Error('no tripBack');
+    const line = back.state.log.find((l) => l.type === 'tripBack')!;
+    expect(line.text).toMatch(
+      new RegExp(`^${names[0]} and ${names[1]} came back from the forest edge with .+\.$`),
+    );
+    // the finds are in stock (production in the same tick aside), within the table's bounds
+    const total = Object.values(event.finds).reduce((sum, n) => sum + n, 0);
+    const min = Math.min(...content.trips.finds.map((f) => f.min)) * content.trips.draws;
+    const max = Math.max(...content.trips.finds.map((f) => f.max)) * content.trips.draws;
+    expect(total).toBeGreaterThanOrEqual(min);
+    expect(total).toBeLessThanOrEqual(max);
+    for (const [id, n] of Object.entries(event.finds)) {
+      const made = back.events
+        .filter((e) => e.type === 'made' && e.resource === id)
+        .reduce((sum, e) => sum + (e.type === 'made' ? e.amount : 0), 0);
+      expect(back.state.stock[id] - before[id], id).toBe(n + made);
+    }
+    expect(back.state.board.trip).toBeNull();
+    // both have jobs again after that step
+    s = back.state;
+    for (const id of ids) expect(s.residents.find((r) => r.id === id)!.jobId).not.toBeNull();
+    // the same seed brings back the same finds
+    const again = step(run(send(town, ids).state, 23), [], content).events;
+    expect(again.find((e) => e.type === 'tripBack')).toEqual(event);
+  });
+
+  test('a pinned member gets their pinned slot back', () => {
+    const town = at(30);
+    const hut = town.buildings.find((b) => b.kind === 'forager')!.id;
+    const forager = town.residents.find((r) => r.jobId === hut)!;
+    const pinned = apply(town, [{ type: 'pin', residentId: forager.id, buildingId: hut }], content);
+    const other = town.residents.find((r) => r.id !== forager.id)!.id;
+    const back = run(send(pinned.state, [forager.id, other]).state, 24);
+    expect(back.residents.find((r) => r.id === forager.id)!.jobId).toBe(hut);
+  });
+
+  test('trip refusals', () => {
+    const town = at(30);
+    const [a, b, c] = town.residents.map((r) => r.id);
+    const reason = (s: State, ids: number[]) =>
+      send(s, ids).events.find((e) => e.type === 'rejected');
+    expect(reason(town, [a])).toMatchObject({ reason: 'range' });
+    expect(reason(town, [a, b, c])).toMatchObject({ reason: 'range' });
+    expect(reason(town, [a, a])).toMatchObject({ reason: 'range' });
+    expect(reason(town, [a, 999])).toMatchObject({ reason: 'unknown' });
+    const out = send(town, [a, b]).state;
+    expect(reason(out, [c, town.residents[3].id])).toMatchObject({ reason: 'busy' });
+  });
+
+  test('a trip whose member left', () => {
+    const town = at(30);
+    const [a, b] = town.residents.slice(0, 2);
+    const out = send(town, [a.id, b.id]).state;
+    // a leaves at the day at 48: morale at the floor, the town above leaveFloor
+    const unhappy = {
+      ...out,
+      residents: out.residents.map((r) => (r.id === a.id ? { ...r, morale: 0 } : r)),
+    };
+    const unhappyCrowd = {
+      ...unhappy,
+      residents: [
+        ...unhappy.residents,
+        { ...unhappy.residents[2], id: 500, name: 'Extra', jobId: null },
+      ],
+      nextId: 501,
+    };
+    const left = run(unhappyCrowd, 18);
+    expect(left.residents.some((r) => r.id === a.id)).toBe(false);
+    expect(left.board.trip?.residentIds).toEqual([b.id]);
+    const back = step(run(left, 54 - left.tick), [], content);
+    const line = back.state.log.find((l) => l.type === 'tripBack')!;
+    expect(line.text).toMatch(new RegExp(`^${b.name} came back from the forest edge with `));
+    expect(back.events.some((e) => e.type === 'tripBack')).toBe(true);
+    // both left (a hand-built state): the trip ends with no finds
+    const alone = {
+      ...unhappyCrowd,
+      board: { ...unhappyCrowd.board, trip: { residentIds: [a.id], back: 54 } },
+    };
+    const ended = run(alone, 18);
+    expect(ended.residents.some((r) => r.id === a.id)).toBe(false);
+    expect(ended.board.trip).toBeNull();
+    const after = run(ended, 54 - ended.tick + 1);
+    expect(after.log.some((l) => l.type === 'tripBack')).toBe(false);
+  });
+});

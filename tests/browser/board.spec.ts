@@ -90,3 +90,40 @@ test("the trader's offer", async ({ page }) => {
   await expect(cards).toHaveCount(0);
   await expect(page.getByTestId('stock-stone').locator('.num')).toHaveText('0 / 200');
 });
+
+test('sending a trip', async ({ page }) => {
+  const record = town();
+  const residents = record.state.residents;
+  await seedRecord(page, record);
+  await page.goto('/?tickMs=60000');
+  const card = page.getByTestId('trip');
+  await expect(card).toContainText('Send two to the forest edge for a day');
+  await card.getByRole('button', { name: 'Send two' }).click();
+  const sheet = page.getByTestId('trip-sheet');
+  const picks = sheet.getByTestId('trip-pick');
+  await expect(picks).toHaveCount(residents.length);
+  // those with no work first
+  const idle = residents.filter((r) => r.jobId === null).length;
+  for (let i = 0; i < idle; i++) await expect(picks.nth(i)).toContainText('No work');
+  const send = sheet.getByRole('button', { name: 'Send', exact: true });
+  await expect(send).toBeDisabled();
+  const [a, b, c] = [0, 1, 2].map((i) => picks.nth(i));
+  const name = async (pick: typeof a) => (await pick.locator('.trip-name').textContent())!;
+  const [na, nb] = [await name(a), await name(b)];
+  await a.click();
+  await expect(send).toBeDisabled();
+  await b.click();
+  await expect(send).toBeEnabled();
+  await expect(sheet.getByTestId('trip-chosen')).toHaveText(`${na} and ${nb}`);
+  await c.click();
+  await expect(send).toBeDisabled();
+  await c.click();
+  await expect(a).toHaveAttribute('aria-checked', 'true');
+  await send.click();
+  await expect(sheet).toHaveCount(0);
+  await expect(card).toContainText(`${na} and ${nb} are out at the forest edge, 1 game day left`);
+  await page.getByTestId('tab-people').click();
+  for (const n of [na, nb]) {
+    await expect(page.getByTestId('person').filter({ hasText: n })).toContainText('On a trip');
+  }
+});

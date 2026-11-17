@@ -88,7 +88,8 @@ export type Command =
   | { type: 'pin'; residentId: number; buildingId: number | null }
   | { type: 'pickGoal'; id: string }
   | { type: 'acceptOffer'; id: number }
-  | { type: 'declineOffer'; id: number };
+  | { type: 'declineOffer'; id: number }
+  | { type: 'sendTrip'; residentIds: number[] };
 
 export type Reason =
   | 'unknown'

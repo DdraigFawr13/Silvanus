@@ -2,7 +2,7 @@ import { draw } from './rng';
 import type { Amounts, Command, Content, Event, Goal, Offer, Reason, State } from './types';
 import { addLog, amountsLine, capsOf, hallOf } from './util';
 
-// Rule 6, the board (M2e, D-049 to D-053): goals (S1) and the trader (S2). Trips come in S3.
+// Rule 6, the board (M2e, D-049 to D-053): goals (S1), the trader (S2) and forage trips (S3).
 
 export const goalOf = (content: Content, id: string | null): Goal | undefined =>
   id === null ? undefined : content.goals.find((goal) => goal.id === id);
@@ -72,10 +72,17 @@ export function goalProgress(
 export const lostOf = (left: number, content: Content) =>
   left >= Math.max(...content.resources.map((r) => r.value)) ? left : 0;
 
-export function boardRefusal(state: State, command: Command): Reason | null {
+export function boardRefusal(state: State, command: Command, content: Content): Reason | null {
   if (command.type === 'pickGoal') {
     if (!state.board.goals.includes(command.id)) return 'unknown';
     return state.board.active === command.id ? 'same' : null;
+  }
+  if (command.type === 'sendTrip') {
+    if (state.board.trip !== null) return 'busy';
+    const ids = command.residentIds;
+    if (!Array.isArray(ids) || ids.length !== content.trips.size) return 'range';
+    if (new Set(ids).size !== ids.length) return 'range';
+    return ids.every((id) => state.residents.some((r) => r.id === id)) ? null : 'unknown';
   }
   if (command.type === 'acceptOffer' || command.type === 'declineOffer') {
     const offer = state.board.offers.find((o) => o.id === command.id);
@@ -100,8 +107,63 @@ export function boardCarryOut(s: State, command: Command, content: Content): voi
     addLog(s, content, 'sent', `Sent ${sent} to the trader.`);
   } else if (command.type === 'declineOffer') {
     board.offers = board.offers.filter((o) => o.id !== command.id);
+  } else if (command.type === 'sendTrip') {
+    // they leave their jobs and keep their pins; rule 4 skips them until they are back
+    board.trip = { residentIds: command.residentIds.slice(), back: s.tick + content.trips.ticks };
+    for (const resident of s.residents) {
+      if (command.residentIds.includes(resident.id)) resident.jobId = null;
+    }
+    s.jobsDirty = true;
   }
 }
+
+// "Ceria", "Ceria and Llew", "A, B and C"
+function namesLine(names: string[]): string {
+  if (names.length <= 1) return names.join('');
+  return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
+}
+
+// Rule 6b: the trip comes back with `draws` finds from the content's table (D-051).
+function tripBack(s: State, content: Content, events: Event[]): void {
+  const trip = s.board.trip!;
+  const { finds, draws } = content.trips;
+  const found: Amounts = {};
+  for (let i = 0; i < draws; i++) {
+    const at = draw(s.rng, 'trips', s.seed, finds.length);
+    const find = finds[at.value];
+    const amount = draw(at.rng, 'trips', s.seed, find.max - find.min + 1);
+    s.rng = amount.rng;
+    found[find.resource] = (found[find.resource] ?? 0) + find.min + amount.value;
+  }
+  const kept: Amounts = {};
+  let full = false;
+  for (const resource of content.resources) {
+    const n = found[resource.id];
+    if (n === undefined) continue;
+    const landed = land(s, content, resource.id, n, events);
+    if (landed > 0) kept[resource.id] = landed;
+    if (landed < n) full = true;
+  }
+  const names = trip.residentIds.map((id) => s.residents.find((r) => r.id === id)!.name);
+  events.push({ type: 'tripBack', finds: kept });
+  const text =
+    `${namesLine(names)} came back from the forest edge with ${amountsLine(found, content)}.` +
+    (full ? ' (stores full: the rest was lost)' : '');
+  addLog(s, content, 'tripBack', text);
+  s.board.trip = null;
+  s.jobsDirty = true;
+}
+
+// Rule 3's part: a resident who leaves the town during a trip leaves the trip too.
+export function leaveTrip(s: State, residentId: number): void {
+  const trip = s.board.trip;
+  if (!trip) return;
+  trip.residentIds = trip.residentIds.filter((id) => id !== residentId);
+  if (trip.residentIds.length === 0) s.board.trip = null;
+}
+
+export const onTrip = (state: State, residentId: number): boolean =>
+  state.board.trip?.residentIds.includes(residentId) ?? false;
 
 // Goods arriving: as much as the store has room for; the rest is a `lost` event (D-052).
 // Returns the units kept.
@@ -147,8 +209,9 @@ function drawOffer(s: State, content: Content): Offer | null {
   };
 }
 
-// Rule 6a, after construction and before the start of a game day: deliveries land, then the
-// trader's offers (expiry, then one new offer an hour, at most offersMax waiting).
+// Rule 6a, after construction and before the start of a game day: deliveries land, a trip
+// comes back (6b), then the trader's offers (expiry, then one new offer an hour, at most
+// offersMax waiting). Returns come before rule 4's job pass in the same step.
 export function trader(s: State, content: Content, events: Event[]): void {
   const board = s.board;
   const due = board.deliveries.filter((d) => d.at <= s.tick);
@@ -160,6 +223,7 @@ export function trader(s: State, content: Content, events: Event[]): void {
     const full = kept < delivery.amount ? ' (stores full: the rest was lost)' : '';
     addLog(s, content, 'delivered', `The trader's ${what} arrived.${full}`);
   }
+  if (board.trip && s.tick >= board.trip.back) tripBack(s, content, events);
   for (const offer of board.offers.filter((o) => o.until <= s.tick)) {
     events.push({ type: 'offerGone', id: offer.id });
     addLog(s, content, 'offerGone', 'The trader moved on.');

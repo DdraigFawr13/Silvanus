@@ -1,5 +1,5 @@
 import { content } from '@silvanus/content';
-import { kindOf, pinPreview, refusal, slotsOf } from '@silvanus/sim';
+import { kindOf, onTrip, pinPreview, refusal, slotsOf } from '@silvanus/sim';
 import type { Building, Command, Resident, State } from '@silvanus/sim';
 import { useState } from 'react';
 import { Sheet } from './Sheet';
@@ -40,7 +40,11 @@ export function ResidentSheet({
 
       <h3 className="sheet-sec">Work</h3>
       <p data-testid="resident-job">
-        {job ? `${tradeOf(state, resident)} at the ${nameOf(job)}` : 'No work'}
+        {job
+          ? `${tradeOf(state, resident)} at the ${nameOf(job)}`
+          : onTrip(state, resident.id)
+            ? 'On a trip'
+            : 'No work'}
       </p>
       <p className="sub" data-testid="resident-pin">
         {pin ? `Pinned to the ${nameOf(pin)}` : 'Not pinned'}

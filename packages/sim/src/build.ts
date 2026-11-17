@@ -97,7 +97,8 @@ export function refusal(state: State, command: Command, content: Content): Reaso
     case 'pickGoal':
     case 'acceptOffer':
     case 'declineOffer':
-      return boardRefusal(state, command);
+    case 'sendTrip':
+      return boardRefusal(state, command, content);
     default: {
       const never: never = command;
       void never;
@@ -223,6 +224,7 @@ export function carryOut(s: State, command: Command, content: Content, events: E
     case 'pickGoal':
     case 'acceptOffer':
     case 'declineOffer':
+    case 'sendTrip':
       boardCarryOut(s, command, content);
       return;
     default: {

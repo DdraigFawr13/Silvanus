@@ -109,6 +109,7 @@ test('the board replays in chunks', () => {
   const script: { tick: number; command: Command }[] = [];
   const met: string[] = [];
   let delivered = 0;
+  let trips = 0;
   let stepped = start;
   for (let tick = 0; tick < TICKS; tick++) {
     const commands: Command[] = [];
@@ -130,17 +131,24 @@ test('the board replays in chunks', () => {
     }
     if (tick % 100 === 75 && oldest) commands.push({ type: 'declineOffer', id: oldest.id });
     if (tick === 8) commands.push({ type: 'declineOffer', id: 99 }); // refused: unknown
+    // S3: a trip of the two highest ids every 200 ticks, offset 10, when none is out
+    if (tick % 200 === 10 && board.trip === null) {
+      const ids = stepped.residents.slice(-2).map((r) => r.id);
+      commands.push({ type: 'sendTrip', residentIds: ids });
+    }
     for (const command of commands) script.push({ tick, command });
     const result = step(stepped, commands, content);
     for (const e of result.events) {
       if (e.type === 'goalDone') met.push(e.id);
       if (e.type === 'delivered') delivered += 1;
+      if (e.type === 'tripBack') trips += 1;
     }
     stepped = result.state;
   }
   // the script did reach the board: at least one goal was met and paid, a swap was delivered
   expect(met.length).toBeGreaterThan(0);
   expect(delivered).toBeGreaterThan(0);
+  expect(trips).toBeGreaterThan(0);
   expect(script.some((e) => e.command.type === 'declineOffer' && e.command.id !== 99)).toBe(true);
   for (const longest of [7, 480, 1]) {
     let state = start;

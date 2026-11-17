@@ -28,7 +28,7 @@ export { assignJobs } from './jobs';
 export { effectOf, perDay, shortInput } from './production';
 export { pinPreview } from './day';
 export { emptySummary } from './summary';
-export { goalOf, goalProgress, rewardPreview } from './board';
+export { goalOf, goalProgress, onTrip, rewardPreview } from './board';
 export { validateContent } from './validate';
 export {
   amountsLine,

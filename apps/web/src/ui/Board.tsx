@@ -9,7 +9,9 @@ import {
   shortfall,
 } from '@silvanus/sim';
 import type { Command, Goal, State } from '@silvanus/sim';
-import { amountsText, duration, needsText, resourceName } from './format';
+import { useState } from 'react';
+import { TripSheet } from './TripSheet';
+import { amountsText, andList, duration, needsText, resourceName } from './format';
 
 // "Make 80 wood", "Build a Mine", "A Cottage at tier 2", "12 residents"
 function conditionText(goal: Goal): string {
@@ -36,10 +38,15 @@ function progressText(state: State, goal: Goal): string {
   return `${progress.have} of ${progress.need} ${unit}`;
 }
 
-// The board on the Town tab (M2e): the goals on offer, the trader's offers and goods on the way.
-// Trips join in S3.
+// The board on the Town tab (M2e): the goals on offer, the trader's offers, goods on the way and
+// the forage trip.
 export function Board({ state, send }: { state: State; send: (command: Command) => void }) {
   const board = state.board;
+  const [picking, setPicking] = useState(false);
+  const trip = board.trip;
+  const away = trip
+    ? andList(trip.residentIds.map((id) => state.residents.find((r) => r.id === id)?.name ?? ''))
+    : '';
   return (
     <>
       <h2 className="sec">Board</h2>
@@ -138,7 +145,38 @@ export function Board({ state, send }: { state: State; send: (command: Command) 
             ))}
           </div>
         )}
+        <div className="panel" data-testid="trip">
+          <div className="row-top">
+            <span className="name">Forage trip</span>
+            <span className="kind">Trip</span>
+          </div>
+          {trip ? (
+            <div className="line2">
+              {away} {trip.residentIds.length === 1 ? 'is' : 'are'} out at the forest edge,{' '}
+              {duration(trip.back - state.tick)} left
+            </div>
+          ) : (
+            <>
+              <div className="line2">Send two to the forest edge for a day</div>
+              <div className="btns">
+                <button type="button" className="btn" onClick={() => setPicking(true)}>
+                  Send two
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
+      {picking && !trip && (
+        <TripSheet
+          state={state}
+          onClose={() => setPicking(false)}
+          onSend={(command) => {
+            send(command);
+            setPicking(false);
+          }}
+        />
+      )}
     </>
   );
 }
