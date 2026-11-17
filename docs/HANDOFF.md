@@ -1,6 +1,6 @@
 # Handoff
 
-Updated: 2026-11-17 (M2e spec approved). A fresh session must be able to continue from this file alone. Keep it to 60 lines; move finished entries to `docs/archive/handoff-YYYY-MM.md`.
+Updated: 2026-11-17 (target picture approved; M2e spec approved). A fresh session must be able to continue from this file alone. Keep it to 60 lines; move finished entries to `docs/archive/handoff-YYYY-MM.md`.
 
 ## Phase
 
@@ -12,7 +12,7 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 - ✔ M1 Town: planning, S1 to S5, audit and fixes (D-025 to D-034; PRs #5 to #12).
 - ✔ M1 test (J14) and the M2 re-plan (D-035 to D-038; PR #13).
 - ▶ M2a Pace: merged (PR #14); waiting on Morgan's phone test (J7) (D-036, D-039).
-- ▶ M2b Art workshop: layout D-047, art direction PixelLab mock-up 1 (D-048); workshop merged so far in PRs #17, #20 and #21. Re-plan in 4 steps (2026-11-16): ✔ 1 requirements checklist (`docs/workshop/art-checklist.md`) · ▶ 2 target picture (C picked, scale test done; PR #22 merged) · ○ 3 two-method test · ○ 4 short build sessions (D-037).
+- ▶ M2b Art workshop: layout D-047, art direction PixelLab mock-up 1 (D-048); workshop merged in PRs #17, #20 to #23. Re-plan in 4 steps (2026-11-16): ✔ 1 requirements checklist (`docs/workshop/art-checklist.md`) · ✔ 2 target picture (D-055, 2026-11-17) · ○ 3 method: Morgan approved PixelLab for assets (D-055); whether a separate test is still needed is open · ○ 4 short build sessions (D-037).
 - ▶ M2e Choices: goals, trader swaps, forage trips, pins (D-040, D-049 to D-053). Spec approved 2026-11-17 (`docs/specs/m2e-choices.md`); next the board mock-up, then S1 to S3.
 - ○ M2c Town view (D-037).
 - ○ M2d Ceiling and lots: lots with a character, Town tier, 3 buildings, 2 goods, push methods (D-038).
@@ -20,16 +20,15 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 
 ## Just done
 
+- 2026-11-17 Morgan approved the target picture (D-055) on the map page https://claude.ai/artifact/Qp25MdMLv74XmFa5FxAskf (answered in chat, the page holds no answers): "as for direction it is good and creating assets in pixel lab is approved"; spots to fix later, first the Hall's path, which leads to the square's gate instead of into the square. PR #24 (Codex repairs to the older stage-B map) closed as superseded.
 - 2026-11-17 Morgan approved the M2e spec in chat: "go with recommended for all" (all four `m2espec` calls; the page itself holds no answers). D-049 to D-053 accepted; spec Status Approved.
-- 2026-11-17 Art: the newest map is the ChatGPT clean-up, graded, with buildings (`art/handoff_chatgpt/result_1_grown.png` on branch `m2b-target3`, PR #23). Morgan asked to see it and approve it; page (`artmap1`): https://claude.ai/artifact/Qp25MdMLv74XmFa5FxAskf. Asked: approve as target picture, graded or raw colours, gaps to fix, next art step (PhotoCraft on Morgan's PC is reachable from a desktop session), close PR #24.
-- 2026-11-16 Art re-plan step 2, rounds 1 and 2 (PR #22, merged 2026-11-16). Round 1: three whole-town tries; Morgan picked C but wants it about twice as big and wider (about 1408 × 888) and the mine on the town's side, no bridge (D-047, M2, M7 amended). Round 2: a 3-tile pixflux test at 2× held the layout but came out brighter and plainer than mock-up 1 (https://claude.ai/artifact/AjsFD3miKr6f6CzydcwdBX). 6 generations used, 1,875 left.
 - Earlier entries are in `docs/archive/handoff-2026-11.md`.
 
 ## Next
 
 1. Morgan's M2a test (J7): a new town, check-ins over a day, the Village in about 8 real hours, upgrades found without help. Record their answer here in their words, then set `docs/specs/m2a-pace.md` to Shipped on the next work branch. Opening their old town first jumps it forward up to 8 real hours.
 2. M2e Choices: `mockups/board.html` with `ui-mockups` (board, trip sheet, People row) for Morgan's approval, then S1 on a new branch from `main`.
-3. M2b art: read `artmap1` (`ArtifactData` list, collection `artmap1`) when Morgan says "art done". Older note: step 2 continues on a new branch from `main`, AGENTS art rule. Morgan approved the next test on 2026-11-16 ("start with your recommended option in a new chat"): `edit_image` in reference mode, 25 generations, input `art/pixellab/target2/raw_mine.png` (mine on the town side, no bridge), reference mock-up 1; score it beside mock-up 1 and the pixflux tile on a page. If it holds mock-up 1's look, price the whole map (about 1408 × 888, estimate 300-350) and ask before spending. Then lots, glows, day one, phone frame; step 2 ends at Morgan's approval. The PixelLab token is a network secret on the "Network" cloud environment. Still open: D-041 Proposed and partly superseded; `m2b-art-workshop` can be deleted with Morgan's OK.
+3. M2b art (D-037, D-055): the fix list for the target map, starting with the Hall path into the square, then the art checklist's partly met items; then step 4's build sessions with PixelLab assets. AGENTS art rule. PhotoCraft is on Morgan's PC (reachable from a desktop session). About 1,265 PixelLab generations left. Still open: D-041 Proposed and partly superseded; `m2b-art-workshop` can be deleted with Morgan's OK.
 4. Still open: Morgan's phone tests from S1 and S2 ("Update ready" and Reload; build a Woodcutter's camp, close the app, come back), S3 (switch the Mine to stone; let the Workshop run out of ore overnight) and S4 (pin someone to a bad job and read why morale falls). Record answers here.
 5. The repo has auto-merge off: merge by hand once the ready CI run is green, and do not push and mark ready within the same few seconds.
 6. Phobos (D-054): nothing to build here yet. Phobos tunes content offline after M2e ships and opens normal PRs; a net enters `packages/sim` only after it beats the rule it replaces.
@@ -53,8 +52,7 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 
 ## Decisions since the last plan update
 
+- 2026-11-16 Morgan moved the target picture to a block map: painted empty ground plus separate PixelLab buildings (test, then "1 go ahead"), in stages; after stage A: move the river farther right, fix the mine cliffs, 350 more approved; after stage B: "Do as you recommend", the river not cut off, cap raised by 60; then "Finish the map. Then work to get more things checked off the list"; then two minimal fix passes (seams, lamps, roads, no clipping). Earlier the same day: the restyled single picture ("Go with recommended"), now paused.
 - 2026-11-16 Morgan fixed the town map at 1024 × 768 art pixels with zoom steps 1×, 2×, 3× (D-047 amended).
 - 2026-11-16 Morgan agreed the art checklist (`artreq1`): no Tangle ring drawn but clearing stays (D-043), special sites toward the edges (D-044), a swamp east of the river and no waterfall (D-047), any tool that matches mock-up 1's mood (D-048).
 - 2026-11-14 D-054 Phobos integration plan accepted (Morgan: "Ok let's start with what you say"); factions on a wider map to be planned ("I just want the generic faction managed").
-- 2026-11-14 Morgan chose how the art is made (D-045): CC0 artist packs as the base, hand pixels in their style for gaps, Blender for set pieces after several passes.
-- 2026-11-14 Morgan picked the special sites (D-044): tar pit, standing stones, distant ruins, sunken bog, salt spring, bat caves; the Hollow Oak parked.

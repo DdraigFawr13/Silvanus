@@ -1,0 +1,4 @@
+{"base": "art/pixellab/map3/guide.png", "pieces": [
+ ["art/pixellab/map3/raw_T1.png", 500, 0, []],
+ ["art/pixellab/map3/raw_T2.png", 896, 0, [["left", 1004, 1012]]]
+]}

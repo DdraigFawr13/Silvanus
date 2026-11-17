@@ -1,0 +1,7 @@
+{"base": "art/pixellab/map3/base_paint.png", "pieces": [
+ ["art/pixellab/map3/raw_A.png", 240, 0, []],
+ ["art/pixellab/map3/raw_B.png", 620, 0, [["left", 625, 640]]],
+ ["art/pixellab/target2/raw_mine.png", 892, 0, [["left", 1000, 1020]]],
+ ["art/pixellab/map3/raw_E.png", 1100, 0, [["left", 1250, 1290]]],
+ ["art/pixellab/map3/raw_A2.png", 240, 360, [["top", 360, 400]]]
+]}
