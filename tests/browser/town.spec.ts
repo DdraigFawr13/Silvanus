@@ -326,7 +326,7 @@ test('buying a method pays once and is kept', async ({ page }) => {
   await expect(page.getByTestId('stock-wood')).toHaveText('Wood26 / 200');
 });
 
-const VILLAGE_COST = { wood: 180, stone: 180, tools: 45 };
+const VILLAGE_COST = { wood: 200, stone: 200, tools: 50 };
 
 test('the Hall row offers the Village when it can be paid for', async ({ page }) => {
   // a new Hamlet: 8 residents and 60 wood, so both are missing
@@ -334,22 +334,22 @@ test('the Hall row offers the Village when it can be paid for', async ({ page })
   const hall = page.getByTestId('hall');
   await expect(hall.getByTestId('village')).toBeDisabled();
   await expect(hall.getByTestId('village-why')).toHaveText([
-    'Needs 20 residents',
-    'Needs 120 wood, 180 stone, 45 tools',
+    'Needs 25 residents',
+    'Needs 140 wood, 200 stone, 50 tools',
   ]);
 
-  // 20 residents and the stock: it can be upgraded, after asking
+  // 25 residents and the stock: it can be upgraded, after asking
   const start = newGame(1, content);
-  const state = { ...crowd(start, 20), stock: { ...start.stock, ...VILLAGE_COST } };
+  const state = { ...crowd(start, 25), stock: { ...start.stock, ...VILLAGE_COST } };
   await seedRecord(page, townRecord({ state }));
   await page.goto('/?tickMs=60000');
-  await expect(hall).toContainText('Residents 20 / 25');
+  await expect(hall).toContainText('Residents 25 / 25');
   await expect(hall.getByTestId('village-why')).toHaveCount(0);
   await hall.getByTestId('village').click();
-  await expect(hall.getByTestId('village-confirm')).toContainText('180 wood, 180 stone, 45 tools');
+  await expect(hall.getByTestId('village-confirm')).toContainText('200 wood, 200 stone, 50 tools');
   await hall.getByRole('button', { name: 'Not yet' }).click();
   await expect(hall.getByTestId('village-confirm')).toHaveCount(0);
-  await expect(page.getByTestId('stock-wood')).toHaveText('Wood180 / 200');
+  await expect(page.getByTestId('stock-wood')).toHaveText('Wood · full200 / 200');
   await hall.getByTestId('village').click();
   await hall.getByRole('button', { name: 'Upgrade', exact: true }).click();
   await expect(hall).toContainText('Upgrading to Village, 4 game days left');

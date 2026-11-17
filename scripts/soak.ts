@@ -524,7 +524,16 @@ while (villageTick < 0 && state.tick < BAND.to + 1000) {
   state = result.state;
   check(state);
   if (state.stock.food === 0) foodZeroTicks += 1;
-  if (at20 === null && state.residents.length >= 20) at20 = state;
+  // the town of 20 as the player leaves it: at the end of the first sitting with 20 residents,
+  // after the player's own rules have run (M2e: the board brings the 20th settler mid-hour,
+  // before the player has moved the Forager's hut to Snares)
+  if (
+    at20 === null &&
+    state.residents.length >= 20 &&
+    state.tick % TICKS_PER_REAL_HOUR === SITTING
+  ) {
+    at20 = state;
+  }
   if (state.hallTier === 2) villageTick = state.tick;
 }
 console.log(

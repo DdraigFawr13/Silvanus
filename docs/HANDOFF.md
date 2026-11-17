@@ -1,6 +1,6 @@
 # Handoff
 
-Updated: 2026-11-17 (M2e S1 to S3 built, draft PR #27; soak red until Morgan picks the pace). A fresh session must be able to continue from this file alone. Keep it to 60 lines; move finished entries to `docs/archive/handoff-YYYY-MM.md`.
+Updated: 2026-11-17 (M2e merged, PR #27; next: Morgan's J9 phone check). A fresh session must be able to continue from this file alone. Keep it to 60 lines; move finished entries to `docs/archive/handoff-YYYY-MM.md`.
 
 ## Phase
 
@@ -13,22 +13,22 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 - ✔ M1 test (J14) and the M2 re-plan (D-035 to D-038; PR #13).
 - ▶ M2a Pace: merged (PR #14); waiting on Morgan's phone test (J7) (D-036, D-039).
 - ▶ M2b Art workshop: layout D-047, art direction PixelLab mock-up 1 (D-048); workshop merged in PRs #17, #20 to #23. Re-plan in 4 steps (2026-11-16): ✔ 1 requirements checklist (`docs/workshop/art-checklist.md`) · ✔ 2 target picture (D-055, 2026-11-17) · ○ 3 method: Morgan approved PixelLab for assets (D-055); whether a separate test is still needed is open · ○ 4 short build sessions (D-037).
-- ▶ M2e Choices: goals, trader swaps, forage trips, pins (D-040, D-049 to D-053). Spec and board mock-up approved 2026-11-17; S1 to S3 built on draft PR #27 (soak red, pace pick open).
+- ▶ M2e Choices: goals, trader swaps, forage trips, pins (D-040, D-049 to D-053, D-056). S1 to S3 merged in PR #27 (2026-11-17); waiting on Morgan's phone check (J9).
 - ○ M2c Town view (D-037).
 - ○ M2d Ceiling and lots: lots with a character, Town tier, 3 buildings, 2 goods, push methods (D-038).
 - ○ M3 Guild · ○ M4 Trade outlet, events, chronicle (v0.1) · ○ M5a Families · ○ M5b Paths · ○ M6 Trade and Crown · ○ M7 Depth (v1.0)
 
 ## Just done
 
+- 2026-11-17 Morgan chose option 1 for the pace (D-056: the Village needs 25 residents and 200 wood, 200 stone, 50 tools; pass 3 starts at the end of a sitting) and approved the merge of PR #27. Soak green: Village at tick 1,536 (6.4 h), pass 3 back to 20 in 221 ticks, `reward_lost` 425.
 - 2026-11-17 Morgan: "Approved continue". M2e S2 (trader) and S3 (trips, pins) built on the same branch and PR. Browser tests on Edge: 32 of 33 (the same update test). With all three slices `rewardPct` no longer moves the pace (open question).
 - 2026-11-17 M2e S1 Goals built on `claude/m2e-s1-goals`, draft PR #27: board state, save schema 4, content version 4, goals on the Town tab. Added 5 Hamlet goals (`masonry`, `orevein`, `toolrack`, `firstfield`, `alehouse`): soak pass 2 now offers 3 goals at every check-in (it offered 0 at tick 1,440 without). Soak fails on pace (open question below); every other check passes. Browser tests on Edge: 28 of 29; the update test can't spawn `npx` on Windows.
-- 2026-11-17 Morgan approved the M2e board mock-up ("Approved"); spec "Web" and "Slices" updated with its wording and the extra Hamlet goals. PR #26.
 - Earlier entries are in `docs/archive/handoff-2026-11.md`.
 
 ## Next
 
 1. Morgan's M2a test (J7): a new town, check-ins over a day, the Village in about 8 real hours, upgrades found without help. Record their answer here in their words, then set `docs/specs/m2a-pace.md` to Shipped on the next work branch. Opening their old town first jumps it forward up to 8 real hours.
-2. M2e: Morgan picks how to slow the pace (open question below); then make the soak green, mark PR #27 ready and merge after his OK; then J9 on the phone. Port 4173 was held by a leftover `vite preview` on Morgan's PC on 2026-11-17; the browser run used a scratch config on 4174.
+2. M2e J9 (Morgan, phone): check in over two days; every check-in should offer a real choice; record whether he wants to keep playing, in his words, then set the spec to Shipped on the next work branch. Saves move to schema 4 on first open. Port 4173 was held by a leftover `vite preview` on Morgan's PC on 2026-11-17; the browser run used a scratch config on 4174.
 3. M2b art (D-037, D-055): the fix list for the target map, starting with the Hall path into the square, then the art checklist's partly met items; then step 4's build sessions with PixelLab assets. AGENTS art rule. PhotoCraft is on Morgan's PC (reachable from a desktop session). About 1,265 PixelLab generations left. Still open: D-041 Proposed and partly superseded; `m2b-art-workshop` can be deleted with Morgan's OK.
 4. Still open: Morgan's phone tests from S1 and S2 ("Update ready" and Reload; build a Woodcutter's camp, close the app, come back), S3 (switch the Mine to stone; let the Workshop run out of ore overnight) and S4 (pin someone to a bad job and read why morale falls). Record answers here.
 5. The repo has auto-merge off: merge by hand once the ready CI run is green, and do not push and mark ready within the same few seconds.
@@ -37,7 +37,6 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 
 ## Open questions
 
-- M2e pace (spec J10): with S1 to S3, soak pass 2 reaches the Village at tick 1,056 (band 1,440 to 2,400; main 1,776) at `rewardPct` 100, 75, 50 and 25 alike, and pass 3's earlier town (20th resident at 625) does not recover. Goals set it: goals off gives 1,536 with the trader and trips on. The first goal's few tools let the scripted player upgrade the Forager's hut about an hour sooner, and settlers follow. Asked Morgan 2026-11-17; `rewardPct` stays 100.
 - Whether gold pays for building from M3 (D-027, proposed; settled at M3's planning).
 - Whether the Town tier counts 24 real hours away (M1 audit F18; M2d). Settlers arrive aged 20 until M5a sets ages (F22). D-034's prices are judged again after M2a (F19).
 - How Android Chrome answers the persistent-storage request for an installed PWA: Morgan did not look at the Storage line.
@@ -54,6 +53,7 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 
 ## Decisions since the last plan update
 
+- 2026-11-17 D-056 the Village asks for a full Hamlet (25) and full base stores (200 wood, 200 stone, 50 tools).
 - 2026-11-16 Morgan moved the target picture to a block map: painted empty ground plus separate PixelLab buildings (test, then "1 go ahead"), in stages; after stage A: move the river farther right, fix the mine cliffs, 350 more approved; after stage B: "Do as you recommend", the river not cut off, cap raised by 60; then "Finish the map. Then work to get more things checked off the list"; then two minimal fix passes (seams, lamps, roads, no clipping). Earlier the same day: the restyled single picture ("Go with recommended"), now paused.
 - 2026-11-16 Morgan fixed the town map at 1024 × 768 art pixels with zoom steps 1×, 2×, 3× (D-047 amended).
 - 2026-11-16 Morgan agreed the art checklist (`artreq1`): no Tangle ring drawn but clearing stays (D-043), special sites toward the edges (D-044), a swamp east of the river and no waterfall (D-047), any tool that matches mock-up 1's mood (D-048).

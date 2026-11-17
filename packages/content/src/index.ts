@@ -70,9 +70,11 @@ export const content: Content = {
         lots: 10,
         residents: 60,
         catchUpCap: 3840,
-        cost: { wood: 180, stone: 180, tools: 45 },
+        // M2e: a full Hamlet and full base stores, so the board's goods keep the Village at
+        // 6 to 10 real hours on soak pass 2 (D-036; Morgan chose this 2026-11-17)
+        cost: { wood: 200, stone: 200, tools: 50 },
         ticks: 96,
-        needResidents: 20,
+        needResidents: 25,
       },
     ],
   },

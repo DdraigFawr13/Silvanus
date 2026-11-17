@@ -110,8 +110,8 @@ describe('build', () => {
   });
 
   test('the Hall upgrade makes a Village', () => {
-    const cost = { wood: 180, stone: 180, tools: 45 };
-    const start = crowd(newGame(1, content), 20);
+    const cost = { wood: 200, stone: 200, tools: 50 };
+    const start = crowd(newGame(1, content), 25);
     const town: State = { ...start, stock: { ...start.stock, ...cost } };
     const command: Command = { type: 'upgradeHall' };
     expect(jobCost(town, command, content)).toEqual(cost);
@@ -133,20 +133,20 @@ describe('build', () => {
     ]);
     // a Village cannot be ordered again
     expect(refusal({ ...done, stock: town.stock }, command, content)).toBe('notAllowed');
-    // the job carries on if residents fall below 20 while it runs
+    // the job carries on if residents fall below 25 while it runs
     const fewer = { ...ordered.state, residents: ordered.state.residents.slice(0, 12) };
     expect(run(fewer, 96).hallTier).toBe(2);
   });
 
   test('the Hall upgrade asks for residents, then stock', () => {
-    const cost = { wood: 180, stone: 180, tools: 45 };
+    const cost = { wood: 200, stone: 200, tools: 50 };
     const start = newGame(1, content);
     const why = (state: State) => refusal(state, { type: 'upgradeHall' }, content);
-    // 19 residents with the stock: too few; 8 with no stock: still too few, checked first
-    expect(why({ ...crowd(start, 19), stock: { ...start.stock, ...cost } })).toBe('tooFew');
+    // 24 residents with the stock: too few; 8 with no stock: still too few, checked first
+    expect(why({ ...crowd(start, 24), stock: { ...start.stock, ...cost } })).toBe('tooFew');
     expect(why(start)).toBe('tooFew');
-    // 20 residents, 1 tool short
-    expect(why({ ...crowd(start, 20), stock: { ...start.stock, ...cost, tools: 44 } })).toBe(
+    // 25 residents, 1 tool short
+    expect(why({ ...crowd(start, 25), stock: { ...start.stock, ...cost, tools: 49 } })).toBe(
       'noStock',
     );
     // a full queue comes before both
