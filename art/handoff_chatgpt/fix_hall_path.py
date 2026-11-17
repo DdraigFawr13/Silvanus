@@ -25,10 +25,9 @@ green = (post[..., 1] > post[..., 0] + 4) & (post[..., 1] >= post[..., 2])   # t
 for x0 in (WX0 - 10, WX1):
     tgt = g[408:SQ, x0 : x0 + 10]
     tgt[~green] = post[~green]
-# the old gate's bottom rail and its end post ran on under the walkway's foot (map x 866-883, y 431-440): repaint it with the
-# paving 14 rows below (two brick courses; course lines measured at y 438, 445, 451, 458, 465)
-g[431:441, 866:877] = g[445:455, 866:877]
-g[431:439, 877:884] = g[431:439, 937:944]   # the same rows of clean paving right of the well (rows below hold its rim)
+# the old gate's bottom rail and its end post ran on under the walkway's foot (map x 866-883, y 431-440): repaint it with
+# paving from the same rows right of the well (from y 439 down these columns hold the well's rim)
+g[431:439, 866:884] = g[431:439, 930:948]   # the same rows of clean paving right of the well, so the brick courses line up
 Image.fromarray(np.clip(g, 0, 255).astype(np.uint8)).save(H / "result_2_graded.png")
 place.PLACES = [tuple(p) for p in json.load(open(B / "pass2_items.json"))]
 Image.fromarray(np.clip(place.place(g, True), 0, 255).astype(np.uint8)).save(H / "result_2_grown.png")
