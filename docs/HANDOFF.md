@@ -1,6 +1,6 @@
 # Handoff
 
-Updated: 2026-11-16 (PR #22 merged). A fresh session must be able to continue from this file alone. Keep it to 60 lines; move finished entries to `docs/archive/handoff-YYYY-MM.md`.
+Updated: 2026-11-17 (M2e spec approved). A fresh session must be able to continue from this file alone. Keep it to 60 lines; move finished entries to `docs/archive/handoff-YYYY-MM.md`.
 
 ## Phase
 
@@ -13,22 +13,23 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 - ✔ M1 test (J14) and the M2 re-plan (D-035 to D-038; PR #13).
 - ▶ M2a Pace: merged (PR #14); waiting on Morgan's phone test (J7) (D-036, D-039).
 - ▶ M2b Art workshop: layout D-047, art direction PixelLab mock-up 1 (D-048); workshop merged so far in PRs #17, #20 and #21. Re-plan in 4 steps (2026-11-16): ✔ 1 requirements checklist (`docs/workshop/art-checklist.md`) · ▶ 2 target picture (C picked, scale test done; PR #22 merged) · ○ 3 two-method test · ○ 4 short build sessions (D-037).
-- ▶ M2e Choices: goals, trader swaps, forage trips, pins (D-040). Spec checked (`docs/specs/m2e-choices.md`, merged in PR #18 on 2026-11-16, still Proposed); waiting on Morgan's approval page (`m2espec`); then the mock-up, S1 to S3.
+- ▶ M2e Choices: goals, trader swaps, forage trips, pins (D-040, D-049 to D-053). Spec approved 2026-11-17 (`docs/specs/m2e-choices.md`); next the board mock-up, then S1 to S3.
 - ○ M2c Town view (D-037).
 - ○ M2d Ceiling and lots: lots with a character, Town tier, 3 buildings, 2 goods, push methods (D-038).
 - ○ M3 Guild · ○ M4 Trade outlet, events, chronicle (v0.1) · ○ M5a Families · ○ M5b Paths · ○ M6 Trade and Crown · ○ M7 Depth (v1.0)
 
 ## Just done
 
-- 2026-11-15 M2e spec written and checked on branch `ccr-615648c5-gmti21` (PR https://github.com/DdraigFawr13/Silvanus/pull/18, merged 2026-11-16 at Morgan's request before his approval): 3 slices (goals; trader; trips and pins), proposed D-049 to D-053. Five fresh checks; the critic's first pass changed the reward design (a value split across stores with room, not a fixed bundle that full stores swallow). Approval page: https://claude.ai/artifact/7sCHDMu36YxScF5DSp6rn9 (`m2espec`), with 4 calls for Morgan: rewards, who goes on trips, the pace lever `rewardPct`, the goods' hidden values.
+- 2026-11-17 Morgan approved the M2e spec in chat: "go with recommended for all" (all four `m2espec` calls; the page itself holds no answers). D-049 to D-053 accepted; spec Status Approved.
+- 2026-11-17 Art: the newest map is the ChatGPT clean-up, graded, with buildings (`art/handoff_chatgpt/result_1_grown.png` on branch `m2b-target3`, PR #23). Morgan asked to see it and approve it; page (`artmap1`): https://claude.ai/artifact/Qp25MdMLv74XmFa5FxAskf. Asked: approve as target picture, graded or raw colours, gaps to fix, next art step (PhotoCraft on Morgan's PC is reachable from a desktop session), close PR #24.
 - 2026-11-16 Art re-plan step 2, rounds 1 and 2 (PR #22, merged 2026-11-16). Round 1: three whole-town tries; Morgan picked C but wants it about twice as big and wider (about 1408 × 888) and the mine on the town's side, no bridge (D-047, M2, M7 amended). Round 2: a 3-tile pixflux test at 2× held the layout but came out brighter and plainer than mock-up 1 (https://claude.ai/artifact/AjsFD3miKr6f6CzydcwdBX). 6 generations used, 1,875 left.
 - Earlier entries are in `docs/archive/handoff-2026-11.md`.
 
 ## Next
 
 1. Morgan's M2a test (J7): a new town, check-ins over a day, the Village in about 8 real hours, upgrades found without help. Record their answer here in their words, then set `docs/specs/m2a-pace.md` to Shipped on the next work branch. Opening their old town first jumps it forward up to 8 real hours.
-2. M2e Choices: read Morgan's `m2espec` answers (`ArtifactData` list, collection `m2espec`). On approval: spec Status Approved, D-049 to D-053 into DECISIONS as he decided, then `mockups/board.html` with `ui-mockups`, then S1 on a new branch from `main`.
-3. M2b art re-plan (D-037), step 2 continues on a new branch from `main`, AGENTS art rule. Morgan approved the next test on 2026-11-16 ("start with your recommended option in a new chat"): `edit_image` in reference mode, 25 generations, input `art/pixellab/target2/raw_mine.png` (mine on the town side, no bridge), reference mock-up 1; score it beside mock-up 1 and the pixflux tile on a page. If it holds mock-up 1's look, price the whole map (about 1408 × 888, estimate 300-350) and ask before spending. Then lots, glows, day one, phone frame; step 2 ends at Morgan's approval. The PixelLab token is a network secret on the "Network" cloud environment. Still open: D-041 Proposed and partly superseded; `m2b-art-workshop` can be deleted with Morgan's OK.
+2. M2e Choices: `mockups/board.html` with `ui-mockups` (board, trip sheet, People row) for Morgan's approval, then S1 on a new branch from `main`.
+3. M2b art: read `artmap1` (`ArtifactData` list, collection `artmap1`) when Morgan says "art done". Older note: step 2 continues on a new branch from `main`, AGENTS art rule. Morgan approved the next test on 2026-11-16 ("start with your recommended option in a new chat"): `edit_image` in reference mode, 25 generations, input `art/pixellab/target2/raw_mine.png` (mine on the town side, no bridge), reference mock-up 1; score it beside mock-up 1 and the pixflux tile on a page. If it holds mock-up 1's look, price the whole map (about 1408 × 888, estimate 300-350) and ask before spending. Then lots, glows, day one, phone frame; step 2 ends at Morgan's approval. The PixelLab token is a network secret on the "Network" cloud environment. Still open: D-041 Proposed and partly superseded; `m2b-art-workshop` can be deleted with Morgan's OK.
 4. Still open: Morgan's phone tests from S1 and S2 ("Update ready" and Reload; build a Woodcutter's camp, close the app, come back), S3 (switch the Mine to stone; let the Workshop run out of ore overnight) and S4 (pin someone to a bad job and read why morale falls). Record answers here.
 5. The repo has auto-merge off: merge by hand once the ready CI run is green, and do not push and mark ready within the same few seconds.
 6. Phobos (D-054): nothing to build here yet. Phobos tunes content offline after M2e ships and opens normal PRs; a net enters `packages/sim` only after it beats the rule it replaces.
@@ -45,7 +46,7 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 
 - Round 5: https://claude.ai/artifact/GXyCyVEpnCLUU8jVBXjfJG · Review: https://claude.ai/artifact/MTxTA5yFtYgbZrUKqmStUQ · Final: https://claude.ai/artifact/PDb43Sn8K1tcBLkqek9cPv · M0 spec: https://claude.ai/artifact/Bvt8GtrMSSTGaDjVRscCXe · S3 summary: https://claude.ai/artifact/BqkLY3zSL5CVprLRRxxndq · M1 round 1: https://claude.ai/artifact/4Lu6ZT9ZDmtqhLgLaWbymR · M1 review: https://claude.ai/artifact/5NTJDE3CuGvSkuDjkBL1W1 · M0 audit replies: https://claude.ai/artifact/Wa5YKEgJy8xWYVhaiVRuUk · Taste board: https://claude.ai/artifact/JrzLhbWsWXpwvPsVgqUZGf
 - M2 re-plan round 1 (`m2r1`): https://claude.ai/artifact/3uADUApzUZwnny2PqCwnz2 · Review (`m2review1`): https://claude.ai/artifact/2KcwbeGPg47mn2rZvEbVYx · Final (`m2final`): https://claude.ai/artifact/2Q9JF8itCsoKPXsS8h8YaG
-- M2e spec check (`m2espec`): https://claude.ai/artifact/7sCHDMu36YxScF5DSp6rn9
+- M2e spec check (`m2espec`): https://claude.ai/artifact/7sCHDMu36YxScF5DSp6rn9 · Map approval (`artmap1`): https://claude.ai/artifact/Qp25MdMLv74XmFa5FxAskf
 - M2b art checklist (`artreq1`): https://claude.ai/artifact/JPNjVV94KuDzqzNfQQtqzY · Agreed list: https://claude.ai/artifact/8ivWjfn17NLzUWBFZG2ba6
 - Phobos ideas: https://claude.ai/artifact/T1D4NsM1RRARVsxYvqbjB9 · Factions round 1 (`factions1`): https://claude.ai/artifact/5b2MDpvaSXAD7gwuX7U4Y4 · Review and round 2 (`factions-review1`): https://claude.ai/artifact/1Srtak3r52ErqMJRkiAQVn
 - Fun round 1: https://claude.ai/artifact/7NFqLKmYoVrgEB4TgHsdop · Fun round 2 (town): https://claude.ai/artifact/NbBSXFajzEL8reyh2M7rsE

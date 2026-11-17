@@ -1,7 +1,7 @@
 # M2e Choices
 
-- **Status:** Draft
-- **Planned in:** round 1 (https://claude.ai/artifact/HdpkiWhhZkeEPV2FLgAFKg, `play1`), review and round 2 (https://claude.ai/artifact/2zZSib54mLApaC8wtUfJXG, `play2`), final (https://claude.ai/artifact/FJuq2TKb8gmPAfcEbdymhQ, `playfinal`), all 2026-11-14. **Decisions:** D-040; new entries D-049 to D-053 (Proposed until Morgan approves this spec).
+- **Status:** Approved (2026-11-17, Morgan: "go with recommended for all" on `m2espec`)
+- **Planned in:** round 1 (https://claude.ai/artifact/HdpkiWhhZkeEPV2FLgAFKg, `play1`), review and round 2 (https://claude.ai/artifact/2zZSib54mLApaC8wtUfJXG, `play2`), final (https://claude.ai/artifact/FJuq2TKb8gmPAfcEbdymhQ, `playfinal`), all 2026-11-14. **Decisions:** D-040; D-049 to D-053 (accepted 2026-11-17).
 
 ## Problem
 
@@ -98,11 +98,11 @@ The build starts from `56a08b1` (main after PR #17). Every named test is new or 
 
 ## Decisions
 
-- **D-049 (Proposed)** Goal condition types: `make` (resource, amount, counted from the pick), `building` (kind, tier), `residents` (count). One effect type: `reward`, a value split across the stores that have room.
-- **D-050 (Proposed)** The trader's swap: plenty for short by stock / cap, `get` only below 80% of its cap, sized at 20% of the `give` resource's base cap, paid value for value; payment 24 ticks later; an offer lasts the catch-up cap + 240 ticks and is stretched when the Hall grows.
-- **D-051 (Proposed)** Forage trips: 2 residents the player chooses, 24 ticks, one trip at a time, 3 finds from a content table; morale counts `trip` 0 while out.
-- **D-052 (Proposed)** Goods that do not fit when a reward, delivery or trip lands are lost and logged. Nothing waits to be collected (D-025: no Collect tap).
-- **D-053 (Proposed)** Each resource has a whole-number `value` (food 4, wood 5, stone 5, ore 7, tools 15). It is not a price and is never shown.
+- **D-049** Goal condition types: `make` (resource, amount, counted from the pick), `building` (kind, tier), `residents` (count). One effect type: `reward`, a value split across the stores that have room.
+- **D-050** The trader's swap: plenty for short by stock / cap, `get` only below 80% of its cap, sized at 20% of the `give` resource's base cap, paid value for value; payment 24 ticks later; an offer lasts the catch-up cap + 240 ticks and is stretched when the Hall grows.
+- **D-051** Forage trips: 2 residents the player chooses, 24 ticks, one trip at a time, 3 finds from a content table; morale counts `trip` 0 while out.
+- **D-052** Goods that do not fit when a reward, delivery or trip lands are lost and logged. Nothing waits to be collected (D-025: no Collect tap).
+- **D-053** Each resource has a whole-number `value` (food 4, wood 5, stone 5, ore 7, tools 15). It is not a price and is never shown.
 - Content version 3 becomes 4; save schema 3 becomes 4 (GAME-05). First offer at tick 12, inside a new town's first 20-tick sitting (default chosen here).
 - `make` goals can be offered again after another goal (they are things to do, not milestones); `building` and `residents` goals cannot, because a met one is never eligible. At the Village, unmet Hamlet goals stay eligible.
 
@@ -258,4 +258,4 @@ A mock-up of the board, the trip sheet and the People row (`mockups/board.html`,
 
 ## Open questions
 
-- Escalated to Morgan on the approval page: rewards as a value split across the stores with room (recommended) or a fixed bundle that may be lost; the player choosing the 2 trip residents; what to do if goals speed up the pace (`rewardPct`); the starting values (D-053).
+- Answered 2026-11-17 (all recommended): rewards as a value split across the stores with room; the player chooses the 2 trip residents; if the pace moves, measure `rewardPct` 100, 75 and 50 and ask; the D-053 values as a start.
