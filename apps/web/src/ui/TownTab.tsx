@@ -5,6 +5,7 @@ import { useState, useSyncExternalStore } from 'react';
 import type { ReactNode } from 'react';
 import { dismissSummary, subscribe, summary } from '../store';
 import { AwayCard } from './AwayCard';
+import { Board } from './Board';
 import { BuildSheet } from './BuildSheet';
 import { BuildingSheet } from './BuildingSheet';
 import { HallRow } from './HallRow';
@@ -63,7 +64,7 @@ function nextTierLine(state: State, building: Building): ReactNode {
 
 type Open = { type: 'build' } | { type: 'building'; id: number } | null;
 
-// The away card, the Hall, the work queue, the lots, the log, and at the foot the save block
+// The away card, the Hall, the board, the work queue, the lots, the log, and at the foot the save block
 // (passed in).
 export function TownTab({
   state,
@@ -99,6 +100,7 @@ export function TownTab({
     <div hidden={hidden}>
       {away && <AwayCard state={state} summary={away} onDismiss={dismissSummary} />}
       <HallRow state={state} send={send} />
+      <Board state={state} send={send} />
 
       <h2 className="sec">Work queue</h2>
       <div className="panel" data-testid="queue">

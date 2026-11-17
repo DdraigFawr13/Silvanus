@@ -1,5 +1,5 @@
 import { content } from '@silvanus/content';
-import { hallOf } from '@silvanus/sim';
+import { hallOf, onTrip } from '@silvanus/sim';
 import type { Command, Resident, State } from '@silvanus/sim';
 import { useState } from 'react';
 import { ResidentSheet } from './ResidentSheet';
@@ -24,7 +24,7 @@ const cap = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
 // Who lives in the town: filter by trade, sort, and open a resident's sheet.
 export function PeopleTab({ state, send }: { state: State; send: (command: Command) => void }) {
-  // 'all', 'idle', or a building kind id (its trade)
+  // 'all', 'idle', 'pinned', or a building kind id (its trade)
   const [filter, setFilter] = useState('all');
   const [sort, setSort] = useState<Sort>('name');
   const [open, setOpen] = useState<number | null>(null);
@@ -34,15 +34,25 @@ export function PeopleTab({ state, send }: { state: State; send: (command: Comma
   const trades = content.buildings.filter(
     (kind) => kind.trade !== null && state.residents.some((r) => kindOfJob(r) === kind.id),
   );
-  // a trade chip whose last worker went falls back to All
-  const shown = filter === 'all' || filter === 'idle' || trades.some((k) => k.id === filter);
+  // someone on a trip has no job but is not out of work
+  const noWork = (r: Resident) => r.jobId === null && !onTrip(state, r.id);
+  const anyPinned = state.residents.some((r) => r.pinnedTo !== null);
+  // a chip whose last resident went (a trade, or the last pin) falls back to All
+  const shown =
+    filter === 'all' ||
+    filter === 'idle' ||
+    (filter === 'pinned' && anyPinned) ||
+    trades.some((k) => k.id === filter);
   const active = shown ? filter : 'all';
+  const keep: Record<string, (r: Resident) => boolean> = {
+    all: () => true,
+    idle: noWork,
+    pinned: (r) => r.pinnedTo !== null,
+  };
   const list = state.residents
-    .filter((r) =>
-      active === 'all' ? true : active === 'idle' ? r.jobId === null : kindOfJob(r) === active,
-    )
+    .filter((r) => (keep[active] ?? ((x: Resident) => kindOfJob(x) === active))(r))
     .sort(ORDER[sort]);
-  const idle = state.residents.filter((r) => r.jobId === null).length;
+  const idle = state.residents.filter(noWork).length;
   const resident = state.residents.find((r) => r.id === open) ?? null;
 
   const chip = (id: string, label: string) => (
@@ -67,6 +77,7 @@ export function PeopleTab({ state, send }: { state: State; send: (command: Comma
       <div className="chips" role="group" aria-label="Show">
         {chip('all', 'All')}
         {chip('idle', 'No work')}
+        {anyPinned && chip('pinned', 'Pinned')}
         {trades.map((kind) => chip(kind.id, kind.trade!))}
       </div>
       <div className="sorts" role="group" aria-label="Sort by">
@@ -98,16 +109,24 @@ export function PeopleTab({ state, send }: { state: State; send: (command: Comma
           >
             <span className="grow">
               <span className="row-top">
-                <span className="name">{r.name}</span>
+                <span className="name">
+                  {r.name}
+                  {r.pinnedTo !== null && <span className="pin">Pinned</span>}
+                </span>
                 <span className={`mor ${moraleClass(r.morale)}`}>
                   Morale <b data-testid="morale">{r.morale}</b>
                 </span>
               </span>
               <span className="line2">
                 {cap(peopleName(r))} ·{' '}
-                {job ? tradeOf(state, r) : <span className="w">No work</span>} · {best.name}{' '}
-                {best.value}
-                {r.pinnedTo !== null && ' · Pinned'}
+                {job ? (
+                  tradeOf(state, r)
+                ) : onTrip(state, r.id) ? (
+                  'On a trip'
+                ) : (
+                  <span className="w">No work</span>
+                )}{' '}
+                · {best.name} {best.value}
               </span>
             </span>
             <span className="go">›</span>

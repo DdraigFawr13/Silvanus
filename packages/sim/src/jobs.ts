@@ -1,3 +1,4 @@
+import { onTrip } from './board';
 import type { Content, State } from './types';
 import { kindOf } from './util';
 
@@ -17,8 +18,9 @@ export function assignJobs(s: State, content: Content): void {
     resident.jobId = buildingId;
     left.set(buildingId, left.get(buildingId)! - 1);
   };
-  // residents are kept in id order
+  // residents are kept in id order; those out on a trip are placed when they are back
   for (const resident of s.residents) {
+    if (onTrip(s, resident.id)) continue;
     // a pin that does not fit is kept, and the resident is placed like anyone else this pass
     if (resident.pinnedTo !== null && (left.get(resident.pinnedTo) ?? 0) > 0) {
       take(resident, resident.pinnedTo);
@@ -26,7 +28,7 @@ export function assignJobs(s: State, content: Content): void {
   }
   const pairs: { score: number; resident: State['residents'][number]; lot: number }[] = [];
   for (const resident of s.residents) {
-    if (resident.jobId !== null) continue;
+    if (resident.jobId !== null || onTrip(s, resident.id)) continue;
     s.buildings.forEach((building, lot) => {
       if ((left.get(building.id) ?? 0) === 0) return;
       const kind = kindOf(content, building.kind)!;

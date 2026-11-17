@@ -8,7 +8,7 @@ import type { Locator, Page } from '@playwright/test';
 
 export { content };
 
-// A schema 2 record of a new town, as the app stores it. `commands` are carried out on it
+// A schema 4 record of a new town, as the app stores it. `commands` are carried out on it
 // first; `state` then overrides fields. The anchor is now unless given.
 export function townRecord(
   overrides: {
@@ -21,7 +21,7 @@ export function townRecord(
   const start = newGame(overrides.seed ?? 1, content);
   const state = apply(start, overrides.commands ?? [], content).state;
   return {
-    schema: 3,
+    schema: 4,
     anchorMs: overrides.anchorMs ?? Date.now(),
     state: { ...state, ...overrides.state },
   };

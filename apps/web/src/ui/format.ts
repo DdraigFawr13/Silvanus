@@ -70,6 +70,7 @@ const REASON_LABELS: Record<string, string> = {
   idle: 'No work',
   crowded: 'Crowded home',
   tavern: 'The tavern',
+  trip: 'On a trip',
 };
 export const reasonLabel = (id: string) => REASON_LABELS[id] ?? id;
 
@@ -79,12 +80,14 @@ export const reasonsText = (reasons: { id: string; amount: number }[], none: str
     ? none
     : reasons.map((r) => `${reasonLabel(r.id)} ${signed(r.amount)}`).join(' · ');
 
-// "the Workshop", "the Workshop and the Tavern", "the Farm, the Mine and the Tavern"
-export function theList(names: string[]): string {
-  const each = names.map((name) => `the ${name}`);
-  if (each.length <= 1) return each.join('');
-  return `${each.slice(0, -1).join(', ')} and ${each[each.length - 1]}`;
+// "Ceria", "Ceria and Llew", "Ceria, Llew and Dai"
+export function andList(names: string[]): string {
+  if (names.length <= 1) return names.join('');
+  return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
 }
+
+// "the Workshop", "the Workshop and the Tavern", "the Farm, the Mine and the Tavern"
+export const theList = (names: string[]): string => andList(names.map((name) => `the ${name}`));
 
 // Age in whole game years.
 export const ageOf = (tick: number, bornTick: number) => Math.floor((tick - bornTick) / YEAR_TICKS);

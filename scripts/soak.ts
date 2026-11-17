@@ -9,6 +9,7 @@ import {
   apply,
   bedsOf,
   capsOf,
+  draw,
   hallOf,
   newGame,
   nextU32,
@@ -46,6 +47,10 @@ const TYPES = [
   'pin',
   'setMethod',
   'upgradeHall',
+  'pickGoal',
+  'acceptOffer',
+  'declineOffer',
+  'sendTrip',
 ] as const;
 
 // How often the bot picks each type: building and upgrading lead, and a clear is rare, so the
@@ -59,6 +64,10 @@ const WEIGHTS: [(typeof TYPES)[number], number][] = [
   ['pin', 2],
   ['setMethod', 3],
   ['upgradeHall', 1],
+  ['pickGoal', 2],
+  ['acceptOffer', 2],
+  ['declineOffer', 2],
+  ['sendTrip', 2],
 ];
 const WEIGHT_TOTAL = WEIGHTS.reduce((sum, [, w]) => sum + w, 0);
 
@@ -104,6 +113,21 @@ function randomCommand(s: State): Command {
     }
     case 'upgradeHall':
       return { type };
+    case 'pickGoal': {
+      // a goal on offer when there are any, else an id that is refused
+      const on = s.board.goals;
+      return { type, id: on.length ? on[roll(on.length)] : 'none' };
+    }
+    case 'acceptOffer':
+    case 'declineOffer': {
+      const offers = s.board.offers;
+      return { type, id: offers.length ? offers[roll(offers.length)].id : 0 };
+    }
+    case 'sendTrip': {
+      // two random residents, sometimes the same one twice (refused)
+      const one = () => (s.residents.length ? s.residents[roll(s.residents.length)].id : 0);
+      return { type, residentIds: [one(), one()] };
+    }
   }
 }
 
@@ -148,6 +172,50 @@ function check(s: State): void {
     if (living.get(building.id)! > building.open) {
       fail(`${building.kind} ${building.id} has more workers than open slots`);
     }
+  }
+  // the board (the save check's rules, written again here: the soak does not import apps/web)
+  const board = s.board;
+  if (board.goals.length > content.rules.goalsOffered) fail(`${board.goals.length} goals on offer`);
+  if (new Set(board.goals).size !== board.goals.length) fail('a goal is offered twice');
+  if (!board.goals.every((id) => content.goals.some((g) => g.id === id))) fail('an unknown goal');
+  if (board.active !== null && !board.goals.includes(board.active)) {
+    fail(`the active goal ${board.active} is not on offer`);
+  }
+  const active = content.goals.find((g) => g.id === board.active);
+  const most = active?.when.type === 'make' ? active.when.amount : 0;
+  if (!whole(board.progress, most)) fail(`goal progress ${board.progress}`);
+  if (board.offers.length > content.rules.offersMax) fail(`${board.offers.length} offers`);
+  const known = (id: string) => content.resources.some((r) => r.id === id);
+  for (const o of board.offers) {
+    if (!whole(o.id, board.nextOfferId - 1)) fail(`offer id ${o.id}`);
+    if (o.until < s.tick) fail(`offer ${o.id} is past its until`);
+    for (const part of [o.give, o.get]) {
+      if (
+        !known(part.resource) ||
+        !whole(part.amount, Number.MAX_SAFE_INTEGER) ||
+        part.amount < 1
+      ) {
+        fail(`offer ${o.id} has ${part.amount} ${part.resource}`);
+      }
+    }
+  }
+  if (new Set(board.offers.map((o) => o.id)).size !== board.offers.length) fail('offer ids repeat');
+  for (const d of board.deliveries) {
+    if (!known(d.resource) || d.amount < 1 || d.at < s.tick) fail(`delivery ${JSON.stringify(d)}`);
+  }
+  if (!whole(board.nextOfferId, Number.MAX_SAFE_INTEGER)) fail('nextOfferId');
+  if (!whole(board.nextOfferTick, Number.MAX_SAFE_INTEGER)) fail('nextOfferTick');
+  if (board.trip !== null) {
+    const ids = board.trip.residentIds;
+    if (ids.length < 1 || ids.length > content.trips.size || new Set(ids).size !== ids.length) {
+      fail(`a trip of ${ids.join(', ')}`);
+    }
+    for (const id of ids) {
+      const r = s.residents.find((x) => x.id === id);
+      if (!r) fail(`a trip names resident ${id}, who is gone`);
+      if (r.jobId !== null) fail(`${r.name} is on a trip and at work`);
+    }
+    if (board.trip.back < s.tick) fail(`a trip is past its return at ${board.trip.back}`);
   }
   for (const [stream, value] of Object.entries(s.rng)) {
     if (!whole(value, 4294967295)) fail(`rng ${stream} is ${value}`);
@@ -225,7 +293,18 @@ if (builtKinds.size < 3) fail(`only ${builtKinds.size} kinds of building were bu
 const done = (type: string) => (sent.get(type) ?? 0) - (turnedDown.get(type) ?? 0);
 // A random bot reaches upgrades and cancels only by luck (an upgrade needs tools, a cancel a second
 // job waiting), so upgrades are pass 2's to prove, and cancelJob is build.test.ts's.
-for (const type of ['build', 'clear', 'setOpen', 'pin', 'setMethod'] as const) {
+const gated = [
+  'build',
+  'clear',
+  'setOpen',
+  'pin',
+  'setMethod',
+  'pickGoal',
+  'acceptOffer',
+  'declineOffer',
+  'sendTrip',
+] as const;
+for (const type of gated) {
   if (done(type) === 0) fail(`no ${type} command was carried out`);
 }
 if (peakBuildings < 5) fail(`the town never had more than ${peakBuildings} buildings`);
@@ -275,6 +354,22 @@ function scripted(s: State, ordered: { next: number }): Command[] {
     town = apply(town, [command], content).state;
     sent.push(command);
   };
+  // the board, in the sitting's first tick, after the rules below: the first goal on offer
+  const board = () => {
+    if (s.tick % TICKS_PER_REAL_HOUR !== 0) return;
+    if (town.board.active === null && town.board.goals.length > 0) {
+      send({ type: 'pickGoal', id: town.board.goals[0] });
+    }
+  };
+  // every sitting tick: each offer it can pay whose give stock is above half its cap
+  const trade = () => {
+    const caps = capsOf(town, content);
+    for (const offer of s.board.offers) {
+      if (town.stock[offer.give.resource] * 2 > caps[offer.give.resource]) {
+        send({ type: 'acceptOffer', id: offer.id });
+      }
+    }
+  };
   const of = (kind: string) => town.buildings.filter((b) => b.kind === kind && b.tier > 0);
   send({ type: 'upgradeHall' });
   if (ordered.next < ORDER.length) {
@@ -315,7 +410,47 @@ function scripted(s: State, ordered: { next: number }): Command[] {
       send({ type: 'setOpen', buildingId: camp.id, count: slots });
     }
   }
+  board();
+  trade();
+  // a trip when none is out: the 2 residents with the highest ids who are not pinned
+  if (s.tick % TICKS_PER_REAL_HOUR === 0 && town.board.trip === null) {
+    const free = town.residents.filter((r) => r.pinnedTo === null).slice(-content.trips.size);
+    if (free.length === content.trips.size) {
+      send({ type: 'sendTrip', residentIds: free.map((r) => r.id) });
+    }
+  }
   return sent;
+}
+
+// The finds a trip coming back in this state's step draws: the engine's draws on the `trips`
+// stream (rule 6b), repeated here so the soak can count what found no room.
+function findsOf(s: State): Record<string, number> {
+  const { finds, draws: count } = content.trips;
+  let rng = s.rng;
+  const found: Record<string, number> = {};
+  for (let i = 0; i < count; i++) {
+    const at = draw(rng, 'trips', s.seed, finds.length);
+    const find = finds[at.value];
+    const amount = draw(at.rng, 'trips', s.seed, find.max - find.min + 1);
+    rng = amount.rng;
+    found[find.resource] = (found[find.resource] ?? 0) + find.min + amount.value;
+  }
+  return found;
+}
+
+// A check-in's real choices, judged before the player acts (spec, "Goals"): an offer the town
+// can pay for, a goal to pick, or a build or an upgrade the town can pay for.
+function choices(s: State): { board: boolean; any: boolean } {
+  const goal =
+    (s.board.active === null && s.board.goals.length > 0) ||
+    s.board.offers.some((o) => refusal(s, { type: 'acceptOffer', id: o.id }, content) === null);
+  const works: Command[] = [
+    { type: 'upgradeHall' },
+    ...content.buildings.map((k): Command => ({ type: 'build', kind: k.id })),
+    ...s.buildings.map((b): Command => ({ type: 'upgrade', buildingId: b.id })),
+  ];
+  const work = works.some((command) => refusal(s, command, content) === null);
+  return { board: goal, any: goal || work };
 }
 
 state = newGame(1, content);
@@ -327,36 +462,101 @@ let upgrades = 0;
 let mostLeft = 0;
 let lostToCaps = 0;
 let foodZeroTicks = 0;
+let checkins = 0;
+const noChoice: number[] = [];
+let boardChoice = 0;
+let goalsMet = 0;
+let rewardLost = 0;
+let offersTaken = 0;
+let trips = 0;
+const fewGoals: string[] = [];
+const dearest = Math.max(...content.resources.map((r) => r.value));
 // Every tick is stepped, so the Village tick and the 20th arrival are exact; the player sends
 // commands only in the first SITTING ticks of each real hour.
 while (villageTick < 0 && state.tick < BAND.to + 1000) {
   const present = state.tick % TICKS_PER_REAL_HOUR < SITTING;
+  // each check-in after the first (tick 0 is judged before the first goals are drawn)
+  if (state.tick % TICKS_PER_REAL_HOUR === 0 && state.tick > 0) {
+    checkins += 1;
+    const judged = choices(state);
+    if (!judged.any) noChoice.push(state.tick);
+    if (judged.board) boardChoice += 1;
+    if (state.board.goals.length < content.rules.goalsOffered) {
+      fewGoals.push(`${state.tick}:${state.board.goals.length}`);
+    }
+  }
   const commands = present ? scripted(state, ordered) : [];
   sentCount += commands.length;
+  offersTaken += commands.filter((c) => c.type === 'acceptOffer').length;
+  trips += commands.filter((c) => c.type === 'sendTrip').length;
   upgrades += commands.filter((c) => c.type === 'upgrade').length;
+  const due = state.board.deliveries.filter((d) => d.at <= state.tick);
   const result = step(state, commands, content);
+  // goods a delivery brought that found no room count as reward lost
+  for (const d of due) {
+    const kept = result.events
+      .filter((e) => e.type === 'delivered' && e.resource === d.resource)
+      .reduce((sum, e) => sum + (e.type === 'delivered' ? e.amount : 0), 0);
+    const value = content.resources.find((r) => r.id === d.resource)!.value;
+    rewardLost += Math.max(0, d.amount - kept) * value;
+  }
   for (const event of result.events) {
     if (event.type === 'rejected') fail(`the scripted bot sent a refused ${event.command.type}`);
     if (event.type === 'left') mostLeft += 1;
     if (event.type === 'lost') lostToCaps += event.amount;
+    if (event.type === 'tripBack') {
+      // finds that found no room count as reward lost: the finds drawn, less what was kept
+      const found = findsOf(state);
+      for (const r of content.resources) {
+        const lost = (found[r.id] ?? 0) - (event.finds[r.id] ?? 0);
+        if (lost < 0) fail(`the soak's copy of the trip draws found less ${r.id} than was kept`);
+        rewardLost += lost * r.value;
+      }
+    }
+    if (event.type === 'goalDone') {
+      goalsMet += 1;
+      const goal = content.goals.find((g) => g.id === event.id)!;
+      let left = Math.floor((goal.reward * content.rules.rewardPct) / 100);
+      for (const r of content.resources) left -= (event.paid[r.id] ?? 0) * r.value;
+      if (left >= dearest) rewardLost += left;
+    }
   }
   state = result.state;
   check(state);
   if (state.stock.food === 0) foodZeroTicks += 1;
-  if (at20 === null && state.residents.length >= 20) at20 = state;
+  // the town of 20 as the player leaves it: at the end of the first sitting with 20 residents,
+  // after the player's own rules have run (M2e: the board brings the 20th settler mid-hour,
+  // before the player has moved the Forager's hut to Snares)
+  if (
+    at20 === null &&
+    state.residents.length >= 20 &&
+    state.tick % TICKS_PER_REAL_HOUR === SITTING
+  ) {
+    at20 = state;
+  }
   if (state.hallTier === 2) villageTick = state.tick;
 }
 console.log(
   `pass 2: village_tick=${villageTick} village_real_hours=${(villageTick / TICKS_PER_REAL_HOUR).toFixed(2)} ` +
     `commands=${sentCount} residents=${state.residents.length} left=${mostLeft} ` +
-    `twentieth_at=${at20?.tick ?? -1} upgrades=${upgrades} lost=${lostToCaps} food_zero_ticks=${foodZeroTicks}`,
+    `twentieth_at=${at20?.tick ?? -1} upgrades=${upgrades} lost=${lostToCaps} food_zero_ticks=${foodZeroTicks} ` +
+    `checkins=${checkins} no_choice=${noChoice.length} board_choice=${boardChoice} goals_met=${goalsMet} ` +
+    `offers_taken=${offersTaken} trips=${trips} reward_lost=${rewardLost} few_goals=${fewGoals.length}`,
 );
+if (noChoice.length > 0) fail(`check-ins with no real choice at ticks ${noChoice.join(', ')}`);
+if (goalsMet === 0) fail('the scripted town never met a goal');
+if (offersTaken === 0) fail('the scripted town never took an offer');
+if (trips === 0) fail('the scripted town never sent a trip');
+// S1 adds Hamlet goals until every check-in offers a full board (spec, "Slices")
+if (fewGoals.length > 0)
+  fail(`fewer goals than ${content.rules.goalsOffered} at tick:count ${fewGoals.join(' ')}`);
 if (upgrades === 0) fail('the scripted town never upgraded a building');
-if (villageTick < BAND.from || villageTick > BAND.to) {
-  fail(
-    `the scripted bot reached the Village at tick ${villageTick}, outside ${BAND.from} to ${BAND.to}`,
-  );
-}
+// The band fails last, after pass 3, so a pace change still shows every other gate (spec J10:
+// the slice measures rewardPct 100, 75 and 50 for Morgan when the band fails).
+const bandMiss =
+  villageTick < BAND.from || villageTick > BAND.to
+    ? `the scripted bot reached the Village at tick ${villageTick}, outside ${BAND.from} to ${BAND.to}`
+    : null;
 if (at20 === null) fail('the scripted town never reached 20 residents');
 
 // Pass 3: the town at its 20th resident, with no food and no food workers for a night.
@@ -390,3 +590,4 @@ console.log(
 if (state.residents.length < 20) {
   fail(`${state.residents.length} residents ${RECOVER_TICKS} ticks after food returned`);
 }
+if (bandMiss !== null) fail(bandMiss);

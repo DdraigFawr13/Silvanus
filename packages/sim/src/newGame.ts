@@ -19,6 +19,16 @@ export function newGame(seed: number, content: Content): State {
     lastLeftTick: -content.rules.leaveGapTicks,
     jobsDirty: false,
     log: [],
+    board: {
+      goals: [],
+      active: null,
+      progress: 0,
+      offers: [],
+      nextOfferId: 1,
+      nextOfferTick: content.rules.firstOfferTick,
+      deliveries: [],
+      trip: null,
+    },
   };
   for (let i = 0; i < content.rules.founders; i++) addSettler(s, content);
   for (const id of ['cottage', 'forager']) {

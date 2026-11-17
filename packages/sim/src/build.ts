@@ -1,3 +1,4 @@
+import { boardCarryOut, boardRefusal, stretchOffers } from './board';
 import type { Amounts, Command, Content, Event, Reason, State } from './types';
 import { addLog, capsOf, covers, freeMethods, hallOf, kindOf, methodOf, slotsOf } from './util';
 
@@ -93,6 +94,11 @@ export function refusal(state: State, command: Command, content: Content): Reaso
       }
       return resident.pinnedTo === command.buildingId ? 'same' : null;
     }
+    case 'pickGoal':
+    case 'acceptOffer':
+    case 'declineOffer':
+    case 'sendTrip':
+      return boardRefusal(state, command, content);
     default: {
       const never: never = command;
       void never;
@@ -215,6 +221,12 @@ export function carryOut(s: State, command: Command, content: Content, events: E
       s.queue.push({ target: 'hall', toTier: s.hallTier + 1, ticksLeft: ticks, cost: { ...cost } });
       return;
     }
+    case 'pickGoal':
+    case 'acceptOffer':
+    case 'declineOffer':
+    case 'sendTrip':
+      boardCarryOut(s, command, content);
+      return;
     default: {
       const never: never = command;
       void never;
@@ -235,6 +247,7 @@ export function construct(s: State, content: Content, events: Event[]): void {
     s.hallTier = job.toTier;
     events.push({ type: 'village', tier: job.toTier });
     addLog(s, content, 'village', `${content.town} is now a ${hallOf(s, content).name}.`);
+    stretchOffers(s, content);
     return;
   }
   const building = s.buildings.find((b) => b.id === job.target)!;

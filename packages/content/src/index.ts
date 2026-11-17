@@ -1,4 +1,4 @@
-import type { Amounts, BuildingKind, Content, Method } from '@silvanus/sim';
+import type { Amounts, BuildingKind, Content, Goal, GoalWhen, Method } from '@silvanus/sim';
 import { names } from './names';
 
 // Every number here is a starting value for the playtest (D-030); the spec's "Content" section
@@ -32,16 +32,27 @@ const method = (
   cost: Amounts = {},
 ): Method => ({ id, building, name, tier, makes, uses, fallback, cost });
 
+const goal = (id: string, name: string, hall: number, when: GoalWhen, reward: number): Goal => ({
+  id,
+  name,
+  hall,
+  when,
+  reward,
+});
+const make = (resource: string, amount: number): GoalWhen => ({ type: 'make', resource, amount });
+const building = (kind: string, tier: number): GoalWhen => ({ type: 'building', kind, tier });
+const residents = (count: number): GoalWhen => ({ type: 'residents', count });
+
 export const content: Content = {
-  version: 3,
+  version: 4,
   town: 'Ashwick',
   cycleTicks: 4,
   resources: [
-    { id: 'food', name: 'Food', cap: 200, start: 40 },
-    { id: 'wood', name: 'Wood', cap: 200, start: 60 },
-    { id: 'stone', name: 'Stone', cap: 200, start: 0 },
-    { id: 'ore', name: 'Ore', cap: 100, start: 0 },
-    { id: 'tools', name: 'Tools', cap: 50, start: 0 },
+    { id: 'food', name: 'Food', cap: 200, start: 40, value: 4 },
+    { id: 'wood', name: 'Wood', cap: 200, start: 60, value: 5 },
+    { id: 'stone', name: 'Stone', cap: 200, start: 0, value: 5 },
+    { id: 'ore', name: 'Ore', cap: 100, start: 0, value: 7 },
+    { id: 'tools', name: 'Tools', cap: 50, start: 0, value: 15 },
   ],
   hall: {
     tiers: [
@@ -59,9 +70,11 @@ export const content: Content = {
         lots: 10,
         residents: 60,
         catchUpCap: 3840,
-        cost: { wood: 180, stone: 180, tools: 45 },
+        // M2e: a full Hamlet and full base stores, so the board's goods keep the Village at
+        // 6 to 10 real hours on soak pass 2 (D-036; Morgan chose this 2026-11-17)
+        cost: { wood: 200, stone: 200, tools: 50 },
         ticks: 96,
-        needResidents: 20,
+        needResidents: 25,
       },
     ],
   },
@@ -223,6 +236,49 @@ export const content: Content = {
     tavernMax: 12,
     logMax: 100,
     founders: 8,
+    rewardPct: 100,
+    goalsOffered: 3,
+    offerEveryTicks: 240,
+    offersMax: 3,
+    firstOfferTick: 12,
+    deliveryTicks: 24,
+    tradeSharePct: 20,
+    tradeGetBelowPct: 80,
+    offerExtraTicks: 240,
   },
   names,
+  // Rewards are values (D-053) of about a real hour of the town's work, measured on soak pass 2's
+  // town: 941 to 1,999 an hour at the Hamlet, 2,113 to 2,453 at the Village (spec, "Content").
+  goals: [
+    goal('stockpile', 'Lay in timber', 1, make('wood', 80), 1000),
+    goal('quarry', 'Open the quarry', 1, building('mine', 1), 1200),
+    goal('forge', 'Light the forge', 1, building('workshop', 1), 1300),
+    goal('harvest', 'A good harvest', 1, make('food', 120), 1100),
+    goal('twelve', 'Twelve hearths', 1, residents(12), 1200),
+    goal('snug', 'Snug cottages', 1, building('cottage', 2), 1200),
+    // added in S1 so soak pass 2 offers three goals at every check-in (spec, "Slices")
+    goal('masonry', 'Stone for walls', 1, make('stone', 80), 1000),
+    goal('orevein', 'Follow the ore', 1, make('ore', 30), 1100),
+    goal('toolrack', 'Tools for every hand', 1, make('tools', 15), 1200),
+    goal('firstfield', 'Break the first field', 1, building('farm', 1), 1200),
+    goal('alehouse', 'Raise a tavern', 1, building('tavern', 1), 1300),
+    goal('toolmaker', 'A store of tools', 2, make('tools', 30), 2000),
+    goal('deepmine', 'Deeper shafts', 2, building('mine', 2), 2200),
+    goal('thirty', 'Thirty souls', 2, residents(30), 2100),
+    goal('fields', 'Fields to the river', 2, building('farm', 2), 2200),
+    goal('stores', 'Full granaries', 2, building('storehouse', 1), 2000),
+    goal('stoneworks', 'Stone for the Village', 2, make('stone', 120), 2300),
+  ],
+  trips: {
+    size: 2,
+    ticks: 24,
+    draws: 3,
+    finds: [
+      { resource: 'food', min: 15, max: 30 },
+      { resource: 'wood', min: 10, max: 25 },
+      { resource: 'stone', min: 8, max: 20 },
+      { resource: 'ore', min: 6, max: 15 },
+      { resource: 'tools', min: 2, max: 6 },
+    ],
+  },
 };

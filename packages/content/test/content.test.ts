@@ -159,6 +159,8 @@ const planted: [fault: string, message: RegExp, make: (c: Content) => void][] = 
         delete m.cost.food;
       }
       for (const t of c.hall.tiers) delete t.cost.food;
+      c.goals = c.goals.filter((g) => !(g.when.type === 'make' && g.when.resource === 'food'));
+      c.trips.finds = c.trips.finds.filter((f) => f.resource !== 'food');
     },
   ],
   [
@@ -173,6 +175,108 @@ const planted: [fault: string, message: RegExp, make: (c: Content) => void][] = 
       }
     },
   ],
+  // goods' values, goals and trips (M2e)
+  [
+    'a resource with no value',
+    /^ore has no value$/,
+    (c) => {
+      c.resources.find((r) => r.id === 'ore')!.value = 0;
+    },
+  ],
+  [
+    'a goal listed twice',
+    /^goal quarry is listed twice$/,
+    (c) => {
+      c.goals.push({ ...c.goals.find((g) => g.id === 'quarry')! });
+    },
+  ],
+  [
+    'a goal past the last Hall tier',
+    /^goal toolmaker names no Hall tier$/,
+    (c) => {
+      c.goals.find((g) => g.id === 'toolmaker')!.hall = 3;
+    },
+  ],
+  [
+    'a goal of an unknown resource',
+    /^goal stockpile names an unknown resource, gold$/,
+    (c) => {
+      c.goals.find((g) => g.id === 'stockpile')!.when = {
+        type: 'make',
+        resource: 'gold',
+        amount: 5,
+      };
+    },
+  ],
+  [
+    'a make goal past a base store',
+    /^goal stockpile asks for more wood than a base store holds$/,
+    (c) => {
+      c.goals.find((g) => g.id === 'stockpile')!.when = {
+        type: 'make',
+        resource: 'wood',
+        amount: 201,
+      };
+    },
+  ],
+  [
+    'a goal of an unknown building',
+    /^goal quarry names an unknown building, castle$/,
+    (c) => {
+      c.goals.find((g) => g.id === 'quarry')!.when = { type: 'building', kind: 'castle', tier: 1 };
+    },
+  ],
+  [
+    'a goal of a tier the building lacks',
+    /^goal quarry names a tier mine does not have$/,
+    (c) => {
+      c.goals.find((g) => g.id === 'quarry')!.when = { type: 'building', kind: 'mine', tier: 4 };
+    },
+  ],
+  [
+    'a residents goal of 0',
+    /^goal twelve has a zero or negative count$/,
+    (c) => {
+      c.goals.find((g) => g.id === 'twelve')!.when = { type: 'residents', count: 0 };
+    },
+  ],
+  [
+    'a goal with no reward',
+    /^goal twelve has a zero or negative reward$/,
+    (c) => {
+      c.goals.find((g) => g.id === 'twelve')!.reward = 0;
+    },
+  ],
+  [
+    'too few Hamlet goals',
+    /^there must be at least 3 goals at Hall tier 1$/,
+    (c) => {
+      c.goals = c.goals
+        .filter((g) => g.hall !== 1)
+        .concat(c.goals.filter((g) => g.hall === 1).slice(0, 2));
+    },
+  ],
+  [
+    'a trip find of an unknown resource',
+    /^a trip find names an unknown resource, gold$/,
+    (c) => {
+      c.trips.finds[0].resource = 'gold';
+    },
+  ],
+  [
+    'a trip find with min above max',
+    /^the trip find of wood needs 1 <= min <= max$/,
+    (c) => {
+      c.trips.finds[1].min = 30;
+    },
+  ],
+  [
+    'a trip of no one',
+    /^trips size is a zero or negative number$/,
+    (c) => {
+      c.trips.size = 0;
+    },
+  ],
 ];
 
 describe('content', () => {
@@ -184,6 +288,16 @@ describe('content', () => {
       expect(found, fault).toHaveLength(1);
       expect(found[0], fault).toMatch(message);
     }
+  });
+
+  // The bands are the soak's measured hour of work (spec, "Content"); this only catches typos.
+  test('goal rewards are about an hour of work', () => {
+    for (const goal of content.goals) {
+      const [from, to] = goal.hall === 1 ? [900, 1600] : [1800, 2800];
+      expect(goal.reward, goal.id).toBeGreaterThanOrEqual(from);
+      expect(goal.reward, goal.id).toBeLessThanOrEqual(to);
+    }
+    expect(content.goals.filter((g) => g.hall === 2)).toHaveLength(6);
   });
 
   test('the real content is valid and runs 96 ticks', () => {

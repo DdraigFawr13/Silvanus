@@ -208,6 +208,85 @@ p {
   color: var(--warn);
 }
 
+/* the board's card kind (Goal, Trader, Delivery, Trip), top right */
+.kind {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* a pinned resident's label after the name: a small outlined pill, not a tap target */
+.pin {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 7px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font-family: var(--body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--muted);
+  vertical-align: middle;
+}
+
+/* the trip sheet: its text and Send at the top, then one tick row per resident */
+.trip-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.trip-names {
+  margin: 4px 0 0;
+  font-weight: 700;
+}
+
+.trip-pick {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  padding: 8px 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  color: var(--ink);
+  text-align: left;
+}
+
+.trip-name {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r);
+  color: var(--act-ink);
+  font-weight: 700;
+}
+
+.box.on {
+  background: var(--act);
+  border-color: var(--act);
+}
+
+/* the active goal's progress */
+.line2.progress {
+  font-weight: 700;
+  color: var(--ink);
+}
+
 .lot {
   display: flex;
   align-items: center;
