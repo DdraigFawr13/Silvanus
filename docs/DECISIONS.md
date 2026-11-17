@@ -328,6 +328,36 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
 - **Decision:** The target look for the town is `art/pixellab/mock_hd/raw_1_heart.png` (PixelLab `create_image_pixen`, 2026-11-15): higher detail, a top-down three-quarter view, grounded (houses face the lanes they stand on, fenced yards and gardens, paths to the doors, lamp posts, trees among the houses), and a haunting dusk mood (mist, crows, cool light, warm lit windows). Any tool may make the map and its pieces, pixel art or not, as long as everything matches this image's mood; PixelLab work follows `docs/workshop/pixellab-guide.md`. Every piece's source is recorded (SAFE-05). Every result is scored against `docs/workshop/art-checklist.md`. The ChatGPT pieces in `art/gpt/` stay as reference, not game art. Whether PixelLab holds this style across a whole map is not yet tested.
 - **Why:** Morgan on the three mock-ups: "Mockup 1 is exactly really the vibe I was thinking about and i love the view perspective and the sort of grounded nature of it"; before that, the town map was "still not organic enough" and they wanted "a haunting vibe and a real town ... a proper town that is part of this landscape". Morgan: "I only want to test in pixel lab". 2026-11-16, on the art checklist: "Not all like map images have to be pixel art but the assets need to be from that same mood template", then "Other tools are fine" in chat.
 
+## D-049 Goals: three condition types and a reward by value
+
+- **Status:** Accepted (2026-11-17) by Morgan in chat on the M2e spec check (`m2espec`, https://claude.ai/artifact/7sCHDMu36YxScF5DSp6rn9): "go with recommended for all". The spec is `docs/specs/m2e-choices.md`. Amends D-040: a goal pays a value, not a fixed bundle.
+- **Decision:** Goal condition types: `make` (resource, amount, counted from the pick), `building` (kind, tier), `residents` (count). One effect type: `reward`, a value split across the stores that have room (the card shows roughly what it would pay now). The value is `goal.reward × rules.rewardPct / 100`. If goals move soak pass 2 out of the M2a band (1,440 to 2,400 ticks), the build measures the Village tick at `rewardPct` 100, 75 and 50, shows Morgan all three and keeps 100 until he picks (D-036's pace is his).
+- **Why:** On the measured test town every store but ore is full by real hour 7, so a fixed bundle would often vanish; the five reviewers flagged that as the spec's biggest problem. Morgan took the recommended option for the reward and for the pace.
+
+## D-050 The trader's swap
+
+- **Status:** Accepted (2026-11-17) by Morgan in chat on the M2e spec check (`m2espec`, https://claude.ai/artifact/7sCHDMu36YxScF5DSp6rn9): "go with recommended for all". The spec is `docs/specs/m2e-choices.md`.
+- **Decision:** Plenty for short by stock / cap; `get` only below 80% of its cap; sized at 20% of the `give` resource's base cap; paid value for value. The payment arrives 24 ticks later. An offer lasts the catch-up cap + 240 ticks and is stretched when the Hall grows.
+- **Why:** D-040's trader, made exact by the spec; no card runs out while Morgan is away (D-018).
+
+## D-051 Forage trips
+
+- **Status:** Accepted (2026-11-17) by Morgan in chat on the M2e spec check (`m2espec`, https://claude.ai/artifact/7sCHDMu36YxScF5DSp6rn9): "go with recommended for all". The spec is `docs/specs/m2e-choices.md`.
+- **Decision:** 2 residents the player chooses, 24 ticks, one trip at a time, 3 finds from a content table; morale counts `trip` 0 while out.
+- **Why:** Choosing who the town can spare today is the choice; Morgan took the recommended "I pick the 2 residents".
+
+## D-052 Goods that do not fit are lost
+
+- **Status:** Accepted (2026-11-17) by Morgan in chat on the M2e spec check (`m2espec`, https://claude.ai/artifact/7sCHDMu36YxScF5DSp6rn9): "go with recommended for all". The spec is `docs/specs/m2e-choices.md`.
+- **Decision:** Goods that do not fit when a reward, delivery or trip lands are lost and logged. Nothing waits to be collected (D-025: no Collect tap).
+- **Why:** Keeps D-025; the log says what was lost.
+
+## D-053 Hidden values of goods
+
+- **Status:** Accepted (2026-11-17) by Morgan in chat on the M2e spec check (`m2espec`, https://claude.ai/artifact/7sCHDMu36YxScF5DSp6rn9): "go with recommended for all". The spec is `docs/specs/m2e-choices.md`.
+- **Decision:** Each resource has a whole-number `value`: food 4, wood 5, stone 5, ore 7, tools 15. It is not a price and is never shown; it sizes swaps and rewards only.
+- **Why:** Taken from how fast one worker makes each good (spec, Design). Morgan: "Fine as a starting point" (the recommended option); the phone test is the real check.
+
 ## D-054 Phobos integration plan; factions to be planned
 
 - **Status:** Accepted (2026-11-14) by Morgan in chat ("Ok let's start with what you say"), on the proposal [Phobos in Silvanus: ideas](https://claude.ai/artifact/T1D4NsM1RRARVsxYvqbjB9). Closes the parked line of D-035. Phobos records its side as its D-019. Numbered D-054 on 2026-11-16: it was first written as D-041, which the art decision already held, and the M2e spec reserves D-049 to D-053.
