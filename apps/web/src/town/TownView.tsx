@@ -1,17 +1,21 @@
-// The town map (M2c S1; D-037, D-047, D-057): a scroll box the map's size at the zoom step, with a canvas
-// the window's size pinned inside it, redrawn from the latest state on every snapshot, scroll, zoom or size
-// change. Loaded after the first screen (React.lazy in TownTab); the art is precached for offline play.
+// The town map (M2c S1, S2; D-037, D-047, D-057): a scroll box the map's size at the zoom step, with a
+// canvas the window's size pinned inside it, redrawn from the latest state on every snapshot, scroll, zoom,
+// size or sheet change, and a button over every lot and the Hall. Loaded after the first screen (React.lazy
+// in TownTab); the art is precached for offline play.
+import { content } from '@silvanus/content';
+import { hallOf, kindOf } from '@silvanus/sim';
 import type { State } from '@silvanus/sim';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { firstBuildText } from '../ui/format';
 import groundUrl from './art/ground.webp';
 import piecesUrl from './art/pieces.png';
 import { camera, centreOf, centreOn, mapCss, windowHeight } from './camera';
 import type { Size } from './camera';
-import { emptyMemory, scene } from './layout';
-import type { Item } from './layout';
-import { boxOf } from './map';
+import { drawItems } from './draw';
+import { emptyMemory, scene, spotsFor } from './layout';
+import type { Item, Spot } from './layout';
+import { boxOf, tapBoxes } from './map';
 import type { Point, Rect } from './map';
-import { PIECES } from './pieces';
 import { ZOOMS } from './size';
 import type { Zoom } from './size';
 
@@ -61,20 +65,45 @@ function draw(
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   const { art: a, offset } = cam;
   ctx.drawImage(art.ground, a.x, a.y, a.w, a.h, offset.x, offset.y, a.w * zoom, a.h * zoom);
-  for (const item of items) {
-    const [fx, fy, w, h] = PIECES[item.name].frame;
-    if (item.x + w < a.x || item.x > a.x + a.w || item.y + h < a.y || item.y > a.y + a.h) continue;
-    ctx.globalAlpha = item.alpha;
-    const dx = (item.x - a.x) * zoom + offset.x;
-    const dy = (item.y - a.y) * zoom + offset.y;
-    ctx.drawImage(art.pieces, fx, fy, w, h, dx, dy, w * zoom, h * zoom);
-  }
-  ctx.globalAlpha = 1;
+  drawItems(ctx, art.pieces, items, cam, zoom);
   canvas.dataset.zoom = String(zoom);
   canvas.dataset.smoothing = String(ctx.imageSmoothingEnabled);
 }
 
-export default function TownView({ state, hidden }: { state: State; hidden: boolean }) {
+// What a lot's button is called (M2c J3).
+function labelOf(state: State, s: Spot): string {
+  if (s.plot === null) return `Hall, ${hallOf(state, content).name}`;
+  const building = state.buildings.find((b) => b.id === s.buildingId);
+  if (!building) {
+    const ground = state.plots[s.plot].ground;
+    const name = content.grounds.find((g) => g.id === ground)?.name.toLowerCase();
+    return name ? `Empty ${name} site, build here` : 'Empty lot, build here';
+  }
+  const name = kindOf(content, building.kind)!.name;
+  return building.tier === 0 ? `${name}, being built` : `${name}, tier ${building.tier}`;
+}
+
+// How long a note over a lot being built stays (M2c J3).
+const NOTE_MS = 3000;
+const NOTE_CSS = 200; // the note's widest, CSS px (app.css .map-note)
+const MARKER_TARGET_CSS = 16;
+const NOTE_H_CSS = 52; // room the note needs above its lot: two lines and the gap, CSS px
+
+export default function TownView({
+  state,
+  hidden,
+  open,
+  onBuilding,
+  onBuild,
+  onHall,
+}: {
+  state: State;
+  hidden: boolean;
+  open: number | null; // the building whose sheet is open
+  onBuilding: (id: number) => void;
+  onBuild: (plot: number) => void; // the build sheet, with this plot chosen
+  onHall: () => void;
+}) {
   const [art, setArt] = useState<Art | null>(null);
   const [failed, setFailed] = useState<unknown>(null);
   const [zoom, setZoom] = useState<Zoom>(place.zoom);
@@ -82,8 +111,26 @@ export default function TownView({ state, hidden }: { state: State; hidden: bool
   const box = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const memory = useMemo(emptyMemory, []);
-  const items = useMemo(() => scene(state, memory, 0, null), [state, memory]);
+  const items = useMemo(() => scene(state, memory, 0, open), [state, memory, open]);
   const dpr = typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1;
+  const spots = useMemo(() => spotsFor(state), [state]);
+  const taps = useMemo(
+    () =>
+      tapBoxes(
+        spots.map((s) => s.tap),
+        zoom,
+        dpr,
+      ),
+    [spots, zoom, dpr],
+  );
+  // the text of the moment a lot being built was tapped, over its spot for NOTE_MS
+  const [note, setNote] = useState<{ plot: number; text: string; n: number } | null>(null);
+  const notes = useRef(0);
+  useEffect(() => {
+    if (!note) return;
+    const timer = setTimeout(() => setNote(null), NOTE_MS);
+    return () => clearTimeout(timer);
+  }, [note]);
 
   useEffect(() => {
     let live = true;
@@ -144,9 +191,41 @@ export default function TownView({ state, hidden }: { state: State; hidden: bool
     setZoom(next);
   };
 
+  const tap = (s: Spot) => {
+    if (s.plot === null) return onHall();
+    if (s.buildingId === null) return onBuild(s.plot);
+    const building = state.buildings.find((b) => b.id === s.buildingId)!;
+    if (building.tier > 0) {
+      if (open !== building.id) onBuilding(building.id);
+      return;
+    }
+    // a new object each tap, so another tap restarts the 3 s
+    setNote({ plot: s.plot, text: firstBuildText(state, building.id), n: ++notes.current });
+  };
+
   // a failed art load goes to the error boundary in TownTab, which offers Retry
   if (failed) throw failed;
   const map = mapCss(zoom, dpr);
+  // art px to CSS px in the spacer
+  const css = (v: number) => (v * zoom) / dpr;
+  // to whole device px, so the marker's edges stay crisp
+  const snap = (v: number) => Math.round(v * dpr) / dpr;
+  // the Build marker: about 16 CSS px at every zoom (Morgan, 2026-11-18, "Bigger at 1x"), whole device px
+  const MARKER_CSS = Math.round(MARKER_TARGET_CSS * dpr) / dpr;
+  const at = note ? spots.findIndex((s) => s.plot === note.plot) : -1;
+  const noted = at >= 0 ? taps[at] : null;
+  // the note's centre, kept inside the window so its text is never cut off (it is at most NOTE_CSS wide);
+  // above its lot, or below it where the window's top edge would cut it
+  const scrollLeft = box.current?.scrollLeft ?? 0;
+  const scrollTop = box.current?.scrollTop ?? 0;
+  const noteLeft = noted
+    ? Math.min(
+        Math.max(css(noted.x + noted.w / 2), scrollLeft + NOTE_CSS / 2 + 4),
+        scrollLeft + win.w - NOTE_CSS / 2 - 4,
+      )
+    : 0;
+  const below = noted !== null && css(noted.y) - scrollTop < NOTE_H_CSS;
+  const noteTop = noted ? css(below ? noted.y + noted.h : noted.y) : 0;
   return (
     <div className="town-view" data-testid="town-view">
       <div
@@ -160,6 +239,50 @@ export default function TownView({ state, hidden }: { state: State; hidden: bool
           <div className="town-pin" style={{ width: `${win.w}px`, height: `${win.h}px` }}>
             <canvas ref={canvas} aria-label="The town map" />
           </div>
+          {spots.map((s, i) => (
+            <button
+              key={s.name}
+              type="button"
+              className="map-lot"
+              data-testid={s.plot === null ? 'map-hall' : 'map-lot'}
+              aria-label={labelOf(state, s)}
+              style={{
+                left: `${css(taps[i].x)}px`,
+                top: `${css(taps[i].y)}px`,
+                width: `${css(taps[i].w)}px`,
+                height: `${css(taps[i].h)}px`,
+              }}
+              onClick={() => tap(s)}
+            />
+          ))}
+          {items.map(
+            (item) =>
+              item.type === 'build-marker' && (
+                <span
+                  key={`marker-${item.plot}`}
+                  className="map-marker"
+                  data-testid="map-marker"
+                  aria-hidden="true"
+                  style={{
+                    left: `${snap(css(item.x)) - MARKER_CSS / 2}px`,
+                    top: `${snap(css(item.y)) - MARKER_CSS / 2}px`,
+                    width: `${MARKER_CSS}px`,
+                    height: `${MARKER_CSS}px`,
+                  }}
+                />
+              ),
+          )}
+          {noted && note && (
+            <div
+              key={note.n}
+              className={below ? 'map-note below' : 'map-note'}
+              data-testid="map-note"
+              role="status"
+              style={{ left: `${noteLeft}px`, top: `${noteTop}px` }}
+            >
+              {note.text}
+            </div>
+          )}
         </div>
       </div>
       <div className="zoom-row">

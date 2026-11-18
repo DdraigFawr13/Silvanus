@@ -1,6 +1,6 @@
 import { content } from '@silvanus/content';
 import { DAY_TICKS, YEAR_TICKS, calendar } from '@silvanus/sim';
-import type { Amounts, Reason } from '@silvanus/sim';
+import type { Amounts, Reason, State } from '@silvanus/sim';
 
 // Every conversion from the engine's units to words. Display only: no rule lives here (GAME-02).
 
@@ -14,6 +14,12 @@ export function duration(ticks: number): string {
   if (days === 0) return plural(hours, 'hour');
   return hours === 0 ? plural(days, 'day') : `${plural(days, 'day')}, ${plural(hours, 'hour')}`;
 }
+
+// A lot whose first build is not done: how it stands (the lots list and the map's note, M2c J3).
+export const firstBuildText = (state: State, buildingId: number) =>
+  state.queue[0]?.target === buildingId
+    ? `Building, ${duration(state.queue[0].ticksLeft)} left`
+    : 'Waiting in the work queue';
 
 // "Year 1, season 1, day 1, hour 0"
 export function dateText(tick: number): string {

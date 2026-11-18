@@ -10,7 +10,7 @@ import { Board } from './Board';
 import { BuildSheet, lotGainText, plotName } from './BuildSheet';
 import { BuildingSheet } from './BuildingSheet';
 import { HallRow } from './HallRow';
-import { amountsText, dateText, duration, needsText } from './format';
+import { amountsText, dateText, duration, firstBuildText, needsText } from './format';
 
 const LOG_SHOWN = 20;
 
@@ -138,6 +138,9 @@ export function TownTab({
   // fails again: after a failed chunk, Retry reloads the page (the town is saved on `pagehide`).
   const retry = () => (chunkFailed ? window.location.reload() : setAttempt((n) => n + 1));
   const away = useSyncExternalStore(subscribe, summary);
+  // the map's Hall answers by bringing the Hall row into view (M2c J3), clear of the sticky stock bar
+  const showHall = () =>
+    document.querySelector('[data-testid=hall]')?.scrollIntoView({ block: 'center' });
   const lots = state.plots.filter((p) => p.open && p.ground === null);
   const sites = state.plots.filter((p) => p.open && p.ground !== null);
   const shown = open?.type === 'building' ? state.buildings.find((b) => b.id === open.id) : null;
@@ -159,7 +162,14 @@ export function TownTab({
       {away && <AwayCard state={state} summary={away} onDismiss={dismissSummary} />}
       <MapBoundary key={attempt} onRetry={retry}>
         <Suspense fallback={<div className="town-view-wait" style={{ height: mapHeight() }} />}>
-          <TownView state={state} hidden={hidden} />
+          <TownView
+            state={state}
+            hidden={hidden}
+            open={open?.type === 'building' ? open.id : null}
+            onBuilding={(id) => setOpen({ type: 'building', id })}
+            onBuild={(plot) => setOpen({ type: 'build', plot })}
+            onHall={showHall}
+          />
         </Suspense>
       </MapBoundary>
       <HallRow state={state} send={send} />
@@ -306,7 +316,6 @@ function PlotRow({
   }
   const kind = kindOf(content, building.kind)!;
   if (building.tier === 0) {
-    const first = state.queue[0]?.target === building.id;
     return (
       <div className="panel lot" data-testid={testId}>
         <div className="grow">
@@ -314,10 +323,7 @@ function PlotRow({
             <span className="name">{kind.name}</span>
           </div>
           <div className="line2">
-            {plotName(plot)} ·{' '}
-            {first
-              ? `Building, ${duration(state.queue[0].ticksLeft)} left`
-              : 'Waiting in the work queue'}
+            {plotName(plot)} · {firstBuildText(state, building.id)}
           </div>
         </div>
       </div>

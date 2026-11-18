@@ -35,3 +35,47 @@ export const doorOf = (rect: Rect): Point => ({ x: rect.x + rect.w / 2, y: rect.
 // stand, from its box's bottom-left (S3).
 export const SMOKE_ANCHOR = { x: 0.35, y: 0.06 };
 export const PILE_OFFSET: Point = { x: -6, y: 4 };
+
+// The smallest tap target, CSS px each way (UI_STYLE; M2c J3).
+export const TAP_CSS = 44;
+const overlap = (a: Rect, b: Rect) =>
+  a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+
+// The tap boxes the view places at a zoom step on a screen of `dpr` device px per CSS px, art px: each spot's
+// box (`taps`, in the same order) grown about its centre to at least TAP_CSS CSS px each way; two that
+// would overlap are pushed apart, half each, along the axis their centres are further apart on. On Morgan's
+// phone (dpr 2.625) no box grows; at dpr 3 and 1x plot0 and plot1 (121 art px apart) are pushed 5.5 px each.
+export function tapBoxes(taps: Rect[], zoom: number, dpr: number): Rect[] {
+  const least = (TAP_CSS * dpr) / zoom;
+  const boxes = taps.map((t) => {
+    const w = Math.max(t.w, least);
+    const h = Math.max(t.h, least);
+    return { x: t.x + t.w / 2 - w / 2, y: t.y + t.h / 2 - h / 2, w, h };
+  });
+  for (let round = 0; round < 20; round++) {
+    let moved = false;
+    for (let i = 0; i < boxes.length; i++) {
+      for (let j = i + 1; j < boxes.length; j++) {
+        const a = boxes[i];
+        const b = boxes[j];
+        if (!overlap(a, b)) continue;
+        const dx = b.x + b.w / 2 - (a.x + a.w / 2);
+        const dy = b.y + b.h / 2 - (a.y + a.h / 2);
+        const onX = Math.abs(dx) >= Math.abs(dy);
+        const push = onX ? (a.w + b.w) / 2 - Math.abs(dx) : (a.h + b.h) / 2 - Math.abs(dy);
+        const sign = (onX ? dx : dy) >= 0 ? 1 : -1;
+        const half = (push / 2) * sign;
+        if (onX) {
+          a.x -= half;
+          b.x += half;
+        } else {
+          a.y -= half;
+          b.y += half;
+        }
+        moved = true;
+      }
+    }
+    if (!moved) break;
+  }
+  return boxes;
+}
