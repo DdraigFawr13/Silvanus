@@ -375,3 +375,27 @@ All entries below were chosen by Morgan in the planning workshop of 2026-11-09 u
 - **Status:** Accepted (2026-11-17) by Morgan in chat ("Go with recommended"), on option 1 of three for M2e's pace. Changes the Village row of the M1 content (D-030 starting values); keeps D-036's 6 to 10 real hours.
 - **Decision:** The Hall's Village tier needs 25 residents (was 20) and costs 200 wood, 200 stone and 50 tools (was 180, 180, 45). Soak pass 3 takes its town of 20 at the end of the first sitting with 20 residents, after the scripted player's own rules have run, instead of the tick the 20th settler arrives.
 - **Why:** With M2e's board, soak pass 2 reached the Village at tick 1,056 (4.4 real hours) at every `rewardPct` from 100 to 25: the first goal's few tools upgrade the Forager's hut an hour sooner and settlers follow, so the spec's lever did not move it. With the new Village it reaches it at 1,536 (6.4 hours). Pass 3 failed at any Village cost because the 20th settler now arrives mid-hour, before the player moves the hut to Snares; from the end of that sitting the town recovers in 221 ticks. Rejected: accepting a 4.5-hour Village (changes D-036) and a new reward rule (no tools before a Workshop).
+
+## D-057 Plots: lots with a feature, sites and the Tangle
+
+- **Status:** Proposed (2026-11-18) in the M2d spec (`docs/specs/m2d-ceiling-lots.md`); waits for Morgan. Makes D-033's lots and D-043's sites and Tangle exact.
+- **Decision:** A town has 31 plots: 16 town lots (6 open, 4 from the Village, 6 from the Town) and 3 sites for each of 5 grounds (forest, mountain, fields, woods, river; one open, one from the Village, one from the Town). The 16 lots' features are a deck of 3 good soil, 3 riverside, 3 rock outcrop, 3 forest edge and 4 plain, shuffled on its own `lots` stream. A feature raises the output of the kinds it names by `boostPct` (25%); this is the condition type D-033 named (a lot's feature) and its one effect. A gathering kind names its ground (`site`) and stands only on such a site; every other kind stands on town lots. `build` names a plot. A closed plot opens by a `clearTangle` job in the work queue, allowed from the Hall tier the plot belongs to, paying a cost and yielding goods. Clearing a building leaves its plot open.
+- **Why:** D-033 asks for a place to choose with no grid; D-043 asks for dedicated sites and a Tangle that opens lots and sites. The deck keeps every seed's first six lots holding at least two features, so no town starts with nothing to weigh.
+
+## D-058 Push methods
+
+- **Status:** Proposed (2026-11-18) in the M2d spec; waits for Morgan. Builds D-032's push methods; would amend D-030's "no randomness in production".
+- **Decision:** A method may carry `risk { dayPct, shutTicks, what }`. At the start of each game day, each staffed building running such a method, not retooling and not shut, draws once on its own `push` stream; below `dayPct` it shuts for `shutTicks` (at most 48, two game days), makes nothing and keeps its workers, and the log names `what`. Three in M2d: Mine "Deep seam" (a cave-in), Fisher's hut "Far waters" (a storm), Brewery "Strong brew" (a burst vat), each 10% a day for 48 ticks. Each's long-run gain over its building's best safe method is held to 5 to 20%, and soak pass 4's town with push methods reaches the Town within 10% of the same town without them.
+- **Why:** Morgan said yes to push methods after finding the choices "almost too straight forward" (D-038). A higher mean alone would always be chosen; the band and the soak gate keep it a bet.
+
+## D-059 The Town tier
+
+- **Status:** Proposed (2026-11-18) in the M2d spec; waits for Morgan (its pace band and its catch-up cap are his to pick). Would close M1 audit F18.
+- **Decision:** Hall tier 3, the Town: 16 lots and 100 residents (the charter's numbers), a catch-up cap of 5,760 ticks (24 real hours), needs 60 residents (a full Village, as D-056 asks a full Hamlet) and costs wood 400, stone 400, tools 100, planks 120 and ale 80 over 144 ticks (starting values). Soak pass 4 must reach it in 4,800 to 7,680 ticks (20 to 32 real hours of hourly check-ins), with no stretch over 960 ticks that finishes nothing and a work choice at 80% or more of check-ins.
+- **Why:** Measured at `0e29f6e`: the town is a full Village at 12.4 real hours and has nothing left to build from hour 16; a Town costed in today's goods only is reached at 16.6 to 25.6 hours after that idle stretch. The band is Claude's proposal, not a measurement.
+
+## D-060 Three buildings, two goods, and ale's cheer
+
+- **Status:** Proposed (2026-11-18) in the M2d spec; Morgan picks the set on the M2d mock-up (D-038). Adds one effect type.
+- **Decision:** The Fisher's hut (food, on a river site), the Watermill (planks from wood) and the Brewery (ale from food); goods planks and ale, values 12 and 14 (D-053 style). A resource may carry `cheer { perHeads, morale }`: at the start of a game day, after eating, if there is 1 per `perHeads` residents (rounded up) it is drunk and everyone's morale counts it; ale has `perHeads` 5 and `morale` 10.
+- **Why:** Morgan listed a fisherman's hut and a watermill for M2d (`docs/parking.md`, 2026-11-14). Wood is at its cap from real hour 2 and food from hour 5 (measured); planks and ale turn both into Town-tier goods, and ale's cheer gives the Brewery a reason to keep running. Cloth (the charter's other listed good) has no input in surplus.
