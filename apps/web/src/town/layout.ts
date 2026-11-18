@@ -26,18 +26,21 @@ export type Piece = {
   depth: number; // the bottom edge: items are drawn in rising depth
   alpha: number;
 };
-// A soft oval on a lot (checklist P2, P3): pale on an empty lot, gold on the lot whose sheet is open. `x`,
-// `y` is its centre, `w` and `h` its size, art px.
-export type Glow = {
-  type: 'glow';
-  tone: 'pale' | 'gold';
-  lot: number;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  depth: number;
-};
+// Light on a lot (checklist P2, P3; Morgan's "Earlier look", 2026-11-18, art/pixellab/blocks/overlays.py):
+// pale, a soft oval on an empty lot, centred on `x`, `y`, `w` x `h` art px; gold, a soft ring that follows
+// the outline of the piece `piece` (top-left `x`, `y`) on the lot whose sheet is open, drawn just under it.
+export type Glow =
+  | {
+      type: 'glow';
+      tone: 'pale';
+      lot: number;
+      x: number;
+      y: number;
+      w: number;
+      h: number;
+      depth: number;
+    }
+  | { type: 'glow'; tone: 'gold'; lot: number; piece: string; x: number; y: number; depth: number };
 // The Build marker on an empty lot (P4), centred on `x`, `y`.
 export type BuildMarker = {
   type: 'build-marker';
@@ -97,16 +100,17 @@ const piece = (name: string, x: number, y: number, alpha = 1): Piece => ({
 // A building being built is drawn faded until S3's scaffolding (approved on the S1 mock-up).
 const BUILDING_ALPHA = 0.45;
 
-// A glow lies on the ground at the foot of the spot's piece, as wide as its tap box (S2).
+// A pale glow lies on the ground at the foot of the spot's piece, as wide as its tap box (S2).
 const GLOW_H = 0.4;
-const glow = (tone: Glow['tone'], s: Spot): Glow => {
+const paleGlow = (s: Spot): Glow => {
   const h = Math.round(s.tap.w * GLOW_H);
+  const y = s.door.y - h / 2;
   return {
     type: 'glow',
-    tone,
+    tone: 'pale',
     lot: s.lot!,
     x: s.door.x,
-    y: s.door.y - h / 2,
+    y,
     w: s.tap.w,
     h,
     depth: s.door.y,
@@ -114,8 +118,8 @@ const glow = (tone: Glow['tone'], s: Spot): Glow => {
 };
 
 // The draw list at `ms` (performance.now) with `open` the building whose sheet is open: the pieces sorted
-// by depth, then the glows and Build markers over them (spec, "Drawing"). `memory` and `ms` are used from
-// S3 on.
+// by depth (the open building's gold ring just before its piece), then the pale glows and Build markers
+// over them (spec, "Drawing"). `memory` and `ms` are used from S3 on.
 export function scene(state: State, _memory: Memory, _ms: number, open: number | null): Item[] {
   const items: Item[] = SCENERY.map((name) => piece(name, PIECES[name].at[0], PIECES[name].at[1]));
   const marks: Item[] = [];
@@ -125,26 +129,31 @@ export function scene(state: State, _memory: Memory, _ms: number, open: number |
       continue;
     }
     if (s.buildingId === null) {
-      // the marker stands on its glow: its centre on the glow's top edge
-      const pale = glow('pale', s);
+      // the marker sits in the middle of its glow, as on the earlier map
+      const pale = paleGlow(s);
       marks.push(pale);
-      marks.push({
-        type: 'build-marker',
-        lot: s.lot,
-        x: pale.x,
-        y: pale.y - pale.h / 2,
-        depth: s.door.y,
-      });
+      marks.push({ type: 'build-marker', lot: s.lot, x: pale.x, y: pale.y, depth: s.door.y });
       continue;
     }
-    if (s.buildingId === open) marks.push(glow('gold', s));
     const building = state.buildings[s.lot];
     const { name, native } = pieceFor(building.kind, building.tier, s.name);
     const [, , w, h] = PIECES[name].frame;
     const [x, y] = native
       ? PIECES[name].at
       : [Math.round(s.rect.x + s.rect.w / 2 - w / 2), s.rect.y + s.rect.h - h];
-    items.push(piece(name, x, y, building.tier === 0 ? BUILDING_ALPHA : 1));
+    const drawn = piece(name, x, y, building.tier === 0 ? BUILDING_ALPHA : 1);
+    if (s.buildingId === open) {
+      items.push({
+        type: 'glow',
+        tone: 'gold',
+        lot: s.lot,
+        piece: name,
+        x,
+        y,
+        depth: drawn.depth - 0.5,
+      });
+    }
+    items.push(drawn);
   }
   items.sort((a, b) => a.depth - b.depth || a.x - b.x);
   return [...items, ...marks];

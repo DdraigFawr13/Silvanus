@@ -3,6 +3,7 @@ import { newGame } from '@silvanus/sim';
 import type { Building, State } from '@silvanus/sim';
 import { expect, test } from 'vitest';
 import { emptyMemory, scene, spotsFor } from '../src/town/layout';
+import { tapBoxes } from '../src/town/map';
 import type { Item, Piece } from '../src/town/layout';
 
 const built = (id: number, kind: string, tier = 1): Building => ({
@@ -161,15 +162,22 @@ test('empty lots glow pale with a Build marker; a built lot glows gold only whil
     expect(gold.map((i) => i.lot)).toEqual([lot]);
     expect(marks(id).length).toBe(shut.length + 1);
   }
-  // each mark sits on its own spot: inside that lot's tap box
+  // the pale glow and the marker sit on their own spot: inside that lot's tap box
   const spots = spotsFor(state);
-  for (const mark of [...shut, ...marks(cottage.id)]) {
+  for (const mark of shut) {
     const tap = spots.find((s) => s.lot === mark.lot)!.tap;
     expect(mark.x).toBeGreaterThanOrEqual(tap.x);
     expect(mark.x).toBeLessThanOrEqual(tap.x + tap.w);
     expect(mark.y).toBeGreaterThanOrEqual(tap.y);
     expect(mark.y).toBeLessThanOrEqual(tap.y + tap.h);
   }
+  // the gold ring follows the open building's own piece and is drawn just before it
+  const all = scene(state, emptyMemory(), 0, cottage.id);
+  const at = all.findIndex((i) => i.type === 'glow' && i.tone === 'gold');
+  const ring = all[at];
+  const next = all[at + 1];
+  expect(ring.type === 'glow' && ring.tone === 'gold' && ring.piece).toBe('plot0');
+  expect(next).toMatchObject({ type: 'piece', name: 'plot0', x: ring.x, y: ring.y });
   // a full town has no empty lots: no pale glow, no marker
   const full = town(['cottage', 'forager', 'workshop', 'cottage', 'mine', 'farm']);
   expect(scene(full, emptyMemory(), 0, null).filter((i) => i.type !== 'piece')).toEqual([]);
@@ -213,4 +221,65 @@ test('the view uses its own random numbers', () => {
     }
     expect(text, file).not.toMatch(/from '@silvanus\/sim\//);
   }
+});
+
+test('tap boxes are at least 44 CSS px and apart at any zoom and screen density', () => {
+  // the Hall, all 4 sites and all 10 plots
+  const state = town(
+    ['woodcutter', 'farm', 'mine', 'forager', ...Array.from({ length: 6 }, () => 'cottage')],
+    2,
+  );
+  const spots = spotsFor(state);
+  expect(spots).toHaveLength(11);
+  const full = [
+    ...spots,
+    ...spotsFor(
+      town(
+        Array.from({ length: 10 }, () => 'cottage'),
+        2,
+      ),
+    ),
+  ];
+  const taps = [...new Map(full.map((s) => [s.name, s])).values()];
+  expect(taps).toHaveLength(15);
+  for (const dpr of [1, 2, 2.625, 3, 3.5]) {
+    for (const zoom of [1, 2, 3]) {
+      const boxes = tapBoxes(
+        taps.map((s) => s.tap),
+        zoom,
+        dpr,
+      );
+      const at = `dpr ${dpr} at ${zoom}x`;
+      boxes.forEach((b, i) => {
+        expect((b.w * zoom) / dpr, `${at} ${taps[i].name}`).toBeGreaterThanOrEqual(44 - 1e-9);
+        expect((b.h * zoom) / dpr, `${at} ${taps[i].name}`).toBeGreaterThanOrEqual(44 - 1e-9);
+        // still over its own piece's centre
+        const c = {
+          x: taps[i].rect.x + taps[i].rect.w / 2,
+          y: taps[i].rect.y + taps[i].rect.h / 2,
+        };
+        expect(
+          c.x > b.x && c.x < b.x + b.w && c.y > b.y && c.y < b.y + b.h,
+          `${at} ${taps[i].name}`,
+        ).toBe(true);
+        for (const [j, o] of boxes.entries()) {
+          if (j <= i) continue;
+          const apart =
+            b.x + b.w <= o.x + 1e-9 ||
+            o.x + o.w <= b.x + 1e-9 ||
+            b.y + b.h <= o.y + 1e-9 ||
+            o.y + o.h <= b.y + 1e-9;
+          expect(apart, `${at} ${taps[i].name} and ${taps[j].name}`).toBe(true);
+        }
+      });
+    }
+  }
+  // on Morgan's phone no box changes
+  expect(
+    tapBoxes(
+      taps.map((s) => s.tap),
+      1,
+      2.625,
+    ),
+  ).toEqual(taps.map((s) => s.tap));
 });

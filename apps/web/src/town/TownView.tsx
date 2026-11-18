@@ -14,7 +14,7 @@ import type { Size } from './camera';
 import { drawItems } from './draw';
 import { emptyMemory, scene, spotsFor } from './layout';
 import type { Item, Spot } from './layout';
-import { boxOf } from './map';
+import { boxOf, tapBoxes } from './map';
 import type { Point, Rect } from './map';
 import { ZOOMS } from './size';
 import type { Zoom } from './size';
@@ -82,6 +82,7 @@ function labelOf(state: State, s: Spot): string {
 // How long a note over a lot being built stays (M2c J3).
 const NOTE_MS = 3000;
 const NOTE_CSS = 200; // the note's widest, CSS px (app.css .map-note)
+const NOTE_H_CSS = 52; // room the note needs above its lot: two lines and the gap, CSS px
 
 export default function TownView({
   state,
@@ -106,15 +107,25 @@ export default function TownView({
   const canvas = useRef<HTMLCanvasElement>(null);
   const memory = useMemo(emptyMemory, []);
   const items = useMemo(() => scene(state, memory, 0, open), [state, memory, open]);
+  const dpr = typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1;
   const spots = useMemo(() => spotsFor(state), [state]);
+  const taps = useMemo(
+    () =>
+      tapBoxes(
+        spots.map((s) => s.tap),
+        zoom,
+        dpr,
+      ),
+    [spots, zoom, dpr],
+  );
   // the text of the moment a lot being built was tapped, over its spot for NOTE_MS
-  const [note, setNote] = useState<{ lot: number; text: string; at: number } | null>(null);
+  const [note, setNote] = useState<{ lot: number; text: string; n: number } | null>(null);
+  const notes = useRef(0);
   useEffect(() => {
     if (!note) return;
     const timer = setTimeout(() => setNote(null), NOTE_MS);
     return () => clearTimeout(timer);
   }, [note]);
-  const dpr = typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1;
 
   useEffect(() => {
     let live = true;
@@ -184,7 +195,7 @@ export default function TownView({
       return;
     }
     // a new object each tap, so another tap restarts the 3 s
-    setNote({ lot: s.lot, text: firstBuildText(state, building.id), at: Date.now() });
+    setNote({ lot: s.lot, text: firstBuildText(state, building.id), n: ++notes.current });
   };
 
   // a failed art load goes to the error boundary in TownTab, which offers Retry
@@ -192,15 +203,20 @@ export default function TownView({
   const map = mapCss(zoom, dpr);
   // art px to CSS px in the spacer
   const css = (v: number) => (v * zoom) / dpr;
-  const noted = note && spots.find((s) => s.lot === note.lot);
-  // the note's centre, kept inside the window so its text is never cut off (it is at most NOTE_CSS wide)
+  const at = note ? spots.findIndex((s) => s.lot === note.lot) : -1;
+  const noted = at >= 0 ? taps[at] : null;
+  // the note's centre, kept inside the window so its text is never cut off (it is at most NOTE_CSS wide);
+  // above its lot, or below it where the window's top edge would cut it
   const scrollLeft = box.current?.scrollLeft ?? 0;
+  const scrollTop = box.current?.scrollTop ?? 0;
   const noteLeft = noted
     ? Math.min(
-        Math.max(css(noted.tap.x + noted.tap.w / 2), scrollLeft + NOTE_CSS / 2 + 4),
+        Math.max(css(noted.x + noted.w / 2), scrollLeft + NOTE_CSS / 2 + 4),
         scrollLeft + win.w - NOTE_CSS / 2 - 4,
       )
     : 0;
+  const below = noted !== null && css(noted.y) - scrollTop < NOTE_H_CSS;
+  const noteTop = noted ? css(below ? noted.y + noted.h : noted.y) : 0;
   return (
     <div className="town-view" data-testid="town-view">
       <div
@@ -214,7 +230,7 @@ export default function TownView({
           <div className="town-pin" style={{ width: `${win.w}px`, height: `${win.h}px` }}>
             <canvas ref={canvas} aria-label="The town map" />
           </div>
-          {spots.map((s) => (
+          {spots.map((s, i) => (
             <button
               key={s.name}
               type="button"
@@ -222,21 +238,21 @@ export default function TownView({
               data-testid={s.lot === null ? 'map-hall' : 'map-lot'}
               aria-label={labelOf(state, s)}
               style={{
-                left: `${css(s.tap.x)}px`,
-                top: `${css(s.tap.y)}px`,
-                width: `${css(s.tap.w)}px`,
-                height: `${css(s.tap.h)}px`,
+                left: `${css(taps[i].x)}px`,
+                top: `${css(taps[i].y)}px`,
+                width: `${css(taps[i].w)}px`,
+                height: `${css(taps[i].h)}px`,
               }}
               onClick={() => tap(s)}
             />
           ))}
-          {noted && (
+          {noted && note && (
             <div
-              key={note.at}
-              className="map-note"
+              key={note.n}
+              className={below ? 'map-note below' : 'map-note'}
               data-testid="map-note"
               role="status"
-              style={{ left: `${noteLeft}px`, top: `${css(noted.tap.y)}px` }}
+              style={{ left: `${noteLeft}px`, top: `${noteTop}px` }}
             >
               {note.text}
             </div>

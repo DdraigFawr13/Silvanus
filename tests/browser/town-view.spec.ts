@@ -250,7 +250,7 @@ const boxes = (buttons: Locator) =>
 const apart = (a: Box, b: Box) =>
   a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y;
 
-test('lot buttons are big enough and apart', async ({ page }) => {
+async function bigAndApart(page: Page) {
   await page.goto('/?tickMs=60000');
   await view(page);
   const buttons = page.getByTestId('town-view').locator('button[data-testid^=map-]');
@@ -270,6 +270,16 @@ test('lot buttons are big enough and apart', async ({ page }) => {
       }
     }
   }
+}
+
+test('lot buttons are big enough and apart', async ({ page }) => bigAndApart(page));
+
+test.describe('a denser screen', () => {
+  // dpr 3: 44 CSS px is 132 art px at 1x, more than the 116 that suit dpr 2.625
+  test.use({ deviceScaleFactor: 3 });
+  test('lot buttons are big enough and apart at dpr 3', async ({ page }) => {
+    await bigAndApart(page);
+  });
 });
 
 // The canvas's device pixels under a map button's lower half (where a glow lies): their mean red minus
@@ -301,20 +311,54 @@ test('tapping a lot opens its sheet', async ({ page }) => {
   const cottage = page.getByRole('button', { name: 'Cottage, tier 1' });
   const shut = await under(page, cottage);
   await cottage.click();
-  // the list's own sheet for that building
   const sheet = page.getByTestId('building-sheet');
   await expect(sheet).toBeVisible();
   await expect(sheet).toContainText('Cottage');
+  const fromMap = await sheet.innerText();
   // the spot glows gold while the sheet is open
   const lit = await under(page, cottage);
   expect(lit.print).not.toBe(shut.print);
-  expect(lit.warm - shut.warm).toBeGreaterThan(10);
+  expect(lit.warm - shut.warm).toBeGreaterThan(5);
   await sheet.getByRole('button', { name: 'Close' }).click();
   await expect(sheet).toHaveCount(0);
   await expect.poll(async () => (await under(page, cottage)).print).toBe(shut.print);
+  // the same sheet as the list's row for that building
+  await page.getByTestId('lot-open').filter({ hasText: 'Cottage' }).click();
+  await expect(sheet).toBeVisible();
+  expect(await sheet.innerText()).toBe(fromMap);
+  await sheet.getByRole('button', { name: 'Close' }).click();
   // an empty lot opens the build sheet
   await page.getByRole('button', { name: 'Empty lot, build here' }).first().click();
   await expect(page.getByTestId('build-sheet')).toBeVisible();
+});
+
+test.describe('a touch screen', () => {
+  test.use({ hasTouch: true });
+  test('a drag across the map opens nothing', async ({ page }) => {
+    await page.goto('/?tickMs=60000');
+    await view(page);
+    await page.getByTestId('zoom-2').click();
+    const cottage = page.getByRole('button', { name: 'Cottage, tier 1' });
+    await cottage.scrollIntoViewIfNeeded();
+    const box = (await cottage.boundingBox())!;
+    const scroll = page.getByTestId('town-scroll');
+    const before = await scroll.evaluate((e) => e.scrollLeft);
+    // a finger drag that starts on the Cottage and scrolls the map sideways
+    const cdp = await page.context().newCDPSession(page);
+    const x = box.x + box.width / 2;
+    const y = box.y + box.height / 2;
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+    for (let i = 1; i <= 10; i++) {
+      await cdp.send('Input.dispatchTouchEvent', {
+        type: 'touchMove',
+        touchPoints: [{ x: x + 12 * i, y }],
+      });
+    }
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await expect.poll(() => scroll.evaluate((e) => e.scrollLeft)).toBeLessThan(before - 50);
+    await expect(page.getByTestId('building-sheet')).toHaveCount(0);
+    await expect(page.getByTestId('build-sheet')).toHaveCount(0);
+  });
 });
 
 test('tier 0 and the Hall answer', async ({ page }) => {
@@ -331,6 +375,8 @@ test('tier 0 and the Hall answer', async ({ page }) => {
   ).state;
   expect(state.queue).toHaveLength(2);
   await seedRecord(page, townRecord({ state }));
+  // the note's 3 s run on the page's fake clock
+  await page.clock.install();
   await page.goto('/?tickMs=60000');
   await view(page);
   const camp = page.getByRole('button', { name: "Woodcutter's camp, being built" });
@@ -343,15 +389,33 @@ test('tier 0 and the Hall answer', async ({ page }) => {
   expect(campLine).toMatch(/^Building, .* left$/);
   await expect(note).toHaveText(campLine!);
   await expect(page.getByTestId('building-sheet')).toHaveCount(0);
-  // another tap replaces it
+  // another tap replaces it, and its 3 s start again
+  await page.clock.runFor(2000);
   await mine.click();
   await expect(note).toHaveText('Waiting in the work queue');
   await expect(note).toHaveCount(1);
-  // gone after 3 s (a wall-clock limit; the browser tests run one at a time)
-  const shown = Date.now();
-  await expect(note).toHaveCount(0, { timeout: 5000 });
-  expect(Date.now() - shown).toBeGreaterThan(2000);
+  await page.clock.runFor(2900);
+  await expect(note).toHaveCount(1);
+  await page.clock.runFor(200);
+  await expect(note).toHaveCount(0);
+  // near the window's top edge the note shows below its lot, inside the window
+  await page.getByTestId('zoom-3').click();
+  await expect(page.getByTestId('town-view').locator('canvas')).toHaveAttribute('data-zoom', '3');
+  const scroll = page.getByTestId('town-scroll');
+  await camp.evaluate((b: HTMLElement) => {
+    const box = b.closest<HTMLElement>('[data-testid=town-scroll]')!;
+    box.scrollTop = b.offsetTop + 4;
+    box.scrollLeft = b.offsetLeft + b.offsetWidth / 2 - box.clientWidth / 2;
+  });
+  await camp.dispatchEvent('click');
+  await expect(note).toBeVisible();
+  const [n, w] = [(await note.boundingBox())!, (await scroll.boundingBox())!];
+  expect(n.y).toBeGreaterThanOrEqual(w.y);
+  expect(n.y + n.height).toBeLessThanOrEqual(w.y + w.height);
+  expect(n.x).toBeGreaterThanOrEqual(w.x);
+  expect(n.x + n.width).toBeLessThanOrEqual(w.x + w.width);
   // the Hall brings its row into view: on a short screen the row starts below the map
+  await page.getByTestId('zoom-1').click();
   await page.setViewportSize({ width: 412, height: 480 });
   await page.evaluate(() => window.scrollTo(0, 0));
   await expect(page.getByTestId('hall')).not.toBeInViewport();
