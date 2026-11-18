@@ -111,6 +111,7 @@ const TYPES: Record<string, string> = {
   '.js': 'text/javascript',
   '.css': 'text/css',
   '.png': 'image/png',
+  '.webp': 'image/webp',
   '.webmanifest': 'application/manifest+json',
 };
 

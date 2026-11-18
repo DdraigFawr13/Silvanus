@@ -4,6 +4,10 @@ The game's art as cleaned pixel pieces, the scripts that clean and assemble them
 
 Source of every asset in `gpt/`: AI-generated with ChatGPT by Morgan on 2026-11-14, from prompts Claude wrote. Each folder's `sheet.png` is the original; `pieceNN.png` are the cleaned cut-outs. `gpt/layout/` is reference only and is not cut into assets. Licence: Morgan's own generated art for this project (SAFE-05).
 
+## The town view's art (M2c)
+
+`town_view_pack.py` writes the game's map art: `apps/web/src/town/art/ground.webp` (lossless) from `handoff_chatgpt/result_3_graded.png`, and `pieces.png` with `apps/web/src/town/pieces.ts` from the target picture's pieces (`pixellab/blocks/pass2_items.json`), and runs the pack check (spec J2). Run it after any change to the ground or a piece, and put its output in that PR. Source: AI-generated with PixelLab by Claude for Morgan (the pieces and the block map), the ground cleaned up with ChatGPT by Morgan (D-055), 2026-11-15 to 2026-11-18. Licence: Morgan's own generated art for this project (SAFE-05).
+
 ## Setup
 
 ```

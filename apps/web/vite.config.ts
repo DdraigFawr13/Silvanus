@@ -42,7 +42,8 @@ export default defineConfig({
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
-      workbox: { globPatterns: ['**/*.{js,css,html,png,webmanifest,woff2}'] },
+      // webp: the town map's ground (M2c), lossless and under Workbox's 2,097,152-byte limit
+      workbox: { globPatterns: ['**/*.{js,css,html,png,webp,webmanifest,woff2}'] },
     }),
   ],
   define: { __COMMIT__: JSON.stringify(commit()) },
