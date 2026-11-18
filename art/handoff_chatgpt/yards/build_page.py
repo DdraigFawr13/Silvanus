@@ -18,8 +18,8 @@ SPOTS = [("Cottage by the Hall: water butt, bench and pots; washing line", (600,
          ("Fenced cottage: chopping block with an axe and split logs", (20, 600, 210, 750), 2),
          ("Small cottage south of the High Street: a log stack", (230, 640, 350, 780), 3),
          ("Cottage on the cross street: water butt, bench and two pots", (720, 580, 870, 740), 2),
-         ("Fisher's hut: from the town bank to the far bank, below the bridge road, with a track to the water", (1060, 560, 1408, 800), 1)]
-PIECES = ["butt_bench", "butt_bench2", "washing", "garden", "barrow", "chop", "woodshed", "logs", "fisher_small"]
+         ("Fisher's hut: from the town bank to the far bank at the same scale, its jetty and boat on the backwater", (1060, 560, 1408, 800), 1)]
+PIECES = ["butt_bench", "butt_bench2", "washing", "garden", "barrow", "chop", "woodshed", "logs"]
 def pieces():
     W = Image.new("RGBA", (len(PIECES) * 68, 68), (60, 84, 50, 255))
     for i, n in enumerate(PIECES): W.alpha_composite(Image.open(H / "yards/props" / f"{n}.png").convert("RGBA"), (i * 68 + 2, 2))
@@ -61,30 +61,26 @@ ul {{ margin:0; padding-left:20px; display:grid; gap:6px; }} .rec {{ border-left
 </style>
 <main>
 <h1>Dressed yards</h1>
-<p class="mute">Six cottage and farm yards dressed with PixelLab props, and a smaller fisher's hut moved to the far bank. 35 of the 45 approved generations used. Scored against all 55 checklist items.</p>
+<p class="mute">Six cottage and farm yards dressed with PixelLab props, and the fisher's hut moved to the far bank at the same scale as the other buildings. 35 of the 45 approved generations used. Scored against all 55 checklist items.</p>
 <section><div class="tally"><div><b class="m">{count["m"]}</b>Met</div><div><b class="p">{count["p"]}</b>Partly</div><div><b class="x">{count["x"]}</b>Missed</div><div><b class="c">{count["c"]}</b>Carried</div></div>
-<p class="mute">Same totals as after fix 2: no item changed status. P5 (dressed yards) went from one dressed yard to seven, but five cottages are still bare, so it stays Partly. M10 stays Partly: the fisher's hut is on the far bank now, but its jetty and boat left with the old hut. Brightness, saturation and edge share unchanged (51, 0.39, 0.237); 2.0% of pixels changed, all at these spots.</p></section>
+<p class="mute">After fix 2: 28 met, 16 partly. Up: M10 (the fisher's hut, jetty and boat now on the far bank). P5 (dressed yards) went from one dressed yard to seven, but five cottages are still bare, so it stays Partly. Brightness 51 and saturation 0.39 unchanged, edge share 0.239 (was 0.237); 2.6% of pixels changed, all at these spots.</p></section>
 <section><h2>The yards, before and after</h2>{spots}</section>
-<section><h2>The new pieces</h2>{img(pieces(), "The nine PixelLab pieces")}<p class="mute">Left to right: water butt with bench and pots (two versions), washing line, vegetable bed, wheelbarrow, chopping block, woodshed, log stack, fisher's hut. Each is its own file, placed by place.py, so any one can be swapped.</p></section>
+<section><h2>The new pieces</h2>{img(pieces(), "The eight yard pieces")}<p class="mute">Left to right: water butt with bench and pots (two versions), washing line, vegetable bed, wheelbarrow, chopping block, woodshed, log stack. Each is its own file, placed by place.py, so any one can be swapped.</p></section>
 <section><h2>Generations</h2><ul>
 <li>Call 1, 10: 25 single props at 48 px. Good variety, but each prop came out twice the map's scale (a barrel 36 px tall; the map's are about 18). Not used: rescaling pixel art is against the guide.</li>
 <li>Call 2, 10: 64 candidates at 28 px. Map scale, but all woodpiles; used the woodshed and the log stack.</li>
 <li>Call 3, 10: 25 small clusters at 48 px, at map scale in five kinds; six used.</li>
-<li>Call 4, 5: the 64 px fisher's hut, first try used.</li>
+<li>Call 4, 5: a 64 px fisher's hut. Not used: you found it too small beside the other buildings, so the map's own full-size hut moved to the far bank instead (0 generations).</li>
 <li><b>35 used, 10 left</b> of the 45 cap; 1,230 left on the PixelLab plan.</li>
 </ul></section>
 <section><h2>Still wrong</h2><ul>
 <li>Five cottages have no yard props yet: two north of the High Street, the one by the square, two south of it. Their yards are narrow (about 20 to 25 px beside the walls).</li>
-<li>No jetty or boat now; a few planks of the old landing show on the town bank.</li>
-<li>The new hut is darker and plainer than the old one, and it faces south, away from the bridge road.</li>
+<li>The hut's roof covers the bridge's east end, and no track runs from the bridge road to its door; a few planks of the old landing show on the town bank.</li>
 </ul></section>
 <section><h2>The whole map</h2>{img(grown, "The whole target map with dressed yards")}</section>
 <section><h2>Six sections, 2× on a phone</h2>{secs}</section>
 {tables}
-<section class="rec"><h2>Your call: approve or change</h2><ul>
-<li><b>Recommended: approve.</b> Then the five bare cottages get props from the pieces already made (free), and a jetty for the far bank (one PixelLab object, about 5 generations, inside the 10 left).</li>
-<li><b>Change:</b> tell me which yard or piece, or "keep the old fisher's hut" to put the big hut with its jetty back on the town bank.</li>
-</ul></section>
+<section class="rec"><h2>Approved</h2><p>You approved once the hut matched the others' scale ("After you fix that I approve"). Next, as offered: props for the five bare cottages from the pieces already made (free).</p></section>
 <p class="mute">Scores: docs/workshop/pages/result4_scores.json. Page: art/handoff_chatgpt/yards/build_page.py. Placement: art/handoff_chatgpt/yards/yards.py.</p>
 </main>'''
 pathlib.Path(sys.argv[1]).write_text(page, encoding="utf-8")

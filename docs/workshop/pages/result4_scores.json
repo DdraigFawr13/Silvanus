@@ -38,7 +38,7 @@
 "L7": [
 "Every building has character",
 "m",
-"As before, plus yard props that belong to each building: a wheelbarrow and a vegetable bed at the farm, woodpiles and a chopping block at the cottages, a smaller fisher's hut with a net frame and lantern post.",
+"As before, plus yard props that belong to each building: a wheelbarrow and a vegetable bed at the farm, woodpiles and a chopping block at the cottages, the fisher's hut with its nets, jetty and boat, now on the far bank.",
 "m"
 ],
 "L8": [
@@ -115,8 +115,8 @@
 ],
 "M10": [
 "River, bridge, jetty, fisher's lot",
-"p",
-"The fisher's hut now stands on the far bank, between the river and the backwater below the bridge road, with a short track to the water (a new 64 px hut). The old hut's jetty and boat went with it, so there is no jetty now; a few planks of the old landing show in the grass on the town bank.",
+"m",
+"The fisher's hut, at the same scale as the other buildings, now stands on the far bank between the river and the backwater, its jetty and boat on the backwater (the map's own water shows under them). Its roof covers the bridge's east end. A few planks of the old landing show in the grass on the town bank.",
 "p"
 ],
 "M11": [
@@ -182,7 +182,7 @@
 "T7": [
 "Town grows from its paths",
 "p",
-"As fix 2, plus a track from the new fisher's hut to the water. Still without a track: the forager's hut and the woodcutter (pines between them and the roads).",
+"As fix 2; the fisher's hut on the far bank is reached by its jetty, with no track from the bridge road. Still without a track: the forager's hut and the woodcutter (pines between them and the roads).",
 "p"
 ],
 "T8": [
@@ -308,7 +308,7 @@
 "R3": [
 "Joins line up",
 "m",
-"Every prop and the hut checked at 3x beside the old map: no hard edge where their earth patches meet the ground; the hut first touched the bridge's east end and was moved 4 px right, 24 px down.",
+"Every prop and the hut checked at 3x beside the old map: no hard edge where their earth patches meet the ground. The hut's own pond first showed as a light rectangle over the mist; it is cut, so the map's backwater shows under the jetty and boat.",
 "m"
 ],
 "R4": [
@@ -326,7 +326,7 @@
 "R6": [
 "Ask before every paid call",
 "m",
-"Morgan approved up to 45 generations for this step; 35 used (4 calls), 10 left of the cap.",
+"Morgan approved up to 45 generations for this step; 35 used (4 calls), 10 left of the cap. The 5-generation small hut is not used (Morgan: too small); the move to the far bank reuses the map's own hut, 0 generations.",
 "m"
 ]
 }

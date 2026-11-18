@@ -31,8 +31,17 @@ PICK = {  # prop name: (candidate file, what it is)
     "barrow": ("c3_04", "wheelbarrow with a sack and a bucket"),
     "woodshed": ("c2_45", "small open woodshed full of logs"),
     "logs": ("c2_36", "stack of split logs"),
-    "fisher_small": ("hut1", "small fisher's hut, net frame, lantern post, barrel"),
+    "fisher_small": ("hut1", "small fisher's hut, net frame, lantern post, barrel (not placed: too small beside the other buildings, Morgan 2026-11-18)"),
 }
+def fisher_far():
+    """The map's own 128 px fisher's hut (art/pixellab/blocks/raw_fisher.png) for the far bank: its own pond (blue pixels in the
+    lower part only, so the slate roof stays) and the rock rim below it are cut, so the jetty and boat sit on the map's backwater."""
+    a = np.asarray(Image.open(D.parents[2] / "art/pixellab/blocks/raw_fisher.png").convert("RGBA")).copy()
+    r, g, b = [a[..., i].astype(int) for i in range(3)]
+    yy, xx = np.mgrid[0:a.shape[0], 0:a.shape[1]]
+    a[..., 3][(b > r + 12) & (b >= g - 4) & (yy >= 76)] = 0
+    a[..., 3][(yy > 112) | ((yy > 104) & (xx >= 60))] = 0
+    return a
 def clean(a):
     a = a.copy(); op = a[..., 3] > 0
     lab, n = label(op)
@@ -52,4 +61,5 @@ if __name__ == "__main__":
     for name, (src, _) in PICK.items():
         a = np.asarray(Image.open(D / "raw" / f"{src}.png").convert("RGBA"))
         Image.fromarray(clean(a)).save(D / "props" / f"{name}.png")
-    print("wrote", len(PICK), "props")
+    Image.fromarray(fisher_far()).save(D / "props" / "fisher_far.png")
+    print("wrote", len(PICK) + 1, "props")
