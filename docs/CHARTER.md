@@ -51,7 +51,7 @@ Read from the three repos on 2026-11-09. Silvanus overlaps all three and stays l
 
 ### Lots and buildings
 
-- The town is a list of lots. A Hamlet has 6 lots and up to 25 residents; a Village has 10 and 60; a Town 16 and 100; a City 24 and 150. Hamlet and Village are in v0.1.
+- The town is a list of lots. A Hamlet has 6 lots and up to 25 residents; a Village has 10 and 60; a Town 16 and 100; a City 24 and 150. Hamlet, Village and Town are in v0.1 (D-038); gathering buildings stand on dedicated sites, not lots (D-058).
 - A building has a category, tiers, worker slots and production methods (inputs, outputs, governing skill); there is no separate upkeep (D-025, D-034). Tier 3 is a permanent branch point, from M5b.
 - Special buildings unlock an adventurer class, a town function or a trade good. v0.1 has one, which unlocks a fourth class.
 
@@ -101,7 +101,7 @@ These counts are the scope cap.
 
 - Buildings: 16 in v0.1 (D-038), 45 in v1.0. Special buildings: 1, then 8.
 - Resources: 11 (D-038), then 20. Trades: 8, then 30. Skills: 6, then 12. Traits: 12, then 40.
-- Peoples: 2, then 4. Resident cap: 60, then 150.
+- Peoples: 2, then 4. Resident cap: 100 (D-060), then 150.
 - Adventurer classes: 3 plus 1 unlocked, then 8. Quest objectives: 3, then 6.
 - Forest bands: 1, then 3. Sites: 6, then 25.
 - Events: 12, then 120. Chronicle templates: 40, then 300.
