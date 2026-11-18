@@ -26,6 +26,7 @@ Shared rules come from AI-Master-Instructions and load through CLAUDE.md (`.clau
 ## Project rules
 
 - One session takes one milestone and stops at its exit criterion in the charter. Why: each milestone ends with a test Morgan runs on the phone.
+- A coordinator session starts each slice in a new session and asks Morgan before starting each one, unless he has said to run until a named milestone is complete (then it starts that milestone's slices itself, 2 at a time). A finished session is never extended into the next slice. Why: Morgan, 2026-11-18: "I want to be able to approve the start of new sessions. If I say continue until m2 is complete then what you did was just fine."
 - A feature outside the charter's content targets goes to `docs/parking.md`, not into code. Why: three parent games each bring a full feature list.
 - `packages/sim` has no DOM, no framework, integer arithmetic only and a named random stream per system. Why: offline catch-up must equal live play tick for tick (D-002).
 - A new condition or effect type in the content schema needs a DECISIONS entry. Why: that set is the engine's real interface.
