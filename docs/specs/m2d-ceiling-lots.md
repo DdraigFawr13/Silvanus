@@ -1,8 +1,8 @@
 # M2d Ceiling and lots
 
-- **Status:** Draft (2026-11-18), waiting for Morgan's approval. Not built.
+- **Status:** Approved 2026-11-18 (Morgan on the review form (`m2dspec`, https://claude.ai/artifact/1hdoqGcMCifpeQHN7pR8dB, 2026-11-18): "Approved, start with the mock-up"). Not built; S0 is next.
 - **Planned in:** the M2 re-plan (round 1 https://claude.ai/artifact/3uADUApzUZwnny2PqCwnz2, final https://claude.ai/artifact/2Q9JF8itCsoKPXsS8h8YaG, 2026-11-14), fun round 2 (https://claude.ai/artifact/NbBSXFajzEL8reyh2M7rsE), the sites forms (`sites1`, `special1`). **Decisions:** D-032 (push methods), D-033 (lots), D-038 (M2d), D-043 (sites, the Tangle), D-044; proposed here: D-058 to D-061.
-- **Order of approval:** Morgan approves this spec with the open questions answered, then the S0 mock-up (where he also picks the buildings and goods), then S1 starts.
+- **Order of approval:** the spec and its six questions are answered (below); the S0 mock-up is approved next, then S1 starts.
 
 ## Problem
 
@@ -26,10 +26,10 @@ Measured on today's code (`0e29f6e`, main after PR #28; seed 1; the soak's pass 
 - **Lots with a character.** Every town has 16 town lots, each with a feature drawn from its seed; a feature raises named buildings' output by 25%. The build sheet asks where to build and shows what each free lot would add.
 - **Sites.** The Woodcutter's camp, Mine, Farm, Forager's hut and the new Fisher's hut stand on sites, not town lots. One site of each ground is open at the start, a second clears from the Village and a third from the Town.
 - **The Tangle.** The 4 Village lots, the 6 Town lots and the later sites start in the Tangle. From the Hall tier a plot belongs to, a clearing job (a cost and a game day or two) opens it and yields goods. Its feature shows before clearing.
-- **The Town tier.** Hall tier 3: 16 lots, needs 60 residents (a full Village) and goods only the new buildings make. Its resident limit is open question 6 (the charter caps v0.1 at 60).
+- **The Town tier.** Hall tier 3: 16 lots, needs 60 residents (a full Village) and goods only the new buildings make. Its resident limit is 100; the charter's v0.1 cap rises to 100 (D-060).
 - **3 buildings, 2 goods.** Recommended: Fisher's hut (food, river site), Watermill (planks from wood), Brewery (ale from food). Ale cheers the town each game day it is drunk. Morgan picks the set on the mock-up (D-038).
 - **Push methods.** 3: Mine "Deep seam", Fisher's hut "Far waters", Brewery "Strong brew". Each makes about 25 to 50% more while running; each game day it runs has a 1 in 10 chance to shut the building for 2 game days, so over many days it comes out about even (0 to +10%). Pushing pays when a good is needed soon, and costs when the shut lands at a bad time.
-- **Measured test (soak pass 4).** The pass 2 town kept running past the Village: reaches the Town in the band Morgan picks (proposed 4,800 to 7,680 ticks, 20 to 32 real hours, an estimate); between the Village and the Town no stretch of more than 960 ticks (4 real hours) finishes nothing; at least 80% of check-ins have a **work choice** (a build, upgrade, clearing or method purchase the town can pay for). These test that there is something to decide; whether the choices are not obvious is Morgan's J9.
+- **Measured test (soak pass 4).** The pass 2 town kept running past the Village: reaches the Town in Morgan's band, 7,680 to 11,520 ticks (32 to 48 real hours of hourly check-ins); between the Village and the Town no stretch of more than 960 ticks (4 real hours) finishes nothing; at least 80% of check-ins have a **work choice** (a build, upgrade, clearing or method purchase the town can pay for). These test that there is something to decide; whether the choices are not obvious is Morgan's J9.
 
 ## Non-goals
 
@@ -96,15 +96,15 @@ The build starts from `0e29f6e` (main after PR #28). Every named test is new or 
 
 - **Pass 1 (S1, S2):** the bot names a random plot id (0 to 30) on `build` and sends `clearTangle` (weight 2, a random plot id). `build` with a plot is carried out at least once; `clearTangle` is refused `notAllowed` at least once (pass 1 counts refusals by command and reason; its bot never upgrades the Hall, `upgradeHall:0` in its report, so pass 4 proves clearing is carried out). `check` gains the plot invariants of J7 and drops `buildings.length > hall.lots` for "each building on its own open plot". The 20,000 ticks a second floor holds (**guard**).
 - **Pass 2 (S1):** its player names a plot on each build: `plotsFor(state, kind, content)[0]`, and skips the build that tick when the list is empty. Its band, 1,440 to 2,400 ticks, holds (**guard**: 1,536 now).
-- **Pass 4 (new, S3; S4 adds the push run):** the pass 2 town continues, with the same `state` and `ordered`, from its Village tick under the late rules (Design, "Soak pass 4") until the Town or tick 12,000 (a stop so a failing run ends). It runs right after pass 2 and before pass 3, which replaces `state`. It prints `town_tick=`, `town_real_hours=`, `checkins=`, `work_choice=` (the share of check-ins with a work choice, judged at the check-in's first tick before the player acts), `quiet_max=` (the longest run of ticks with no `built`, `upgraded`, `tangleCleared` or `village` event), `residents=`, `cleared=` and `ale_short_days=` (game days, once a Brewery stands, after which no resident has the `ale` reason). It fails when the Town is outside the band, `quiet_max` > 960, `work_choice` < 80%, or `cleared` = 0. S4 adds `shuts=` and a second run with `risk` methods barred to the player (`town_tick_safe=`), failing when `shuts` = 0 or the two Town ticks differ by more than 10% of the later one (a guard that pushing is not a large sure win; it cannot show the choice is interesting). At `0e29f6e` pass 4 does not exist.
+- **Pass 4 (new, S3; S4 adds the push run):** the pass 2 town continues, with the same `state` and `ordered`, from its Village tick under the late rules (Design, "Soak pass 4") until the Town or tick 14,000 (a stop so a failing run ends). It runs right after pass 2 and before pass 3, which replaces `state`. It prints `town_tick=`, `town_real_hours=`, `checkins=`, `work_choice=` (the share of check-ins with a work choice, judged at the check-in's first tick before the player acts), `quiet_max=` (the longest run of ticks with no `built`, `upgraded`, `tangleCleared` or `village` event), `residents=`, `cleared=` and `ale_short_days=` (game days, once a Brewery stands, after which no resident has the `ale` reason). It fails when the Town is outside the band, `quiet_max` > 960, `work_choice` < 80%, or `cleared` = 0. S4 adds `shuts=` and a second run with `risk` methods barred to the player (`town_tick_safe=`), failing when `shuts` = 0 or the two Town ticks differ by more than 10% of the later one (a guard that pushing is not a large sure win; it cannot show the choice is interesting). At `0e29f6e` pass 4 does not exist.
 - **Check:** `npm run soak`.
 
 ## Decisions
 
-- **D-058 (Proposed)** Plots: 16 town lots with features from a shuffled deck on the `lots` stream, sites by ground for gathering kinds, the Tangle by Hall tier, `build` names a plot, `clearTangle` is a queued job. Adds one condition type, a lot's feature, and its one effect, `boostPct` on named kinds' output (D-033 named the condition).
-- **D-059 (Proposed)** Push methods: an effect type `risk { dayPct, shutTicks, what }` on a method, drawn once per running game day on the `push` stream, shut at most 48 ticks, long-run gain 0 to 10%. Amends D-030's "no randomness in production".
-- **D-060 (Proposed)** The Town tier: 16 lots, catch-up cap 5,760 (24 real hours, closes F18), needs 60 residents and planks and ale; pace band 4,800 to 7,680 ticks on soak pass 4. Its resident limit waits on open question 6.
-- **D-061 (Proposed)** The three buildings and two goods (Fisher's hut, Watermill, Brewery; planks, ale), and ale's daily cheer: an effect type `cheer { perHeads, morale }` on a resource, drunk at the start of a game day when there is enough for everyone.
+- **D-058 (Accepted)** Plots: 16 town lots with features from a shuffled deck on the `lots` stream, sites by ground for gathering kinds, the Tangle by Hall tier, `build` names a plot, `clearTangle` is a queued job. Adds one condition type, a lot's feature, and its one effect, `boostPct` on named kinds' output (D-033 named the condition).
+- **D-059 (Accepted)** Push methods: an effect type `risk { dayPct, shutTicks, what }` on a method, drawn once per running game day on the `push` stream, shut at most 48 ticks, long-run gain 0 to 10%. Amends D-030's "no randomness in production".
+- **D-060 (Accepted)** The Town tier: 16 lots, catch-up cap 5,760 (24 real hours, closes F18), needs 60 residents and planks and ale; pace band 7,680 to 11,520 ticks (32 to 48 real hours) on soak pass 4; resident limit 100.
+- **D-061 (Accepted)** The three buildings and two goods (Fisher's hut, Watermill, Brewery; planks, ale), and ale's daily cheer: an effect type `cheer { perHeads, morale }` on a resource, drunk at the start of a game day when there is enough for everyone.
 - Content version 4 becomes 5; save schema 4 becomes 5 (GAME-05). Plot ids are plot indexes; building ids keep coming from `nextId`.
 
 ## Alternatives rejected
@@ -113,16 +113,16 @@ The build starts from `0e29f6e` (main after PR #28). Every named test is new or 
 - **Each lot's feature drawn independently (25% plain):** a seed can open with six plain lots (0.25⁶ ≈ 0.02%, computed) and more often with one feature only. The deck makes at least 2 of the first 6 featured on every seed.
 - **The Hall tier opens Village and Town lots by itself; the Tangle opens only sites** (critic's simpler option): one gate per lot. Rejected because D-043 says clearing "opens new town lots, dedicated sites and special sites". The cost: upgrading to the Village opens no lot until a clearing job (24 ticks each) finishes.
 - **Town tier costed in today's goods only:** measured: costs of 400 to 800 wood and stone and 100 to 200 tools reach the Town at 16.6 to 25.6 real hours, but the town spends hours 16 onwards with every store full and nothing to do (Problem). It fails J10's `quiet_max`.
-- **Weaver and cloth in place of the Watermill and planks** (the charter lists cloth as a good): cloth has no input the town has in surplus, so its basic method would be the whole chain. Planks turn the wood that sits at its cap from hour 2 into a Town-tier good; ale does the same for food (full from hour 5). Morgan may still pick cloth on the mock-up (open question 3).
+- **Weaver and cloth in place of the Watermill and planks** (the charter lists cloth as a good): cloth has no input the town has in surplus, so its basic method would be the whole chain. Planks turn the wood that sits at its cap from hour 2 into a Town-tier good; ale does the same for food (full from hour 5). Morgan picked planks and ale on the review form.
 - **Push methods with a clear long-run gain (the first draft's 14 to 17%):** a min-maxer always pushes, and away for a night the gain averages in, so it is no bet (critic). Held to 0 to 10%: the burst is the reason to push.
 - **A shut building frees its workers:** they would drift to other jobs and back, moving morale and skills; more rules for a 2-day event. They wait at their posts.
-- **Ale as a cost only:** the Brewery would run only until the Town tier is paid. Ale's cheer gives it a reason to keep running and a real claim on food (open question 4).
+- **Ale as a cost only:** the Brewery would run only until the Town tier is paid. Ale's cheer gives it a reason to keep running and a real claim on food (Morgan: "Yes: +10 morale with 1 ale per 10 residents").
 - **A Hall tier needed before a kind can be built:** a new condition type for one purpose. Costs (planks) gate the new buildings well enough.
 
 ## Risks
 
-- **The Village pace moves.** Gatherers leaving the town lots frees Hamlet lots. Pass 2's player builds only 6 buildings by the Village, so its guard should hold (inference); a human may grow faster. → Pass 2's band is a guard; if it fails, S1 reports the tick and changes no number (D-036's pace is Morgan's). Open question 5 offers fewer Hamlet lots as the lever.
-- **The Town band is an estimate.** 20 to 32 real hours is Claude's proposal, a step past the Village's 6 to 10. → Morgan picks it (open question 1); S3 measures pass 4 and tunes the Town's cost and `LATE`, never the band.
+- **The Village pace moves.** Gatherers leaving the town lots frees Hamlet lots. Pass 2's player builds only 6 buildings by the Village, so its guard should hold (inference); a human may grow faster. → Pass 2's band is a guard; if it fails, S1 reports the tick and changes no number (D-036's pace is Morgan's). Morgan kept 6 Hamlet lots ("Keep 6"); a smaller Hamlet stays the lever if the guard fails, and it is his to pick.
+- **The Town band is Morgan's, the cost is not yet measured.** He picked 32 to 48 real hours ("a longer middle game") over the recommended 20 to 32. The starting cost below is sized for the shorter band (estimate), so S3 will likely raise the Town's cost and its `ticks` and measure pass 4 against 7,680 to 11,520; it tunes cost and `LATE`, never the band. A longer middle game also makes `quiet_max` ≤ 960 harder to hold: if it fails, S3 reports where the quiet stretches fall before changing any gate.
 - **The lot choice is thin at the Hamlet.** Of the Hamlet's town-lot kinds only the Workshop gains from a feature (rock outcrop, forest edge); good soil and riverside matter from the Village (Brewery, Watermill), and in S1 and S2 boost nothing yet. M3's Herb garden and Smithy are expected to add to soil and rock (assumption, M3's planning). → J9 judges it; Morgan can ask for Hamlet kinds in the boost lists at the mock-up.
 - **The soak cannot judge "not obvious".** Pass 4 checks there is always something to do and that pushing is no large sure win; the scripted player follows a fixed list. → J9 is the real test.
 - **Push risk runs while away.** 8 real hours away are 80 game days, so a 10% daily risk shuts a building about 7.3 times a night (computed: 80 days / 11 days a cycle). Offline equals live (D-002), by design; the away card counts shuts. A shut makes nothing, but when the building's stores are full it would have made nothing anyway (`production.ts:48`), so a full store makes the shut free and the burst useless.
@@ -154,7 +154,7 @@ All numbers are starting values (D-030 style); S3 and S4 tune them against J10 a
   Validated: every boosted kind exists, has no `site`, and has a method that makes something; `boosts` may be empty.
 - **Tangle:** `tangle: { tier: number; cost: Amounts; ticks: number; yields: Amounts }[]`: tier 2 (S2) tools 10, 24 ticks, yields wood 40; tier 3 (S3) tools 20 and planks 10, 48 ticks, yields wood 60 and stone 20. Validated: tiers are Hall tiers 2 and up; a plot of a tier with no row cannot be cleared (`notAllowed`).
 - **Resources (S3)** gain planks (cap 100, start 0, value 12) and ale (cap 100, start 0, value 14, `cheer: { perHeads: 10, morale: 10 }`). Values are estimates in D-053's spirit: inputs (60 wood into 40 planks is 7.5 a plank; 60 food into 40 ale is 6 an ale) plus work, rounded; only the trader and rewards read them.
-- **Hall tier 3 (S3):** `{ name: 'Town', lots: 16, residents: <open question 6: 60 or 100>, catchUpCap: 5760, cost: { wood: 400, stone: 400, tools: 100, planks: 80, ale: 60 }, ticks: 144, needResidents: 60 }`.
+- **Hall tier 3 (S3):** `{ name: 'Town', lots: 16, residents: 100, catchUpCap: 5760, cost: { wood: 400, stone: 400, tools: 100, planks: 80, ale: 60 }, ticks: 144, needResidents: 60 }`.
 - **New kinds (S3)** (tier rows: cost; ticks; slots; beds 0):
 
   | kind | trade, skill | tier 1 | tier 2 | tier 3 |
@@ -250,7 +250,7 @@ A check-in has a **work choice** when, before the player acts, any of these pass
 
 ### S0 Mock-up (no game code)
 
-- **Morgan sees:** the build sheet's lot picker, the Tangle section, a building row with a feature and a shut line, the Deep seam method row, the Hall's Town row, at 412 px from `docs/UI_STYLE.md` (the `ui-mockups` skill). The page also asks him to pick the three buildings and two goods (D-038: "chosen in M2d's mock-up"), with this spec's set recommended.
+- **Morgan sees:** the build sheet's lot picker, the Tangle section, a building row with a feature and a shut line, the Deep seam method row, the Hall's Town row, at 412 px from `docs/UI_STYLE.md` (the `ui-mockups` skill). It shows the set Morgan picked on the review form (D-038's "chosen in M2d's mock-up" was answered there).
 - **Waits on:** this spec's approval.
 
 ### S1 Plots and sites
@@ -273,7 +273,7 @@ A check-in has a **work choice** when, before the player acts, any of these pass
 - **Morgan tries:** build a Watermill and a Brewery, see the town cheer on ale, gather planks and ale, and raise the Hall to a Town.
 - **Checks that fail now:** J4, J5, J10 pass 4 (band, `quiet_max`, `work_choice`, `cleared`).
 - **Files:** content (resources, Hall tier 3, Tangle tier 3 row, kinds, methods without `risk`, feature boosts, goals), `day.ts` (ale), `build.ts` (third tier), `validate.ts`, `HallRow.tsx`, tests (`growth.test.ts`, `methods.test.ts`, `content.test.ts`), soak pass 4.
-- **Waits on:** S2 and Morgan's answers to open questions 1, 4 and 6.
+- **Waits on:** S2.
 
 ### S4 Push methods
 
@@ -288,11 +288,13 @@ A check-in has a **work choice** when, before the player acts, any of these pass
 - Before ready: `npm run test:browser`.
 - End to end: J9 on Morgan's phone after merge and deploy.
 
-## Open questions
+## Answered questions
 
-1. **The Town's pace.** Recommended: soak pass 4 reaches the Town at 20 to 32 real hours of hourly check-ins (4,800 to 7,680 ticks). Other options: 12 to 20 hours (sooner, like the Village's step); 32 to 48 hours (a longer middle game). Claude's estimate, not a measurement.
-2. **F18: the Town's catch-up cap.** Recommended: 24 real hours (5,760 ticks), the step after 8 and 16. Other option: keep 16 (3,840), so a day away loses 8 hours of catch-up.
-3. **The three buildings and two goods** (asked on the S0 mock-up). Recommended: Fisher's hut, Watermill and Brewery; planks and ale. Other option: Fisher's hut, Weaver and Brewery; cloth and ale.
-4. **Ale cheers the town each day** (D-061). Recommended: yes, +10 morale when there is 1 ale per 10 residents. Other option: ale is only a cost for the Town tier.
-5. **Hamlet lots once gatherers move to sites.** Recommended: keep 6 (the charter's number), since pass 2's Village guard should hold. Other option: 4, so lots stay tight at the Hamlet.
-6. **The Town's resident limit.** The charter's content targets cap v0.1 at 60 residents (`docs/CHARTER.md`, "Content targets"), while its Systems section gives the Town 100; D-038 moved the Town into v0.1 without changing the cap (critic finding). Recommended: 100, amending the content target to 100 for v0.1, so the Town also grows in people. Other option: keep 60, so the Town grows in lots, goods and buildings only (the town is then full at 60 from about real hour 12).
+All six answered by Morgan on the review form (`m2dspec`, https://claude.ai/artifact/1hdoqGcMCifpeQHN7pR8dB, 2026-11-18):
+
+1. The Town's pace: "32 to 48 hours (a longer middle game)" (not the recommended 20 to 32).
+2. F18, the Town's catch-up cap: "24 real hours".
+3. The buildings and goods: "Fisher's hut, Watermill, Brewery; planks and ale". The S0 mock-up shows this set; it does not ask again.
+4. Ale's cheer: "Yes: +10 morale with 1 ale per 10 residents".
+5. Hamlet lots: "Keep 6".
+6. The Town's resident limit: "100, and raise the v0.1 cap to 100" (`docs/CHARTER.md` "Content targets" changed in the same PR).
