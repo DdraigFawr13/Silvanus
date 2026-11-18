@@ -91,6 +91,8 @@ function buildingOk(v: unknown): boolean {
   // a push method's shut lasts at most 2 game days and names its mishap while it runs (D-059)
   if (!upTo(v.shutLeft, SHUT_MAX)) return false;
   if (v.shutLeft === 0 ? v.shutBy !== null : typeof v.shutBy !== 'string') return false;
+  // only a gathering kind can have been moved to a town lot (D-058 amended)
+  if (v.moved !== undefined && (v.moved !== true || kind.site === undefined)) return false;
   return amountsOk(v.carry) && amountsOk(v.debt);
 }
 
@@ -118,7 +120,9 @@ function plotsOk(plots: unknown, buildings: Record<string, unknown>[]): boolean 
     used.add(b.plot);
     const plot = plots[b.plot] as Plot | undefined;
     if (!plot || !plot.open) return false;
-    if (plot.ground !== (kindOf(content, b.kind as string)!.site ?? null)) return false;
+    const ground = kindOf(content, b.kind as string)!.site ?? null;
+    // a moved gatherer stands on a town lot (D-058 amended); every other building on its own type
+    if (b.moved === true ? plot.ground !== null : plot.ground !== ground) return false;
   }
   return true;
 }
@@ -275,8 +279,11 @@ const upgrades: Record<number, (old: unknown) => unknown> = {
 // 4 to 5 (M2d S1): the town is laid out on the seed's plots (D-058). Each building, in order,
 // goes on a free plot: a gathering kind on its ground's first site the Hall has reached, else
 // that ground's next site, opened; any other kind on the first open town lot, else the first
-// the Hall has reached, else any, opened. A building that finds no plot of its type (a fourth of
-// one ground's kind) is left without one, so the record loads as damaged and is kept.
+// the Hall has reached, else any, opened. A gatherer with no site of its ground left (a fourth of
+// one kind) is moved to a town lot the same way, marked `moved`, and works there with no bonus
+// (D-058 amended, Morgan: "Keep it, no bonus"); a line in the log says so. A building that finds
+// no plot at all is left without one, so the record loads as damaged and is kept (a schema 4
+// town holds at most 10 buildings, so 16 town lots always suffice).
 function layOut(old: unknown): unknown {
   if (!isObject(old) || !isObject(old.state)) return null;
   const st = old.state;
@@ -289,26 +296,37 @@ function layOut(old: unknown): unknown {
   const draft = { seed: st.seed, rng } as State;
   const plots = makePlots(draft, content);
   const taken = new Set<number>();
+  const lines: { tick: number; type: string; text: string }[] = [];
   const first = (test: (p: Plot) => boolean) => plots.find((p) => !taken.has(p.id) && test(p));
   const buildings = st.buildings.map((b: unknown) => {
     if (!isObject(b) || typeof b.kind !== 'string') return b;
     const kind = kindOf(content, b.kind);
     if (!kind) return b;
     const ground = kind.site ?? null;
+    const site =
+      ground === null
+        ? undefined
+        : (first((p) => p.ground === ground && p.tier <= hallTier) ??
+          first((p) => p.ground === ground));
     const plot =
-      ground !== null
-        ? (first((p) => p.ground === ground && p.tier <= hallTier) ??
-          first((p) => p.ground === ground))
-        : (first((p) => p.ground === null && p.open) ??
-          first((p) => p.ground === null && p.tier <= hallTier) ??
-          first((p) => p.ground === null));
+      site ??
+      first((p) => p.ground === null && p.open) ??
+      first((p) => p.ground === null && p.tier <= hallTier) ??
+      first((p) => p.ground === null);
     if (!plot) return b;
     plot.open = true;
     taken.add(plot.id);
-    return { ...b, plot: plot.id, shutLeft: 0, shutBy: null };
+    const placed = { ...b, plot: plot.id, shutLeft: 0, shutBy: null };
+    if (ground === null || site) return placed;
+    lines.push({
+      tick: st.tick as number,
+      type: 'plots',
+      text: `Your extra ${kind.name} was moved to a town lot; it gets no site bonus.`,
+    });
+    return { ...placed, moved: true };
   });
   const line = { tick: st.tick, type: 'plots', text: 'Your town was laid out on plots.' };
-  const log = [...st.log, line].slice(-content.rules.logMax);
+  const log = [...st.log, line, ...lines].slice(-content.rules.logMax);
   return { ...old, schema: 5, state: { ...st, rng: draft.rng, plots, buildings, log } };
 }
 upgrades[4] = layOut;

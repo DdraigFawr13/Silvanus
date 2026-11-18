@@ -142,6 +142,13 @@ function schema4(state: State, kinds: string[], hallTier = 1) {
   };
 }
 
+// A building without the fields schema 5 added.
+const plain = (b: Building) => {
+  const { plot, shutLeft, shutBy, moved, ...rest } = b;
+  void [plot, shutLeft, shutBy, moved];
+  return rest;
+};
+
 describe('saves', () => {
   beforeEach(() => {
     // each test gets an empty database and a new connection to it
@@ -436,11 +443,6 @@ describe('saves', () => {
     ]);
     for (const b of state.buildings) expect([b.shutLeft, b.shutBy]).toEqual([0, null]);
     // the rest is unchanged
-    const plain = (b: Building) => {
-      const { plot, shutLeft, shutBy, ...rest } = b;
-      (void plot, void shutLeft, void shutBy);
-      return rest;
-    };
     expect(state.buildings.map(plain)).toEqual(town.state.buildings);
     expect(state.stock).toEqual(town.state.stock);
     expect(state.residents).toEqual(town.state.residents);
@@ -459,9 +461,113 @@ describe('saves', () => {
     // a Hamlet's second Mine takes that site too, opened, rather than fail the load
     const hamlet = parse(schema4(fresh, ['cottage', 'forager', 'mine', 'mine']));
     expect(hamlet.kind === 'ok' && hamlet.record.state.buildings[3].plot).toBe(site('mountain', 2));
-    // a fourth Mine finds no mountain site: damaged, and kept as it was
-    const four = schema4(fresh, ['cottage', 'forager', 'mine', 'mine', 'mine', 'mine'], 2);
-    expect(parse(four)).toEqual({ kind: 'damaged', raw: four });
+  });
+
+  test('a schema 4 town keeps its work, people and board when laid out', () => {
+    const fresh = newGame(1, content);
+    const site = (ground: string, tier: number) =>
+      fresh.plots.find((p) => p.ground === ground && p.tier === tier)!.id;
+    // a full Village of 10 with every gatherer, a Workshop still queued, an upgrade waiting
+    const kinds = ['cottage', 'forager', 'woodcutter', 'farm', 'mine'].concat([
+      'workshop',
+      'cottage',
+      'storehouse',
+      'tavern',
+      'mine',
+    ]);
+    const base = schema4(fresh, kinds, 2);
+    const slots = (kind: string) => content.buildings.find((b) => b.id === kind)!.tiers[0].slots;
+    const buildings = base.state.buildings.map((b) =>
+      b.kind === 'workshop' ? { ...b, tier: 0, open: 0 } : { ...b, open: slots(b.kind) },
+    );
+    const queue = [
+      { target: 105, toTier: 1, ticksLeft: 10, cost: { wood: 40, stone: 20 } },
+      { target: 100, toTier: 2, ticksLeft: 24, cost: { wood: 50, stone: 20 } },
+    ];
+    const people = base.state.residents.map((r, i) =>
+      i === 0 ? { ...r, jobId: 101, pinnedTo: 101 } : i === 1 ? { ...r, jobId: 104 } : r,
+    );
+    const board = {
+      ...base.state.board,
+      goals: ['toolmaker', 'deepmine', 'thirty'],
+      active: 'toolmaker',
+      progress: 5,
+      trip: { residentIds: [people[2].id, people[3].id], back: base.state.tick + 10 },
+    };
+    const village = {
+      ...base,
+      state: { ...base.state, buildings, queue, residents: people, board },
+    };
+    const parsed = parse(village);
+    expect(parsed.kind).toBe('ok');
+    if (parsed.kind !== 'ok') return;
+    const state = parsed.record.state;
+    expect(state.buildings.map((b) => [b.kind, b.plot])).toEqual([
+      ['cottage', 0],
+      ['forager', site('woods', 1)],
+      ['woodcutter', site('forest', 1)],
+      ['farm', site('fields', 1)],
+      ['mine', site('mountain', 1)],
+      ['workshop', 1],
+      ['cottage', 2],
+      ['storehouse', 3],
+      ['tavern', 4],
+      ['mine', site('mountain', 2)],
+    ]);
+    expect(state.buildings.map(plain)).toEqual(buildings);
+    expect(state.queue).toEqual(queue);
+    expect(state.residents).toEqual(people);
+    expect(state.board).toEqual(board);
+    // the town runs on: the Workshop's build finishes on its lot
+    const later = advance(state, 10, content).state;
+    expect(later.buildings.find((b) => b.id === 105)).toMatchObject({ tier: 1, plot: 1 });
+
+    // a Hamlet with the Village under way keeps its Hall job
+    const hamlet = schema4(fresh, ['cottage', 'forager']);
+    const hallJob = { target: 'hall', toTier: 2, ticksLeft: 50, cost: { wood: 200 } };
+    const up = parse({ ...hamlet, state: { ...hamlet.state, queue: [hallJob] } });
+    expect(up.kind === 'ok' && up.record.state.queue).toEqual([hallJob]);
+  });
+
+  test("an older town's extra gatherer moves to a town lot with no bonus", () => {
+    const fresh = newGame(1, content);
+    const site = (ground: string, tier: number) =>
+      fresh.plots.find((p) => p.ground === ground && p.tier === tier)!.id;
+    // four Woodcutter's camps, three forest sites: the fourth moves (Morgan: "Keep it, no bonus")
+    const kinds = ['cottage', 'forager', 'woodcutter', 'woodcutter', 'woodcutter', 'woodcutter'];
+    const old = schema4(fresh, kinds, 2);
+    // the last camp with its 4 slots open (the town's 8 would fill the first two), jobs to hand out
+    const open = old.state.buildings.map((b) => (b.id === 105 ? { ...b, open: 4 } : b));
+    const parsed = parse({ ...old, state: { ...old.state, buildings: open, jobsDirty: true } });
+    expect(parsed.kind).toBe('ok');
+    if (parsed.kind !== 'ok') return;
+    const state = parsed.record.state;
+    const camps = state.buildings.filter((b) => b.kind === 'woodcutter');
+    expect(camps.map((b) => b.plot)).toEqual([
+      site('forest', 1),
+      site('forest', 2),
+      site('forest', 3),
+      1,
+    ]);
+    expect(camps.map((b) => b.moved)).toEqual([undefined, undefined, undefined, true]);
+    expect(state.plots[site('forest', 3)].open).toBe(true);
+    expect(state.log.slice(-2).map((l) => l.text)).toEqual([
+      'Your town was laid out on plots.',
+      "Your extra Woodcutter's camp was moved to a town lot; it gets no site bonus.",
+    ]);
+    // it keeps working there, making wood
+    expect(camps[3].id).toBe(105);
+    const worked = advance(state, 24, content);
+    expect(worked.state.residents.filter((r) => r.jobId === 105)).toHaveLength(4);
+    expect(worked.summary.made.wood).toBeGreaterThan(0);
+    // a camp on a town lot that was not moved, a moved one on a site, a moved Cottage: damaged
+    const record = parsed.record;
+    const patched = (f: (b: Building) => Building) =>
+      parse({ ...record, state: { ...state, buildings: state.buildings.map(f) } }).kind;
+    const unmark = ({ moved, ...b }: Building) => (void moved, b);
+    expect(patched(unmark)).toBe('damaged');
+    expect(patched((b) => (b.id === camps[0].id ? { ...b, moved: true } : b))).toBe('damaged');
+    expect(patched((b) => (b.kind === 'cottage' ? { ...b, moved: true } : b))).toBe('damaged');
   });
 
   test('a damaged schema 1 save stays damaged', () => {

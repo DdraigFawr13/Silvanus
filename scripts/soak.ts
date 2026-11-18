@@ -168,7 +168,8 @@ function check(s: State): void {
     if (onPlot.has(b.plot)) fail(`two buildings on plot ${b.plot}`);
     onPlot.add(b.plot);
     const site = content.buildings.find((k) => k.id === b.kind)!.site ?? null;
-    if (plot.ground !== site) fail(`${b.kind} ${b.id} on a ${plot.ground ?? 'town'} plot`);
+    const allowed = b.moved === true ? null : site;
+    if (plot.ground !== allowed) fail(`${b.kind} ${b.id} on a ${plot.ground ?? 'town'} plot`);
     if (!whole(b.shutLeft, 48) || (b.shutLeft === 0) !== (b.shutBy === null)) {
       fail(`${b.kind} ${b.id} is shut for ${b.shutLeft} by ${b.shutBy}`);
     }

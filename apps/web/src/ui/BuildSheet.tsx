@@ -172,8 +172,10 @@ export function BuildSheet({
   }
 
   const kind = picking === null ? undefined : kindOf(content, picking);
-  if (kind) {
-    const free = plotsFor(state, kind.id, content);
+  // the picker needs a free plot; with none left it shows the list, whose row says why
+  const pickable = kind ? plotsFor(state, kind.id, content) : [];
+  if (kind && pickable.length > 0) {
+    const free = pickable;
     const first: Command = { type: 'build', kind: kind.id, plot: free[0]?.id ?? -1 };
     return (
       <Sheet title={`Where to build the ${kind.name}`} onClose={onClose} testId="build-sheet">

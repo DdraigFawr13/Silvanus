@@ -39,6 +39,9 @@ export type Building = {
   plot: number; // the plot it stands on, an index in state.plots (D-058)
   shutLeft: number; // ticks a push method's mishap still shuts it, 0..48 (D-059)
   shutBy: string | null; // the mishap's `what` while shut, else null
+  // A gathering building an older save had no site of its ground for: moved to a town lot,
+  // where it works and gains nothing from a feature (D-058 amended). Only a save upgrade sets it.
+  moved?: true;
 };
 
 // A place a building can stand (D-058): a town lot, or a site of one ground.
