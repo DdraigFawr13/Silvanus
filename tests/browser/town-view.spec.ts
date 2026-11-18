@@ -305,6 +305,34 @@ async function under(page: Page, button: Locator) {
   });
 }
 
+test('the Build marker is the same size at every zoom', async ({ page }) => {
+  await page.goto('/?tickMs=60000');
+  await view(page);
+  const markers = page.getByTestId('map-marker');
+  const empty = page.getByRole('button', { name: 'Empty lot, build here' });
+  for (const z of [1, 2, 3]) {
+    await page.getByTestId(`zoom-${z}`).click();
+    await expect(page.getByTestId('town-view').locator('canvas')).toHaveAttribute(
+      'data-zoom',
+      String(z),
+    );
+    // one per empty lot, about 16 CSS px, inside its lot's button
+    await expect(markers).toHaveCount(4);
+    const [ms, bs] = [await boxes(markers), await boxes(empty)];
+    for (const [i, m] of ms.entries()) {
+      expect(m.width, `${z}x marker ${i}`).toBeGreaterThanOrEqual(15);
+      expect(m.width, `${z}x marker ${i}`).toBeLessThanOrEqual(17);
+      expect(m.height).toBe(m.width);
+      const b = bs[i];
+      const cx = m.x + m.width / 2;
+      const cy = m.y + m.height / 2;
+      expect(cx > b.x && cx < b.x + b.width && cy > b.y && cy < b.y + b.height, `${z}x ${i}`).toBe(
+        true,
+      );
+    }
+  }
+});
+
 test('tapping a lot opens its sheet', async ({ page }) => {
   await page.goto('/?tickMs=60000');
   await view(page);

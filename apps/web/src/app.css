@@ -875,6 +875,33 @@ p {
   outline-offset: -2px;
 }
 
+/* the Build marker on an empty lot (P4): the earlier map's amber disc with a dark outline and a dark plus,
+   a fixed size at every zoom; taps go to the lot's button */
+.map-marker {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1px solid var(--act-ink);
+  border-radius: 50%;
+  background: var(--act);
+  pointer-events: none;
+}
+
+.map-marker::before,
+.map-marker::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 62%;
+  height: 20%;
+  background: var(--act-ink);
+  content: '';
+  transform: translate(-50%, -50%);
+}
+
+.map-marker::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
 /* how a lot being built stands, over its spot for 3 s */
 .map-note {
   position: absolute;

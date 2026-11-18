@@ -82,6 +82,7 @@ function labelOf(state: State, s: Spot): string {
 // How long a note over a lot being built stays (M2c J3).
 const NOTE_MS = 3000;
 const NOTE_CSS = 200; // the note's widest, CSS px (app.css .map-note)
+const MARKER_TARGET_CSS = 16;
 const NOTE_H_CSS = 52; // room the note needs above its lot: two lines and the gap, CSS px
 
 export default function TownView({
@@ -203,6 +204,10 @@ export default function TownView({
   const map = mapCss(zoom, dpr);
   // art px to CSS px in the spacer
   const css = (v: number) => (v * zoom) / dpr;
+  // to whole device px, so the marker's edges stay crisp
+  const snap = (v: number) => Math.round(v * dpr) / dpr;
+  // the Build marker: about 16 CSS px at every zoom (Morgan, 2026-11-18, "Bigger at 1x"), whole device px
+  const MARKER_CSS = Math.round(MARKER_TARGET_CSS * dpr) / dpr;
   const at = note ? spots.findIndex((s) => s.lot === note.lot) : -1;
   const noted = at >= 0 ? taps[at] : null;
   // the note's centre, kept inside the window so its text is never cut off (it is at most NOTE_CSS wide);
@@ -246,6 +251,23 @@ export default function TownView({
               onClick={() => tap(s)}
             />
           ))}
+          {items.map(
+            (item) =>
+              item.type === 'build-marker' && (
+                <span
+                  key={`marker-${item.lot}`}
+                  className="map-marker"
+                  data-testid="map-marker"
+                  aria-hidden="true"
+                  style={{
+                    left: `${snap(css(item.x)) - MARKER_CSS / 2}px`,
+                    top: `${snap(css(item.y)) - MARKER_CSS / 2}px`,
+                    width: `${MARKER_CSS}px`,
+                    height: `${MARKER_CSS}px`,
+                  }}
+                />
+              ),
+          )}
           {noted && note && (
             <div
               key={note.n}

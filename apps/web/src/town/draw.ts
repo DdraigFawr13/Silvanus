@@ -1,13 +1,12 @@
-// Drawing the draw list on the canvas (M2c spec, "Drawing"). Pieces come from pieces.png; glows and the
-// Build marker are drawn here in code as whole art pixels, scaled by the zoom step, so they stay crisp. Their
-// look is the earlier map's (Morgan, 2026-11-18, "Earlier look": art/pixellab/blocks/overlays.py).
+// Drawing the draw list on the canvas (M2c spec, "Drawing"). Pieces come from pieces.png; glows are drawn
+// here in code as whole art pixels, scaled by the zoom step, so they stay crisp. Their look is the earlier
+// map's (Morgan, 2026-11-18, "Earlier look": art/pixellab/blocks/overlays.py).
 import type { Camera } from './camera';
-import type { BuildMarker, Glow, Item } from './layout';
+import type { Glow, Item } from './layout';
 import { PIECES } from './pieces';
 
 type Rgb = [number, number, number];
 const ACT: Rgb = [0xd9, 0xa4, 0x41]; // --act, lamp amber (D-028)
-const DARK: Rgb = [26, 22, 8]; // the marker's outline and plus (overlays.py)
 const PALE: Rgb = [0xe6, 0xe3, 0xd6]; // --ink
 const PALE_CORE = 0.14;
 const PALE_RIM = 0.34;
@@ -116,27 +115,7 @@ function ringSprite(pieces: HTMLImageElement, name: string) {
   });
 }
 
-// The Build marker: an amber disc 15 art px across, outlined dark, with a dark plus (overlays.py).
-const MARKER = 15;
-const R = 7;
-const inDisc = (i: number, j: number) => i * i + j * j <= (R + 0.5) ** 2;
-function markerSprite() {
-  return cached('marker', () =>
-    sprite(MARKER, MARKER, (x, y) => {
-      const i = x - R;
-      const j = y - R;
-      if (!inDisc(i, j)) return null;
-      const edge = !inDisc(i + 1, j) || !inDisc(i - 1, j) || !inDisc(i, j + 1) || !inDisc(i, j - 1);
-      const plus = (Math.abs(j) <= 1 && Math.abs(i) <= 4) || (Math.abs(i) <= 1 && Math.abs(j) <= 4);
-      return [edge || plus ? DARK : ACT, 1];
-    }),
-  );
-}
-
-function frameOf(pieces: HTMLImageElement, item: Glow | BuildMarker) {
-  if (item.type === 'build-marker') {
-    return { image: markerSprite(), x: Math.round(item.x) - R, y: Math.round(item.y) - R };
-  }
+function frameOf(pieces: HTMLImageElement, item: Glow) {
   if (item.tone === 'gold') {
     return { image: ringSprite(pieces, item.piece), x: item.x - MARGIN, y: item.y - MARGIN };
   }
@@ -161,6 +140,8 @@ export function drawItems(
     let h: number;
     let x: number;
     let y: number;
+    // the Build marker is a page element over the canvas, a fixed size at every zoom (TownView)
+    if (item.type === 'build-marker') continue;
     if (item.type === 'piece') {
       [fx, fy, w, h] = PIECES[item.name].frame;
       ({ x, y } = item);
