@@ -1,6 +1,6 @@
 # M2c Town view
 
-- **Status:** Draft (2026-11-18), waiting for Morgan's answers to the open questions.
+- **Status:** Approved (2026-11-18, Morgan: "Go with recommended" on the review page https://claude.ai/artifact/FFBzM6FPkmCAmy1MdqXkN8). Q1 to Q5 are settled as their recommended options; see Decisions and D-057.
 - **Planned in:** the M2 re-plan (`m2final`, https://claude.ai/artifact/2Q9JF8itCsoKPXsS8h8YaG, 2026-11-14) and the art workshop (D-047, D-048, D-055, the agreed checklist `docs/workshop/art-checklist.md`). No separate interview: every rule below comes from those decisions, and each choice they leave open is an open question. **Decisions:** D-037, D-047, D-048, D-055, D-033, D-028; D-041 is Proposed, and only the checklist items Morgan agreed on 2026-11-16 (P1 to P4) are used from it.
 
 ## Problem
@@ -11,8 +11,8 @@ Morgan, M2 re-plan: "I'd like more graphically pleasing actual view of the town 
 
 - **Art pixel:** one pixel of the map picture. The map is 1408 × 888 art pixels (D-047, D-055).
 - **Zoom step:** 1×, 2× or 3× device pixels per art pixel (D-047). Device pixels = CSS pixels × `devicePixelRatio` (dpr). Morgan's phone is about 2.6 (D-047's assumption; the old prototype was checked at 2.625, `docs/workshop/m2b-dragonscape.md`, "Approach chosen"). At 2.625 and 412 CSS px wide the steps show 1082, 541 and 360 art pixels of the width, so even at 1× the map scrolls sideways; the town's built area fits, the map's far edges do not.
-- **Ground:** the target picture with the buildings off: `art/handoff_chatgpt/result_N_graded.png`, the newest one Morgan approved when S1 starts (`result_2_graded.png` on main; `result_3_graded.png` if PR #29 has merged). D-055 named `result_1_grown.png`; fixes 1 and 2 are its approved edits.
-- **Piece:** a separate cut-out picture drawn on the ground. The 30 pieces of the target picture and their places are `art/pixellab/blocks/pass2_items.json` (`[file, x, y]`, top-left in art pixels; the files are in `art/pixellab/blocks/`). Measured on 2026-11-18: placing them on `result_2_graded.png` with `art/pixellab/blocks/place.py` gives `result_2_grown.png` with 0 pixels different, so those places match the ground.
+- **Ground:** the target picture with the buildings off: `art/handoff_chatgpt/result_N_graded.png`, the newest one Morgan approved when S1 starts: `result_3_graded.png` (fix 2, PR #29, merged 2026-11-18). D-055 named `result_1_grown.png`; fixes 1 and 2 are its approved edits.
+- **Piece:** a separate cut-out picture drawn on the ground. The 30 pieces of the target picture and their places are `art/pixellab/blocks/pass2_items.json` (`[file, x, y]`, top-left in art pixels; the files are in `art/pixellab/blocks/`). Measured on 2026-11-18 with `art/pixellab/blocks/place.py`: on `result_2_graded.png` they give `result_2_grown.png` with 0 pixels different; on `result_3_graded.png` they give `result_3_grown.png` with 718 pixels off by at most 1 colour level (fix 2 placed them on unrounded values), so those places match the ground.
 - **Spot:** a place on the map where a lot is drawn: a rectangle in art pixels, a tap rectangle and a door point.
 - **Lot order:** `state.buildings` is in lot order (`packages/sim/src/types.ts:71`). Clearing a lot or cancelling a first build removes its entry (`build.ts:174`, `:181`), so later buildings move up one. A new town has a Cottage and a Forager's hut and 6 lots (`newGame.ts:34`, content `hall.tiers[0].lots`); the Village has 10.
 - **Live and catch-up snapshots:** the worker sends a snapshot after every message (`apps/web/src/worker.ts`). Its `ticks` is the ticks that message advanced: 0 for `load` and `command`. A catch-up snapshot has `ticks` at or over `AWAY_MIN_TICKS` (40, `apps/web/src/store.ts:8`); every other snapshot is live.
@@ -49,7 +49,7 @@ The build starts from main at the commit S1 branches from. Every named test is n
 ### J2 Buildings stand on their spots (S1, S2)
 
 - **Given** a state. **When** `spotsFor(state)` runs. **Then** it returns one spot per building and one per empty lot (`hall.lots - buildings.length`), following the spot rule (Design, "Spots"); the same state always gives the same answer; no two lots share a spot. **Check:** `apps/web/test/town-layout.test.ts` "spots follow the rule" (cases: a new town; a second Mine; a cleared lot; clearing the first of two Mines; a Farm built while lots are empty; 10 lots none of them site kinds, which uses all 10 plots).
-- **Given** the art pack. **Then** drawing every scenery piece, the Hall and a piece on every spot at the art's positions reproduces the ground's matching `result_N_grown.png` exactly (0 pixels different), so no spot has drifted from the picture. **Check:** `art/town_view_pack.py` exits non-zero if not. It is Python, so it is not in `npm run check`; it runs on every art change and its output goes in that PR.
+- **Given** the art pack. **Then** drawing every scenery piece, the Hall and a piece on every spot at the art's positions reproduces the ground's matching `result_N_grown.png` within 1 colour level per channel (a moved piece differs by far more), so no spot has drifted from the picture. **Check:** `art/town_view_pack.py` exits non-zero if not. It is Python, so it is not in `npm run check`; it runs on every art change and its output goes in that PR.
 - **Given** a new town. **Then** the map shows the Hall, the scenery, a Cottage and a Forager's hut, and 4 empty lots. **Check:** `town-view.spec.ts` "a new town on the map" (S2: counted from the lot buttons, J3), with a screenshot.
 
 ### J3 Lots are tap targets (S2)
@@ -95,7 +95,8 @@ The build starts from main at the commit S1 branches from. Every named test is n
 - Spots are scenery; the sim gains nothing (D-033). No new condition or effect type, no save upgrade.
 - The map is 1408 × 888 art pixels with zoom steps 1×, 2×, 3× (D-047); the ground and pieces come from the target picture (D-055).
 - Lots on the map are buttons; empty lots glow pale and carry a Build marker; built lots glow gold only while open (checklist P1 to P4).
-- Defaults chosen here, not Morgan's (none changes what he sees; say if one is wrong): the ground ships as lossless WebP (1,832,492 bytes measured for `result_2_graded.png`, the same pixels, under Workbox's limit); taps are DOM buttons over the canvas; the canvas is the window's size, not the map's; walkers loop home, work, Hall with no daily schedule (day and night are M3 or M4, D-035); walk speed 20 art px a second and a 4 s stop at each place, tuning values in `map.ts` judged by eye.
+- Morgan, 2026-11-18, "Go with recommended" (D-057): Q1 A, the map is a window at the top of the Town tab, as tall as the whole map at 1×, with the list kept below; Q2 A, site kinds take their sites first, everything else the plots nearest the square; Q3 A, the Workshop, Storehouse and Tavern use cottage pieces b, c and e with a trade sign drawn in code until M2b step 4; Q4 A, the ChatGPT villagers are placeholder walkers until PixelLab characters exist (a stated exception to D-048); Q5 A, one walker per resident.
+- Defaults chosen here, not Morgan's (none changes what he sees; say if one is wrong): the ground ships as lossless WebP (1,831,660 bytes measured for `result_3_graded.png`, the same pixels, under Workbox's limit); taps are DOM buttons over the canvas; the canvas is the window's size, not the map's; walkers loop home, work, Hall with no daily schedule (day and night are M3 or M4, D-035); walk speed 20 art px a second and a 4 s stop at each place, tuning values in `map.ts` judged by eye.
 
 ## Alternatives rejected
 
@@ -158,7 +159,7 @@ Each slice starts from main on a fresh branch and ends with `npm run check` and 
 - **Morgan tries:** opens the app: his own town on the map, the Hall in the middle, his buildings on their spots, scroll and the three zoom steps; offline too.
 - **Checks that fail now:** J1, J2 "spots follow the rule" and the pack check, J6, J8; `town-camera.test.ts`.
 - **Files:** `art/town_view_pack.py` and its outputs; `apps/web/src/town/` `map.ts` (spots, tap rectangles, door points, scenery, pile offsets, smoke anchors), `pieces.ts`, `kinds.ts`, `layout.ts` (`spotsFor`, `scene` with pieces only), `camera.ts`, `cosmetic.ts`, `TownView.tsx`; `TownTab.tsx` (lazy load, error boundary); `vite.config.ts`; `tests/browser/helpers.ts`; `scripts/check-bundle.mjs` (finds the three names in `dist/assets` by prefix and looks for each in the text of `dist/sw.js`); `art/README.md`; tests `apps/web/test/town-layout.test.ts`, `apps/web/test/town-camera.test.ts`, `tests/browser/town-view.spec.ts`. The placeholder while the chunk loads is the view's height; Retry calls the import again.
-- **Waits on:** Q1, Q2, Q3; the mock-up's approval.
+- **Waits on:** the mock-up's approval.
 
 ### S2 Tap the map
 
@@ -180,7 +181,7 @@ Each slice starts from main on a fresh branch and ends with `npm run check` and 
 - **Morgan tries:** watches residents walk between homes, work and the Hall; a settler walking in on the south road.
 - **Checks that fail now:** J5.
 - **Files:** `map.ts` (road graph, tuning values); `layout.ts` (`remember`, walkers); `TownView.tsx` (`remember` on every snapshot); `art/town_view_pack.py` and `pieces.ts` (walker frames per Q4).
-- **Waits on:** S3 and Q4.
+- **Waits on:** S3.
 
 ## Verification
 
@@ -190,10 +191,4 @@ Each slice starts from main on a fresh branch and ends with `npm run check` and 
 
 ## Open questions
 
-Each changes what Morgan sees; the recommendation is marked. After approval each becomes a DECISIONS entry (write-spec §7).
-
-- **Q1 Where the map sits on the Town tab.** (A, recommended) A map window at the top of the Town tab, as tall as the whole map at 1× (888 device px, about 338 CSS px at 2.625), with the Hall row, board, queue, lots list and log below as today; the list stays as the second way in. Cheapest, and every screen and test from M1 to M2e keeps working. It fails if Morgan wants the map to be the whole screen now. (B) The map fills the Town tab between a new compact header (stock icons, the "now" bar) and a picture tab bar (checklist S2, S3; D-041 Proposed); needs its own mock-up and moves the board and queue; about one more slice (Claude's estimate). (C) A "Map" button that opens the map full screen over the list.
-- **Q2 Which spot a building takes.** (A, recommended) The rule in Design: the woodcutter, forager, farm and mine take their sites first, everything else the plots nearest the square (checklist M16). (B) Lot i on plot i: the Mine can stand by the square. Under both, clearing a lot or cancelling a first build can move a later building to another spot until M2d gives lots records; under A, building a site kind also moves the empty lots' Build markers, and clearing the first Mine moves a second Mine onto the site; that departs from D-037's "one fixed spot per lot", which no view-only rule can keep.
-- **Q3 Placeholder pieces for buildings with none.** Pieces exist for the Hall, cottages (cottage a at three tiers), the farmhouse, forager, woodcutter and mine entrance; none for the Workshop, Storehouse and Tavern. (A, recommended) The three use cottage pieces b, c and e with a small trade sign drawn in code, the same piece at every tier, until M2b step 4. (B) A plain labelled board on the plot. (C) Make the three in PixelLab first (about 3 to 6 generations, Claude's estimate; the last session's key was refused, PR #29).
-- **Q4 Walker sprites until PixelLab characters exist.** (A, recommended) The ChatGPT villagers (`art/gpt/villagers/`, 8 villagers × 4 walk frames) as placeholders. D-048 keeps `art/gpt/` as reference, not game art, so this needs Morgan's yes as a stated exception until M2b step 4. (B) Tiny figures drawn in code. (C) Walkers made in PixelLab first (cost not estimated).
-- **Q5 How many walkers.** (A, recommended) One per resident (up to 60 in v0.1). (B) At most 20 on screen, asked only if S3's frame numbers are slow.
+None. Q1 to Q5 were answered on 2026-11-18 (Decisions, D-057). Q5's fallback, a cap of 20 walkers, comes back to Morgan only if S3's frame numbers are slow.
