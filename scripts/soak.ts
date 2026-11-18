@@ -13,6 +13,7 @@ import {
   hallOf,
   newGame,
   nextU32,
+  plotsFor,
   refusal,
   slotsOf,
   step,
@@ -85,8 +86,14 @@ function randomCommand(s: State): Command {
   const building = () => (s.buildings.length ? s.buildings[roll(s.buildings.length)].id : 0);
   const type = randomType();
   switch (type) {
-    case 'build':
-      return { type, kind: content.buildings[roll(content.buildings.length)].id };
+    case 'build': {
+      // mostly a free plot the kind may use, so the town grows; else any plot id, so some builds
+      // are refused for a taken, closed or wrong plot (J10)
+      const kind = content.buildings[roll(content.buildings.length)].id;
+      const free = plotsFor(s, kind, content);
+      const plot = free.length && roll(4) !== 0 ? free[roll(free.length)].id : roll(PLOT_COUNT);
+      return { type, kind, plot };
+    }
     case 'upgrade':
       return { type, buildingId: building() };
     case 'clear':
@@ -131,6 +138,8 @@ function randomCommand(s: State): Command {
   }
 }
 
+const PLOT_COUNT = newGame(1, content).plots.length;
+
 const whole = (n: unknown, max: number) =>
   typeof n === 'number' && Number.isInteger(n) && n >= 0 && n <= max;
 
@@ -145,7 +154,26 @@ function check(s: State): void {
   }
   const hall = hallOf(s, content);
   if (s.residents.length > hall.residents) fail(`${s.residents.length} residents`);
-  if (s.buildings.length > hall.lots) fail(`${s.buildings.length} buildings on ${hall.lots} lots`);
+  // plots (the save check's rules, M2d J7): the seed's layout, each building on its own open plot
+  // of its kind's type, and a shut only with its mishap named
+  if (s.plots.length !== PLOT_COUNT) fail(`${s.plots.length} plots`);
+  s.plots.forEach((p, i) => {
+    if (p.id !== i) fail(`plot ${i} has id ${p.id}`);
+    if (p.ground !== null && p.feature !== null) fail(`site ${i} has a feature`);
+  });
+  const onPlot = new Set<number>();
+  for (const b of s.buildings) {
+    const plot = s.plots[b.plot];
+    if (!plot || !plot.open) fail(`${b.kind} ${b.id} stands on plot ${b.plot}, not an open one`);
+    if (onPlot.has(b.plot)) fail(`two buildings on plot ${b.plot}`);
+    onPlot.add(b.plot);
+    const site = content.buildings.find((k) => k.id === b.kind)!.site ?? null;
+    const allowed = b.moved === true ? null : site;
+    if (plot.ground !== allowed) fail(`${b.kind} ${b.id} on a ${plot.ground ?? 'town'} plot`);
+    if (!whole(b.shutLeft, 48) || (b.shutLeft === 0) !== (b.shutBy === null)) {
+      fail(`${b.kind} ${b.id} is shut for ${b.shutLeft} by ${b.shutBy}`);
+    }
+  }
   if (s.queue.length > 1 + content.rules.queueMax) fail(`${s.queue.length} jobs in the queue`);
   if (s.log.length > content.rules.logMax) fail(`${s.log.length} log lines`);
   const living = new Map(s.buildings.map((b) => [b.id, 0]));
@@ -231,6 +259,8 @@ function check(s: State): void {
     if (id >= s.nextId) fail(`id ${id} is not below nextId ${s.nextId}`);
   }
   for (const job of s.queue) {
+    // no clearing job exists before M2d S2
+    if (job.target === 'tangle') fail('a clearing job before the Tangle can be cleared');
     if (job.target !== 'hall' && !buildingIds.has(job.target)) {
       fail(`a job points at building ${job.target}, which is gone`);
     }
@@ -374,7 +404,9 @@ function scripted(s: State, ordered: { next: number }): Command[] {
   send({ type: 'upgradeHall' });
   if (ordered.next < ORDER.length) {
     const before = town.buildings.length;
-    send({ type: 'build', kind: ORDER[ordered.next] });
+    // the first free plot for the kind, boosted lots first (spec J10); none: wait
+    const plot = plotsFor(town, ORDER[ordered.next], content)[0];
+    if (plot) send({ type: 'build', kind: ORDER[ordered.next], plot: plot.id });
     if (town.buildings.length > before) ordered.next += 1;
   }
   const stock = town.stock;
@@ -446,7 +478,11 @@ function choices(s: State): { board: boolean; any: boolean } {
     s.board.offers.some((o) => refusal(s, { type: 'acceptOffer', id: o.id }, content) === null);
   const works: Command[] = [
     { type: 'upgradeHall' },
-    ...content.buildings.map((k): Command => ({ type: 'build', kind: k.id })),
+    ...content.buildings.map((k): Command => ({
+      type: 'build',
+      kind: k.id,
+      plot: plotsFor(s, k.id, content)[0]?.id ?? -1,
+    })),
     ...s.buildings.map((b): Command => ({ type: 'upgrade', buildingId: b.id })),
   ];
   const work = works.some((command) => refusal(s, command, content) === null);

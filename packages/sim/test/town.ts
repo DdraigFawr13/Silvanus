@@ -1,6 +1,6 @@
 import { content } from '../../content/src/index';
-import { newGame, step } from '../src/index';
-import type { Building, Command, State } from '../src/index';
+import { newGame, plotBoost, plotsFor, step } from '../src/index';
+import type { Building, Command, Plot, State } from '../src/index';
 
 export { content };
 
@@ -23,7 +23,25 @@ export function rich(): State {
   return { ...start, stock };
 }
 
-// A finished tier 1 building of a kind, as the engine would have left it.
+// The free plot a test builds a kind on: a plain lot first, then one whose feature does not
+// boost the kind, so pinned output numbers hold (spec, "Callers of build"); a boosted one last.
+export function testPlot(state: State, kind: string): Plot | undefined {
+  const free = plotsFor(state, kind, content);
+  return (
+    free.find((p) => p.feature === null) ??
+    free.find((p) => plotBoost(content, p, kind) === 0) ??
+    free[0]
+  );
+}
+
+// A build of `kind` on its test plot; plot -1 (refused `unknown`) when none is free.
+export const build = (state: State, kind: string): Command => ({
+  type: 'build',
+  kind,
+  plot: testPlot(state, kind)?.id ?? -1,
+});
+
+// A finished tier 1 building of a kind, as the engine would have left it, on its test plot.
 export function finished(state: State, kind: string): State {
   const k = content.buildings.find((b) => b.id === kind)!;
   const method = content.methods.find((m) => m.building === kind);
@@ -40,6 +58,9 @@ export function finished(state: State, kind: string): State {
     owned: content.methods
       .filter((m) => m.building === kind && Object.keys(m.cost).length === 0)
       .map((m) => m.id),
+    plot: testPlot(state, kind)!.id,
+    shutLeft: 0,
+    shutBy: null,
   };
   return { ...state, nextId: state.nextId + 1, buildings: [...state.buildings, building] };
 }

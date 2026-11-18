@@ -1,4 +1,5 @@
 import { boardCarryOut, boardRefusal, stretchOffers } from './board';
+import { plotsFor } from './plots';
 import type { Amounts, Command, Content, Event, Reason, State } from './types';
 import { addLog, capsOf, covers, freeMethods, hallOf, kindOf, methodOf, slotsOf } from './util';
 
@@ -27,7 +28,9 @@ export function jobCost(state: State, command: Command, content: Content): Amoun
 // Why a command would be refused, or null when it would be carried out. `apply` runs this same
 // check, and the screens call it to say why a control is off (GAME-02). The first failure in
 // this order gives the reason: unknown, the target's state (notReady, busy, range), same,
-// notAllowed, noLot, queueFull, tooFew, noStock.
+// notAllowed, noLot, queueFull, tooFew, noStock. A build checks: unknown kind, noLot (no free
+// plot it may use), unknown plot, notReady (the Tangle), busy (taken), notAllowed (the wrong
+// type of plot), queueFull, noStock (D-058).
 export function refusal(state: State, command: Command, content: Content): Reason | null {
   const queueFull = state.queue.length >= 1 + content.rules.queueMax;
   const building =
@@ -36,8 +39,14 @@ export function refusal(state: State, command: Command, content: Content): Reaso
       : undefined;
   switch (command.type) {
     case 'build': {
-      if (!kindOf(content, command.kind)) return 'unknown';
-      if (state.buildings.length >= hallOf(state, content).lots) return 'noLot';
+      const kind = kindOf(content, command.kind);
+      if (!kind) return 'unknown';
+      if (plotsFor(state, kind.id, content).length === 0) return 'noLot';
+      const plot = isWhole(command.plot) ? state.plots[command.plot] : undefined;
+      if (!plot) return 'unknown';
+      if (!plot.open) return 'notReady';
+      if (state.buildings.some((b) => b.plot === plot.id)) return 'busy';
+      if (plot.ground !== (kind.site ?? null)) return 'notAllowed';
       if (queueFull) return 'queueFull';
       return covers(state.stock, jobCost(state, command, content)) ? null : 'noStock';
     }
@@ -52,7 +61,7 @@ export function refusal(state: State, command: Command, content: Content): Reaso
     case 'upgradeHall': {
       if (hasJob(state, 'hall')) return 'busy';
       const next = content.hall.tiers[state.hallTier];
-      // the Village is the last tier in M1
+      // the Village is the last tier until M2d S3
       if (!next) return 'notAllowed';
       if (queueFull) return 'queueFull';
       if (state.residents.length < next.needResidents) return 'tooFew';
@@ -144,6 +153,9 @@ export function carryOut(s: State, command: Command, content: Content, events: E
         debt: {},
         short: false,
         owned: freeMethods(content, kind.id),
+        plot: command.plot,
+        shutLeft: 0,
+        shutBy: null,
       });
       s.queue.push({ target: id, toTier: 1, ticksLeft: kind.tiers[0].ticks, cost: { ...cost } });
       s.jobsDirty = true;
@@ -170,7 +182,8 @@ export function carryOut(s: State, command: Command, content: Content, events: E
         s.stock[id] += back;
         if (amount > back) events.push({ type: 'lost', resource: id, amount: amount - back });
       }
-      if (job.toTier === 1 && job.target !== 'hall') {
+      // a first build takes its building with it; the Hall's job and a clearing leave no building
+      if (job.toTier === 1 && job.target !== 'hall' && job.target !== 'tangle') {
         s.buildings = s.buildings.filter((b) => b.id !== job.target);
       }
       return;
@@ -184,6 +197,7 @@ export function carryOut(s: State, command: Command, content: Content, events: E
         if (resident.pinnedTo === building.id) resident.pinnedTo = null;
       }
       events.push({ type: 'cleared', kind: kind.id, tier: building.tier });
+      // its plot stays open and is free again
       addLog(s, content, 'cleared', `The ${kind.name} was cleared from its lot.`);
       cutToCaps(s, content, events);
       s.jobsDirty = true;
@@ -250,6 +264,8 @@ export function construct(s: State, content: Content, events: Event[]): void {
     stretchOffers(s, content);
     return;
   }
+  // no clearing job exists before M2d S2 (the Tangle); a save check refuses one
+  if (job.target === 'tangle') return;
   const building = s.buildings.find((b) => b.id === job.target)!;
   const kind = kindOf(content, building.kind)!;
   const before = slotsOf(content, building);

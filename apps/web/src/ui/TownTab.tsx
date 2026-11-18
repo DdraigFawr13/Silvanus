@@ -1,13 +1,13 @@
 import { content } from '@silvanus/content';
-import { hallOf, jobCost, kindOf, methodOf, refusal, shortfall, slotsOf } from '@silvanus/sim';
-import type { Building, Command, Job, State } from '@silvanus/sim';
+import { boostOf, jobCost, kindOf, methodOf, refusal, shortfall, slotsOf } from '@silvanus/sim';
+import type { Building, Command, Job, Plot, State } from '@silvanus/sim';
 import { Component, Suspense, lazy, useMemo, useState, useSyncExternalStore } from 'react';
 import type { ReactNode } from 'react';
 import { MAP_H, ZOOM_ROW_CSS } from '../town/size';
 import { dismissSummary, subscribe, summary } from '../store';
 import { AwayCard } from './AwayCard';
 import { Board } from './Board';
-import { BuildSheet } from './BuildSheet';
+import { BuildSheet, lotGainText, plotName } from './BuildSheet';
 import { BuildingSheet } from './BuildingSheet';
 import { HallRow } from './HallRow';
 import { amountsText, dateText, duration, needsText } from './format';
@@ -16,15 +16,29 @@ const LOG_SHOWN = 20;
 
 function jobName(state: State, job: Job): string {
   if (job.target === 'hall') return `The Hall to ${content.hall.tiers[job.toTier - 1].name}`;
+  // no clearing job exists before M2d S2
+  if (job.target === 'tangle') return 'Clearing the Tangle';
   const building = state.buildings.find((b) => b.id === job.target);
   const name = building ? kindOf(content, building.kind)!.name : '';
   return job.toTier === 1 ? name : `${name} to tier ${job.toTier}`;
 }
 
-// The second line of a built lot: its method, its workers or beds, and an upgrade if one waits.
+// The second line of a built lot: its plot (and what the plot adds), its method, its workers or
+// beds, and an upgrade if one waits.
 function lotLine(state: State, building: Building): ReactNode {
   const kind = kindOf(content, building.kind)!;
   const parts: ReactNode[] = [];
+  const plot = state.plots[building.plot];
+  const boost = boostOf(state, building, content);
+  parts.push(
+    boost > 0 ? (
+      <span className="good">
+        {plotName(plot)} +{boost}%
+      </span>
+    ) : (
+      plotName(plot)
+    ),
+  );
   const method = methodOf(content, building.method);
   if (method) parts.push(method.name);
   if (building.retoolLeft > 0) parts.push(`Retooling, ${duration(building.retoolLeft)} left`);
@@ -91,7 +105,7 @@ class MapBoundary extends Component<
   }
 }
 
-type Open = { type: 'build' } | { type: 'building'; id: number } | null;
+type Open = { type: 'build'; plot?: number } | { type: 'building'; id: number } | null;
 
 // The away card, the Hall, the board, the work queue, the lots, the log, and at the foot the save block
 // (passed in).
@@ -124,8 +138,8 @@ export function TownTab({
   // fails again: after a failed chunk, Retry reloads the page (the town is saved on `pagehide`).
   const retry = () => (chunkFailed ? window.location.reload() : setAttempt((n) => n + 1));
   const away = useSyncExternalStore(subscribe, summary);
-  const hall = hallOf(state, content);
-  const emptyLots = Math.max(0, hall.lots - state.buildings.length);
+  const lots = state.plots.filter((p) => p.open && p.ground === null);
+  const sites = state.plots.filter((p) => p.open && p.ground !== null);
   const shown = open?.type === 'building' ? state.buildings.find((b) => b.id === open.id) : null;
   // Each line's key is its own content, with a count for lines that repeat, so a row keeps its
   // key when older lines fall off the log.
@@ -184,70 +198,26 @@ export function TownTab({
       </div>
 
       <h2 className="sec">Lots</h2>
+      <div className="btns head-btns">
+        <button
+          type="button"
+          className="btn second"
+          data-testid="build"
+          onClick={() => setOpen({ type: 'build' })}
+        >
+          Build
+        </button>
+      </div>
       <div data-testid="lots">
-        {state.buildings.map((building) => {
-          const kind = kindOf(content, building.kind)!;
-          if (building.tier === 0) {
-            const first = state.queue[0]?.target === building.id;
-            return (
-              <div className="panel lot" key={building.id} data-testid="lot">
-                <div className="grow">
-                  <div className="row-top">
-                    <span className="name">{kind.name}</span>
-                  </div>
-                  <div className="line2">
-                    {first
-                      ? `Building, ${duration(state.queue[0].ticksLeft)} left`
-                      : 'Waiting in the work queue'}
-                  </div>
-                </div>
-              </div>
-            );
-          }
-          const upgrade: Command = { type: 'upgrade', buildingId: building.id };
-          const canGrow =
-            kind.tiers[building.tier] !== undefined &&
-            !state.queue.some((job) => job.target === building.id);
-          const openSheet = () => setOpen({ type: 'building', id: building.id });
-          return (
-            <div className="panel lot" key={building.id} data-testid="lot">
-              <button type="button" className="lot-main" data-testid="lot-open" onClick={openSheet}>
-                <span className="grow">
-                  <span className="row-top">
-                    <span className="name">{kind.name}</span>
-                    <span className="tier">Tier {building.tier}</span>
-                  </span>
-                  <span className="line2">{lotLine(state, building)}</span>
-                  {canGrow && <span className="line2">{nextTierLine(state, building)}</span>}
-                </span>
-                {!canGrow && <span className="go">›</span>}
-              </button>
-              {canGrow && (
-                <button
-                  type="button"
-                  className={refusal(state, upgrade, content) === null ? 'btn' : 'btn second'}
-                  aria-label={`Upgrade ${kind.name}`}
-                  onClick={openSheet}
-                >
-                  Upgrade
-                </button>
-              )}
-            </div>
-          );
-        })}
-        {Array.from({ length: emptyLots }, (_, i) => (
-          <button
-            type="button"
-            className="panel lot empty"
-            key={`empty-${i}`}
-            data-testid="lot"
-            onClick={() => setOpen({ type: 'build' })}
-          >
-            <span className="grow">
-              <span className="name">Empty lot</span>
-            </span>
-            <span className="go">Build ›</span>
-          </button>
+        {lots.map((plot) => (
+          <PlotRow key={plot.id} state={state} plot={plot} testId="lot" setOpen={setOpen} />
+        ))}
+      </div>
+
+      <h2 className="sec">Sites</h2>
+      <div data-testid="sites">
+        {sites.map((plot) => (
+          <PlotRow key={plot.id} state={state} plot={plot} testId="site" setOpen={setOpen} />
         ))}
       </div>
 
@@ -273,6 +243,7 @@ export function TownTab({
       {open?.type === 'build' && (
         <BuildSheet
           state={state}
+          plot={open.plot}
           onClose={() => setOpen(null)}
           onBuild={(command) => {
             send(command);
@@ -282,6 +253,103 @@ export function TownTab({
       )}
       {shown && (
         <BuildingSheet state={state} building={shown} send={send} onClose={() => setOpen(null)} />
+      )}
+    </div>
+  );
+}
+
+// One open plot: the building on it (being built, or built with its upgrade), or an empty lot or
+// site that opens the build sheet with the plot chosen.
+function PlotRow({
+  state,
+  plot,
+  testId,
+  setOpen,
+}: {
+  state: State;
+  plot: Plot;
+  testId: string;
+  setOpen: (open: Open) => void;
+}) {
+  const building = state.buildings.find((b) => b.plot === plot.id);
+  if (!building) {
+    const kinds = content.buildings.filter((k) => k.site === plot.ground).map((k) => k.name);
+    // a site no kind stands on yet (the river until the Fisher's hut, M2d S3): nothing to build
+    if (plot.ground !== null && kinds.length === 0) {
+      return (
+        <div className="panel lot empty" data-testid={testId}>
+          <div className="grow">
+            <div className="name">Empty {plotName(plot).toLowerCase()}</div>
+            <div className="line2">No building stands here yet</div>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <button
+        type="button"
+        className="panel lot empty"
+        data-testid={testId}
+        onClick={() => setOpen({ type: 'build', plot: plot.id })}
+      >
+        <span className="grow">
+          <span className="name">
+            {plot.ground === null ? 'Empty lot' : `Empty ${plotName(plot).toLowerCase()}`}
+          </span>
+          <span className="line2">
+            {plot.ground === null ? lotGainText(plot) : `For a ${kinds.join(' or a ')}`}
+          </span>
+        </span>
+        <span className="go">Build ›</span>
+      </button>
+    );
+  }
+  const kind = kindOf(content, building.kind)!;
+  if (building.tier === 0) {
+    const first = state.queue[0]?.target === building.id;
+    return (
+      <div className="panel lot" data-testid={testId}>
+        <div className="grow">
+          <div className="row-top">
+            <span className="name">{kind.name}</span>
+          </div>
+          <div className="line2">
+            {plotName(plot)} ·{' '}
+            {first
+              ? `Building, ${duration(state.queue[0].ticksLeft)} left`
+              : 'Waiting in the work queue'}
+          </div>
+        </div>
+      </div>
+    );
+  }
+  const upgrade: Command = { type: 'upgrade', buildingId: building.id };
+  const canGrow =
+    kind.tiers[building.tier] !== undefined &&
+    !state.queue.some((job) => job.target === building.id);
+  const openSheet = () => setOpen({ type: 'building', id: building.id });
+  return (
+    <div className="panel lot" data-testid={testId}>
+      <button type="button" className="lot-main" data-testid="lot-open" onClick={openSheet}>
+        <span className="grow">
+          <span className="row-top">
+            <span className="name">{kind.name}</span>
+            <span className="tier">Tier {building.tier}</span>
+          </span>
+          <span className="line2">{lotLine(state, building)}</span>
+          {canGrow && <span className="line2">{nextTierLine(state, building)}</span>}
+        </span>
+        {!canGrow && <span className="go">›</span>}
+      </button>
+      {canGrow && (
+        <button
+          type="button"
+          className={refusal(state, upgrade, content) === null ? 'btn' : 'btn second'}
+          aria-label={`Upgrade ${kind.name}`}
+          onClick={openSheet}
+        >
+          Upgrade
+        </button>
       )}
     </div>
   );

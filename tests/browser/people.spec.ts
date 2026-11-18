@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { advance, apply, newGame } from '@silvanus/sim';
+import { advance, apply, newGame, plotsFor } from '@silvanus/sim';
 import { content, seedRecord, townRecord } from './helpers';
 
 // The People tab (J12), at the first target width. A minute per tick, so the texts read hold
@@ -51,7 +51,8 @@ test('pinning shows its cost', async ({ page }) => {
   // a Mine finished at tick 24; the day's jobs pass filled it with the four who had no job
   let start = newGame(1, content);
   start = { ...start, stock: { ...start.stock, wood: 100 } };
-  const built = apply(start, [{ type: 'build', kind: 'mine' }], content).state;
+  const plot = plotsFor(start, 'mine', content)[0].id;
+  const built = apply(start, [{ type: 'build', kind: 'mine', plot }], content).state;
   await seedRecord(page, townRecord({ state: advance(built, 25, content).state }));
   await page.goto('/?tickMs=60000');
   await page.getByTestId('tab-people').click();

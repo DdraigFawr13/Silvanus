@@ -905,3 +905,19 @@ p {
   margin-bottom: 10px;
   border-bottom: 1px solid var(--line);
 }
+
+/* M2d plots: what a lot adds, the build sheet's intro line, the Build button under Lots */
+.good,
+.choice .good {
+  color: var(--fine);
+}
+
+.sheet-intro {
+  margin: 0 0 6px;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.head-btns {
+  margin-top: 0;
+}

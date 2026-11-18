@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { advance, apply, newGame, step } from '../src/index';
 import type { State } from '../src/index';
-import { content, crowd, finished } from './town';
+import { build, content, crowd, finished } from './town';
 
 // Seed 1 at the start of its first game day, with `food` in store. Nothing is made at tick 24,
 // so the day's food is what is set here. The traits these tests read are set here, not taken
@@ -123,7 +123,7 @@ describe('growth', () => {
       r.id === 3 ? { ...r, skills: { ...r.skills, mining: 23 } } : r,
     );
     town = { ...town, residents, stock: { ...town.stock, wood: 200 } };
-    town = apply(town, [{ type: 'build', kind: 'mine' }], content).state;
+    town = apply(town, [build(town, 'mine')], content).state;
     for (let i = 0; i < 24; i++) town = step(town, [], content).state;
     const mine = town.buildings.find((b) => b.kind === 'mine')!;
     expect(mine.tier).toBe(1);

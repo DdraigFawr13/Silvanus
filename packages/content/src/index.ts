@@ -44,7 +44,7 @@ const building = (kind: string, tier: number): GoalWhen => ({ type: 'building', 
 const residents = (count: number): GoalWhen => ({ type: 'residents', count });
 
 export const content: Content = {
-  version: 4,
+  version: 5,
   town: 'Ashwick',
   cycleTicks: 4,
   resources: [
@@ -78,22 +78,53 @@ export const content: Content = {
       },
     ],
   },
+  // Plots (D-058, spec "Content"): 16 town lots (6 at the Hamlet, 4 more at the Village, 6 at
+  // the Town), 3 sites for each ground. Boosts added in S3 for the new kinds are not here yet.
+  grounds: [
+    { id: 'forest', name: 'Forest' },
+    { id: 'mountain', name: 'Mountain' },
+    { id: 'fields', name: 'Fields' },
+    { id: 'woods', name: 'Woods' },
+    { id: 'river', name: 'River' },
+  ],
+  townLots: [6, 4, 6],
+  features: [
+    { id: 'soil', name: 'Good soil', count: 3, boosts: [] },
+    { id: 'river', name: 'Riverside', count: 3, boosts: [] },
+    { id: 'rock', name: 'Rock outcrop', count: 3, boosts: ['workshop'] },
+    { id: 'edge', name: 'Forest edge', count: 3, boosts: ['workshop'] },
+  ],
+  plainLots: 4,
   buildings: [
     kind('cottage', 'Cottage', null, null, [
       [{ wood: 30 }, 12, 0, 8],
       [{ wood: 50, stone: 20 }, 24, 0, 12],
       [{ wood: 80, stone: 50, tools: 10 }, 48, 0, 16],
     ]),
-    kind('forager', "Forager's hut", 'Forager', 'husbandry', [
-      [{ wood: 20 }, 8, 4, 0],
-      [{ wood: 40, tools: 5 }, 24, 6, 0],
-      [{ wood: 60, stone: 30, tools: 10 }, 48, 8, 0],
-    ]),
-    kind('farm', 'Farm', 'Farmer', 'husbandry', [
-      [{ wood: 50, tools: 5 }, 24, 4, 0],
-      [{ wood: 60, stone: 30, tools: 10 }, 36, 6, 0],
-      [{ wood: 90, stone: 60, tools: 20 }, 48, 8, 0],
-    ]),
+    kind(
+      'forager',
+      "Forager's hut",
+      'Forager',
+      'husbandry',
+      [
+        [{ wood: 20 }, 8, 4, 0],
+        [{ wood: 40, tools: 5 }, 24, 6, 0],
+        [{ wood: 60, stone: 30, tools: 10 }, 48, 8, 0],
+      ],
+      { site: 'woods' },
+    ),
+    kind(
+      'farm',
+      'Farm',
+      'Farmer',
+      'husbandry',
+      [
+        [{ wood: 50, tools: 5 }, 24, 4, 0],
+        [{ wood: 60, stone: 30, tools: 10 }, 36, 6, 0],
+        [{ wood: 90, stone: 60, tools: 20 }, 48, 8, 0],
+      ],
+      { site: 'fields' },
+    ),
     kind(
       'woodcutter',
       "Woodcutter's camp",
@@ -104,13 +135,20 @@ export const content: Content = {
         [{ wood: 40, tools: 5 }, 24, 6, 0],
         [{ wood: 70, stone: 30, tools: 15 }, 48, 8, 0],
       ],
-      { freeWhenNone: true },
+      { freeWhenNone: true, site: 'forest' },
     ),
-    kind('mine', 'Mine', 'Miner', 'mining', [
-      [{ wood: 40 }, 24, 4, 0],
-      [{ wood: 60, tools: 10 }, 36, 6, 0],
-      [{ wood: 90, stone: 40, tools: 20 }, 48, 8, 0],
-    ]),
+    kind(
+      'mine',
+      'Mine',
+      'Miner',
+      'mining',
+      [
+        [{ wood: 40 }, 24, 4, 0],
+        [{ wood: 60, tools: 10 }, 36, 6, 0],
+        [{ wood: 90, stone: 40, tools: 20 }, 48, 8, 0],
+      ],
+      { site: 'mountain' },
+    ),
     kind('workshop', 'Workshop', 'Toolwright', 'crafting', [
       [{ wood: 40, stone: 20 }, 24, 4, 0],
       [{ wood: 60, stone: 40 }, 36, 6, 0],
@@ -245,6 +283,7 @@ export const content: Content = {
     tradeSharePct: 20,
     tradeGetBelowPct: 80,
     offerExtraTicks: 240,
+    boostPct: 25,
   },
   names,
   // Rewards are values (D-053) of about a real hour of the town's work, measured on soak pass 2's

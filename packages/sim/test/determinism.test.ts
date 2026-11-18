@@ -6,22 +6,24 @@ import { content } from './town';
 // Seed 1's ids: residents 1 to 8, the Cottage 9, the Forager's hut 10, then buildings and
 // settlers share the ids that follow (S5): the camp 11, the Mine 12, the second Cottage 13,
 // settlers 14 to 16 at ticks 168, 192 and 216, the Workshop 17. Ids read from a probe run.
+// Seed 1's plots (M2d S1): town lots 0 to 5 are plain, forest edge, good soil, plain, riverside,
+// plain; sites 16 forest, 19 mountain. Builds go on plain lots so the pinned numbers hold.
 // Later slices add to this script, in tick order: `chunked` finds the next tick by array order.
 const SCRIPT: { tick: number; command: Command }[] = [
-  { tick: 0, command: { type: 'build', kind: 'woodcutter' } }, // 11, free
-  { tick: 0, command: { type: 'build', kind: 'mine' } }, // 12
-  { tick: 5, command: { type: 'build', kind: 'tavern' } }, // refused: no stone
+  { tick: 0, command: { type: 'build', kind: 'woodcutter', plot: 16 } }, // 11, free, the forest site
+  { tick: 0, command: { type: 'build', kind: 'mine', plot: 19 } }, // 12, the mountain site
+  { tick: 5, command: { type: 'build', kind: 'tavern', plot: 3 } }, // refused: no stone
   { tick: 40, command: { type: 'setOpen', buildingId: 10, count: 2 } },
   { tick: 60, command: { type: 'pin', residentId: 1, buildingId: 12 } },
   { tick: 100, command: { type: 'setMethod', buildingId: 12, method: 'stone' } },
   { tick: 101, command: { type: 'setMethod', buildingId: 12, method: 'shafts' } }, // refused: tier 2
   { tick: 102, command: { type: 'setMethod', buildingId: 12, method: 'stone' } }, // refused: same
-  { tick: 150, command: { type: 'build', kind: 'cottage' } }, // 13
-  { tick: 151, command: { type: 'build', kind: 'storehouse' } }, // refused: no stone
+  { tick: 150, command: { type: 'build', kind: 'cottage', plot: 3 } }, // 13, a plain lot
+  { tick: 151, command: { type: 'build', kind: 'storehouse', plot: 5 } }, // refused: no stone
   { tick: 152, command: { type: 'cancelJob', index: 1 } }, // refused: nothing is waiting
   { tick: 200, command: { type: 'upgradeHall' } }, // refused: too few for a Village
   { tick: 300, command: { type: 'upgrade', buildingId: 10 } }, // refused: no tools
-  { tick: 310, command: { type: 'build', kind: 'workshop' } }, // 17
+  { tick: 310, command: { type: 'build', kind: 'workshop', plot: 5 } }, // 17, a plain lot
   { tick: 340, command: { type: 'setMethod', buildingId: 17, method: 'forge' } }, // bought
   { tick: 341, command: { type: 'setMethod', buildingId: 17, method: 'hammer' } }, // refused: tier 2
   // S4: the Mine's workers move to the Workshop, which then forges through its ore

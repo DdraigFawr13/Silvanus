@@ -15,6 +15,10 @@ const built = (id: number, kind: string, tier = 1): Building => ({
   debt: {},
   short: false,
   owned: [],
+  // M2d S1: the map does not read plots yet
+  plot: id - 100,
+  shutLeft: 0,
+  shutBy: null,
 });
 // seed 1 with the given buildings (ids from 100) and Hall tier
 const town = (kinds: string[], hallTier = 1): State => ({

@@ -13,6 +13,7 @@ export type {
   LogLine,
   Method,
   Offer,
+  Plot,
   Reason,
   Resident,
   RngState,
@@ -22,6 +23,7 @@ export type {
   Trip,
 } from './types';
 export { newGame } from './newGame';
+export { boostOf, makePlots, plotBoost, plotsFor } from './plots';
 export { apply, step, advance } from './step';
 export { jobCost, refusal } from './build';
 export { assignJobs } from './jobs';
