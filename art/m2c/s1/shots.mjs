@@ -30,7 +30,7 @@ async function shot(town, zoom, width, file, full = false) {
     img.style.cssText = `display:block;width:${css(W)}px;height:${css(H)}px;image-rendering:pixelated;max-width:none`;
     scroll.append(img);
     const row = document.createElement('div');
-    row.style.cssText = 'display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:6px 14px 0';
+    row.style.cssText = 'display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:6px 14px 0;margin-bottom:10px';
     const lab = document.createElement('span'); lab.textContent = 'Zoom'; lab.style.cssText = 'color:var(--muted);font-size:0.875rem;margin-right:auto';
     const seg = document.createElement('div');
     seg.style.cssText = 'display:flex;border:1px solid var(--line-strong);border-radius:var(--r);overflow:hidden;background:var(--panel)';
