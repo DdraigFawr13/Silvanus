@@ -1,6 +1,6 @@
 # Handoff
 
-Updated: 2026-11-17 (M2b art fix 1 and the rescore merged, PR #28; next: fix 2, free spots, then dressed yards). A fresh session must be able to continue from this file alone. Keep it to 60 lines; move finished entries to `docs/archive/handoff-YYYY-MM.md`.
+Updated: 2026-11-18 (M2b art fix 2 approved and merged, PR #29; PixelLab key refused, so dressed yards wait; M2c and M2d specs running in slice sessions). A fresh session must be able to continue from this file alone. Keep it to 60 lines; move finished entries to `docs/archive/handoff-YYYY-MM.md`.
 
 ## Phase
 
@@ -20,16 +20,16 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 
 ## Just done
 
-- 2026-11-17 M2b art fix 1 on `claude/m2b-art-fixes`: the Hall's walkway now runs into the square, not to its gate (T2). Free pixel edit, 0 generations (`art/handoff_chatgpt/fix_hall_path.py`, output `result_2_grown.png`). Page: https://claude.ai/artifact/Jge8kmj5mKyNU8ba2mGf4D. Morgan: "Approved please rescore". Rescore of `result_2_grown.png`, all 55 items: 27 met, 17 partly, 1 missed, 10 carried (met on the old map, not yet redrawn on this ground); scores `docs/workshop/pages/result2_scores.json`; page https://claude.ai/artifact/TJtHoaNKavepToWf6KrXJB. Down from met: M10 (fisher on the town bank), M16 (planters, no fields), T3 (no notice board in the square).
-- 2026-11-17 Morgan chose option 1 for the pace (D-056: the Village needs 25 residents and 200 wood, 200 stone, 50 tools; pass 3 starts at the end of a sitting) and approved the merge of PR #27. Soak green: Village at tick 1,536 (6.4 h), pass 3 back to 20 in 221 ticks, `reward_lost` 425.
-- 2026-11-17 Morgan: "Approved continue". M2e S2 (trader) and S3 (trips, pins) built on the same branch and PR. Browser tests on Edge: 32 of 33 (the same update test). With all three slices `rewardPct` no longer moves the pace (open question).
+- 2026-11-18 Coordinator mode (Morgan: "You will be my coordinator so I want you to start slices in new sessions"): this session starts slices in new cloud sessions, up to 2 at a time, and alone edits HANDOFF. Running: M2c Town view spec (session_01Dr9VTtFYJ4tjVd7Vwtzw8R, branch `claude/m2c-spec`) and M2d Ceiling and lots spec (session_01Dr9VTtuan263y1go3sMNfG, branch `claude/m2d-spec`); each stops at a draft PR and a page for Morgan.
+- 2026-11-18 M2b art fix 2 (free, 0 generations): a notice board in the square, the loose slabs gone, paths to seven doors (`art/handoff_chatgpt/fix2/fix2.py`, output `result_3_grown.png`). Scored: 28 met, 16 partly, 1 missed, 10 carried (T3 up; T7 partly: forager and woodcutter have no track; M10 not moved, the hut is too wide for the far bank). Page: https://claude.ai/artifact/NqwZexeouZd58ZWXKraaRk. Morgan: "Fix 2 approved"; merged in PR #29. PixelLab refused the key ("401: Invalid API token").
+- 2026-11-18 Branch check (GIT-06): no open PRs; `m2b-art-requirements`, `ccr-3cb7963f-ygkxs2`, `m2b-art-workshop`, `codex/art-polish` hold no live work. Morgan OK'd deleting them; the git proxy refused (HTTP 403), so Morgan deletes them on GitHub.
 - Earlier entries are in `docs/archive/handoff-2026-11.md`.
 
 ## Next
 
 1. Morgan's M2a test (J7): a new town, check-ins over a day, the Village in about 8 real hours, upgrades found without help. Record their answer here in their words, then set `docs/specs/m2a-pace.md` to Shipped on the next work branch. Opening their old town first jumps it forward up to 8 real hours.
 2. M2e J9 (Morgan, phone): check in over two days; every check-in should offer a real choice; record whether he wants to keep playing, in his words, then set the spec to Shipped on the next work branch. Saves move to schema 4 on first open. Port 4173 was held by a leftover `vite preview` on Morgan's PC on 2026-11-17; the browser run used a scratch config on 4174.
-3. M2b art (D-037, D-055): fix 1 approved; `result_2_grown.png` is the working target, scored in `result2_scores.json`. Morgan: "Do all 3" (merge #28, fix 2, then dressed yards). Next: fix 2, free (a notice board in the square, the loose slabs, paths to doors, the fisher's hut on the far bank), then dressed yards (about 35 to 45 generations, Claude's estimate); then step 4's build sessions with PixelLab assets. AGENTS art rule. PhotoCraft is on Morgan's PC (reachable from a desktop session). About 1,265 PixelLab generations left. Still open: D-041 Proposed and partly superseded; `m2b-art-workshop` can be deleted with Morgan's OK.
+3. M2b art (D-037, D-055): fix 1 approved; `result_2_grown.png` is the working target, scored in `result2_scores.json`. Morgan: "Do all 3" (merge #28, fix 2, then dressed yards). Fix 2 merged (`result_3_grown.png`, `result3_scores.json`). Next: dressed yards (about 35 to 45 generations, Claude's estimate) and a smaller fisher's hut for the far bank (about 5 to 10), once Morgan renews the PixelLab key in the connector settings; then step 4's build sessions with PixelLab assets. AGENTS art rule. PhotoCraft is on Morgan's PC (reachable from a desktop session). About 1,265 PixelLab generations left. Still open: D-041 Proposed and partly superseded.
 4. Still open: Morgan's phone tests from S1 and S2 ("Update ready" and Reload; build a Woodcutter's camp, close the app, come back), S3 (switch the Mine to stone; let the Workshop run out of ore overnight) and S4 (pin someone to a bad job and read why morale falls). Record answers here.
 5. The repo has auto-merge off: merge by hand once the ready CI run is green, and do not push and mark ready within the same few seconds.
 6. Phobos (D-054): nothing to build here yet. Phobos tunes content offline after M2e ships and opens normal PRs; a net enters `packages/sim` only after it beats the rule it replaces.
@@ -54,7 +54,5 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 ## Decisions since the last plan update
 
 - 2026-11-17 D-056 the Village asks for a full Hamlet (25) and full base stores (200 wood, 200 stone, 50 tools).
-- 2026-11-16 Morgan moved the target picture to a block map: painted empty ground plus separate PixelLab buildings (test, then "1 go ahead"), in stages; after stage A: move the river farther right, fix the mine cliffs, 350 more approved; after stage B: "Do as you recommend", the river not cut off, cap raised by 60; then "Finish the map. Then work to get more things checked off the list"; then two minimal fix passes (seams, lamps, roads, no clipping). Earlier the same day: the restyled single picture ("Go with recommended"), now paused.
 - 2026-11-16 Morgan fixed the town map at 1024 × 768 art pixels with zoom steps 1×, 2×, 3× (D-047 amended).
 - 2026-11-16 Morgan agreed the art checklist (`artreq1`): no Tangle ring drawn but clearing stays (D-043), special sites toward the edges (D-044), a swamp east of the river and no waterfall (D-047), any tool that matches mock-up 1's mood (D-048).
-- 2026-11-14 D-054 Phobos integration plan accepted (Morgan: "Ok let's start with what you say"); factions on a wider map to be planned ("I just want the generic faction managed").
