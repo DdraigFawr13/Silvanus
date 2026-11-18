@@ -8,6 +8,8 @@ package-lock.json
 /playwright-report/
 /mockups/
 /art/
+# made by art/town_view_pack.py
+/apps/web/src/town/pieces.ts
 
 # ai-master:start (managed by .claude/master/sync.mjs)
 .ai-master.lock

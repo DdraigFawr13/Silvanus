@@ -155,6 +155,8 @@ Each slice starts from main on a fresh branch and ends with `npm run check` and 
 
 ### S1 The map you can look at
 
+- **Mock-up approved** by Morgan on 2026-11-18 ("Approved", form `m2cs1`): https://claude.ai/artifact/RG4Z58rHBHg5iaSR2oRjEn (`mockups/m2c-s1-map.html`).
+- **Found in the build (2026-11-18):** a lot's tap box where its piece is larger than 116 art px overlaps its neighbour (plot0 and plot1, by 9 art px), so lots use 116 × 116 and only the Hall uses its larger box (`map.ts`). The pack check runs in two steps, because `result_3_grown.png` is `place.py`'s render with each colour cut down to a whole level while a canvas rounds: the sheet as drawn against the exact render, and the exact render against the PNG, each within 1 level.
 - **First step:** a mock-up with `ui-mockups`: the Town tab at 412 px with the map (per Q1) from the real ground and pieces at 1×, 2× and 3×, a new town and a full Village, scored against the art checklist; Morgan approves before code.
 - **Morgan tries:** opens the app: his own town on the map, the Hall in the middle, his buildings on their spots, scroll and the three zoom steps; offline too.
 - **Checks that fail now:** J1, J2 "spots follow the rule" and the pack check, J6, J8; `town-camera.test.ts`.

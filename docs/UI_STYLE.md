@@ -70,7 +70,7 @@ Master list: `../.claude/skills/ui-style/references/avoid.md` (the path from `do
 
 - (look) A light theme, or a second accent colour beyond `--act`, `--fine` and `--warn` [D-028]
 - (look) Ticks shown to the player as a unit of time [docs/CHARTER.md "Time"]
-- (look) A map, a grid of lots or anything that looks like placement [docs/CHARTER.md "Pillars"]
+- (look) A grid of lots, or anything that lets the player place or move a building: the town map (D-037) shows where each lot stands, and the rules have no placement (D-033) [docs/CHARTER.md "Pillars", D-037]
 - (look) A "Collect" control, or any reward for tapping [D-025]
 
 ## Pitfalls

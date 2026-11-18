@@ -37,3 +37,43 @@ if (total > LIMIT) {
   process.exit(1);
 }
 console.log(`bundle: first load is ${total} bytes gzipped (limit ${LIMIT})`);
+
+// The town view (M2c J8): its code is a chunk of its own, loaded after the first screen, and its art is
+// precached. Workbox skips any file over 2,097,152 bytes by default, so a bigger file would silently not
+// be precached.
+const PRECACHE_MAX = 2_097_152;
+const assets = fs.readdirSync(path.join(DIST, 'assets'));
+const sw = fs.readFileSync(path.join(DIST, 'sw.js'), 'utf8');
+let bad = false;
+const chunk = assets.find((name) => name.startsWith('TownView-') && name.endsWith('.js'));
+if (!chunk) {
+  console.error('bundle: no TownView-*.js chunk in dist/assets');
+  bad = true;
+} else if (html.includes(chunk) || files.has(`/assets/${chunk}`)) {
+  console.error(`bundle: ${chunk} is in index.html, so it loads with the first screen`);
+  bad = true;
+} else {
+  console.log(`bundle: ${chunk} loads after the first screen`);
+}
+for (const [prefix, ext] of [
+  ['ground-', '.webp'],
+  ['pieces-', '.png'],
+]) {
+  const name = assets.find((n) => n.startsWith(prefix) && n.endsWith(ext));
+  if (!name) {
+    console.error(`bundle: no ${prefix}*${ext} in dist/assets`);
+    bad = true;
+    continue;
+  }
+  const size = fs.statSync(path.join(DIST, 'assets', name)).size;
+  if (!sw.includes(name)) {
+    console.error(`bundle: ${name} is not in the service worker's precache list`);
+    bad = true;
+  } else if (size > PRECACHE_MAX) {
+    console.error(`bundle: ${name} is ${size} bytes, over Workbox's ${PRECACHE_MAX}`);
+    bad = true;
+  } else {
+    console.log(`bundle: ${name} (${size} bytes) is precached`);
+  }
+}
+if (bad) process.exit(1);
