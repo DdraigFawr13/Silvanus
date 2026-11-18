@@ -859,6 +859,39 @@ p {
   display: block;
 }
 
+/* a lot's tap box over the canvas (M2c S2): the canvas draws the glow, the button is only the target */
+.map-lot {
+  position: absolute;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r);
+  background: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.map-lot:focus-visible {
+  outline: 2px solid var(--act);
+  outline-offset: -2px;
+}
+
+/* how a lot being built stands, over its spot for 3 s */
+.map-note {
+  position: absolute;
+  z-index: 1;
+  max-width: 200px;
+  padding: 6px 10px;
+  transform: translate(-50%, calc(-100% - 4px));
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r);
+  background: var(--panel);
+  color: var(--ink);
+  font-size: 0.875rem;
+  line-height: 1.3;
+  text-align: center;
+  pointer-events: none;
+}
+
 .zoom-row {
   display: flex;
   align-items: center;

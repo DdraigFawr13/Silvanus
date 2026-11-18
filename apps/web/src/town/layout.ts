@@ -18,7 +18,7 @@ export type Spot = {
   door: Point;
 };
 
-export type Item = {
+export type Piece = {
   type: 'piece';
   name: string; // a frame in pieces.png
   x: number; // top-left, art px
@@ -26,6 +26,27 @@ export type Item = {
   depth: number; // the bottom edge: items are drawn in rising depth
   alpha: number;
 };
+// A soft oval on a lot (checklist P2, P3): pale on an empty lot, gold on the lot whose sheet is open. `x`,
+// `y` is its centre, `w` and `h` its size, art px.
+export type Glow = {
+  type: 'glow';
+  tone: 'pale' | 'gold';
+  lot: number;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  depth: number;
+};
+// The Build marker on an empty lot (P4), centred on `x`, `y`.
+export type BuildMarker = {
+  type: 'build-marker';
+  lot: number;
+  x: number;
+  y: number;
+  depth: number;
+};
+export type Item = Piece | Glow | BuildMarker;
 
 // S4 fills this (who has been seen, walks under way); S1 draws no walkers.
 export type Memory = Record<string, never>;
@@ -64,7 +85,7 @@ export function spotsFor(state: State): Spot[] {
   return spots;
 }
 
-const piece = (name: string, x: number, y: number, alpha = 1): Item => ({
+const piece = (name: string, x: number, y: number, alpha = 1): Piece => ({
   type: 'piece',
   name,
   x,
@@ -76,16 +97,47 @@ const piece = (name: string, x: number, y: number, alpha = 1): Item => ({
 // A building being built is drawn faded until S3's scaffolding (approved on the S1 mock-up).
 const BUILDING_ALPHA = 0.45;
 
-// The draw list at `ms` (performance.now) with `open` the building whose sheet is open, sorted by depth.
-// S1: the scenery, the Hall and one piece per building; `memory`, `ms` and `open` are used from S2 on.
-export function scene(state: State, _memory: Memory, _ms: number, _open: number | null): Item[] {
-  const items = SCENERY.map((name) => piece(name, PIECES[name].at[0], PIECES[name].at[1]));
+// A glow lies on the ground at the foot of the spot's piece, as wide as its tap box (S2).
+const GLOW_H = 0.4;
+const glow = (tone: Glow['tone'], s: Spot): Glow => {
+  const h = Math.round(s.tap.w * GLOW_H);
+  return {
+    type: 'glow',
+    tone,
+    lot: s.lot!,
+    x: s.door.x,
+    y: s.door.y - h / 2,
+    w: s.tap.w,
+    h,
+    depth: s.door.y,
+  };
+};
+
+// The draw list at `ms` (performance.now) with `open` the building whose sheet is open: the pieces sorted
+// by depth, then the glows and Build markers over them (spec, "Drawing"). `memory` and `ms` are used from
+// S3 on.
+export function scene(state: State, _memory: Memory, _ms: number, open: number | null): Item[] {
+  const items: Item[] = SCENERY.map((name) => piece(name, PIECES[name].at[0], PIECES[name].at[1]));
+  const marks: Item[] = [];
   for (const s of spotsFor(state)) {
     if (s.lot === null) {
       items.push(piece('hall', s.rect.x, s.rect.y));
       continue;
     }
-    if (s.buildingId === null) continue;
+    if (s.buildingId === null) {
+      // the marker stands on its glow: its centre on the glow's top edge
+      const pale = glow('pale', s);
+      marks.push(pale);
+      marks.push({
+        type: 'build-marker',
+        lot: s.lot,
+        x: pale.x,
+        y: pale.y - pale.h / 2,
+        depth: s.door.y,
+      });
+      continue;
+    }
+    if (s.buildingId === open) marks.push(glow('gold', s));
     const building = state.buildings[s.lot];
     const { name, native } = pieceFor(building.kind, building.tier, s.name);
     const [, , w, h] = PIECES[name].frame;
@@ -94,5 +146,6 @@ export function scene(state: State, _memory: Memory, _ms: number, _open: number 
       : [Math.round(s.rect.x + s.rect.w / 2 - w / 2), s.rect.y + s.rect.h - h];
     items.push(piece(name, x, y, building.tier === 0 ? BUILDING_ALPHA : 1));
   }
-  return items.sort((a, b) => a.depth - b.depth || a.x - b.x);
+  items.sort((a, b) => a.depth - b.depth || a.x - b.x);
+  return [...items, ...marks];
 }

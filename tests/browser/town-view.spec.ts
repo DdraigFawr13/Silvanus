@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
+import { apply, newGame } from '@silvanus/sim';
+import { content, lot, seedRecord, townRecord } from './helpers';
 
 // The town map (M2c S1, J1 and J8) on Morgan's phone: 412 CSS px wide at dpr 2.625, so the spec's maths
 // holds (1408 x 888 art px; the window shows 1082 art px of the width at 1x).
@@ -207,4 +209,152 @@ test('Retry loads the map after its code failed to load', async ({ page }) => {
   await error.getByRole('button', { name: 'Retry' }).click();
   await view(page);
   await expect(error).toHaveCount(0);
+});
+
+// M2c S2 (J2, J3): every lot and the Hall on the map is a button.
+
+test('a new town on the map', async ({ page }, testInfo) => {
+  await page.goto('/?tickMs=60000');
+  await view(page);
+  const map = page.getByTestId('town-view');
+  await expect(map.getByTestId('map-hall')).toHaveCount(1);
+  await expect(map.getByTestId('map-hall')).toHaveAttribute('aria-label', 'Hall, Hamlet');
+  // the Cottage, the Forager's hut and 4 empty lots, in lot order
+  const labels = await map
+    .getByTestId('map-lot')
+    .evaluateAll((all) => all.map((b) => b.getAttribute('aria-label')));
+  expect(labels).toEqual([
+    'Cottage, tier 1',
+    "Forager's hut, tier 1",
+    ...Array(4).fill('Empty lot, build here'),
+  ]);
+  // the Hall's button comes first, then the lots
+  const order = await map
+    .locator('button[data-testid^=map-]')
+    .evaluateAll((all) => all.map((b) => b.dataset.testid));
+  expect(order).toEqual(['map-hall', ...Array(6).fill('map-lot')]);
+  await testInfo.attach('new town at 412 px', {
+    body: await page.screenshot(),
+    contentType: 'image/png',
+  });
+});
+
+type Box = { x: number; y: number; width: number; height: number };
+const boxes = (buttons: Locator) =>
+  buttons.evaluateAll((all) =>
+    all.map((b) => {
+      const r = b.getBoundingClientRect();
+      return { x: r.x, y: r.y, width: r.width, height: r.height };
+    }),
+  );
+const apart = (a: Box, b: Box) =>
+  a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y;
+
+test('lot buttons are big enough and apart', async ({ page }) => {
+  await page.goto('/?tickMs=60000');
+  await view(page);
+  const buttons = page.getByTestId('town-view').locator('button[data-testid^=map-]');
+  for (const z of [1, 2, 3]) {
+    await page.getByTestId(`zoom-${z}`).click();
+    await expect(page.getByTestId('town-view').locator('canvas')).toHaveAttribute(
+      'data-zoom',
+      String(z),
+    );
+    const all = await boxes(buttons);
+    expect(all).toHaveLength(7);
+    for (const [i, a] of all.entries()) {
+      expect(a.width, `${z}x button ${i}`).toBeGreaterThanOrEqual(44);
+      expect(a.height, `${z}x button ${i}`).toBeGreaterThanOrEqual(44);
+      for (const [j, b] of all.entries()) {
+        if (i < j) expect(apart(a, b), `${z}x buttons ${i} and ${j}`).toBe(true);
+      }
+    }
+  }
+});
+
+// The canvas's device pixels under a map button's lower half (where a glow lies): their mean red minus
+// blue (gold is far redder than blue) and a fingerprint of the colours.
+async function under(page: Page, button: Locator) {
+  return button.evaluate((b) => {
+    const c = document.querySelector<HTMLCanvasElement>('[data-testid=town-view] canvas')!;
+    const cr = c.getBoundingClientRect();
+    const br = b.getBoundingClientRect();
+    const dpr = devicePixelRatio;
+    const x = Math.round((br.x - cr.x) * dpr);
+    const y = Math.round((br.y + br.height / 2 - cr.y) * dpr);
+    const w = Math.round(br.width * dpr);
+    const h = Math.round((br.height / 2) * dpr);
+    const d = c.getContext('2d')!.getImageData(x, y, w, h).data;
+    let warm = 0;
+    let print = 0;
+    for (let i = 0; i < d.length; i += 4) {
+      warm += d[i] - d[i + 2];
+      print = (print * 31 + d[i] + d[i + 1] * 7 + d[i + 2] * 13) % 1_000_000_007;
+    }
+    return { warm: warm / (d.length / 4), print };
+  });
+}
+
+test('tapping a lot opens its sheet', async ({ page }) => {
+  await page.goto('/?tickMs=60000');
+  await view(page);
+  const cottage = page.getByRole('button', { name: 'Cottage, tier 1' });
+  const shut = await under(page, cottage);
+  await cottage.click();
+  // the list's own sheet for that building
+  const sheet = page.getByTestId('building-sheet');
+  await expect(sheet).toBeVisible();
+  await expect(sheet).toContainText('Cottage');
+  // the spot glows gold while the sheet is open
+  const lit = await under(page, cottage);
+  expect(lit.print).not.toBe(shut.print);
+  expect(lit.warm - shut.warm).toBeGreaterThan(10);
+  await sheet.getByRole('button', { name: 'Close' }).click();
+  await expect(sheet).toHaveCount(0);
+  await expect.poll(async () => (await under(page, cottage)).print).toBe(shut.print);
+  // an empty lot opens the build sheet
+  await page.getByRole('button', { name: 'Empty lot, build here' }).first().click();
+  await expect(page.getByTestId('build-sheet')).toBeVisible();
+});
+
+test('tier 0 and the Hall answer', async ({ page }) => {
+  // two first builds: the Woodcutter's camp under way, the Mine waiting behind it
+  const start = newGame(1, content);
+  const rich = { ...start, stock: { ...start.stock, wood: 200, stone: 200, tools: 50 } };
+  const state = apply(
+    rich,
+    [
+      { type: 'build', kind: 'woodcutter' },
+      { type: 'build', kind: 'mine' },
+    ],
+    content,
+  ).state;
+  expect(state.queue).toHaveLength(2);
+  await seedRecord(page, townRecord({ state }));
+  await page.goto('/?tickMs=60000');
+  await view(page);
+  const camp = page.getByRole('button', { name: "Woodcutter's camp, being built" });
+  const mine = page.getByRole('button', { name: 'Mine, being built' });
+  const note = page.getByTestId('map-note');
+  await expect(note).toHaveCount(0);
+  await camp.click();
+  // the list's own text for that lot
+  const campLine = await lot(page, "Woodcutter's camp").locator('.line2').textContent();
+  expect(campLine).toMatch(/^Building, .* left$/);
+  await expect(note).toHaveText(campLine!);
+  await expect(page.getByTestId('building-sheet')).toHaveCount(0);
+  // another tap replaces it
+  await mine.click();
+  await expect(note).toHaveText('Waiting in the work queue');
+  await expect(note).toHaveCount(1);
+  // gone after 3 s (a wall-clock limit; the browser tests run one at a time)
+  const shown = Date.now();
+  await expect(note).toHaveCount(0, { timeout: 5000 });
+  expect(Date.now() - shown).toBeGreaterThan(2000);
+  // the Hall brings its row into view: on a short screen the row starts below the map
+  await page.setViewportSize({ width: 412, height: 480 });
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect(page.getByTestId('hall')).not.toBeInViewport();
+  await page.getByTestId('map-hall').click();
+  await expect(page.getByTestId('hall')).toBeInViewport({ ratio: 1 });
 });

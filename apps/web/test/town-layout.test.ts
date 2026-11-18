@@ -3,6 +3,7 @@ import { newGame } from '@silvanus/sim';
 import type { Building, State } from '@silvanus/sim';
 import { expect, test } from 'vitest';
 import { emptyMemory, scene, spotsFor } from '../src/town/layout';
+import type { Item, Piece } from '../src/town/layout';
 
 const built = (id: number, kind: string, tier = 1): Building => ({
   id,
@@ -24,6 +25,7 @@ const town = (kinds: string[], hallTier = 1): State => ({
 });
 // the spot names in order: the Hall, each building in lot order, then each empty lot
 const names = (state: State) => spotsFor(state).map((s) => s.name);
+const piecesOf = (items: Item[]) => items.filter((i): i is Piece => i.type === 'piece');
 
 test('spots follow the rule', () => {
   // a new town: Cottage on the plot nearest the square, the Forager's hut on its site, 4 empty lots
@@ -115,7 +117,7 @@ test('spots follow the rule', () => {
 test('the draw list: scenery, the Hall and one piece per building, faded while built', () => {
   const state = town(['cottage', 'forager', 'workshop']);
   state.buildings[2].tier = 0;
-  const items = scene(state, emptyMemory(), 0, null);
+  const items = piecesOf(scene(state, emptyMemory(), 0, null));
   const named = new Map(items.map((i) => [i.name, i]));
   expect(named.get('hall')?.alpha).toBe(1);
   expect(named.get('plot0')?.alpha).toBe(1);
@@ -132,7 +134,45 @@ test('the draw list: scenery, the Hall and one piece per building, faded while b
   // a Cottage at tier 3 on a cottage-a plot draws that piece's tier 3
   const grown = town(['workshop', 'cottage']);
   grown.buildings[1].tier = 3;
-  expect(scene(grown, emptyMemory(), 0, null).some((i) => i.name === 'plot1_t3')).toBe(true);
+  expect(piecesOf(scene(grown, emptyMemory(), 0, null)).some((i) => i.name === 'plot1_t3')).toBe(
+    true,
+  );
+});
+
+test('empty lots glow pale with a Build marker; a built lot glows gold only while open', () => {
+  // a new town: Cottage, Forager's hut and 4 empty lots (lots 2 to 5)
+  const state = newGame(1, content);
+  const [cottage, hut] = state.buildings;
+  const marks = (open: number | null) =>
+    scene(state, emptyMemory(), 0, open).filter((i) => i.type !== 'piece');
+  const shut = marks(null);
+  const pale = shut.filter((i) => i.type === 'glow' && i.tone === 'pale');
+  const markers = shut.filter((i) => i.type === 'build-marker');
+  expect(pale.map((i) => i.lot)).toEqual([2, 3, 4, 5]);
+  expect(markers.map((i) => i.lot)).toEqual([2, 3, 4, 5]);
+  // no gold glow while no sheet is open
+  expect(shut.some((i) => i.type === 'glow' && i.tone === 'gold')).toBe(false);
+  // the Cottage's sheet open: a gold glow on its lot (0) only, the empty lots unchanged
+  for (const [id, lot] of [
+    [cottage.id, 0],
+    [hut.id, 1],
+  ]) {
+    const gold = marks(id).filter((i) => i.type === 'glow' && i.tone === 'gold');
+    expect(gold.map((i) => i.lot)).toEqual([lot]);
+    expect(marks(id).length).toBe(shut.length + 1);
+  }
+  // each mark sits on its own spot: inside that lot's tap box
+  const spots = spotsFor(state);
+  for (const mark of [...shut, ...marks(cottage.id)]) {
+    const tap = spots.find((s) => s.lot === mark.lot)!.tap;
+    expect(mark.x).toBeGreaterThanOrEqual(tap.x);
+    expect(mark.x).toBeLessThanOrEqual(tap.x + tap.w);
+    expect(mark.y).toBeGreaterThanOrEqual(tap.y);
+    expect(mark.y).toBeLessThanOrEqual(tap.y + tap.h);
+  }
+  // a full town has no empty lots: no pale glow, no marker
+  const full = town(['cottage', 'forager', 'workshop', 'cottage', 'mine', 'farm']);
+  expect(scene(full, emptyMemory(), 0, null).filter((i) => i.type !== 'piece')).toEqual([]);
 });
 
 test('the view reads the state and changes nothing', () => {
