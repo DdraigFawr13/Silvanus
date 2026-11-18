@@ -465,3 +465,14 @@ Morgan: "Approved please rescore". `result_2_grown.png` scored item by item agai
 - New spots: two loose grey slabs in the grass south of the High Street (about x 367 to 455, y 760); some cottage plots have no path to the lane.
 - Recommended next: fix 2, free (board into the square, slabs, door paths, fisher's hut to the far bank if it fits), then dressed yards (about 35 to 45 generations, Claude's estimate).
 
+
+## Target map fix 2: board, slabs, door paths (2026-11-18)
+
+Morgan's "Do all 3" (2026-11-17): merge #28, fix 2, then dressed yards. Page: https://claude.ai/artifact/NqwZexeouZd58ZWXKraaRk (built by `art/handoff_chatgpt/fix2/build_page.py`). Files: `art/handoff_chatgpt/fix2/fix2.py` turns `result_2_graded.png` into `result_3_graded.png` and `result_3_grown.png` (buildings via `place.py`). Free pixel edits, 0 generations.
+
+- Notice board on the square's paving, left of the well (x 837-869, y 444-476): the map's own plank sign (under the fork board, cut from 41 to 32 px) on two posts, three notes in the stall awning's cream, a contact shadow. The fork board stays as a waymark.
+- The three loose slabs (x 364-493, y 753-774) repainted from the cleanest grass block nearby (x 302-342, y 832-848, found by search). A first try tiled the block under the slabs and repeated a dark rock four times.
+- Paths with the path brush (texture: the High Street at x 300-360, y 597-615) to seven doors; a gate in the fenced plot's top fence; mist blended back over the paths. The first try at the cottage near the square shaved its tree's crown; moved 4 px up.
+- Measured: 8,360 px changed (0.67%), 43 outside the edit boxes (the brush's blur at one path's start, under steps). Brightness 51, saturation 0.39, edge share 0.237, unchanged.
+- Scored (`docs/workshop/pages/result3_scores.json`): 28 met, 16 partly, 1 missed, 10 carried. T3 up to met. T7 stays partly: the forager's hut and the woodcutter have no track (pines between them and the roads). M10 not moved: the far bank by the bridge is about 65 px wide, the hut 116 px.
+- PixelLab refused the session's key on 2026-11-18 ("401: Invalid API token", on `create_object_pro_flash` and `get_balance`), so paid work (a board object, dressed yards) waits for the key.
