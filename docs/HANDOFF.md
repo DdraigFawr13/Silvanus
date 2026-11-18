@@ -20,7 +20,7 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 
 ## Just done
 
-- 2026-11-18 Coordinator mode: this session starts every slice in a new session (never by extending a finished one; LESSONS), 2 at a time, and alone edits HANDOFF. Running: dressed yards (session_01Dr9VTrKjWJ1t4ySHVSHGue, Network, cap 45) and M2c S1 (session_01Dr9VTqtWCYZ2mnEaeppPzQ, branch `claude/m2c-s1-map`, mock-up form first). Queued: M2d S0 mock-up; Morgan: "start m2d s0 after yards" (AGENTS coordinator rule). PR #32 (the rule) merged.
+- 2026-11-18 Coordinator mode: this session starts every slice in a new session, asking Morgan first (AGENTS), 2 at a time, and alone edits HANDOFF. Running: M2c S1 build (session_01Dr9VTqtWCYZ2mnEaeppPzQ, PR #33; mock-up approved, `m2cs1`) and M2d S0 mock-up (session_01Dr9VTpm7BFk6xLZkRnshyt, PR #35, form https://claude.ai/artifact/KepHEDRaPdVpwFcftLppRH, `m2dmock1`, done phrase "m2d mockup done"). Asked: dress 5 bare cottages next?
 - 2026-11-18 M2b dressed yards (Morgan: "Approved"; PR #34): 6 cottage and farm yards dressed with PixelLab props, each its own piece via `place.py`; the map's own full-size fisher's hut moved to the far bank with its jetty and boat (the 64 px hut was too small). 35 generations used of the 45 cap. Scored 29 met, 15 partly, 1 missed, 10 carried (M10 up). Page: https://claude.ai/artifact/39MAdcU21akaCkTaRzzUeu
 - 2026-11-18 M2d spec approved on the form (`m2dspec`): "Approved, start with the mock-up"; Town at 32 to 48 h (not the recommended band), 24 h catch-up, 100 residents (charter cap raised), Fisher's hut, Watermill, Brewery, planks, ale. PR #31.
 - Earlier entries are in `docs/archive/handoff-2026-11.md`.
