@@ -1,6 +1,6 @@
 # Handoff
 
-Updated: 2026-11-18 (M2c spec approved, D-057, merged in PR #30; M2b fix 2 merged, PR #29; dressed yards approved and merged in PR #34; M2d spec approved, D-058 to D-061, merged in PR #31). A fresh session must be able to continue from this file alone. Keep it to 60 lines; move finished entries to `docs/archive/handoff-YYYY-MM.md`.
+Updated: 2026-11-18 (M2c S2 tap the map, PR #37; M2d S1 plots, PR #38; yards, PR #34). A fresh session must be able to continue from this file alone. Keep it to 60 lines; move finished entries to `docs/archive/handoff-YYYY-MM.md`.
 
 ## Phase
 
@@ -14,13 +14,13 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 - ▶ M2a Pace: merged (PR #14); waiting on Morgan's phone test (J7) (D-036, D-039).
 - ▶ M2b Art workshop: layout D-047, art direction PixelLab mock-up 1 (D-048); workshop merged in PRs #17, #20 to #23. Re-plan in 4 steps (2026-11-16): ✔ 1 requirements checklist (`docs/workshop/art-checklist.md`) · ✔ 2 target picture (D-055, 2026-11-17) · ○ 3 method: Morgan approved PixelLab for assets (D-055); whether a separate test is still needed is open · ○ 4 short build sessions (D-037).
 - ▶ M2e Choices: goals, trader swaps, forage trips, pins (D-040, D-049 to D-053, D-056). S1 to S3 merged in PR #27 (2026-11-17); waiting on Morgan's phone check (J9).
-- ▶ M2c Town view: S1 merged (PR #33); Morgan's real phone check of S1 pending; next S2 tap the map, in a new session when Morgan says.
-- ▶ M2d Ceiling and lots: spec approved (D-058 to D-061, PR #31); S0 mock-up approved (m2dmock1, PR #35); next S1 plots and sites, in a new session when Morgan says
+- ▶ M2c Town view: S1 (PR #33) and S2 tap the map (PR #37) merged; Morgan's phone checks pending; next S3 the town at work, in a new session when Morgan says
+- ▶ M2d Ceiling and lots: spec (D-058 to D-061, PR #31), S0 mock-up (PR #35), S1 plots and sites merged (PR #38; D-058 amended: moved gatherers); next S2 the Tangle, in a new session when Morgan says
 - ○ M3 Guild · ○ M4 Trade outlet, events, chronicle (v0.1) · ○ M5a Families · ○ M5b Paths · ○ M6 Trade and Crown · ○ M7 Depth (v1.0)
 
 ## Just done
 
-- 2026-11-18 Coordinator mode: this session starts every slice in a new session, asking Morgan first (AGENTS), 2 at a time, and alone edits HANDOFF. M2c S1 done (PR #33). M2d S0 done (PR #35). Asked: dress 5 bare cottages next?
+- 2026-11-18 Coordinator mode: this session starts every slice in a new session, asking Morgan first (AGENTS), 2 at a time, and alone edits HANDOFF. M2c S1 done (PR #33). M2c S2 done (PR #37). M2d S0 done (PR #35). M2d S1 done (PR #38). Asked: dress 5 bare cottages next?
 - 2026-11-18 M2b dressed yards (Morgan: "Approved"; PR #34): 6 cottage and farm yards dressed with PixelLab props, each its own piece via `place.py`; the map's own full-size fisher's hut moved to the far bank with its jetty and boat (the 64 px hut was too small). 35 generations used of the 45 cap. Scored 29 met, 15 partly, 1 missed, 10 carried (M10 up). Page: https://claude.ai/artifact/39MAdcU21akaCkTaRzzUeu
 - 2026-11-18 M2d spec approved on the form (`m2dspec`): "Approved, start with the mock-up"; Town at 32 to 48 h (not the recommended band), 24 h catch-up, 100 residents (charter cap raised), Fisher's hut, Watermill, Brewery, planks, ale. PR #31.
 - Earlier entries are in `docs/archive/handoff-2026-11.md`.
@@ -31,8 +31,8 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 2. M2e J9 (Morgan, phone): check in over two days; every check-in should offer a real choice; record whether he wants to keep playing, in his words, then set the spec to Shipped on the next work branch. Saves move to schema 4 on first open.
 3. M2b art (D-037, D-055): the working target is `result_4_grown.png` (dressed yards, scored in `result4_scores.json`; script `art/handoff_chatgpt/yards/yards.py`). Next: Morgan chooses whether to dress the 5 bare cottages from the props already made (free); the far bank already has the hut's jetty. Then step 4's build sessions with PixelLab assets. AGENTS art rule. PhotoCraft is on Morgan's PC (reachable from a desktop session). PixelLab balance 1,230 generations (2026-11-18). Still open: D-041 Proposed and partly superseded.
 4. Still open: Morgan's phone tests from S1 and S2 ("Update ready" and Reload; build a Woodcutter's camp, close the app, come back), S3 (switch the Mine to stone; let the Workshop run out of ore overnight) and S4 (pin someone to a bad job and read why morale falls). Record answers here.
-5. M2d S1 plots and sites (`docs/specs/m2d-ceiling-lots.md`): builds to the approved mock-up (`mockups/m2d-lots.html`, https://claude.ai/artifact/KepHEDRaPdVpwFcftLppRH); read the spec's S0 "Approved" line first for the parts the mock-up added. S3 likely raises the Town's cost.
-6. M2c S1: Morgan's phone check after merge: the four checks in the spec's S1 section; record his answer in his words.
+5. Morgan's phone check of M2d S1: tap Build, pick Workshop on a forest-edge lot (+25%); the Woodcutter's camp goes to the forest site; his old town opens laid out on plots (a Village opens as many lots as it has buildings, the rest are cleared from the Tangle in S2). Record his answer in his words.
+6. M2c phone checks (record in his words): S1, the four checks in the spec's S1 section; S2, tap a building (its sheet, gold ring), an empty lot or site (build sheet), a build under way (3 s note), the Hall (its row).
 7. The repo has auto-merge off: merge by hand once the ready CI run is green, and do not push and mark ready within the same few seconds.
 8. Phobos (D-054): nothing to build here yet. Phobos tunes content offline after M2e ships and opens normal PRs; a net enters `packages/sim` only after it beats the rule it replaces.
 9. Factions planning (D-054): round 1 answered 2026-11-14 (5 factions, one standing each, off-screen wars, none fall, a drawn map with pins, plain rules first, one clan in M3; ways and success test left open). Review and round 2 (`factions-review1`) published, reviewer $0.57 measured. Next: read it with one `ArtifactData` list when Morgan says "factions review done", then the final page. Planning only; M2e stays next for building.

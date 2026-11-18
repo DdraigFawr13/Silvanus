@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { advance, apply, newGame, step } from '../src/index';
 import type { Command, State } from '../src/index';
-import { byKind, content, run, steady } from './town';
+import { build, byKind, content, run, steady } from './town';
 
 // Seed 1 with every resident at an effect of 100, so a forager makes 0.5 food a cycle.
 const even = () => steady(newGame(1, content));
@@ -42,8 +42,8 @@ describe('step', () => {
     const start = newGame(1, content);
     const hut = byKind(start, 'forager').id;
     const bad: [Command, string][] = [
-      [{ type: 'build', kind: 'castle' }, 'unknown'],
-      [{ type: 'build', kind: 'tavern' }, 'noStock'],
+      [{ type: 'build', kind: 'castle', plot: 3 }, 'unknown'],
+      [{ type: 'build', kind: 'tavern', plot: 3 }, 'noStock'],
       [{ type: 'upgrade', buildingId: 999 }, 'unknown'],
       [{ type: 'setOpen', buildingId: hut, count: 5 }, 'range'],
       [{ type: 'setOpen', buildingId: hut, count: 1.5 }, 'range'],
@@ -87,7 +87,8 @@ describe('step', () => {
   });
 
   test('advance reports what the ticks made, used and finished', () => {
-    const start = apply(even(), [{ type: 'build', kind: 'woodcutter' }], content);
+    const town = even();
+    const start = apply(town, [build(town, 'woodcutter')], content);
     const { summary } = advance(start.state, 25, content);
     expect(summary.ticks).toBe(25);
     expect(summary.made.food).toBe(12);

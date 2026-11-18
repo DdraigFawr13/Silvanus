@@ -78,7 +78,8 @@ test('five minutes closed is caught up as 5 ticks', async ({ page }) => {
 });
 
 test('unreadable save shows the refusal', async ({ page }) => {
-  const record = { schema: 5, anchorMs: 1_700_000_000_000, town: { name: 'a later shape' } };
+  // one schema past the app's (5 from M2d S1)
+  const record = { schema: 6, anchorMs: 1_700_000_000_000, town: { name: 'a later shape' } };
   await seedRecord(page, record);
 
   await page.goto('/?tickMs=60000');
@@ -146,7 +147,7 @@ test('export and import carry the town', async ({ page }) => {
   const chunks: Buffer[] = [];
   for await (const chunk of stream) chunks.push(chunk as Buffer);
   const exported = JSON.parse(Buffer.concat(chunks).toString('utf8'));
-  expect(exported.schema).toBe(4);
+  expect(exported.schema).toBe(5);
   expect(exported.state).toEqual(tapped.state);
 
   // A file that is not a save is refused with a message and changes nothing.
@@ -188,7 +189,8 @@ test('export and import carry the town', async ({ page }) => {
 });
 
 test('an import replaces an unreadable save', async ({ page }) => {
-  const record = { schema: 5, anchorMs: 1_700_000_000_000, town: { name: 'a later shape' } };
+  // one schema past the app's (5 from M2d S1)
+  const record = { schema: 6, anchorMs: 1_700_000_000_000, town: { name: 'a later shape' } };
   await seedRecord(page, record);
   await page.goto('/?tickMs=60000');
   await expect(page.getByTestId('notice')).toHaveText(
@@ -206,7 +208,7 @@ test('an import replaces an unreadable save', async ({ page }) => {
   await expect(page.getByTestId('saved-at')).toHaveAttribute('data-tick', '388');
   await expect(page.getByTestId('notice')).toHaveCount(0);
   const stored = (await readRecord(page)) as { schema: number; state: unknown };
-  expect(stored.schema).toBe(4);
+  expect(stored.schema).toBe(5);
   expect(stored.state).toEqual(fileRecord().state);
   // the record the import replaced is kept beside it
   expect(await readRecord(page, 'previous')).toEqual(record);
@@ -233,8 +235,11 @@ test('an M0 save opens as a new town and is kept', async ({ page }) => {
   await expect(page.getByTestId('lot')).toHaveCount(6);
   await expect(page.getByTestId('saved-at')).toHaveAttribute('data-tick', '0');
   const stored = (await readRecord(page)) as { schema: number; state: unknown };
-  expect(stored.schema).toBe(4);
-  expect(stored.state).toEqual(townRecord().state);
+  expect(stored.schema).toBe(5);
+  // the new town passes through every upgrade step; 4 to 5 says it was laid out on plots
+  const fresh = townRecord().state;
+  const laidOut = { tick: 0, type: 'plots', text: 'Your town was laid out on plots.' };
+  expect(stored.state).toEqual({ ...fresh, log: [...fresh.log, laidOut] });
   expect(await readRecord(page, 'previous')).toEqual(old);
 });
 

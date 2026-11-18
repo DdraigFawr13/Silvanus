@@ -72,9 +72,13 @@ function draw(
 
 // What a lot's button is called (M2c J3).
 function labelOf(state: State, s: Spot): string {
-  if (s.lot === null) return `Hall, ${hallOf(state, content).name}`;
-  const building = s.buildingId === null ? null : state.buildings[s.lot];
-  if (!building) return 'Empty lot, build here';
+  if (s.plot === null) return `Hall, ${hallOf(state, content).name}`;
+  const building = state.buildings.find((b) => b.id === s.buildingId);
+  if (!building) {
+    const ground = state.plots[s.plot].ground;
+    const name = content.grounds.find((g) => g.id === ground)?.name.toLowerCase();
+    return name ? `Empty ${name} site, build here` : 'Empty lot, build here';
+  }
   const name = kindOf(content, building.kind)!.name;
   return building.tier === 0 ? `${name}, being built` : `${name}, tier ${building.tier}`;
 }
@@ -97,7 +101,7 @@ export default function TownView({
   hidden: boolean;
   open: number | null; // the building whose sheet is open
   onBuilding: (id: number) => void;
-  onBuild: () => void;
+  onBuild: (plot: number) => void; // the build sheet, with this plot chosen
   onHall: () => void;
 }) {
   const [art, setArt] = useState<Art | null>(null);
@@ -120,7 +124,7 @@ export default function TownView({
     [spots, zoom, dpr],
   );
   // the text of the moment a lot being built was tapped, over its spot for NOTE_MS
-  const [note, setNote] = useState<{ lot: number; text: string; n: number } | null>(null);
+  const [note, setNote] = useState<{ plot: number; text: string; n: number } | null>(null);
   const notes = useRef(0);
   useEffect(() => {
     if (!note) return;
@@ -188,15 +192,15 @@ export default function TownView({
   };
 
   const tap = (s: Spot) => {
-    if (s.lot === null) return onHall();
-    if (s.buildingId === null) return onBuild();
-    const building = state.buildings[s.lot];
+    if (s.plot === null) return onHall();
+    if (s.buildingId === null) return onBuild(s.plot);
+    const building = state.buildings.find((b) => b.id === s.buildingId)!;
     if (building.tier > 0) {
       if (open !== building.id) onBuilding(building.id);
       return;
     }
     // a new object each tap, so another tap restarts the 3 s
-    setNote({ lot: s.lot, text: firstBuildText(state, building.id), n: ++notes.current });
+    setNote({ plot: s.plot, text: firstBuildText(state, building.id), n: ++notes.current });
   };
 
   // a failed art load goes to the error boundary in TownTab, which offers Retry
@@ -208,7 +212,7 @@ export default function TownView({
   const snap = (v: number) => Math.round(v * dpr) / dpr;
   // the Build marker: about 16 CSS px at every zoom (Morgan, 2026-11-18, "Bigger at 1x"), whole device px
   const MARKER_CSS = Math.round(MARKER_TARGET_CSS * dpr) / dpr;
-  const at = note ? spots.findIndex((s) => s.lot === note.lot) : -1;
+  const at = note ? spots.findIndex((s) => s.plot === note.plot) : -1;
   const noted = at >= 0 ? taps[at] : null;
   // the note's centre, kept inside the window so its text is never cut off (it is at most NOTE_CSS wide);
   // above its lot, or below it where the window's top edge would cut it
@@ -240,7 +244,7 @@ export default function TownView({
               key={s.name}
               type="button"
               className="map-lot"
-              data-testid={s.lot === null ? 'map-hall' : 'map-lot'}
+              data-testid={s.plot === null ? 'map-hall' : 'map-lot'}
               aria-label={labelOf(state, s)}
               style={{
                 left: `${css(taps[i].x)}px`,
@@ -255,7 +259,7 @@ export default function TownView({
             (item) =>
               item.type === 'build-marker' && (
                 <span
-                  key={`marker-${item.lot}`}
+                  key={`marker-${item.plot}`}
                   className="map-marker"
                   data-testid="map-marker"
                   aria-hidden="true"

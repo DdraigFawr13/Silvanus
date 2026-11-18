@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
-import { apply, newGame } from '@silvanus/sim';
+import { apply, newGame, plotsFor } from '@silvanus/sim';
 import { content, lot, seedRecord, townRecord } from './helpers';
 
 // The town map (M2c S1, J1 and J8) on Morgan's phone: 412 CSS px wide at dpr 2.625, so the spec's maths
@@ -213,30 +213,80 @@ test('Retry loads the map after its code failed to load', async ({ page }) => {
 
 // M2c S2 (J2, J3): every lot and the Hall on the map is a button.
 
+// The map's empty plots against the Town tab's: empty town lots, and empty sites a kind can be built on.
+async function emptyLikeTheTab(page: Page) {
+  const map = page.getByTestId('town-view');
+  const mapLots = map.getByRole('button', { name: 'Empty lot, build here' });
+  const mapSites = map.getByRole('button', { name: /^Empty .* site, build here$/ });
+  const tabLots = page.getByTestId('lots').getByTestId('lot').filter({ hasText: 'Empty lot' });
+  const tabSites = page.getByTestId('sites').locator('button[data-testid=site]');
+  const counts = {
+    lots: [await mapLots.count(), await tabLots.count()],
+    sites: [await mapSites.count(), await tabSites.count()],
+  };
+  expect(counts.lots[0], 'empty lots: map, tab').toBe(counts.lots[1]);
+  expect(counts.sites[0], 'empty sites: map, tab').toBe(counts.sites[1]);
+  return counts;
+}
+
 test('a new town on the map', async ({ page }, testInfo) => {
   await page.goto('/?tickMs=60000');
   await view(page);
   const map = page.getByTestId('town-view');
   await expect(map.getByTestId('map-hall')).toHaveCount(1);
   await expect(map.getByTestId('map-hall')).toHaveAttribute('aria-label', 'Hall, Hamlet');
-  // the Cottage, the Forager's hut and 4 empty lots, in lot order
-  const labels = await map
-    .getByTestId('map-lot')
-    .evaluateAll((all) => all.map((b) => b.getAttribute('aria-label')));
-  expect(labels).toEqual([
-    'Cottage, tier 1',
-    "Forager's hut, tier 1",
-    ...Array(4).fill('Empty lot, build here'),
-  ]);
-  // the Hall's button comes first, then the lots
+  // the Cottage and the Forager's hut on their plots; 5 empty lots and 3 empty sites, as on the tab
+  await expect(map.getByRole('button', { name: 'Cottage, tier 1' })).toHaveCount(1);
+  await expect(map.getByRole('button', { name: "Forager's hut, tier 1" })).toHaveCount(1);
+  expect(await emptyLikeTheTab(page)).toEqual({ lots: [5, 5], sites: [3, 3] });
+  // the Hall's button comes first, then the 6 town lots and 4 sites in plot order
   const order = await map
     .locator('button[data-testid^=map-]')
     .evaluateAll((all) => all.map((b) => b.dataset.testid));
-  expect(order).toEqual(['map-hall', ...Array(6).fill('map-lot')]);
+  expect(order).toEqual(['map-hall', ...Array(10).fill('map-lot')]);
   await testInfo.attach('new town at 412 px', {
     body: await page.screenshot(),
     contentType: 'image/png',
   });
+});
+
+test('an upgraded old save on the map', async ({ page }) => {
+  // a schema 4 Hamlet with a Cottage, the Forager's hut, a Workshop and four Mines: the upgrade lays it
+  // out on plots, the Mines on the three mountain sites (two with no map spot yet) and the fourth moved to
+  // a town lot
+  // built as the saves test's schema4: no plots, no `lots` stream, no plot or shut fields
+  const start = newGame(1, content);
+  const kinds = ['cottage', 'forager', 'workshop', 'mine', 'mine', 'mine', 'mine'];
+  const buildings = kinds.map((kind, i) => {
+    const method = content.methods.find((m) => m.building === kind);
+    return {
+      id: 100 + i,
+      kind,
+      tier: 1,
+      method: method ? method.id : null,
+      open: 0,
+      retoolLeft: 0,
+      carry: {},
+      debt: {},
+      short: false,
+      owned: method ? [method.id] : [],
+    };
+  });
+  const { plots, ...rest } = start;
+  void plots;
+  const rng = { ...start.rng };
+  delete rng.lots;
+  const residents = start.residents.map((r) => ({ ...r, jobId: null }));
+  const old = { ...rest, rng, buildings, residents, nextId: 200 };
+  await seedRecord(page, { schema: 4, anchorMs: Date.now(), state: old });
+  await page.goto('/?tickMs=60000');
+  await view(page);
+  const map = page.getByTestId('town-view');
+  // the Mine on the first mountain site and the moved one on its town lot
+  await expect(map.getByRole('button', { name: 'Mine, tier 1' })).toHaveCount(2);
+  // 6 town lots less the Cottage, the Workshop and the moved Mine
+  const counts = await emptyLikeTheTab(page);
+  expect(counts.lots[0]).toBe(3);
 });
 
 type Box = { x: number; y: number; width: number; height: number };
@@ -261,7 +311,7 @@ async function bigAndApart(page: Page) {
       String(z),
     );
     const all = await boxes(buttons);
-    expect(all).toHaveLength(7);
+    expect(all).toHaveLength(11);
     for (const [i, a] of all.entries()) {
       expect(a.width, `${z}x button ${i}`).toBeGreaterThanOrEqual(44);
       expect(a.height, `${z}x button ${i}`).toBeGreaterThanOrEqual(44);
@@ -309,15 +359,15 @@ test('the Build marker is the same size at every zoom', async ({ page }) => {
   await page.goto('/?tickMs=60000');
   await view(page);
   const markers = page.getByTestId('map-marker');
-  const empty = page.getByRole('button', { name: 'Empty lot, build here' });
+  const empty = page.getByTestId('town-view').getByRole('button', { name: /^Empty .*build here$/ });
   for (const z of [1, 2, 3]) {
     await page.getByTestId(`zoom-${z}`).click();
     await expect(page.getByTestId('town-view').locator('canvas')).toHaveAttribute(
       'data-zoom',
       String(z),
     );
-    // one per empty lot, about 16 CSS px, inside its lot's button
-    await expect(markers).toHaveCount(4);
+    // one per empty lot and site, about 16 CSS px, inside its plot's button
+    await expect(markers).toHaveCount(8);
     const [ms, bs] = [await boxes(markers), await boxes(empty)];
     for (const [i, m] of ms.entries()) {
       expect(m.width, `${z}x marker ${i}`).toBeGreaterThanOrEqual(15);
@@ -396,8 +446,8 @@ test('tier 0 and the Hall answer', async ({ page }) => {
   const state = apply(
     rich,
     [
-      { type: 'build', kind: 'woodcutter' },
-      { type: 'build', kind: 'mine' },
+      { type: 'build', kind: 'woodcutter', plot: plotsFor(rich, 'woodcutter', content)[0].id },
+      { type: 'build', kind: 'mine', plot: plotsFor(rich, 'mine', content)[0].id },
     ],
     content,
   ).state;
@@ -413,9 +463,15 @@ test('tier 0 and the Hall answer', async ({ page }) => {
   await expect(note).toHaveCount(0);
   await camp.click();
   // the list's own text for that lot
-  const campLine = await lot(page, "Woodcutter's camp").locator('.line2').textContent();
-  expect(campLine).toMatch(/^Building, .* left$/);
-  await expect(note).toHaveText(campLine!);
+  // the tab's own text for that plot, after the plot's name
+  const campLine = await page
+    .getByTestId('site')
+    .filter({ hasText: "Woodcutter's camp" })
+    .locator('.line2')
+    .textContent();
+  const noteText = (await note.textContent())!;
+  expect(noteText).toMatch(/^Building, .* left$/);
+  expect(campLine).toBe(`Forest site · ${noteText}`);
   await expect(page.getByTestId('building-sheet')).toHaveCount(0);
   // another tap replaces it, and its 3 s start again
   await page.clock.runFor(2000);

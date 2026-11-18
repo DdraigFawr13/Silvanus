@@ -1,3 +1,4 @@
+import { boostOf } from './plots';
 import type { Building, Content, Event, State } from './types';
 import { DAY_TICKS, addLog, capsOf, kindOf, methodOf } from './util';
 
@@ -36,24 +37,28 @@ export function shortInput(s: State, building: Building, content: Content): stri
 // Rule 5: one production cycle, buildings in lot order. Rates are hundredths of a unit per
 // worker; what is made and not yet whole waits in `carry`, in ten-thousandths, and what is owed
 // and not yet a whole unit waits in `debt`, in hundredths. A method short of an input runs its
-// fallback for the cycle and owes nothing.
+// fallback for the cycle and owes nothing. A shut building makes and uses nothing (D-059). A lot
+// whose feature boosts the kind raises the workers' summed effect by its percent, never the uses
+// (D-058).
 export function produce(s: State, content: Content, events: Event[]): void {
   const caps = capsOf(s, content);
   for (const building of s.buildings) {
     const chosen = methodOf(content, building.method);
-    if (building.tier === 0 || !chosen || building.retoolLeft > 0) continue;
+    if (building.tier === 0 || !chosen || building.retoolLeft > 0 || building.shutLeft > 0)
+      continue;
     const workers = workersIn(s, building);
     if (workers === 0) continue;
     // full stores: nothing is taken, made or lost, and `short` stays as it was
     if (Object.keys(chosen.makes).every((id) => s.stock[id] >= caps[id])) continue;
 
     const skill = kindOf(content, building.kind)!.skill;
-    const effect = s.residents
+    const workEffect = s.residents
       .filter((resident) => resident.jobId === building.id)
       .reduce(
         (sum, r) => sum + effectOf(skill === null ? 50 : (r.skills[skill] ?? 0), r.morale),
         0,
       );
+    const effect = Math.floor((workEffect * (100 + boostOf(s, building, content))) / 100);
 
     let ran = chosen;
     const missing = shortInput(s, building, content);

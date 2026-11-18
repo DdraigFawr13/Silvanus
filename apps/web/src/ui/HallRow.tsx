@@ -11,6 +11,10 @@ const UPGRADE: Command = { type: 'upgradeHall' };
 export function HallRow({ state, send }: { state: State; send: (command: Command) => void }) {
   const [confirming, setConfirming] = useState(false);
   const hall = hallOf(state, content);
+  // used of open town lots (D-058); sites are counted on their own rows
+  const lots = state.plots.filter((p) => p.open && p.ground === null);
+  const open = lots.length;
+  const used = lots.filter((p) => state.buildings.some((b) => b.plot === p.id)).length;
   const next = content.hall.tiers[state.hallTier];
   const at = state.queue.findIndex((job) => job.target === 'hall');
   const why = refusal(state, UPGRADE, content);
@@ -36,7 +40,7 @@ export function HallRow({ state, send }: { state: State; send: (command: Command
         <span className="tier">Tier {state.hallTier}</span>
       </div>
       <div className="line2">
-        {hall.name} · Residents {state.residents.length} / {hall.residents} · {hall.lots} lots
+        {hall.name} · Residents {state.residents.length} / {hall.residents} · {used} of {open} lots
       </div>
       {next && at === 0 && (
         <div className="line2" data-testid="village-job">
