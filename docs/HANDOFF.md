@@ -20,8 +20,7 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 
 ## Just done
 
-- 2026-11-18 Coordinator mode: this session starts slices in new cloud sessions, up to 2 at a time, and alone edits HANDOFF. Running: M2c Town view spec (session_01Dr9VTtFYJ4tjVd7Vwtzw8R, branch `claude/m2c-spec`) and M2d Ceiling and lots spec (session_01Dr9VTtuan263y1go3sMNfG, branch `claude/m2d-spec`).
-- 2026-11-18 Morgan: art slices run in new sessions on the "Network" environment (it holds a PixelLab API key); this session stays coordinator. Next slice when one frees: dressed yards there.
+- 2026-11-18 Coordinator mode: this session starts slices in new sessions, 2 at a time, and alone edits HANDOFF. Done: M2c spec, draft PR #30, page https://claude.ai/artifact/FFBzM6FPkmCAmy1MdqXkN8 (4 slices; Q1 to Q5 wait on Morgan). Running: M2d spec (session_01Dr9VTtuan263y1go3sMNfG) and dressed yards on Network (session_01Dr9VTrKjWJ1t4ySHVSHGue, cap 45 generations).
 - 2026-11-18 M2b art fix 2 (free, 0 generations): a notice board in the square, the loose slabs gone, paths to seven doors (`art/handoff_chatgpt/fix2/fix2.py`, output `result_3_grown.png`). Scored: 28 met, 16 partly, 1 missed, 10 carried (T3 up; T7 partly: forager and woodcutter have no track; M10 not moved, the hut is too wide for the far bank). Page: https://claude.ai/artifact/NqwZexeouZd58ZWXKraaRk. Morgan: "Fix 2 approved"; merged in PR #29. PixelLab refused the key ("401: Invalid API token").
 - 2026-11-18 Branch check (GIT-06): no open PRs; `m2b-art-requirements`, `ccr-3cb7963f-ygkxs2`, `m2b-art-workshop`, `codex/art-polish` hold no live work. Morgan OK'd deleting them; the git proxy refused (HTTP 403), so Morgan deletes them on GitHub.
 - Earlier entries are in `docs/archive/handoff-2026-11.md`.
