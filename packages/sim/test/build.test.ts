@@ -1,13 +1,23 @@
 import { describe, expect, test } from 'vitest';
 import { apply, capsOf, hallOf, jobCost, newGame, refusal } from '../src/index';
 import type { Command, State } from '../src/index';
-import { byKind, content, crowd, finished, rich, run, workers } from './town';
+import { build, byKind, content, crowd, finished, rich, run, workers } from './town';
 
 const send = (state: State, ...commands: Command[]) => apply(state, commands, content);
+// One build of each kind, each on its own free plot, in a rich town.
+const queued = (kinds: string[]): Command[] => {
+  let town = rich();
+  return kinds.map((kind) => {
+    const command = build(town, kind);
+    town = apply(town, [command], content).state;
+    return command;
+  });
+};
 
 describe('build', () => {
   test('a build pays at once and finishes on time', () => {
-    const ordered = send(newGame(1, content), { type: 'build', kind: 'mine' }).state;
+    const start = newGame(1, content);
+    const ordered = send(start, build(start, 'mine')).state;
     expect(ordered.stock.wood).toBe(20);
     expect(byKind(ordered, 'mine').tier).toBe(0);
     expect(byKind(run(ordered, 23), 'mine').tier).toBe(0);
@@ -23,19 +33,22 @@ describe('build', () => {
   test("a town with no Woodcutter's camp gets one free", () => {
     const start = newGame(1, content);
     const poor: State = { ...start, stock: { ...start.stock, wood: 0 } };
-    const first = send(poor, { type: 'build', kind: 'woodcutter' });
+    const first = send(poor, build(poor, 'woodcutter'));
     expect(first.events).toEqual([]);
     expect(first.state.stock.wood).toBe(0);
     expect(first.state.queue).toHaveLength(1);
-    const command: Command = { type: 'build', kind: 'woodcutter' };
-    const second = send(first.state, command);
+    // a second camp: refused on stock, on the tier 2 forest site opened by hand
+    const plots = first.state.plots.map((p) => (p.id === 17 ? { ...p, open: true } : p));
+    const opened: State = { ...first.state, plots };
+    const command: Command = { type: 'build', kind: 'woodcutter', plot: 17 };
+    const second = send(opened, command);
     expect(second.events).toEqual([{ type: 'rejected', command, reason: 'noStock' }]);
-    expect(second.state).toEqual(first.state);
+    expect(second.state).toEqual(opened);
   });
 
   test('the queue holds one job under way and three waiting', () => {
     const kinds = ['cottage', 'farm', 'mine', 'workshop'];
-    const filled = send(rich(), ...kinds.map((kind): Command => ({ type: 'build', kind })));
+    const filled = send(rich(), ...queued(kinds));
     expect(filled.events).toEqual([]);
     expect(filled.state.queue).toHaveLength(4);
     expect(filled.state.buildings).toHaveLength(6);
@@ -50,9 +63,12 @@ describe('build', () => {
 
   test('no lot, no build', () => {
     let town = rich();
-    for (const kind of ['farm', 'woodcutter', 'mine', 'workshop']) town = finished(town, kind);
-    expect(town.buildings).toHaveLength(6);
-    const command: Command = { type: 'build', kind: 'tavern' };
+    for (const kind of ['cottage', 'cottage', 'workshop', 'storehouse', 'tavern']) {
+      town = finished(town, kind);
+    }
+    // 6 town buildings and the Forager's hut on its site
+    expect(town.buildings).toHaveLength(7);
+    const command: Command = { type: 'build', kind: 'tavern', plot: 1 };
     const refused = send(town, command);
     expect(refused.events).toEqual([{ type: 'rejected', command, reason: 'noLot' }]);
     expect(refused.state).toEqual(town);
@@ -60,7 +76,7 @@ describe('build', () => {
 
   test('cancelling a waiting job gives its cost back and frees the lot', () => {
     const start = newGame(1, content);
-    const two = send(start, { type: 'build', kind: 'woodcutter' }, { type: 'build', kind: 'mine' });
+    const two = send(start, build(start, 'woodcutter'), build(start, 'mine'));
     expect(two.state.stock.wood).toBe(20);
     const back = send(two.state, { type: 'cancelJob', index: 1 });
     expect(back.state.stock.wood).toBe(60);
@@ -151,7 +167,7 @@ describe('build', () => {
     );
     // a full queue comes before both
     const kinds = ['cottage', 'farm', 'mine', 'workshop'];
-    const filled = send(rich(), ...kinds.map((kind): Command => ({ type: 'build', kind })));
+    const filled = send(rich(), ...queued(kinds));
     expect(why(filled.state)).toBe('queueFull');
   });
 });

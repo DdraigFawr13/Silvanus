@@ -1,9 +1,9 @@
 import { content } from '@silvanus/content';
-import { capsOf, freeMethods, kindOf, newGame } from '@silvanus/sim';
-import type { State } from '@silvanus/sim';
+import { capsOf, freeMethods, kindOf, makePlots, newGame } from '@silvanus/sim';
+import type { Plot, RngState, State } from '@silvanus/sim';
 import { testTickMs } from './clock';
 
-export const SCHEMA = 4;
+export const SCHEMA = 5;
 export const STORE = 'saves';
 export const KEY = 'main';
 // The record an import or an upgrade replaced, kept so it can be brought back by hand (audit F4).
@@ -88,7 +88,39 @@ function buildingOk(v: unknown): boolean {
   const running = content.methods.find((m) => m.id === v.method);
   if (v.short && !running?.fallback) return false;
   if (!upTo(v.retoolLeft, content.rules.retoolTicks)) return false;
+  // a push method's shut lasts at most 2 game days and names its mishap while it runs (D-059)
+  if (!upTo(v.shutLeft, SHUT_MAX)) return false;
+  if (v.shutLeft === 0 ? v.shutBy !== null : typeof v.shutBy !== 'string') return false;
   return amountsOk(v.carry) && amountsOk(v.debt);
+}
+
+const SHUT_MAX = 48;
+// Every town has the same plots by type and tier; only the lots' features differ by seed.
+const PLOT_COUNT =
+  content.townLots.reduce((sum, n) => sum + n, 0) +
+  content.grounds.length * content.townLots.length;
+
+// The plots (D-058), and each building on its own open plot of the type its kind stands on.
+function plotsOk(plots: unknown, buildings: Record<string, unknown>[]): boolean {
+  if (!Array.isArray(plots) || plots.length !== PLOT_COUNT) return false;
+  const plotOk = (p: unknown, i: number) => {
+    if (!isObject(p) || p.id !== i || typeof p.open !== 'boolean') return false;
+    if (!isWhole(p.tier) || p.tier < 1 || p.tier > content.townLots.length) return false;
+    if (p.ground === null) {
+      return p.feature === null || content.features.some((f) => f.id === p.feature);
+    }
+    return content.grounds.some((g) => g.id === p.ground) && p.feature === null;
+  };
+  if (!plots.every(plotOk)) return false;
+  const used = new Set<unknown>();
+  for (const b of buildings) {
+    if (!isWhole(b.plot) || used.has(b.plot)) return false;
+    used.add(b.plot);
+    const plot = plots[b.plot] as Plot | undefined;
+    if (!plot || !plot.open) return false;
+    if (plot.ground !== (kindOf(content, b.kind as string)!.site ?? null)) return false;
+  }
+  return true;
 }
 
 function residentOk(v: unknown, buildingIds: Set<unknown>): boolean {
@@ -158,8 +190,8 @@ function shapeOk(v: unknown): v is SaveRecord {
   if (typeof state.jobsDirty !== 'boolean') return false;
 
   const { buildings, residents, queue, log } = state;
-  if (!Array.isArray(buildings) || buildings.length > hall.lots) return false;
-  if (!buildings.every(buildingOk)) return false;
+  if (!Array.isArray(buildings) || !buildings.every(buildingOk)) return false;
+  if (!plotsOk(state.plots, buildings)) return false;
   const buildingIds = new Set<unknown>(buildings.map((b) => b.id));
   if (!Array.isArray(residents) || !residents.every((r) => residentOk(r, buildingIds))) {
     return false;
@@ -239,6 +271,47 @@ const upgrades: Record<number, (old: unknown) => unknown> = {
     return { ...old, schema: 4, state: { ...old.state, board } };
   },
 };
+
+// 4 to 5 (M2d S1): the town is laid out on the seed's plots (D-058). Each building, in order,
+// goes on a free plot: a gathering kind on its ground's first site the Hall has reached, else
+// that ground's next site, opened; any other kind on the first open town lot, else the first
+// the Hall has reached, else any, opened. A building that finds no plot of its type (a fourth of
+// one ground's kind) is left without one, so the record loads as damaged and is kept.
+function layOut(old: unknown): unknown {
+  if (!isObject(old) || !isObject(old.state)) return null;
+  const st = old.state;
+  if (!Array.isArray(st.buildings) || !isWhole(st.seed) || !rngOk(st.rng)) return null;
+  if (!isWhole(st.hallTier) || !isWhole(st.tick) || !Array.isArray(st.log)) return null;
+  const hallTier = st.hallTier;
+  // a schema 4 town has drawn nothing on `lots`; the plots are the seed's as a new town has them
+  const rng: RngState = { ...(st.rng as RngState) };
+  delete rng.lots;
+  const draft = { seed: st.seed, rng } as State;
+  const plots = makePlots(draft, content);
+  const taken = new Set<number>();
+  const first = (test: (p: Plot) => boolean) => plots.find((p) => !taken.has(p.id) && test(p));
+  const buildings = st.buildings.map((b: unknown) => {
+    if (!isObject(b) || typeof b.kind !== 'string') return b;
+    const kind = kindOf(content, b.kind);
+    if (!kind) return b;
+    const ground = kind.site ?? null;
+    const plot =
+      ground !== null
+        ? (first((p) => p.ground === ground && p.tier <= hallTier) ??
+          first((p) => p.ground === ground))
+        : (first((p) => p.ground === null && p.open) ??
+          first((p) => p.ground === null && p.tier <= hallTier) ??
+          first((p) => p.ground === null));
+    if (!plot) return b;
+    plot.open = true;
+    taken.add(plot.id);
+    return { ...b, plot: plot.id, shutLeft: 0, shutBy: null };
+  });
+  const line = { tick: st.tick, type: 'plots', text: 'Your town was laid out on plots.' };
+  const log = [...st.log, line].slice(-content.rules.logMax);
+  return { ...old, schema: 5, state: { ...st, rng: draft.rng, plots, buildings, log } };
+}
+upgrades[4] = layOut;
 
 // Shared by load and importText.
 export function parse(raw: unknown): Loaded {

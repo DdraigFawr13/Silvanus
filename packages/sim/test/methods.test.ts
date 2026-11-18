@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { advance, apply, assignJobs, newGame, perDay, refusal } from '../src/index';
 import type { Building, Command, State } from '../src/index';
-import { byKind, content, finished, run, steady, workers } from './town';
+import { build, byKind, content, finished, run, steady, workers } from './town';
 
 // Seed 1 with a finished building of `kind` on `method` with `open` slots, jobs assigned.
 function withBuilding(kind: string, method: string, open: number, stock = {}): State {
@@ -137,7 +137,7 @@ describe('methods', () => {
     // clearing the lot loses what it bought: a new Workshop owns only Mend
     const cleared = apply(again, [{ type: 'clear', buildingId: shop }], content).state;
     const rich: State = { ...cleared, stock: { ...cleared.stock, wood: 100, stone: 100 } };
-    const rebuilt = apply(rich, [{ type: 'build', kind: 'workshop' }], content).state;
+    const rebuilt = apply(rich, [build(rich, 'workshop')], content).state;
     expect(byKind(rebuilt, 'workshop').owned).toEqual(['mend']);
   });
 

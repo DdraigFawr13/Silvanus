@@ -1,4 +1,5 @@
-export type StreamName = 'arrivals' | 'goals' | 'trader' | 'trips' | `test:${string}`;
+export type StreamName =
+  'arrivals' | 'goals' | 'trader' | 'trips' | 'lots' | 'push' | `test:${string}`;
 // stream name -> unsigned 32-bit state; a stream is added on its first draw
 export type RngState = Record<string, number>;
 // resource id -> whole units (or the scaled unit a comment names)
@@ -35,9 +36,28 @@ export type Building = {
   debt: Amounts; // hundredths of a unit of input owed
   short: boolean; // ran by its fallback in the last cycle
   owned: string[]; // methods this building owns: its free ones and what it bought (D-034)
+  plot: number; // the plot it stands on, an index in state.plots (D-058)
+  shutLeft: number; // ticks a push method's mishap still shuts it, 0..48 (D-059)
+  shutBy: string | null; // the mishap's `what` while shut, else null
 };
 
-export type Job = { target: 'hall' | number; toTier: number; ticksLeft: number; cost: Amounts };
+// A place a building can stand (D-058): a town lot, or a site of one ground.
+export type Plot = {
+  id: number; // its index in state.plots
+  ground: string | null; // null: a town lot; else a ground id (a site)
+  feature: string | null; // town lots only; null is plain
+  tier: number; // the Hall tier from which it can be cleared; 1 = open from the start
+  open: boolean;
+};
+
+// A `tangle` job clears a plot (M2d S2) and names it in `plot`; its `toTier` is the plot's tier.
+export type Job = {
+  target: 'hall' | 'tangle' | number;
+  toTier: number;
+  ticksLeft: number;
+  cost: Amounts;
+  plot?: number;
+};
 export type LogLine = { tick: number; type: string; text: string };
 
 // The board (M2e, rule 6): goals, the trader's offers, goods on the way and a forage trip.
@@ -68,7 +88,8 @@ export type State = {
   stock: Amounts;
   hallTier: number;
   nextId: number; // shared by residents and buildings
-  buildings: Building[]; // in lot order; length <= lots
+  plots: Plot[]; // 31 in M2d: the town lots, then each ground's sites (D-058)
+  buildings: Building[]; // in the order they were ordered; one per open plot
   queue: Job[]; // [0] is under way; length <= 1 + queueMax
   residents: Resident[];
   lastLeftTick: number; // tick of the last departure, minus the leaving gap at start
@@ -78,7 +99,7 @@ export type State = {
 };
 
 export type Command =
-  | { type: 'build'; kind: string }
+  | { type: 'build'; kind: string; plot: number }
   | { type: 'upgrade'; buildingId: number }
   | { type: 'upgradeHall' }
   | { type: 'cancelJob'; index: number } // 1..queue.length-1; refunds its cost
@@ -142,6 +163,7 @@ export type BuildingKind = {
   freeWhenNone?: boolean; // costs nothing while the town has none of this kind
   storage?: boolean; // each finished tier adds one base cap to every store
   cheers?: boolean; // each worker adds rules.tavernPerWorker to everyone's morale, to tavernMax
+  site?: string; // a ground id: it stands only on a site of that ground; else on town lots
   tiers: { cost: Amounts; ticks: number; slots: number; beds: number }[]; // [0] is tier 1
 };
 
@@ -174,7 +196,7 @@ export type Content = {
   hall: {
     tiers: {
       name: string;
-      lots: number;
+      lots: number; // shown only: the town lots open at this tier (townLots)
       residents: number;
       catchUpCap: number;
       cost: Amounts; // to reach this tier; {} for tier 1
@@ -182,6 +204,14 @@ export type Content = {
       needResidents: number;
     }[];
   };
+  // Plots (D-058). `townLots[i]`: the town lots Hall tier i + 1 lets be cleared; each Hall tier's
+  // `lots` is the sum up to it. The lots' features are a deck of each feature `count` times and
+  // `plainLots` plain ones, shuffled on the `lots` stream. Each ground has one site per Hall tier.
+  grounds: { id: string; name: string }[];
+  townLots: number[];
+  // a lot's feature raises the output of the kinds in `boosts` by rules.boostPct
+  features: { id: string; name: string; count: number; boosts: string[] }[];
+  plainLots: number;
   buildings: BuildingKind[];
   methods: Method[]; // a building's first method listed is the one it starts on
   skills: { id: string; name: string }[];
@@ -211,6 +241,7 @@ export type Content = {
     tradeSharePct: number; // an offer's give, in percent of its resource's base cap
     tradeGetBelowPct: number; // an offer's get, only below this percent of its cap
     offerExtraTicks: number; // an offer lasts the catch-up cap plus this
+    boostPct: number; // what a lot's feature adds to the output of the kinds it boosts
   };
   names: Record<string, { starts: string[]; ends: string[] }>;
   goals: Goal[];

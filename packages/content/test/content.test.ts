@@ -270,6 +270,57 @@ const planted: [fault: string, message: RegExp, make: (c: Content) => void][] = 
       c.trips.finds[1].min = 30;
     },
   ],
+  // plots (M2d S1, D-058)
+  [
+    'a site on an unknown ground',
+    /^mine stands on an unknown ground, cave$/,
+    (c) => {
+      c.buildings.find((b) => b.id === 'mine')!.site = 'cave';
+    },
+  ],
+  [
+    'a ground listed twice',
+    /^a ground is listed twice$/,
+    (c) => {
+      c.grounds[1] = { ...c.grounds[0] };
+      c.buildings.find((b) => b.id === 'mine')!.site = 'forest';
+    },
+  ],
+  [
+    "a Hall tier's lots that townLots does not open",
+    /^Hall tier 2 shows 10 lots, but townLots opens 11$/,
+    (c) => {
+      c.townLots = [6, 5, 5];
+    },
+  ],
+  [
+    'a deck short of a card',
+    /^the features' deck holds 15 cards for 16 lots$/,
+    (c) => {
+      c.plainLots = 3;
+    },
+  ],
+  [
+    'a boost of a site kind',
+    /^feature soil boosts farm, which stands on a site$/,
+    (c) => {
+      c.features[0].boosts = ['farm'];
+    },
+  ],
+  [
+    'a boost of a kind that makes nothing',
+    /^feature soil boosts cottage, which makes nothing$/,
+    (c) => {
+      c.features[0].boosts = ['cottage'];
+    },
+  ],
+  [
+    'a boost of an unknown kind',
+    /^feature soil boosts an unknown building, castle$/,
+    (c) => {
+      c.features[0].boosts = ['castle'];
+    },
+  ],
   [
     'a trip of no one',
     /^trips size is a zero or negative number$/,
@@ -298,6 +349,38 @@ describe('content', () => {
       expect(goal.reward, goal.id).toBeLessThanOrEqual(to);
     }
     expect(content.goals.filter((g) => g.hall === 2)).toHaveLength(6);
+  });
+
+  test('plots: 16 town lots by Hall tier, a deck of features, gatherers on sites', () => {
+    expect(content.version).toBe(5);
+    expect(content.townLots).toEqual([6, 4, 6]);
+    expect(content.hall.tiers.map((t) => t.lots)).toEqual([6, 10]);
+    expect(content.grounds.map((g) => g.id)).toEqual([
+      'forest',
+      'mountain',
+      'fields',
+      'woods',
+      'river',
+    ]);
+    expect(content.features.map((f) => [f.id, f.count])).toEqual([
+      ['soil', 3],
+      ['river', 3],
+      ['rock', 3],
+      ['edge', 3],
+    ]);
+    expect(content.plainLots).toBe(4);
+    expect(content.rules.boostPct).toBe(25);
+    const sites = Object.fromEntries(content.buildings.map((b) => [b.id, b.site ?? null]));
+    expect(sites).toEqual({
+      cottage: null,
+      forager: 'woods',
+      farm: 'fields',
+      woodcutter: 'forest',
+      mine: 'mountain',
+      workshop: null,
+      storehouse: null,
+      tavern: null,
+    });
   });
 
   test('the real content is valid and runs 96 ticks', () => {

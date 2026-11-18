@@ -8,7 +8,7 @@ import type { Locator, Page } from '@playwright/test';
 
 export { content };
 
-// A schema 4 record of a new town, as the app stores it. `commands` are carried out on it
+// A schema 5 record of a new town, as the app stores it. `commands` are carried out on it
 // first; `state` then overrides fields. The anchor is now unless given.
 export function townRecord(
   overrides: {
@@ -21,7 +21,7 @@ export function townRecord(
   const start = newGame(overrides.seed ?? 1, content);
   const state = apply(start, overrides.commands ?? [], content).state;
   return {
-    schema: 4,
+    schema: 5,
     anchorMs: overrides.anchorMs ?? Date.now(),
     state: { ...state, ...overrides.state },
   };
@@ -53,8 +53,11 @@ const tickOf = async (locator: Locator) => Number(await locator.getAttribute('da
 export const tick = (page: Page) => tickOf(page.getByTestId('date'));
 export const savedTick = (page: Page) => tickOf(page.getByTestId('saved-at'));
 
-// The row of a built lot, by the building's name.
-export const lot = (page: Page, name: string) => page.getByTestId('lot').filter({ hasText: name });
+// The row of a built lot or site, by the building's name (an empty lot names what it adds to).
+export const lot = (page: Page, name: string) =>
+  page
+    .locator('[data-testid="lot"]:not(.empty), [data-testid="site"]:not(.empty)')
+    .filter({ hasText: name });
 
 // Stores a record before the app ever runs, from an empty page on the app's origin.
 export async function seedRecord(page: Page, record: unknown) {

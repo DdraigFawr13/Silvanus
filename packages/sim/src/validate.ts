@@ -146,6 +146,47 @@ export function validateContent(content: Content): string[] {
       faults.push(`the trip find of ${find.resource} needs 1 <= min <= max`);
     }
   }
+  // plots (D-058): grounds, each kind's site, the town lots by Hall tier, the features' deck
+  const grounds = new Set(content.grounds.map((g) => g.id));
+  if (grounds.size !== content.grounds.length) faults.push('a ground is listed twice');
+  for (const kind of content.buildings) {
+    if (kind.site !== undefined && !grounds.has(kind.site)) {
+      faults.push(`${kind.id} stands on an unknown ground, ${kind.site}`);
+    }
+  }
+  if (content.townLots.length < content.hall.tiers.length) {
+    faults.push('every Hall tier needs a townLots entry');
+  }
+  let opened = 0;
+  content.townLots.forEach((n, i) => {
+    if (!positive(n)) faults.push(`townLots ${i + 1} is a zero or negative number`);
+    opened += n;
+    const tier = content.hall.tiers[i];
+    if (tier && tier.lots !== opened) {
+      faults.push(`Hall tier ${i + 1} shows ${tier.lots} lots, but townLots opens ${opened}`);
+    }
+  });
+  const featureIds = new Set(content.features.map((f) => f.id));
+  if (featureIds.size !== content.features.length) faults.push('a feature is listed twice');
+  const deck = content.features.reduce((sum, f) => sum + f.count, content.plainLots);
+  if (deck !== opened) faults.push(`the features' deck holds ${deck} cards for ${opened} lots`);
+  if (!Number.isInteger(content.plainLots) || content.plainLots < 0) {
+    faults.push('plainLots must be a whole number of 0 or more');
+  }
+  for (const feature of content.features) {
+    if (!positive(feature.count)) faults.push(`feature ${feature.id} has no count`);
+    for (const id of feature.boosts) {
+      const kind = content.buildings.find((b) => b.id === id);
+      if (!kind) faults.push(`feature ${feature.id} boosts an unknown building, ${id}`);
+      else if (kind.site !== undefined) {
+        faults.push(`feature ${feature.id} boosts ${id}, which stands on a site`);
+      } else if (
+        !content.methods.some((m) => m.building === id && Object.keys(m.makes).length > 0)
+      ) {
+        faults.push(`feature ${feature.id} boosts ${id}, which makes nothing`);
+      }
+    }
+  }
   // a settler draws two different traits
   if (content.traits.length < 2) faults.push('there must be at least 2 traits');
   // ids the engine reads by name: eating, and the founders' buildings (D-025)

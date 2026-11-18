@@ -59,7 +59,9 @@ export function shortfall(stock: Amounts, cost: Amounts): Amounts {
   return missing;
 }
 
-// A copy the rules may change: every part a rule writes to is its own object.
+// A copy the rules may change: every part a rule writes to is its own object. `plots` is shared:
+// a rule that opens a plot replaces the array and the plot (M2d S2), never writes into them, so
+// a tick does not copy 31 plots.
 export function draft(state: State): State {
   return {
     ...state,

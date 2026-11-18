@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { advance, apply, newGame } from '@silvanus/sim';
+import { advance, apply, newGame, plotBoost, plotsFor } from '@silvanus/sim';
 import type { Building, State } from '@silvanus/sim';
 import { content, crowd, lot, readRecord, seedRecord, townRecord } from './helpers';
 
@@ -26,12 +26,27 @@ test('the town tab shows stock and lots', async ({ page }) => {
   await expect(page.getByTestId('stock-wood')).toHaveText('Wood60 / 200');
   await expect(page.getByTestId('stock-tools')).toHaveText('Tools · empty0 / 50');
   await expect(page.getByTestId('hall')).toContainText('Residents 8 / 25');
+  // six open lots (M2d S1), the Cottage on the first, each empty one saying what it adds (the
+  // features come from the town's seed; 'building asks where' reads seed 1's); the Forager's hut
+  // on the woods site, four sites empty
   const lots = page.getByTestId('lot');
   await expect(lots).toHaveCount(6);
   await expect(lots.nth(0)).toContainText('Cottage');
-  await expect(lots.nth(1)).toContainText("Forager's hut");
-  await expect(lots.nth(1)).toContainText('Gather · Workers 4 / 4');
-  await expect(lots.filter({ hasText: 'Empty lot' })).toHaveCount(4);
+  await expect(lots.nth(0)).toContainText('Beds 8');
+  const empty = lots.filter({ hasText: 'Empty lot' });
+  await expect(empty).toHaveCount(5);
+  for (const row of await empty.all()) {
+    await expect(row).toContainText(/Plain|: Workshop \+25%|: nothing gains here yet/);
+  }
+  const sites = page.getByTestId('site');
+  await expect(sites).toHaveCount(5);
+  await expect(sites.nth(0)).toContainText('Empty forest site');
+  await expect(sites.nth(0)).toContainText("For a Woodcutter's camp");
+  await expect(sites.nth(3)).toContainText("Forager's hut");
+  // no kind stands on the river until the Fisher's hut (S3): nothing to tap
+  await expect(sites.nth(4)).toHaveText('Empty river siteNo building stands here yet');
+  await expect(sites.nth(3)).toContainText('Woods site · Gather · Workers 4 / 4');
+  await expect(page.getByTestId('hall')).toContainText('1 of 6 lots');
   await expect(page.getByTestId('queue')).toHaveText('Nothing is being built.');
   await expect(page.getByTestId('log')).toHaveText('Nothing has happened yet.');
   expect(await sidewaysScroll(page)).toBe(0);
@@ -41,25 +56,31 @@ test('the town tab shows stock and lots', async ({ page }) => {
   expect(await sidewaysScroll(page)).toBe(0);
 });
 
-test('building from an open lot', async ({ page }) => {
+test('building from the Build button', async ({ page }) => {
   await page.goto('/?tickMs=60000');
   const empty = page.getByTestId('lot').filter({ hasText: 'Empty lot' });
-  await empty.first().click();
+  await page.getByTestId('build').click();
   const sheet = page.getByTestId('build-sheet');
   // what cannot be paid for is off, and says what is missing
   await expect(sheet.getByTestId('build-farm')).toBeDisabled();
   await expect(sheet.getByTestId('build-farm')).toContainText('Needs 5 tools');
   await expect(sheet.getByTestId('build-woodcutter')).toContainText('Free: the town has none');
+  await expect(sheet.getByTestId('build-woodcutter')).toContainText('Forest site · 1 free');
+  // one free forest site: no picker
   await sheet.getByTestId('build-woodcutter').click();
   await expect(sheet).toHaveCount(0);
-  await expect(lot(page, "Woodcutter's camp")).toContainText('Building, 8 game hours left');
-  // the town's first camp is free
+  await expect(lot(page, "Woodcutter's camp")).toContainText(
+    'Forest site · Building, 8 game hours left',
+  );
+  // the town's first camp is free, and it took a site, not a lot
   await expect(page.getByTestId('stock-wood')).toHaveText('Wood60 / 200');
-  await expect(empty).toHaveCount(3);
+  await expect(empty).toHaveCount(5);
 
-  await empty.first().click();
-  // a second camp has its price
+  await page.getByTestId('build').click();
+  // a second camp has its price, and no site to stand on
   await expect(sheet.getByTestId('build-woodcutter')).toContainText('25 wood');
+  await expect(sheet.getByTestId('build-woodcutter')).toContainText('No free forest site');
+  await expect(sheet.getByTestId('build-woodcutter')).toBeDisabled();
   await sheet.getByTestId('build-mine').click();
   await expect(page.getByTestId('stock-wood')).toHaveText('Wood20 / 200');
   await expect(lot(page, 'Mine')).toContainText('Waiting in the work queue');
@@ -74,7 +95,65 @@ test('building from an open lot', async ({ page }) => {
   await expect(page.getByTestId('cancel-note')).toHaveCount(0);
   await expect(page.getByTestId('stock-wood')).toHaveText('Wood60 / 200');
   await expect(lot(page, 'Mine')).toHaveCount(0);
-  await expect(empty).toHaveCount(3);
+  await expect(page.getByTestId('site').filter({ hasText: 'Empty mountain site' })).toHaveCount(1);
+});
+
+test('building asks where', async ({ page }) => {
+  // seed 1 with stone, so a Workshop can be paid for; its open lots after the Cottage's are
+  // 1 forest edge, 2 good soil, 3 plain, 4 riverside, 5 plain (M2d S1)
+  const start = newGame(1, content);
+  await seedRecord(
+    page,
+    townRecord({ state: { stock: { ...start.stock, wood: 200, stone: 100 } } }),
+  );
+  await page.goto('/?tickMs=60000');
+  await page.getByTestId('build').click();
+  const sheet = page.getByTestId('build-sheet');
+  await expect(sheet.getByTestId('build-workshop')).toContainText(
+    'Town lot · 5 free · +25% on forest edge (1)',
+  );
+  await expect(sheet.getByTestId('build-cottage')).toContainText(
+    'Town lot · 5 free, no lot adds to it',
+  );
+  await sheet.getByTestId('build-workshop').click();
+  await expect(sheet.getByRole('heading', { name: 'Where to build the Workshop' })).toBeVisible();
+  const picks = sheet.getByTestId('pick-plot');
+  // the lot that adds to the Workshop first, then the rest in order
+  await expect(picks).toHaveText([
+    /^Forest edgeWorkshop \+25%/,
+    /^Good soilNo gain for any building yet/,
+    /^PlainNo gain for any building/,
+    /^RiversideNo gain for any building yet/,
+    /^PlainNo gain for any building/,
+  ]);
+  for (const box of await picks.all()) {
+    expect((await box.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  }
+  expect(await sidewaysScroll(page)).toBe(0);
+  // back to the list, and in again
+  await sheet.getByRole('button', { name: '‹ Other buildings' }).click();
+  await sheet.getByTestId('build-workshop').click();
+  await picks.first().click();
+  await expect(sheet).toHaveCount(0);
+  const lots = page.getByTestId('lot');
+  await expect(lots.nth(1)).toContainText('Workshop');
+  await expect(lots.nth(1)).toContainText('Forest edge · Building, 1 game day left');
+
+  // a kind with exactly one free plot skips the picker
+  await page.getByTestId('build').click();
+  await sheet.getByTestId('build-mine').click();
+  await expect(sheet).toHaveCount(0);
+  await expect(lot(page, 'Mine')).toContainText('Mountain site · Waiting in the work queue');
+
+  // an empty lot chooses the lot first: only town buildings, the ones it adds to first
+  await lots.filter({ hasText: 'Riverside' }).click();
+  await expect(sheet.getByRole('heading', { name: 'Build on the riverside' })).toBeVisible();
+  await expect(sheet).toContainText('Riverside: nothing gains here yet.');
+  await expect(sheet.getByTestId('build-mine')).toHaveCount(0);
+  await expect(sheet.getByTestId('build-woodcutter')).toHaveCount(0);
+  await sheet.getByTestId('build-cottage').click();
+  await expect(lots.nth(4)).toContainText('Cottage');
+  await expect(page.getByTestId('hall')).toContainText('3 of 6 lots');
 });
 
 test('the building sheet sets open slots and clears a lot after asking', async ({ page }) => {
@@ -103,7 +182,8 @@ test('the building sheet sets open slots and clears a lot after asking', async (
   await sheet.getByTestId('clear-yes').click();
   await expect(sheet).toHaveCount(0);
   await expect(lot(page, "Forager's hut")).toHaveCount(0);
-  await expect(page.getByTestId('lot').filter({ hasText: 'Empty lot' })).toHaveCount(5);
+  // its site is free again
+  await expect(page.getByTestId('site').filter({ hasText: 'Empty woods site' })).toHaveCount(1);
   await expect(page.getByTestId('log')).toContainText(
     "The Forager's hut was cleared from its lot.",
   );
@@ -153,7 +233,7 @@ test('text follows the root text size', async ({ page }) => {
 
 test('a build finishes, works and is kept', async ({ page }) => {
   await page.goto('/?tickMs=50');
-  await page.getByTestId('lot').filter({ hasText: 'Empty lot' }).first().click();
+  await page.getByTestId('site').filter({ hasText: 'Empty forest site' }).click();
   await page.getByTestId('build-sheet').getByTestId('build-woodcutter').click();
   // 8 game hours later the camp is built and the four idle residents work in it
   await expect(lot(page, "Woodcutter's camp")).toContainText('Hand axes · Workers 4 / 4');
@@ -196,6 +276,10 @@ function withBuilt(
     owned: content.methods
       .filter((m) => m.building === kind && (Object.keys(m.cost).length === 0 || m.id === method))
       .map((m) => m.id),
+    // a plot that adds nothing, so the rates the tests read are the plain ones
+    plot: plotsFor(start, kind, content).find((p) => plotBoost(content, p, kind) === 0)!.id,
+    shutLeft: 0,
+    shutBy: null,
     ...extra,
   };
   return { buildings: [...start.buildings, building], nextId: start.nextId + 1, jobsDirty: true };
@@ -266,6 +350,9 @@ test('away summary after catch-up', async ({ page }) => {
         debt: {},
         short: false,
         owned: ['axes'],
+        plot: newGame(1, content).plots.find((p) => p.ground === 'forest' && p.open)!.id,
+        shutLeft: 0,
+        shutBy: null,
       },
     ],
     nextId: camp + 1,
@@ -405,9 +492,14 @@ test('Upgrade is on the lot row', async ({ page }) => {
   // seed 1 with a finished Woodcutter's camp, a Mine being built and a Forager's hut at tier 3
   const start = newGame(1, content);
   let state: State = { ...start, stock: { ...start.stock, wood: 200, stone: 200, tools: 50 } };
-  state = apply(state, [{ type: 'build', kind: 'woodcutter' }], content).state;
+  const on = (kind: string) => plotsFor(state, kind, content)[0].id;
+  state = apply(
+    state,
+    [{ type: 'build', kind: 'woodcutter', plot: on('woodcutter') }],
+    content,
+  ).state;
   state = advance(state, 8, content).state;
-  state = apply(state, [{ type: 'build', kind: 'mine' }], content).state;
+  state = apply(state, [{ type: 'build', kind: 'mine', plot: on('mine') }], content).state;
   state = {
     ...state,
     stock: { ...state.stock, wood: 45, stone: 10, tools: 5 },

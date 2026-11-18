@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { advance, apply, capsOf, goalProgress, newGame, rewardPreview, step } from '../src/index';
 import type { Command, Event, Offer, State } from '../src/index';
-import { content, finished, run } from './town';
+import { build, content, finished, run } from './town';
 
 // M2e S1, the board's goals (spec J1 and J2). A goal is set on the board by hand where a test
 // needs a given one; the draw itself is J1's.
@@ -143,7 +143,7 @@ describe('rewards', () => {
   test('a building goal and a residents goal pay', () => {
     // a Mine finishes in the tick that runs the queue's last tick
     let town = offered(newGame(1, content), ['quarry', 'twelve', 'snug'], 'quarry');
-    town = apply(town, [{ type: 'build', kind: 'mine' }], content).state;
+    town = apply(town, [build(town, 'mine')], content).state;
     const ticks = content.buildings.find((b) => b.id === 'mine')!.tiers[0].ticks;
     town = run(town, ticks - 1);
     expect(town.board.active).toBe('quarry');
