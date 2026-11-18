@@ -1,6 +1,6 @@
 # M2d Ceiling and lots
 
-- **Status:** Approved 2026-11-18 (Morgan on the review form (`m2dspec`, https://claude.ai/artifact/1hdoqGcMCifpeQHN7pR8dB, 2026-11-18): "Approved, start with the mock-up"). Not built; S0 is next.
+- **Status:** Approved 2026-11-18 (Morgan on the review form (`m2dspec`, https://claude.ai/artifact/1hdoqGcMCifpeQHN7pR8dB, 2026-11-18): "Approved, start with the mock-up"). S0 mock-up approved 2026-11-18 (`m2dmock1`, https://claude.ai/artifact/KepHEDRaPdVpwFcftLppRH); S1 is next.
 - **Planned in:** the M2 re-plan (round 1 https://claude.ai/artifact/3uADUApzUZwnny2PqCwnz2, final https://claude.ai/artifact/2Q9JF8itCsoKPXsS8h8YaG, 2026-11-14), fun round 2 (https://claude.ai/artifact/NbBSXFajzEL8reyh2M7rsE), the sites forms (`sites1`, `special1`). **Decisions:** D-032 (push methods), D-033 (lots), D-038 (M2d), D-043 (sites, the Tangle), D-044; proposed here: D-058 to D-061.
 - **Order of approval:** the spec and its six questions are answered (below); the S0 mock-up is approved next, then S1 starts.
 
@@ -252,6 +252,7 @@ A check-in has a **work choice** when, before the player acts, any of these pass
 
 - **Morgan sees:** the build sheet's lot picker, the Tangle section, a building row with a feature and a shut line, the Deep seam method row, the Hall's Town row, at 412 px from `docs/UI_STYLE.md` (the `ui-mockups` skill). It shows the set Morgan picked on the review form (D-038's "chosen in M2d's mock-up" was answered there).
 - **Waits on:** this spec's approval.
+- **Approved 2026-11-18** by Morgan on the mock-up form (`m2dmock1`, https://claude.ai/artifact/KepHEDRaPdVpwFcftLppRH, `mockups/m2d-lots.html`, PR #35): Approve on all four screens (where to build, lots, sites and the Tangle, the Town row, the push method); "Both: the Build button picks a lot, an empty lot picks a building"; the Tangle "One row per plot, as drawn"; the D-061 set "Keep it". No notes. S1 builds to these pictures, including the parts the mock-up added: a Build button at the head of Lots, an empty lot's line naming what it boosts, the build list's "Town lot · n free · +25% on …" line, and the store-room line naming what the stores hold.
 
 ### S1 Plots and sites
 
