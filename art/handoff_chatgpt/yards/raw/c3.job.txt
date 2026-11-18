@@ -1,0 +1,20 @@
+tool: create_image_pro_from_style
+job: 2746fb46-a722-48ce-a535-ebbf420d9540
+description: a small cluster of cottage yard props drawn at small scale on a little patch of worn earth, each item small: either a water butt barrel with a short wooden bench and two clay flower pots, or a washing line strung between two wooden posts with grey and cream cloths hanging, or a small vegetable garden bed with a low wattle fence, or a chopping block with an axe and a few split logs, or a wheelbarrow with a sack and a bucket
+receipt:
+id: 2746fb46-a722-48ce-a535-ebbf420d9540
+job_id: 2746fb46-a722-48ce-a535-ebbf420d9540
+model: pro from style
+description: a small cluster of cottage yard props drawn at small scale on a little patch of worn earth, each item small: either a water butt barrel with a short wooden bench and two clay flower pots, or a washing line strung between two wooden posts with grey and cream cloths hanging, or a small vegetable garden bed with a low wattle fence, or a chopping block with an axe and a few split logs, or a wheelbarrow with a sack and a bucket
+style images: 4
+size: 48x48px
+transparent: True
+candidates: 25
+style description: dark moody dusk pixel art, high top-down three-quarter view, dark single-colour outline, medium shading, muted greens, browns and slate greys
+asset_id: ed835308-3d16-52a7-91c7-413e36bb5081
+asset_status: pending (saved when generation completes)
+cost: 10 generations
+status: processing (~1-10 min)
+
+hint: get_image(job_id="2746fb46-a722-48ce-a535-ebbf420d9540")
+without get_image: GET https://api.pixellab.ai/mcp/images/2746fb46-a722-48ce-a535-ebbf420d9540/download (423 + Retry-After until ready; ?index=N for the Nth of several images)

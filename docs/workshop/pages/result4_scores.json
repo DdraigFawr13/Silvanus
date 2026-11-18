@@ -1,0 +1,332 @@
+{
+"L1": [
+"The target look is mock-up 1",
+"m",
+"Brightness 51, saturation 0.39, edge share 0.237, unchanged by the yards (mock-up 1: 55, 0.37, 0.263). The props carry the map's dusk browns and slate greys.",
+"m"
+],
+"L2": [
+"Same top-down three-quarter view",
+"m",
+"Ground, mountain and all buildings in the same high three-quarter view.",
+"m"
+],
+"L3": [
+"Higher detail, at mock-up 1's level",
+"p",
+"Buildings at mock-up 1's detail; the ground is plainer (edge share 0.204 without buildings, was 0.162 before the clean-up).",
+"p"
+],
+"L4": [
+"Grounded",
+"m",
+"Houses face their lanes, fences, lamp posts, trees among the houses; six more yards now hold the things people use there (water butts, benches, washing, woodpiles).",
+"m"
+],
+"L5": [
+"Haunting dusk, subtle",
+"m",
+"Mist, crows, cool light, warm windows, dead trees; one lamp design throughout.",
+"m"
+],
+"L6": [
+"Cosy, a proper town",
+"m",
+"Reads as a lived-in town in its landscape: forest, mountain, river, swamp, fields.",
+"m"
+],
+"L7": [
+"Every building has character",
+"m",
+"As before, plus yard props that belong to each building: a wheelbarrow and a vegetable bed at the farm, woodpiles and a chopping block at the cottages, a smaller fisher's hut with a net frame and lantern post.",
+"m"
+],
+"L8": [
+"One colour and light, natural variation",
+"m",
+"The clean-up removed the tile seams, the river column and the darker north-west blocks; no straight seam seen in six sections at 2×. The seam scan reads 9,216 px, but it also counts walls, fences and the walkway. The mist patches are flat see-through shapes.",
+"m"
+],
+"L9": [
+"Walls, fences and trees drawn well",
+"m",
+"Pines, dead trees, fences and stone walls clean; the fence beside the walkway now ends on posts.",
+"m"
+],
+"L10": [
+"Any tool that matches mock-up 1's mood",
+"m",
+"Ground by ChatGPT (Morgan) from the PixelLab ground; buildings and yard props from PixelLab, styled on crops of the map's own pieces.",
+"m"
+],
+"M1": [
+"One seamless map that scrolls and zooms",
+"p",
+"One picture, 1408 × 888, no seams; not yet in the game, so no scroll or zoom yet.",
+"p"
+],
+"M2": [
+"Map size (now about 1408 × 888)",
+"m",
+"1408 × 888.",
+"m"
+],
+"M3": [
+"The Hall is the centre",
+"p",
+"The Hall is top centre of the town, but right of the map's middle (its door at x 893 of 1408).",
+"p"
+],
+"M4": [
+"North forest dense behind the Hall",
+"m",
+"Dense dark pines along the whole top from the west edge to the mountain.",
+"m"
+],
+"M5": [
+"Sparse fringe sides and south",
+"m",
+"West and south: grass with scattered pines, stumps, bushes and dead trees; the forager's hut stands in it.",
+"m"
+],
+"M6": [
+"Forest road north-west through a lantern gate",
+"m",
+"The road leaves north through a stone arch gate west of the town, past the woodcutter's camp; a lamp post stands beside the gate, none on the arch.",
+"m"
+],
+"M7": [
+"Mine upper right, mountain off the edges, track to town",
+"m",
+"Stepped mountain off the top and right edges, mine entrance in its face, rails toward town that end in grass where a dirt track carries on to the square's lane; no bridge.",
+"m"
+],
+"M8": [
+"Mountain reads as a real landform",
+"p",
+"Stone tiers with ledges, moss and pines; the stone still reads a little like stacked blocks.",
+"p"
+],
+"M9": [
+"Swamp east of the river",
+"m",
+"East of the river, lower right: dark pools, reeds, mud and dead trees under mist.",
+"m"
+],
+"M10": [
+"River, bridge, jetty, fisher's lot",
+"p",
+"The fisher's hut now stands on the far bank, between the river and the backwater below the bridge road, with a short track to the water (a new 64 px hut). The old hut's jetty and boat went with it, so there is no jetty now; a few planks of the old landing show in the grass on the town bank.",
+"p"
+],
+"M11": [
+"South edge open",
+"m",
+"The south edge is an open fringe; the cross street runs south off the map.",
+"m"
+],
+"M12": [
+"Land has shape",
+"p",
+"Worn earth plots, packed lanes, rougher grass at the edges, boulders near the mountain; the yard props bring small patches of worn earth with them. Little slope.",
+"p"
+],
+"M14": [
+"Special sites toward the edges",
+"p",
+"Old ruins in the forest (top-left), standing stones in the west fringe, a tar pit at the south-west edge. Missing: sunken bog, salt spring, bat caves.",
+"p"
+],
+"M16": [
+"Gathering buildings on their own sites",
+"p",
+"Woodcutter at the forest edge, mine in the mountain, forager in the west fringe; the farmhouse in the south-east stands by planter boxes of flowers and vegetables, not fields.",
+"p"
+],
+"T1": [
+"The Hall stands out",
+"m",
+"Largest building, clock tower, lit windows, its own walkway.",
+"m"
+],
+"T2": [
+"Hall, walkway and square in line",
+"m",
+"Hall door (x 893), walkway (centre x 893) and the square's well line up; the walkway now runs onto the square's paving (fix 1).",
+"m"
+],
+"T3": [
+"Square with notice board",
+"m",
+"A notice board now stands on the square's paving, left of the well (x 837 to 869, y 444 to 476): the map's own plank sign on two posts with three pinned notes, 0 generations. The covered board at the road fork stays as a waymark.",
+"m"
+],
+"T4": [
+"Square upgrades",
+"p",
+"Three stages drawn on the old map (well, then stalls, then a fountain); D-042 is still Proposed.",
+"p"
+],
+"T5": [
+"Real town layout",
+"p",
+"A High Street across, a cross street south off the map, lanes to the edge lots, fences, lamps; no cobbled High Street, few hedgerows, no orchard.",
+"p"
+],
+"T6": [
+"Organic",
+"m",
+"Curving lanes, uneven spacing and set-backs, houses on both sides of the street, trees inside the town.",
+"m"
+],
+"T7": [
+"Town grows from its paths",
+"p",
+"As fix 2, plus a track from the new fisher's hut to the water. Still without a track: the forager's hut and the woodcutter (pines between them and the roads).",
+"p"
+],
+"T8": [
+"Closer, not crowded",
+"m",
+"Space between houses, not crowded.",
+"m"
+],
+"T9": [
+"Good roads",
+"p",
+"Dirt lanes join up across the whole map, with paths onto both ends of the bridge; no cobbled High Street, no cart ruts.",
+"p"
+],
+"P1": [
+"Every lot is a button",
+"p",
+"Every building is a separate piece in depth order; not wired in the game.",
+"p"
+],
+"P2": [
+"Pale glow on empty lots",
+"c",
+"Met on the old map (overlays.py); not yet redrawn on this ground.",
+"c"
+],
+"P3": [
+"Gold glow when tapped",
+"c",
+"Met on the old map (overlays.py); not yet redrawn on this ground.",
+"c"
+],
+"P4": [
+"Build marker",
+"c",
+"Met on the old map (overlays.py); not yet redrawn on this ground.",
+"c"
+],
+"P6": [
+"Staked future lots",
+"c",
+"Met on the old map (overlays.py); not yet redrawn on this ground.",
+"c"
+],
+"P5": [
+"Dressed yards",
+"p",
+"Seven dressed yards (was one): the forager's, the farmhouse (wheelbarrow, vegetable bed), the cottage by the Hall (water butt, bench and pots; washing line), the big cottage on the High Street (woodshed), the fenced cottage (chopping block), the small cottage south of the High Street (log stack), the cottage on the cross street (water butt, bench, pots). Five cottages are still bare: two north of the High Street, the one by the square, two south of it.",
+"p"
+],
+"P7": [
+"Day one and grown",
+"c",
+"Day one and grown were shown on the old ground; the grown version is now this map, day one not yet redrawn.",
+"c"
+],
+"P8": [
+"Each tier better",
+"c",
+"Cottage A at tiers 1, 2 and 3 drawn on the old map; not placed on this one.",
+"c"
+],
+"P9": [
+"Lots easy to tell apart",
+"m",
+"Five cottage designs and every work building different.",
+"m"
+],
+"P10": [
+"Land one painting, buildings separate",
+"m",
+"One painted ground; every building and every yard prop a separate piece placed by place.py.",
+"m"
+],
+"P11": [
+"The town moves",
+"x",
+"Still.",
+"x"
+],
+"S1": [
+"Phone first, 412 px",
+"c",
+"The phone screen was built on the old map.",
+"c"
+],
+"S2": [
+"Town tab layout",
+"c",
+"The phone screen was built on the old map.",
+"c"
+],
+"S3": [
+"Picture buttons",
+"c",
+"The phone screen was built on the old map.",
+"c"
+],
+"S4": [
+"Lantern colours",
+"c",
+"The phone screen was built on the old map.",
+"c"
+],
+"S5": [
+"Board card pictures",
+"p",
+"One sample card picture from the old map's square.",
+"p"
+],
+"R1": [
+"Published page, captions from pixels",
+"m",
+"This page.",
+"m"
+],
+"R2": [
+"Scored before you see it",
+"m",
+"This list, all 55 items.",
+"m"
+],
+"R3": [
+"Joins line up",
+"m",
+"Every prop and the hut checked at 3x beside the old map: no hard edge where their earth patches meet the ground; the hut first touched the bridge's east end and was moved 4 px right, 24 px down.",
+"m"
+],
+"R4": [
+"Finished art at phone size, day one and grown",
+"p",
+"Grown map at phone size; day one not yet redrawn on this ground.",
+"p"
+],
+"R5": [
+"No easier method without asking",
+"m",
+"New pieces made in PixelLab from the map's own pieces as style anchors; nothing redrawn in another style. Rescaling the first 48 px props to fit was not done (the guide forbids it); a second call at map scale was paid instead.",
+"m"
+],
+"R6": [
+"Ask before every paid call",
+"m",
+"Morgan approved up to 45 generations for this step; 35 used (4 calls), 10 left of the cap.",
+"m"
+]
+}

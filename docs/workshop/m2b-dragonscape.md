@@ -476,3 +476,17 @@ Morgan's "Do all 3" (2026-11-17): merge #28, fix 2, then dressed yards. Page: ht
 - Measured: 8,360 px changed (0.67%), 43 outside the edit boxes (the brush's blur at one path's start, under steps). Brightness 51, saturation 0.39, edge share 0.237, unchanged.
 - Scored (`docs/workshop/pages/result3_scores.json`): 28 met, 16 partly, 1 missed, 10 carried. T3 up to met. T7 stays partly: the forager's hut and the woodcutter have no track (pines between them and the roads). M10 not moved: the far bank by the bridge is about 65 px wide, the hut 116 px.
 - PixelLab refused the session's key on 2026-11-18 ("401: Invalid API token", on `create_object_pro_flash` and `get_balance`), so paid work (a board object, dressed yards) waits for the key.
+
+## Target map: dressed yards and the fisher's hut (2026-11-18)
+
+Morgan's "Do all 3" (2026-11-17), third step: dressed yards (P5), at about 35 to 45 generations (Claude's estimate), hard cap 45; plus a smaller fisher's hut for the far bank (M10). Files: `art/handoff_chatgpt/yards/` (`gen.py` and `hut.py` call PixelLab, `props.py` cleans, `yards.py` writes `result_4_graded.png` and `result_4_grown.png` through `place.py`, `rescore.py`, `build_page.py`, sources in `SOURCES.md`). The PixelLab key worked through the network proxy on PixelLab's MCP HTTP endpoint (balance 1,265 before, 1,230 after).
+
+- Style anchors: crops of the map's own PixelLab pieces (the farmhouse's hay bale, the fisher's nets and barrels, a stall's crates, a cottage's water butt), 48 px and 28 px.
+- Call 1 (`create_image_pro_from_style`, 48 px, 25 candidates, 10): six kinds of single prop, but each filled the canvas, twice the map's scale (a barrel 36 px tall, the map's about 18). Not used; rescaling was not done (guide).
+- Call 2 (28 px, 64 candidates, 10): map scale, but all 64 were woodpiles; the woodshed and a log stack used. The 28 px candidates carry slivers of their neighbours at the edges; `props.py` keeps the largest part.
+- Call 3 (48 px, 25 candidates, 10): "a small cluster of yard props drawn at small scale" gave five kinds at map scale (water butt with bench and pots, washing line, vegetable bed in wattle, chopping block, wheelbarrow); six used.
+- Call 4 (`create_object_pro_flash`, 64 × 64, 1 direction, 5): the fisher's hut, styled on the old hut; first try used.
+- Placed: the cottage by the Hall (water butt, bench, pots; washing line), the farmhouse (wheelbarrow by the barn; vegetable bed), the big cottage on the High Street (woodshed), the fenced cottage (chopping block), the small cottage south of the High Street (log stack), the cottage on the cross street (water butt, bench, pots). The fisher's hut moved to the far bank between the river and the backwater (1266, 646), with a worn track to the water; the old 128 px hut is out of the building list, which also removes its jetty and boat. First placement touched the bridge's east end; moved 4 px right, 24 down.
+- Checked every yard and the hut at 3x beside the old map. Measured: 25,004 px changed (2.0%), none outside the edit boxes; brightness 51, saturation 0.39, edge share 0.237, unchanged.
+- Scored (`docs/workshop/pages/result4_scores.json`): 28 met, 16 partly, 1 missed, 10 carried, no status change. P5 stays partly (7 dressed yards, 5 cottages bare in narrow yards); M10 stays partly (far bank now, no jetty).
+- 35 generations used, 10 left of the cap.

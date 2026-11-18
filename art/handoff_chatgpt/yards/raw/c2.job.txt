@@ -1,0 +1,20 @@
+tool: create_image_pro_from_style
+job: 015d800b-45d2-49d8-a064-3169f1085340
+description: one small cottage yard prop on its own: either a wooden water butt barrel, a small stacked woodpile of split logs, a short wooden garden bench, clay flower pots with red flowers, a chopping block with an axe, a small wooden crate of vegetables, or a stone doorstep slab
+receipt:
+id: 015d800b-45d2-49d8-a064-3169f1085340
+job_id: 015d800b-45d2-49d8-a064-3169f1085340
+model: pro from style
+description: one small cottage yard prop on its own: either a wooden water butt barrel, a small stacked woodpile of split logs, a short wooden garden bench, clay flower pots with red flowers, a chopping block with an axe, a small wooden crate of vegetables, or a stone doorstep slab
+style images: 4
+size: 28x28px
+transparent: True
+candidates: 64
+style description: dark moody dusk pixel art, high top-down three-quarter view, dark single-colour outline, medium shading, muted greens, browns and slate greys
+asset_id: 1103eff6-1b0f-512a-8d77-42c47ad284e7
+asset_status: pending (saved when generation completes)
+cost: 10 generations
+status: processing (~1-10 min)
+
+hint: get_image(job_id="015d800b-45d2-49d8-a064-3169f1085340")
+without get_image: GET https://api.pixellab.ai/mcp/images/015d800b-45d2-49d8-a064-3169f1085340/download (423 + Retry-After until ready; ?index=N for the Nth of several images)
