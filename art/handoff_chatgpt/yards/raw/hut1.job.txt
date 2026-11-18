@@ -1,0 +1,21 @@
+tool: create_object_pro_flash
+object: 0a0d076f-9508-4225-bc89-4911ff7f02f1
+background_job: ff30827b-58d7-4053-9a9d-7612a02bb73a
+downloaded: the object's rotations/unknown.png URL from get_object
+seed: 7
+description: a small weathered wooden fisherman's hut with a steep slate roof patched with moss, a stone chimney, one warm lit window, a wooden door, a lantern on a post, fishing nets drying on a pole frame and a barrel beside it, standing on a small patch of grass
+receipt:
+{
+  "background_job_id": "ff30827b-58d7-4053-9a9d-7612a02bb73a",
+  "object_id": "0a0d076f-9508-4225-bc89-4911ff7f02f1",
+  "status": "processing",
+  "first_direction_generated": true,
+  "estimated_generations": 5,
+  "job_id": "ff30827b-58d7-4053-9a9d-7612a02bb73a",
+  "n_directions": 1,
+  "poll_tool": "get_object",
+  "status_path": "/v2/background-jobs/ff30827b-58d7-4053-9a9d-7612a02bb73a",
+  "download_path": "/mcp/objects/0a0d076f-9508-4225-bc89-4911ff7f02f1/download"
+}
+id: 0a0d076f-9508-4225-bc89-4911ff7f02f1
+Poll get_object(object_id="0a0d076f-9508-4225-bc89-4911ff7f02f1") or /v2/background-jobs/ff30827b-58d7-4053-9a9d-7612a02bb73a; wait for the outer job to complete before downloading or animating. First-direction generation is included; actual image and rotation usage is itemized as billing_stages on the job record at the status path above (REST, not shown by the get_* tools) — get_balance before and after gives the total.
