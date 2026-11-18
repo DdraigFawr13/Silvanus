@@ -34,7 +34,7 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 5. Morgan's phone check of M2d S1: tap Build, pick Workshop on a forest-edge lot (+25%); the Woodcutter's camp goes to the forest site; his old town opens laid out on plots (a Village opens as many lots as it has buildings, the rest are cleared from the Tangle in S2). Record his answer in his words.
 6. M2c phone checks (record in his words): S1, the four checks in the spec's S1 section; S2, tap a building (its sheet, gold ring), an empty lot or site (build sheet), a build under way (3 s note), the Hall (its row).
 7. The repo has auto-merge off: merge by hand once the ready CI run is green, and do not push and mark ready within the same few seconds.
-8. Phobos (D-054): nothing to build here yet. Phobos tunes content offline after M2e ships and opens normal PRs; a net enters `packages/sim` only after it beats the rule it replaces.
+8. Phobos (D-054): nothing to build here yet. Phobos does the Vulcan bench first and Silvanus after its verdict (Phobos D-019 to D-021, 2026-11-18); then it tunes content offline and opens normal PRs; a net enters `packages/sim` only after it beats the rule it replaces.
 9. Factions planning (D-054): round 1 answered 2026-11-14 (5 factions, one standing each, off-screen wars, none fall, a drawn map with pins, plain rules first, one clan in M3; ways and success test left open). Review and round 2 (`factions-review1`) published, reviewer $0.57 measured. Next: read it with one `ArtifactData` list when Morgan says "factions review done", then the final page. Planning only; M2e stays next for building.
 
 ## Open questions
