@@ -55,6 +55,12 @@ How Claude works with PixelLab for Silvanus, so every new piece matches the anch
 - A fully blank window with a whole-map context draws a small copy of the map: keep the context to about 512 px round the window.
 - Check each join at 3x and measure brightness either side before reporting (LESSONS 2026-11-16).
 
+## Props at map scale (tested 2026-11-18)
+
+- `create_image_pro_from_style` is the cheap way to many props: 10 generations a call for 25 candidates at 43-50 px or 64 at 16-32 px. The subject fills the canvas, so a "one prop" prompt at 48 px draws it at twice the map's scale; ask for "a small cluster of props drawn at small scale" on 48 px instead. On 28 px an "either A or B" list gave 64 copies of A, with slivers of neighbours at the edges.
+- Style anchors: crops of the map's own PixelLab pieces that show the material (barrels, crates, nets), at the canvas size you want.
+- `create_object_pro_flash`: `get_object` lists the finished PNG under "rotations"; download it from that URL.
+
 ## Open, not yet tested
 
 - Whether trial accounts can use the pro-flash object tool and `create_image_pro_from_style` (only pro tilesets say "not a trial").
