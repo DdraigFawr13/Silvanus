@@ -66,6 +66,9 @@ function nextTierLine(state: State, building: Building): ReactNode {
 // The map's place while its chunk loads: the window (the whole map's height at 1x) and the zoom row.
 const mapHeight = () => MAP_H / (window.devicePixelRatio || 1) + ZOOM_ROW_CSS;
 
+// Set when the map's chunk failed to load in this page.
+let chunkFailed = false;
+
 // If the map's code or art fails to load, the rest of the tab still works (M2c J8).
 class MapBoundary extends Component<
   { onRetry: () => void; children: ReactNode },
@@ -105,9 +108,21 @@ export function TownTab({
   hidden?: boolean;
 }) {
   const [open, setOpen] = useState<Open>(null);
-  // a new lazy component for each attempt, so Retry imports the chunk again
+  // a new lazy component for each attempt, so Retry after failed art loads the view again
   const [attempt, setAttempt] = useState(0);
-  const TownView = useMemo(() => lazy(() => import('../town/TownView')), [attempt]);
+  const TownView = useMemo(
+    () =>
+      lazy(() =>
+        import('../town/TownView').catch((error: unknown) => {
+          chunkFailed = true;
+          throw error;
+        }),
+      ),
+    [attempt],
+  );
+  // Chromium keeps a failed dynamic import in its module map, so importing the same chunk again
+  // fails again: after a failed chunk, Retry reloads the page (the town is saved on `pagehide`).
+  const retry = () => (chunkFailed ? window.location.reload() : setAttempt((n) => n + 1));
   const away = useSyncExternalStore(subscribe, summary);
   const hall = hallOf(state, content);
   const emptyLots = Math.max(0, hall.lots - state.buildings.length);
@@ -128,7 +143,7 @@ export function TownTab({
   return (
     <div hidden={hidden}>
       {away && <AwayCard state={state} summary={away} onDismiss={dismissSummary} />}
-      <MapBoundary key={attempt} onRetry={() => setAttempt((n) => n + 1)}>
+      <MapBoundary key={attempt} onRetry={retry}>
         <Suspense fallback={<div className="town-view-wait" style={{ height: mapHeight() }} />}>
           <TownView state={state} hidden={hidden} />
         </Suspense>

@@ -153,6 +153,8 @@ test('the view uses its own random numbers', () => {
     eager: true,
   });
   const files = Object.keys(sources);
+  // an empty or wrong folder must fail, not pass with nothing checked
+  expect(files.length).toBeGreaterThanOrEqual(5);
   const allowed = new Set(['kindOf', 'hallOf', 'capsOf', 'onTrip']);
   for (const file of files) {
     const text = sources[file];

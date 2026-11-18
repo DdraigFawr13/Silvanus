@@ -61,25 +61,46 @@ test('zoom keeps the centre and the pixels crisp', async ({ page }) => {
   const pixels = await page.evaluate(() => {
     const box = document.querySelector<HTMLElement>('[data-testid=town-scroll]')!;
     const c = box.querySelector('canvas')!;
-    const css = c.getBoundingClientRect().width;
-    // an art pixel's corner: device x and y where (scroll + x) is a multiple of the zoom (2)
-    const sx = Math.round(box.scrollLeft * devicePixelRatio);
-    const sy = Math.round(box.scrollTop * devicePixelRatio);
-    const blocks: number[][] = [];
-    for (const [px, py] of [
-      [301, 203],
-      [520, 401],
-      [777, 612],
-    ]) {
-      const x = px + ((sx + px) % 2);
+    const dpr = devicePixelRatio;
+    // three bands two device rows tall, across the whole canvas, each starting on an art pixel's
+    // corner: (scroll + x) a multiple of the zoom (2)
+    const sx = Math.round(box.scrollLeft * dpr);
+    const sy = Math.round(box.scrollTop * dpr);
+    const x0 = sx % 2 ? 1 : 0;
+    let blocks = 0;
+    let mixed = 0;
+    let edges = 0;
+    for (const py of [203, 401, 612]) {
       const y = py + ((sy + py) % 2);
-      const d = c.getContext('2d')!.getImageData(x, y, 2, 2).data;
-      blocks.push([0, 4, 8, 12].map((i) => (d[i] << 16) | (d[i + 1] << 8) | d[i + 2]));
+      const w = c.width - x0 - ((c.width - x0) % 2);
+      const d = c.getContext('2d')!.getImageData(x0, y, w, 2).data;
+      const at = (x: number, row: number) => {
+        const i = (row * w + x) * 4;
+        return (d[i] << 16) | (d[i + 1] << 8) | d[i + 2];
+      };
+      for (let x = 0; x < w; x += 2) {
+        const block = new Set([at(x, 0), at(x + 1, 0), at(x, 1), at(x + 1, 1)]);
+        blocks++;
+        if (block.size > 1) mixed++;
+        if (x > 0 && at(x, 0) !== at(x - 1, 0)) edges++;
+      }
     }
-    return { width: c.width, expected: Math.round(css * devicePixelRatio), blocks };
+    return {
+      width: c.width,
+      cssTimesDpr: c.getBoundingClientRect().width * dpr,
+      window: box.clientWidth * dpr,
+      blocks,
+      mixed,
+      edges,
+    };
   });
-  expect(pixels.width).toBe(pixels.expected);
-  for (const block of pixels.blocks) expect(new Set(block).size).toBe(1);
+  // the backing size is the CSS size times dpr (the browser does not scale it) and covers the window
+  expect(Math.abs(pixels.width - pixels.cssTimesDpr)).toBeLessThan(0.01);
+  expect(pixels.width).toBeGreaterThanOrEqual(pixels.window);
+  // every art pixel is a 2 x 2 block of one colour, and the bands are not flat (many colour edges)
+  expect(pixels.blocks).toBeGreaterThan(1500);
+  expect(pixels.mixed).toBe(0);
+  expect(pixels.edges).toBeGreaterThan(300);
 });
 
 test('the map keeps its place across tabs', async ({ page }) => {
@@ -175,4 +196,15 @@ test.describe('installed', () => {
     expect(pixel[3]).toBe(255);
     expect(pixel.slice(0, 3)).not.toEqual([0x16, 0x21, 0x20]);
   });
+});
+
+test('Retry loads the map after its code failed to load', async ({ page }) => {
+  await page.route('**/assets/TownView-*.js', (route) => route.abort());
+  await page.goto('/?tickMs=60000');
+  const error = page.getByTestId('town-view-error');
+  await expect(error).toContainText('The map could not load.');
+  await page.unrouteAll();
+  await error.getByRole('button', { name: 'Retry' }).click();
+  await view(page);
+  await expect(error).toHaveCount(0);
 });

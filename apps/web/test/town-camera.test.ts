@@ -7,7 +7,7 @@ const WIN = { w: 412, h: windowHeight(DPR) };
 const HALL = { x: 897, y: 186 }; // hall_fixed.png, 216 x 224, at 789, 74
 
 test('zoom steps, clamping and whole device pixels', () => {
-  // the window shows 1082, 541 and 360 art px of the width (spec, Terms)
+  // the window shows 1082, 541 and 360.7 art px of the width (spec, Terms); 361 are drawn at 3x
   for (const [zoom, shown] of [
     [1, 1082],
     [2, 541],
@@ -54,7 +54,8 @@ test('zoom steps, clamping and whole device pixels', () => {
   const mid = centreOn({ x: 700, y: 450 }, WIN, 2, DPR);
   for (const to of [1, 2, 3]) {
     const point = centreOf(rezoom(mid, WIN, 2, to, DPR), WIN, to, DPR);
-    if (to > 1) expect(Math.abs(point.x - 700)).toBeLessThan(1);
-    if (to > 1) expect(Math.abs(point.y - 450)).toBeLessThan(1);
+    expect(Math.abs(point.x - 700)).toBeLessThan(1);
+    // at 1x the window is the whole map's height, so the centre's height is clamped to its middle
+    expect(Math.abs(point.y - (to === 1 ? 444 : 450))).toBeLessThan(1);
   }
 });

@@ -5,7 +5,7 @@ import type { State } from '@silvanus/sim';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import groundUrl from './art/ground.webp';
 import piecesUrl from './art/pieces.png';
-import { camera, centreOn, mapCss, rezoom, windowHeight } from './camera';
+import { camera, centreOf, centreOn, mapCss, windowHeight } from './camera';
 import type { Size } from './camera';
 import { emptyMemory, scene } from './layout';
 import type { Item } from './layout';
@@ -34,8 +34,10 @@ function loadArt(): Promise<Art> {
   return artPromise;
 }
 
-// Kept across tab switches and remounts: a `display: none` box loses its scroll offset.
-const place: { zoom: Zoom; scroll: Point | null } = { zoom: 1, scroll: null };
+// Kept across tab switches, remounts and resizes: the zoom step and the art point at the window's
+// centre (a `display: none` box loses its scroll offset, and a CSS-px offset means another point
+// once the window's size changes).
+const place: { zoom: Zoom; centre: Point | null } = { zoom: 1, centre: null };
 
 function draw(
   canvas: HTMLCanvasElement,
@@ -97,20 +99,27 @@ export default function TownView({ state, hidden }: { state: State; hidden: bool
   useLayoutEffect(() => {
     const el = box.current;
     if (!el) return;
-    const measure = () => setWin({ w: el.clientWidth, h: el.clientHeight });
+    const measure = () =>
+      setWin((old) =>
+        old.w === el.clientWidth && old.h === el.clientHeight
+          ? old
+          : { w: el.clientWidth, h: el.clientHeight },
+      );
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
-  // Place the scroll: the Hall at the centre the first time the window has a size, else where it was.
+  // Place the scroll: the Hall at the centre the first time the window has a size, else the point
+  // that was at the centre; then keep the point the clamped scroll really centres.
   useLayoutEffect(() => {
     const el = box.current;
     if (!el || hidden || win.w === 0) return;
-    place.scroll ??= centreOn(centre(boxOf('hall')), win, zoom, dpr);
-    el.scrollLeft = place.scroll.x;
-    el.scrollTop = place.scroll.y;
+    const scroll = centreOn(place.centre ?? centre(boxOf('hall')), win, zoom, dpr);
+    el.scrollLeft = scroll.x;
+    el.scrollTop = scroll.y;
+    place.centre = centreOf({ x: el.scrollLeft, y: el.scrollTop }, win, zoom, dpr);
   }, [hidden, win, zoom, dpr]);
 
   const redraw = () => {
@@ -122,14 +131,15 @@ export default function TownView({ state, hidden }: { state: State; hidden: bool
 
   const onScroll = () => {
     const el = box.current;
-    if (!el || hidden) return;
-    place.scroll = { x: el.scrollLeft, y: el.scrollTop };
+    if (!el || hidden || win.w === 0) return;
+    place.centre = centreOf({ x: el.scrollLeft, y: el.scrollTop }, win, zoom, dpr);
     redraw();
   };
   const pick = (next: Zoom) => {
     const el = box.current;
     if (next === zoom || !el) return;
-    place.scroll = rezoom({ x: el.scrollLeft, y: el.scrollTop }, win, zoom, next, dpr);
+    // the centre point stays; the layout effect scrolls the new spacer to it
+    place.centre = centreOf({ x: el.scrollLeft, y: el.scrollTop }, win, zoom, dpr);
     place.zoom = next;
     setZoom(next);
   };
