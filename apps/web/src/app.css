@@ -818,3 +818,90 @@ p {
   font-size: 0.875rem;
   color: var(--muted);
 }
+
+/* The town map (M2c S1, approved mock-up mockups/m2c-s1-map.html): edge to edge under the stock bar, a
+   window as tall as the whole map at 1x, the zoom row under it. */
+.town-view,
+.town-view-wait,
+.town-view-error {
+  margin: -10px -14px 0;
+}
+
+.town-scroll {
+  /* the height set inline is the map's at 1x; the border sits outside it, so nothing scrolls down at 1x */
+  box-sizing: content-box;
+  overflow: auto;
+  scrollbar-width: none;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+
+.town-scroll.flat {
+  overflow-y: hidden;
+}
+
+.town-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.town-spacer {
+  position: relative;
+}
+
+.town-pin {
+  position: sticky;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+}
+
+.town-pin canvas {
+  display: block;
+}
+
+.zoom-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--gap);
+  padding: 6px 14px 0;
+  margin-bottom: 10px;
+}
+
+.zoom-label {
+  margin-right: auto;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.zoom-seg {
+  display: flex;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r);
+  background: var(--panel);
+}
+
+.zoom-seg button {
+  min-width: 52px;
+  height: 44px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.zoom-seg button[aria-pressed='true'] {
+  background: var(--line-strong);
+  color: var(--head);
+}
+
+.town-view-error {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
