@@ -20,10 +20,9 @@ M2 re-planned on 2026-11-14 (D-035 to D-038; PR #13, which also synced AI-Master
 
 ## Just done
 
-- 2026-11-18 Coordinator mode (Morgan: "You will be my coordinator so I want you to start slices in new sessions"): this session starts slices in new cloud sessions, up to 2 at a time, and alone edits HANDOFF. Running: M2c Town view spec (session_01Dr9VTtFYJ4tjVd7Vwtzw8R, branch `claude/m2c-spec`) and M2d Ceiling and lots spec (session_01Dr9VTtuan263y1go3sMNfG, branch `claude/m2d-spec`); each stops at a draft PR and a review page for Morgan.
+- 2026-11-18 Coordinator mode (Morgan: "You will be my coordinator so I want you to start slices in new sessions"): this session starts slices in new cloud sessions, up to 2 at a time, and alone edits HANDOFF. Running: M2c Town view spec (session_01Dr9VTtFYJ4tjVd7Vwtzw8R, branch `claude/m2c-spec`) and M2d Ceiling and lots spec (session_01Dr9VTtuan263y1go3sMNfG, branch `claude/m2d-spec`); each stops at a draft PR and a page for Morgan.
 - 2026-11-18 M2b art fix 2 (free, 0 generations): a notice board in the square, the loose slabs gone, paths to seven doors (`art/handoff_chatgpt/fix2/fix2.py`, output `result_3_grown.png`). Scored: 28 met, 16 partly, 1 missed, 10 carried (T3 up; T7 partly: forager and woodcutter have no track; M10 not moved, the hut is too wide for the far bank). Page: https://claude.ai/artifact/NqwZexeouZd58ZWXKraaRk. PixelLab refused the key ("401: Invalid API token").
 - 2026-11-18 Branch check (GIT-06): no open PRs. `m2b-art-requirements`, `ccr-3cb7963f-ygkxs2`, `m2b-art-workshop` hold nothing main lacks; `codex/art-polish` (PR #24, closed unmerged) repaired the stage B map that D-055 replaced. All four can be deleted with Morgan's OK.
-- 2026-11-17 M2b art fix 1 (PR #28): the Hall's walkway into the square; rescore 27 met, 17 partly, 1 missed, 10 carried (`result2_scores.json`, https://claude.ai/artifact/TJtHoaNKavepToWf6KrXJB).
 - Earlier entries are in `docs/archive/handoff-2026-11.md`.
 
 ## Next
